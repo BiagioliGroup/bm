@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="setu_report_extended_inherit_report_purchaseorder_document"
+                  inherit_id="purchase.report_purchaseorder_document">
+            <xpath expr="//th[@name='th_description']" position="before">
+                <th name="th_serial_number">
+                    <strong>Sr.no</strong>
+                </th>
+            </xpath>
+            <xpath expr="//tbody/t/tr/t/td[1]" position="before">
+                <td class="text-center">
+                    <span t-field="line.serial_number"/>
+                </td>
+            </xpath>
+        </template>
+
+        <template id="setu_report_extended_inherit_report_purchasequotation_document"
+                  inherit_id="purchase.report_purchasequotation_document">
+            <xpath expr="//th[@name='th_description']" position="before">
+                <th name="th_serial_number">
+                    <strong>Sr.no</strong>
+                </th>
+            </xpath>
+            <xpath expr="//tbody/t/tr/t/td[1]" position="before">
+                <td class="text-center">
+                    <span t-field="order_line.serial_number"/>
+                </td>
+            </xpath>
+        </template>
+    </data>
+</odoo>

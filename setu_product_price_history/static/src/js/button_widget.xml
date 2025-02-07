@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="setu_product_price_history.buttonWidget">
+        <div t-on-click="onClick">
+            <i t-if="props.name == 'product_sale_id_reference'" class="fa fa-exclamation-circle" title="Show Sale Product Price History"/>
+            <i t-else="" class="fa fa-pinterest-p" title="Show Purchase Product Price History"/>
+        </div>
+    </t>
+</templates>

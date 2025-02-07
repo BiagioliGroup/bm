@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="setu_product_price_history_inherited_sale_view_order_form" model="ir.ui.view">
+            <field name="name">setu_product_price_history_inherited_sale_view_order_form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']/list/field[@name='price_unit']"
+                       position="before">
+                    <field name="previous_unit_price"/>
+                    <field name="product_sale_id_reference" widget="smartButtonWidget" string=""
+                           icon="fa fa-info-circle" iconstring="Sale History" method="show_product_sale_lines"/>
+                    <field name="product_purchase_id_reference" widget="smartButtonWidget" string=""
+                           icon="fa fa-pinterest-p" iconstring="Purchase History" method="show_product_purchase_lines"/>
+                </xpath>
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']/list/field[@name='product_uom']"
+                       position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="setu_view_order_line_tree" model="ir.ui.view">
+            <field name="name">setu.sale.order.line.tree</field>
+            <field name="model">sale.order.line</field>
+            <field name="arch" type="xml">
+                <list string="Sales Order Lines" create="false">
+                    <field name="date_order"/>
+                    <field name="order_partner_id"/>
+                    <field name="order_id"/>
+                    <field name="product_uom_qty"/>
+                    <field name="price_unit"/>
+                    <field name="price_subtotal" sum="Total" widget="monetary"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

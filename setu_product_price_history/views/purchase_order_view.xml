@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="setu_sa_purchase_extended_inherit_purchase_order_form">
+        <field name="name">setu.sa.purchase.extended.inherit.purchase.order.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list/field[@name='sequence']" position="after">
+                <field name="serial_number" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

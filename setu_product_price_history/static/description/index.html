@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Product Price History in Sales & Purchase | Setu Consutling Services Pvt. Ltd.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://www.setuconsulting.com/css/fonts.css" rel="stylesheet">
+    <link href="https://www.setuconsulting.com/css/plugins.css" rel="stylesheet">
+    <!-- <link href="https://www.setuconsulting.com/css/style.css" rel="stylesheet"> -->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<!-- odoo description page css -->
+<style>
+    h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5,
+    .h6 {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #21272b;
+    }
+
+    ul {
+        color: #222020;
+    }
+
+    * {
+        font-family: "Montserrat", sans-serif;
+    }
+</style>
+<script type="text/javascript">
+    $(function() {
+        $('.pop').on('click', function() {
+            $('.imagepreview').attr('src', $(this).find('img').attr('src'));
+            $('#imagemodal').modal('show');
+        });
+});
+</script>
+<body>
+<div class="container">
+    <!-- Header -->
+    <section class="index-banner shadow-sm position-relative mt40"
+             style="border-top:4px solid #37bbf9; border-radius: 10px;">
+        <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/1-background.jpg"
+             style="border-radius: 10px;"/>
+        <div class="container p-md-4 p-4 position-relative">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center text-md-left">
+                    <img src="images/odoo_images/setu.png" alt="Setu Consulting Services Pvt. Ltd."
+                         title="Setu Consulting Services Pvt. Ltd." class="img img-fluid">
+                </div>
+                <div class="col-md-4 text-center" style="margin-left: auto; padding-right: 10px; padding-left: 10px;">
+                    <img src="images/odoo15.png" width="80px" alt="Odoo 15 Certified" title="Odoo 15 Certified">
+                    <img src="images/odoo16.png" width="80px" alt="Odoo 16 Certified" title="Odoo 16 Certified">
+                    <img src="images/odoo17.png" width="80px" alt="Odoo 16 Certified" title="Odoo 17 Certified">
+                </div>
+                <div class="col-md-2 text-center text-md-left"
+                     style="margin-left: auto;padding-right: 10px; padding-left: 10px;">
+                    <h6 style="font-size:18px;margin:10px 0">
+                        <span class="btn btn-danger w-md-100 w-auto"
+                              style="color:#ffffff; background-color:#f62943; border-radius:0.5rem;"><i
+                                class="fa fa-check"></i> Community </span>
+                    </h6>
+                </div>
+                <div class="col-md-2 text-center text-md-left" style="padding-right: 10px; padding-left: 10px;">
+                    <h6 style="font-size:18px;margin:10px 0">
+                        <span class="btn btn-warning w-md-100 w-auto"
+                              style="color:#ffffff; background-color:#dab000; border-radius:0.5rem;"><i
+                                class="fa fa-check"></i> Enterprise </span>
+                    </h6>
+                </div>
+                <div class="col-md-2 text-center text-md-left" style="padding-right: 10px; padding-left: 10px;">
+                    <h6 style="font-size:18px;margin:10px 0">
+                        <span class="btn btn-success w-md-100 w-auto"
+                              style="color:#ffffff; background-color:#00c157; border-radius:0.5rem;"><i
+                                class="fa fa-check"></i> Odoo.sh</span>
+                    </h6>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="col-lg-12 col-md-12">
+        <!-- Title START -->
+        <div class="container p-4 position-relative">
+            <div class="row align-items-center">
+                <div class="row align-items-center">
+                    <div class="col-md-12 text-center text-md-left"
+                         style="margin-left: auto;padding-right: 10px; padding-left: 10px;">
+                        <h6 style="font-size:18px;">
+                            <span class="btn btn-primary" style="color:#ffffff; font-size: 38px; font-weight: bold; background-color:#0298FF; border-radius:0.5rem;">
+                                Product Price History in Sales & Purchase
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="index-banner shadow-sm position-relative"
+                 style="border-top:4px solid #37bbf9; border-radius: 10px; margin-top: 15px;">
+            <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/1-background.jpg"
+                 style="border-radius: 10px;"/>
+            <div class="container p-md-3 p-4 position-relative">
+                <p style="font-size: 18px; letter-spacing: 0.2px; text-align: justify;" class="px-sm-4 p-2">
+                    Unlock smarter, faster, and more profitable pricing decisions every time you buy or sell. The Setu Product Price History Application integrates seamlessly into your workflow, providing instant access to past purchase and sales order details without saving the record. From historical purchase prices to previous sales trends, this application empowers businesses to make informed decisions that drive profitability and efficiency.
+                </p>
+                <p style="font-size: 18px; letter-spacing: 0.2px; text-align: justify;" class="px-sm-4 p-2">
+                    Whether you’re creating a new purchase order or a sales order, the information you need is at your fingertips, eliminating guesswork and streamlining operations. You no longer need to save the record to check the last price, you can see the real-time price history by clicking on the icon at the time of purchase and sales record creation.
+                </p>
+            </div>
+        </section>
+    </div>
+    <!-- Key Features - START -->
+    <div class="container mt-4">
+        <span class="badge badge-pill badge-light"
+              style="color:#000000; font-size: 32px; font-weight: bold; background-color:#ffffff; border-radius:0.5rem; padding:1rem;">KEY FEATURES
+        </span>
+    </div>
+    <section class="index-banner shadow-sm position-relative mt40" style="border-top:4px solid #37bbf9; border-radius: 10px;">
+        <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/5-background.jpg" style="border-radius: 10px; opacity:0.1" />
+        <div class="container p-md-3 p-4 position-relative">
+            <!-- KEY FEATURES START -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row text-left">
+                        <div class="col-lg-12">
+                            <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center;display: inline-flex; border-radius: 10px; width: 100%">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 22px;line-height: 1.455;font-weight: 600;color: #1e266d;">Make Data-Driven Sales Decisions & Eliminate Pricing Errors</h5>
+                                        <ul class="list-unstyled pl-0" style="font-size:15px;">
+                                            <li class="mb-4 mt-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Access Comprehensive Sales History:</b> Instantly view all past sales orders, including quantities, prices, and customer trends.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Understand Product Margins:</b> Get access to relevant purchase details like unit costs and quantities for accurate margin analysis.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Set Profitable Prices with Confidence:</b> Use historical sales data to determine competitive and profitable pricing strategies.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Auto-Display of Last Sales Price:</b> The last sales price appears directly in the Sale order form for quick reference and decision-making.
+                                            </li>
+                                        </font>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center;display: inline-flex; border-radius: 10px; width: 100%">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 22px;line-height: 1.455;font-weight: 600;color: #1e266d;">Optimize Purchase Decision-Making with Instant Purchase History Access</h5>
+                                        <ul class="list-unstyled pl-0" style="font-size:15px;">
+                                            <li class="mb-4 mt-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Review Past Purchase Orders with Ease:</b> View all previous purchase orders, including supplier details, quantities, and prices paid.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Auto-Display of Last Purchase Price:</b> The last purchase price appears directly in the purchase order form for quick reference and decision-making.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Identify Supplier Trends:</b> Analyze supplier performance and negotiate better deals based on historical data.
+                                            </li>
+                                        </font>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center;display: inline-flex; border-radius: 10px; width: 100%">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 22px;line-height: 1.455;font-weight: 600;color: #1e266d;">Optimize Purchase Decision-Making with Instant Purchase History Access</h5>
+                                        <ul class="list-unstyled pl-0" style="font-size:15px;">
+                                            <li class="mb-4 mt-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Review Past Purchase Orders with Ease:</b> View all previous purchase orders, including supplier details, quantities, and prices paid.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Auto-Display of Last Purchase Price:</b> The last purchase price appears directly in the purchase order form for quick reference and decision-making.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Identify Supplier Trends:</b> Analyze supplier performance and negotiate better deals based on historical data.
+                                            </li>
+                                        </font>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center;display: inline-flex; border-radius: 10px; width: 100%">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 22px;line-height: 1.455;font-weight: 600;color: #1e266d;">Streamline Workflow and Enhance Operational Efficiency</h5>
+                                        <ul class="list-unstyled pl-0" style="font-size:15px;">
+                                            <li class="mb-4 mt-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Integrated Price History View:</b> Access all price history directly within sales and purchase order forms without switching screens.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Compare Trends in Real-Time:</b> Analyze past and current trends to optimize margins and reduce costs.
+                                            </li>
+                                            <li class="mb-4" style="list-style: none"><img src="images/forward-arrow.svg" alt="arrow" style="width:15px;margin-right:10px">
+                                                <b>Improved Team Collaboration:</b> Provide teams with seamless access to historical pricing data directly in the order forms for better decision-making and coordination.
+                                            </li>
+                                        </font>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="index-banner shadow-sm position-relative mt40" style="border-top:4px solid #37bbf9; border-radius: 10px;">
+        <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/5-background.jpg" style="border-radius: 10px; opacity:0.1" />
+        <div class="container p-md-3 p-4 position-relative">
+            <!-- KEY FEATURES START -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h5 style="font-size: 22px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                        Product Price History in Sales & Purchase Price Application Enables End Users to:
+                        <div class="text-center mb-3">
+                            <img src="images/line.png" alt="Advance reordering based on ORDER POINTS" width="40%" height="40%">
+                        </div>
+                    </h5>
+                    <div class="row text-left">
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">Make data-driven pricing decisions based on historical sales and purchase data.<h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">Identify cost-saving opportunities by comparing previous purchase prices and quantities.</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">Set competitive prices using insights from past sales trends and customer preferences.</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">Negotiate better deals with vendors by analyzing purchase price history.</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                            Minimize pricing errors with easy access to past sales and purchase prices.
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                            Improve inventory management by tracking sales trends and stock levels.
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                            Increase profitability by optimizing margins based on historical data analysis.
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                            Speed up decision-making by instantly accessing relevant pricing information.
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                            Identify supplier performance to assess reliability and negotiate better terms.
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                             <div class="img_dec shadow mt-4" style="padding: 20px;align-items: center; border-radius: 10px;">
+                                <div class="sh_inner_box d-flex align-items-baseline">
+                                    <div class="sh_icon">
+                                        <span class="fa fa-hand-o-right" style="color:#1e266d; font-weight:600; font-size:18px; padding-right:10px"></span>
+                                    </div>
+                                    <div class="sh_dec">
+                                        <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                            Compare past and current trends to identify opportunities for margin improvement.
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="index-banner shadow-sm position-relative mt40"
+             style="border-top:4px solid #37bbf9; border-radius: 10px; margin-top:20px">
+        <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/5-background.jpg"
+             style="border-radius: 10px; opacity:0.1"/>
+        <div class="container p-md-3 p-4 position-relative">
+            <ul class="nav nav-tabs justify-content-center pt-1" role="tablist" data-tabs="tabs">
+                <li class="nav-item">
+                    <a href="#odoo_backup_module_tab1" class="nav-link active"
+                       style="background-color:#3187A2;border-radius:10px 10px 0 0;font-family:'Open Sans', sans-serif; font-weight:600; font-size:18px; line-height:28px; color:#FFFFFF;"
+                       role="tab" aria-selected="true"
+                       data-bs-toggle="tab">
+                        Screenshots
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active show" id="odoo_backup_module_tab1" role="tabpanel">
+                    <div class="container shadow-sm px-4">
+                        <section class="oe_container my-4">
+                            <div class="panel panel-primary">
+                                <div class="panel-body p-3">
+                                    <div style="padding:18px; background: #FFFFFF;box-shadow: 0px 0px 6px 0  rgba(0, 0, 0, 0.16);border-radius: 2px;">
+                                        <img style="width:100%" class="img-responsive border"
+                                             src="images/screenshots/Slide1.JPG"
+                                             alt="Product Purchase Sales History">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-body p-3">
+                                    <div style="padding:18px; background: #FFFFFF;box-shadow: 0px 0px 6px 0  rgba(0, 0, 0, 0.16);border-radius: 2px;">
+                                        <img style="width:100%" class="img-responsive border"
+                                             src="images/screenshots/Slide2.JPG"
+                                             alt="Product Purchase Sales History">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-body p-3">
+                                    <div style="padding:18px; background: #FFFFFF;box-shadow: 0px 0px 6px 0  rgba(0, 0, 0, 0.16);border-radius: 2px;">
+                                        <img style="width:100%" class="img-responsive border"
+                                             src="images/screenshots/Slide3.JPG"
+                                             alt="Product Purchase Sales History">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-body p-3">
+                                    <div style="padding:18px; background: #FFFFFF;box-shadow: 0px 0px 6px 0  rgba(0, 0, 0, 0.16);border-radius: 2px;">
+                                        <img style="width:100%" class="img-responsive border"
+                                             src="images/screenshots/Slide4.JPG"
+                                             alt="Product Purchase Sales History">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-body p-3">
+                                    <div style="padding:18px; background: #FFFFFF;box-shadow: 0px 0px 6px 0  rgba(0, 0, 0, 0.16);border-radius: 2px;">
+                                        <img style="width:100%" class="img-responsive border"
+                                             src="images/screenshots/Slide5.JPG"
+                                             alt="Product Purchase Sales History">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-body p-3">
+                                    <div style="padding:18px; background: #FFFFFF;box-shadow: 0px 0px 6px 0  rgba(0, 0, 0, 0.16);border-radius: 2px;">
+                                        <img style="width:100%" class="img-responsive border"
+                                             src="images/screenshots/Slide6.JPG"
+                                             alt="Product Purchase Sales History">
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ProcureMate Pro Solution START-->
+<section class="index-banner shadow-sm position-relative mt40"
+         style="border-top:4px solid #37bbf9; border-radius: 10px; margin-top: 20px;">
+    <div class="container p-md-4 p-4 position-relative">
+        <div class="col-lg-12">
+            <div class="row text-center">
+                <div class="col-lg-6">
+                    <div style="padding: 20px;width: 100%;">
+                        <div class="sh_dec">
+                            <a href="mailto:sales@procuremate.pro" target="_blank"
+                               style="color:#ffffff; font-weight:600;">
+                                <img src="images/procuremate-setu-consulting-odoo-erp-consultant.png" width="50%"
+                                     height="50%">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div style="padding: 20px;width: 100%;">
+                        <div class="w-100 w-md-75 w-lg-100 my-1 pl-3 text-nowrap text-truncate btn btn-info rounded"
+                             style="vertical-align: middle;margin-top:15px">
+                            <i class="fa fa-envelope fa-fw" style="font-size:1.2rem;"></i>
+                            <a href="mailto:sales@procuremate.pro" target="_blank"
+                               style="color:#ffffff; font-weight:600;">sales@procuremate.pro</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="img_dec shadow mt-4"
+                         style="padding: 20px;align-items: center;display: inline-flex; border-radius: 10px;">
+                        <div class="sh_inner_box d-flex align-items-baseline">
+                            <div class="sh_dec">
+                                <h5 style="font-size: 20px;line-height: 1.455;font-weight: 600;color: #1e266d;">
+                                    Revolutionizing Procurement Management with a Comprehensive Tender Management System<br>
+                                    For more details send mail on sales@procuremate.pro
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="procuremate" class="row carousel slide mt64 mb32" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/1.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/2.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/3.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/4.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/5.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/6.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/7.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/8.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/9.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/10.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:auto;">
+                    <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                        <div style="border-radius:10px" class="shadow-sm">
+                            <img class="img img-responsive center-block"
+                                 style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                 src="images/ProcureMate/11.jpg" width="100%" height="100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#procuremate" data-bs-slide="prev"
+               style="margin-left:-30px; width:35px; color:#000">
+                <span class="carousel-control-prev-icon">
+                    <i class="fa fa-arrow-circle-left" style="font-size:24px; color:#704A66"></i>
+                </span>
+            </a>
+            <a class="carousel-control-next" href="#procuremate" data-bs-slide="next"
+               style="margin-right:-30px; width:35px; color:#000">
+                <span class="carousel-control-next-icon">
+                    <i class="fa fa-arrow-circle-right" style="font-size:24px; color:#704A66"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+</section>
+<!-- ProcureMate Pro Solution END-->
+
+<!-- Contact Details START-->
+<section class="index-banner shadow-sm position-relative mt40"
+         style="border-top:4px solid #37bbf9; border-radius: 10px; margin-top: 20px;">
+    <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/1-background.jpg"
+         style="border-radius: 10px;"/>
+    <div class="container p-md-4 p-4 position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-4 text-center mb-5 mb-lg-0">
+                <div class="h3 p-2 mb-2 font-weight-bold">Contact Us</div>
+                <div class="w-100 w-md-75 w-lg-100 my-1 pl-3 text-nowrap text-truncate btn btn-info rounded">
+                    <i class="fa fa-envelope fa-fw" style="font-size:1.2rem;"></i>
+                    <a href="mailto:support@setuconsulting.com" target="_blank" style="color:#ffffff; font-weight:600;">support@setuconsulting.com</a>
+                </div>
+                <div class="w-100 w-md-75 w-lg-100 my-1 pl-3 text-nowrap text-truncate btn btn-info rounded">
+                    <i class="fa fa-skype fa-fw" style="font-size:1.2rem;"></i>
+                    <span>Skype: </span>
+                    <a href="skype:live:.cid.7abebb3d4adef53f?chat" target="_blank"
+                       style="color:#ffffff; font-weight:600;">Setu Consulting</a>
+                </div>
+                <div class="w-100 w-md-75 w-lg-100 m-auto my-1 pl-3 text-nowrap text-truncate btn-light border border-dark rounded"
+                     style="line-height: 2.4rem;">
+                    <a href="https://setuconsulting.com/contactus" target="_blank">www.setuconsulting.com</a>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4 border-left border-right" style="border-left: 10px;">
+                <div class="h3 p-2 mb-3 text-center font-weight-bold">Odoo Certified Partner</div>
+                <div class="text-left">
+                    <div class="my-3 pl-3 text-nowrap text-truncate lead text-white" data-container="body"
+                         data-toggle="popover" data-placement="top">
+                        <img src="images/odoo15.png" width="100px" alt="Odoo 15 Certified" title="Odoo 15 Certified">
+                        <img src="images/odoo16.png" width="100px" alt="Odoo 16 Certified" title="Odoo 16 Certified">
+                        <img src="images/odoo17.png" width="100px" alt="Odoo 16 Certified" title="Odoo 17 Certified">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4 mt-5 mt-lg-0">
+                <div class="h4 p-2 text-center font-weight-bold">Watch and subscribe</div>
+                <div class="text-center">
+                    <a href="https://www.youtube.com/@setuconsulting" target="_blank">
+                        <img src="images/youtube.png" width="200px">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Contact Details END-->
+
+<!-- Suggested Solution START-->
+<section class="index-banner shadow-sm position-relative mt40"
+         style="border-top:4px solid #37bbf9; border-radius: 10px; margin-top: 20px;">
+    <div class="container p-md-4 p-4 position-relative">
+        <section class="oe_container mt32">
+            <h3 style='color:#091E42; font-family:"Montserrat"; text-align:center; margin:25px auto; text-transform:uppercase'
+                class="oe_slogan">
+                <b>Suggested Solutions</b>
+            </h3>
+            <div id="demo9" class="row carousel slide mt64 mb32" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active" style="height:40%;">
+                        <a href="mailto:sales@procuremate.pro" target="_blank">
+                            <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                                <div style="border-radius:10px" class="shadow-sm">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/procurement-management-system-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_advance_reordering" target="_blank">
+                            <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                                <div style="border-radius:10px" class="shadow-sm">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/advance-reordering-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_advance_inventory_reports"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/advance-inventory-reports-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_inventory_count_management"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/inventory-count-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_cash_flow_forecasting"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/cashforecast-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_inventory_ledger_report"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/inventory-ledger-report-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_intercompany_transaction"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/inter-company-transfer-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_rfm_analysis" target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/rfm-analysis-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_rma" target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/rma-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_inventory_coverage_abc_analysis_report"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/ineventory-coverage-abc-analysis-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_inventory_coverage_report"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/inventory-coverage-analysis-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_customer_consignment"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/consignment-management-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_asset_tracking"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/asset-tracking-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_abc_analysis_reports"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/abc-sales-analysis-report-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_shopify_connector"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/odoo-shopify-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_woocommerce_connector"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/woocommerce-odoo-connector-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_wayfair_connector"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/wayfair-connector-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_sales_incentive"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/sales-incentive-commision-management-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_sales_product_performance_report"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/sales-product-perfomance-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_sales_purchase_price_tracker"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/sales-purchase-price-taker-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/setu_shipengine_integration"
+                                   target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/ship-engine-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height:40%;">
+                        <div class="col-xs-12 col-sm-4 col-md-12 mb16 mt16" style="float:left">
+                            <div style="border-radius:10px" class="shadow-sm">
+                                <a href="https://apps.odoocdn.com/apps/modules/17.0/shopon_pos_theme" target="_blank">
+                                    <img class="img img-responsive center-block"
+                                         style="border-top-left-radius:10px; border-top-right-radius:10px"
+                                         src="images/solutions_images/shop-on-pos-setu-consulting-odoo-erp-consultant.jpg"
+                                         width="100%" height="100%">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#demo9" data-bs-slide="prev"
+                   style="margin-left:-30px; width:35px; color:#000">
+                    <span class="carousel-control-prev-icon">
+                        <i class="fa fa-arrow-circle-left" style="font-size:24px; color:#704A66"></i>
+                    </span>
+                </a>
+                <a class="carousel-control-next" href="#demo9" data-bs-slide="next"
+                   style="margin-right:-30px; width:35px; color:#000">
+                    <span class="carousel-control-next-icon">
+                        <i class="fa fa-arrow-circle-right" style="font-size:24px; color:#704A66"></i>
+                    </span>
+                </a>
+            </div>
+        </section>
+    </div>
+</section>
+<!-- Suggested Solution END-->
+
+<section class="index-banner shadow-sm position-relative mt40"
+         style="border-top:4px solid #37bbf9; border-radius: 10px; margin-top: 15px;">
+    <img class="w-100 h-100 position-absolute img-fluid mb16" src="images/etc/2-background.jpg"
+         style="border-radius: 10px;"/>
+    <div class="container p-md-3 p-4 position-relative">
+        <div class="row">
+            <div class="col-sm-6 col-md-6 mt-3 px-2 text-center">
+                <div style="border-radius:10px; border-left:4px solid #5A63A6; box-shadow: 0px 2px 9px 4px #d0cecb;">
+                    <h5 class="font-weight-bold">FREE SUPPORT</h5>
+                    <p class="m-auto w-75" style="line-height: 1.5;font-weight: 100;">We will provide free support for
+                        any issues, queries, and bug fixing upto 90 days from the date of purchase of this application.
+                        <a href="mailto:support@setuconsulting.com?subject=Product Price History V18.0 - Support Request"
+                           target="_blank" class="btn btn-info mx-2 pr-sm-4 mb-2 mb-lg-0"
+                           style="text-transform: uppercase; font-size: 14px;"><i class="fa fa-envelope-square mr-sm-2"
+                                                                                  style="font-size: 20px;vertical-align: middle;"></i>
+                            <span class="d-none d-sm-inline">Request free support</span></a>
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6 mt-3 px-2 text-center">
+                <div style="border-radius:10px; border-left:4px solid #5A63A6; height: 150px; box-shadow: 0px 2px 9px 4px #d0cecb;">
+                    <h3 class="font-weight-bold">NOTE</h3>
+                    <p class="m-auto w-75" style="line-height: 1.5;font-weight: 100;">
+                        Get notified about latest update. Please drop an email when you make purchase at
+                        <a href="mailto:info@setuconsulting.com?subject=Product Price History V18.0 - New Purchase"
+                           class="btn btn-info mx-2 pr-sm-4 mb-2 mb-lg-0"
+                           style="text-transform: uppercase; font-size: 14px;"><i class="fa fa-envelope-square mr-sm-2"
+                                                                                  style="font-size: 20px;vertical-align: middle;"></i>
+                            <span class="d-none d-sm-inline">Setu Consulting</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section id="sec-visual-customization" class="row mb-5 mt-6 p-3 py-5 bg-light shadow justify-content-center"
+         style="border-radius:20px">
+    <img src="images/odoo_images/odoo-services-1.png" class="responsive"
+         style="margin:2px 2px 2px 2px; border-radius: 10px;  box-shadow: -1px 0px 10px 2px #888;"
+         alt="Setu Consulting Services Private Limited | Odoo Certified Consultant | Offical Odoo Partner"
+         title="Setu Consulting Services Private Limited | Odoo Certified Consultant | Offical Odoo Partner">
+</section>
+
+</body>
+</html>
