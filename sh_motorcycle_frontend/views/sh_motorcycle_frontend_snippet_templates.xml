@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- 
+    	INHERIT BY SOFTHELAER
+    	SNIPPET
+    -->
+
+    <template id="sh_motorcycle_snippet_tmpl_1" name="Auto Parts Snippet">
+        <section id="sh_motorcycle_snippet_section_1">
+            <div class="container">
+                <div id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width: 100%; position: relative; border: none;">
+                    <h4 class="text-center" style="display: block;">Select your vehicle</h4>
+
+
+                    <form id="id_sh_motorcycle_search_form" class="form-inline" action="/shop" method="get" style="justify-content: center !important; width: 100%; padding-right: 2%;display: flex;">
+                        <select name="type" class="form-select" id="id_sh_motorcycle_type_select" style='height: 38px;'>
+                            <option value="">Type</option>
+                        </select>
+
+                        <select name="make" class="form-select" id="id_sh_motorcycle_make_select" style='height: 38px;'>
+                            <option value="">Make</option>
+                        </select>
+
+                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style='height: 38px;'>
+                            <option value="">Model</option>
+                        </select>
+
+                        <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style='height: 38px;'>
+                            <option value="">Year</option>
+                        </select>
+
+                        <input type="hidden" id="id_input_sh_moto_categ_id" name="category" value="" />
+
+                        <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height: 38px;'>
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                        <!-- select a saved bike button -->
+
+                        <div class="cls_sh_motorcycle_snippet_login sh_garage_buttons_cls" style="margin-left: 1%;white-space:nowrap;">
+                            <a id="id_sh_motorcycle_snippet_login_to_acc_garage_link" href="/web/login" class="btn btn-secondary" role="button" style='height:38px;'>My Garage</a>
+                        </div>
+
+                        <div id="id_sh_motorcycle_snippet_select_saved_bike_dropdown" class="dropdown sh_garage_buttons_cls">
+
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                My Garage
+                            </button>
+                            <div id="id_sh_motorcycle_snippet_select_saved_bike_div" class="dropdown-menu" aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
+                                <a class="dropdown-item" href="#">Action</a>
+                                <a class="dropdown-item" href="#">Another action</a>
+                                <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- 
+    	INHERIT BY SOFTHELAER
+    	SNIPPET OPTIONS
+    -->
+
+    <template id="sh_motorcycle_snippet_website_snippets" inherit_id="website.snippets" name="Motorcycle Website Snippets">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <!-- Motorcycle snippet 1 -->
+            <snippets>
+                <t t-snippet="sh_motorcycle_frontend.sh_motorcycle_snippet_tmpl_1" t-thumbnail="/sh_motorcycle_frontend/static/src/img/block/h_block_1.png" />
+            </snippets>
+        </xpath>
+    </template>
+
+    <template id="sh_motorcycle_snippet_snippet_options" inherit_id="website.snippet_options">
+        <xpath expr="//div" position="after">
+            <!-- eCommerce Categories -->
+            <div data-js="js_editor_sh_motorcycle_snippet_tmpl_1" data-selector="#sh_motorcycle_snippet_section_1">
+                <we-select string="eCommerce Categories">
+                    <we-button data-select-class="">All Products</we-button>
+                    <t t-set="sh_moto_categories" t-value="request.env['product.public.category'].search([])" />
+                    <t t-if="len(sh_moto_categories)">
+                        <t t-foreach="sh_moto_categories" t-as="sh_moto_categ">
+                            <t t-set="sh_moto_data_select_cls" t-value="'sh_moto_categ_' + str(sh_moto_categ.id)" />
+                            <we-button t-att-data-select-class="sh_moto_data_select_cls">
+                                <t t-esc="sh_moto_categ.name" />
+                            </we-button>
+                        </t>
+                    </t>
+                </we-select>
+            </div>
+
+            <div data-selector="#sh_motorcycle_snippet_section_1">
+                <we-select string="Button Size">
+                    <we-button data-select-class="">None</we-button>
+                    <we-button data-select-class="cls_sh_motorcycle_snippet_small">Small</we-button>
+                    <we-button data-select-class="cls_sh_motorcycle_snippet_large">Large</we-button>
+                </we-select>
+            </div>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<!-- RES CONFIG SETTINGS FOR VEHICLE -->
+	
+    <record id="sh_motorcycle_frontend_res_settings" model="ir.ui.view">
+        <field name="name">sh.motorcycle.frontend.res.settings</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr='//block[@id="website_info_settings"]' position='after'>
+                <block title="Auto Parts Frontend" id="auto_parts_settings">
+                    <setting help="'Garage Feature' will visible in shop page, user drop-down menu.">
+                        <field name="sh_is_show_garage" />
+                    </setting>
+                    <setting help="For website shop page only.">
+                        <field name="sh_do_not_consider_vehicle_over_category" />
+                    </setting>
+
+                    <setting help="For website shop page only.">
+                        <field name="sh_do_not_consider_vehicle_over_attribute" />
+                    </setting>
+
+                    <setting help="For website shop page only.">
+                        <field name="sh_do_not_consider_vehicle_over_price" />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

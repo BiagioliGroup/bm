@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<!-- MY GARAGE MENU -->
+	
+    <template id="sh_motorcycle_my_garage_link" name="Link to frontend portal" inherit_id="portal.user_dropdown">
+        <xpath expr="//*[@id='o_logout_divider']" position="before">
+            <a t-if="website.sh_is_show_garage" href="/my/garage" role="menuitem" class="dropdown-item">
+            	<i class="fa fa-fw fa-car me-1 small text-muted"></i>
+            	My Garage
+            </a>
+        </xpath>
+    </template>
+
+    <!-- MY GARAGE TEMPLATE -->
+    
+    <template id="sh_motorcycle_my_garage_tmpl" name="My Garage">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container">
+                    <div class="row s_nb_column_fixed">
+                        <div class="col-lg-12 s_title pt16 pb16">
+                            <h1>My Garage</h1>
+                        </div>
+                    </div>
+
+                    <h4>Saved vehicles</h4>
+                    <t t-if="not motorcycles">
+                        <p>Currently there are no vehicles stored in your garage</p>
+                    </t>
+                    <table t-if="motorcycles" class="table">
+                        <tbody>
+                            <t t-foreach="motorcycles" t-as="motorcycle">
+                                <t t-set="motorcycle_url" t-value="'/shop?type=%s&amp;make=%s&amp;model=%s&amp;year=%s' % (motorcycle.type_id.id, motorcycle.make_id.id, motorcycle.mmodel_id.id, motorcycle.year_id)" />
+
+                                <tr>
+                                    <td><span t-field="motorcycle.name" /></td>
+                                    <td>
+                                        <a t-att-href="motorcycle_url">
+                                            Go to the vehicle
+                                        </a>
+                                    </td>
+                                    <td class="text-right">
+                                        <a href="#" role='button' class='js_cls_remove_vehicle_button' t-att-data-motorcycle_id="motorcycle.id">
+                                            <i style="color: RED;" class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

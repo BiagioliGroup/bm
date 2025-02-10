@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="sh_motorcycle_year_tree" model="ir.ui.view">
+        <field name="name">sh.motorcycle.year.list</field>
+        <field name="model">motorcycle.year</field>
+        <field name="arch" type="xml">
+            <list editable='bottom'>
+                <field name="name" />
+                <field name="company_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- MenuAction -->
+    <record id="sh_motorcycle_year_action" model="ir.actions.act_window">
+        <field name="name">Year</field>
+        <field name="res_model">motorcycle.year</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="sh_motorcycle_year_menuitem" action="sh_motorcycle_year_action" parent="sh_motorcycle_menuitem_config" sequence="4" />
+</odoo>
