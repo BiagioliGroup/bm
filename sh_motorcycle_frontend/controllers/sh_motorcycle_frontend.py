@@ -291,36 +291,18 @@ class sh_motorcycle(http.Controller):
             to get vehicle year
         """
         year_list = []
-        if (
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False) and
-            model_id not in ('', "", None, False)
-        ):
-            if type_id != int:
-                type_id = int(type_id)
-            if make_id != int:
-                make_id = int(make_id)
-            if model_id != int:
-                model_id = int(model_id)
+        if type_id and make_id and model_id:
+            type_id = int(type_id)
+            make_id = int(make_id)
+            model_id = int(model_id)
             vehicles = request.env['motorcycle.motorcycle'].sudo().search([
                 ('type_id', '=', type_id),
                 ('make_id', '=', make_id),
                 ('mmodel_id', '=', model_id),
-            ]
-            )
-            if vehicles:
-                year_list_ruff = []
-                for vehicle in vehicles:
-                    if vehicle.year_id:
-                        year_list_ruff.append(vehicle.year_id.name)
-                    if vehicle.end_year_id:
-                        year_list_ruff.append(vehicle.end_year_id.name)
-                if year_list_ruff:
-                    min_year = min(year_list_ruff)
-                    max_year = max(year_list_ruff)
-                    for year in range(min_year, max_year+1):
-                        year_list.append(year)
+            ])
+            year_list = sorted(set(vehicle.year for vehicle in vehicles if vehicle.year))
         return year_list or []
+
 
     @http.route(['/sh_motorcycle/is_bike_already_in_garage'], type='json', auth='public', website=True)
     def is_bike_already_in_garage(self, type_id=None, make_id=None, model_id=None, year_id=None):
@@ -367,49 +349,35 @@ class sh_motorcycle(http.Controller):
         return {}
 
     @http.route(['/sh_motorcycle/add_bike_to_garage'], type='json', auth='public', website=True)
-    def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year_id=None):
+    def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year=None):
         """
             METHOD BY SOFTHEALER
             to add vehicle to garage option
         """
-        search_motorcycle = False
-        if (
-            request.env.user and
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False) and
-            model_id not in ('', "", None, False) and
-            year_id not in ('', "", None, False)
-        ):
+        if request.env.user and type_id and make_id and model_id and year:
             try:
-                if type_id != int:
-                    type_id = int(type_id)
-                if make_id != int:
-                    make_id = int(make_id)
-                if model_id != int:
-                    model_id = int(model_id)
-                if year_id != int:
-                    year_id = int(year_id)
+                type_id = int(type_id)
+                make_id = int(make_id)
+                model_id = int(model_id)
+                year = int(year)
                 garage_obj = request.env['motorcycle.garage']
-                search_motorcycle = garage_obj.sudo().search([
+                exists = garage_obj.sudo().search([
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', model_id),
-                    ('year_id', '=', year_id),
+                    ('year', '=', year),
                     ('user_id', '=', request.env.user.id)
                 ], limit=1)
+                if not exists:
+                    garage_obj.sudo().create({
+                        'type_id': type_id,
+                        'make_id': make_id,
+                        'mmodel_id': model_id,
+                        'year': year,
+                        'user_id': request.env.user.id,
+                    })
             except ValueError:
                 pass
-
-            if not search_motorcycle:
-                garage_vals = {
-                    'type_id': type_id,
-                    'make_id': make_id,
-                    'mmodel_id': model_id,
-                    'year_id': year_id,
-                    'user_id': request.env.user.id,
-                }
-                garage_obj.sudo().create(garage_vals)
-
         return {}
 
     def _prepare_garage_layout_values(self):
@@ -472,22 +440,13 @@ class sh_motorcycle(http.Controller):
             search_motorcycles = garage_obj.sudo().search([
                 ('user_id', '=', request.env.user.id)
             ])
-            if search_motorcycles:
-                saved_bike_dic = {}
-                for motorcycle in search_motorcycles:
-                    moto_url = '/shop?type=' + str(motorcycle.type_id.id) + '&make=' + str(
-                        motorcycle.make_id.id) + '&model=' + str(motorcycle.mmodel_id.id) + '&year=' + str(motorcycle.year_id)
-                    saved_bike_dic.update({
-                        motorcycle.id:
-                            {
-                                'id': motorcycle.id,
-                                'name': motorcycle.name,
-                                'moto_url': moto_url
-                            }
-                    })
-                if saved_bike_dic:
-                    for key, value in sorted(saved_bike_dic.items(), key=lambda kv: kv[1]['name']):
-                        saved_bike_list.append(value)
+            for motorcycle in search_motorcycles:
+                moto_url = f"/shop?type={motorcycle.type_id.id}&make={motorcycle.make_id.id}&model={motorcycle.mmodel_id.id}&year={motorcycle.year}"
+                saved_bike_list.append({
+                    'id': motorcycle.id,
+                    'name': motorcycle.name,
+                    'moto_url': moto_url
+                })
         return saved_bike_list or []
 
     @http.route(['/sh_motorcycle/is_user_logined_in'], type='json', auth='public', website=True)

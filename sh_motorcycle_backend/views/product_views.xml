@@ -7,22 +7,20 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page name="motorcycle" string="Vehicles">
-                	<group>
-						<field name="sh_is_common_product"/>
-					</group>
+                    <group>
+                        <field name="sh_is_common_product"/>
+                    </group>
                     <field name="motorcycle_ids">
                         <list editable="bottom">
                             <field name="make_id" />
                             <field name="mmodel_id" />
-                            <field name="year_id" />
-                            <field name="end_year_id" />
+                            <field name="year" />
                         </list>
                         <form>
                             <group>
                                 <field name="make_id" />
                                 <field name="mmodel_id" />
-                                <field name="year_id" />
-                                <field name="end_year_id" />
+                                <field name="year" />
                             </group>
                         </form>
                     </field>

@@ -80,35 +80,16 @@ class ProductTemplate(models.Model):
             to get product year list
         """
         year_list = []
-        if (
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False) and
-            model_id not in ('', "", None, False)
-        ):
-            if type_id != int:
-                type_id = int(type_id)
-            if make_id != int:
-                make_id = int(make_id)
-            if model_id != int:
-                model_id = int(model_id)
+        if type_id and make_id and model_id:
+            type_id = int(type_id)
+            make_id = int(make_id)
+            model_id = int(model_id)
             vehicles = self.env['motorcycle.motorcycle'].sudo().search([
                 ('type_id', '=', type_id),
                 ('make_id', '=', make_id),
                 ('mmodel_id', '=', model_id),
-            ]
-            )
-            if vehicles:
-                year_list_ruff = []
-                for vehicle in vehicles:
-                    if vehicle.year_id:
-                        year_list_ruff.append(vehicle.year_id.name)
-                    if vehicle.end_year_id:
-                        year_list_ruff.append(vehicle.end_year_id.name)
-                if year_list_ruff:
-                    min_year = min(year_list_ruff)
-                    max_year = max(year_list_ruff)
-                    for year in range(min_year, max_year+1):
-                        year_list.append(year)
+            ])
+            year_list = sorted(set(vehicle.year for vehicle in vehicles if vehicle.year))
         return year_list or []
 
     @api.model
@@ -125,11 +106,9 @@ class ProductTemplate(models.Model):
                 - make_list
                 - model_list
                 - year_list
-
         """
 
-        result = super(ProductTemplate, self)._search_get_detail(
-            website, order, options)
+        result = super()._search_get_detail(website, order, options)
         base_domain = result.get('base_domain', [])
         keep_vehicle = True
         category = options.get('category')
@@ -139,10 +118,8 @@ class ProductTemplate(models.Model):
         if website:
             if category and website.sh_do_not_consider_vehicle_over_category:
                 keep_vehicle = False
-
             if attrib_values and website.sh_do_not_consider_vehicle_over_attribute:
                 keep_vehicle = False
-
             if min_price or max_price:
                 if website.sh_do_not_consider_vehicle_over_price:
                     keep_vehicle = False
@@ -150,12 +127,11 @@ class ProductTemplate(models.Model):
         # --------------------------------------------------------------------
         # softhealer custom code start here
         # --------------------------------------------------------------------
-        base_domain = base_domain or []
         motorcycle_heading = False
-        type_id = False
-        make_id = False
-        mmodel_id = False
-        year_id = False
+        type_id = options.get('type')
+        make_id = options.get('make')
+        mmodel_id = options.get('model')
+        year = options.get('year')
 
         type_list = []
         make_list = []
@@ -163,50 +139,25 @@ class ProductTemplate(models.Model):
         year_list = []
 
         search_motorcycles = False
-        if (
-            keep_vehicle and
-            options and
-            options.get('type', False) and
-            options.get('make', False) and
-            options.get('model', False) and
-            options.get('year', False)
-        ):
-
-            type_id = options.get('type')
-            make_id = options.get('make')
-            mmodel_id = options.get('model')
-            year_id = options.get('year')
-
+        if keep_vehicle and type_id and make_id and mmodel_id and year:
             try:
-                if type(type_id) != int:
-                    type_id = int(type_id)
-                if type(make_id) != int:
-                    make_id = int(make_id)
-                if type(mmodel_id) != int:
-                    mmodel_id = int(mmodel_id)
-                if type(year_id) != int:
-                    year_id = int(year_id)
+                type_id = int(type_id)
+                make_id = int(make_id)
+                mmodel_id = int(mmodel_id)
+                year = int(year)
 
                 vehicle_domain = [
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', mmodel_id),
-                    ('year_id.name', '<=', year_id),
-                    ('end_year_id.name', '>=', year_id),
+                    ('year', '=', year),
                 ]
-                search_motorcycles = self.env[
-                    'motorcycle.motorcycle'
-                ].sudo().search(vehicle_domain)
-
-                # =========================================================
-                # Type, Make, Model, Year selected when page refresh.
+                search_motorcycles = self.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
 
                 type_list = self._get_type_list()
                 make_list = self._get_make_list(type_id)
                 model_list = self._get_model_list(type_id, make_id)
                 year_list = self._get_year_list(type_id, make_id, mmodel_id)
-
-                # =========================================================
 
             except ValueError:
                 pass
@@ -216,36 +167,19 @@ class ProductTemplate(models.Model):
             if search_motorcycles:
                 for motorcycle in search_motorcycles:
                     if is_compute_vehicle_name:
-                        # VEHICLE NAME
-                        vehicle_name = ''
-                        if motorcycle.make_id:
-                            vehicle_name += motorcycle.make_id.name + ' '
-                        if motorcycle.mmodel_id:
-                            vehicle_name += motorcycle.mmodel_id.name + ' '
-                        if motorcycle.year_id:
-                            vehicle_name += str(year_id)
-                        if vehicle_name == '':
-                            vehicle_name = False
-                        motorcycle_heading = vehicle_name
-                        # VEHICLE NAME
+                        vehicle_name = f"{motorcycle.make_id.name} {motorcycle.mmodel_id.name} {motorcycle.year}"
+                        motorcycle_heading = vehicle_name.strip()
                         is_compute_vehicle_name = False
 
                     if motorcycle.product_ids:
                         for product in motorcycle.product_ids:
                             if product.product_tmpl_id:
-                                product_tmpl_id_list.append(
-                                    product.product_tmpl_id.id)
+                                product_tmpl_id_list.append(product.product_tmpl_id.id)
 
-                # ------------------
-                # Universal Products
                 universal_products = self.env['product.product'].search([
                     ('sh_is_common_product', '=', True)
                 ])
-
-                product_tmpl_id_list += universal_products.mapped(
-                    'product_tmpl_id').ids
-                # ------------------
-                # Universal Products
+                product_tmpl_id_list += universal_products.mapped('product_tmpl_id').ids
             base_domain.append([('id', 'in', product_tmpl_id_list)])
 
         result.update({'base_domain': base_domain})
@@ -254,12 +188,13 @@ class ProductTemplate(models.Model):
             'motorcycle_type': type_id,
             'motorcycle_make': make_id,
             'motorcycle_model': mmodel_id,
-            'motorcycle_year': year_id,
+            'motorcycle_year': year,
             'type_list': type_list,
             'make_list': make_list,
             'model_list': model_list,
             'year_list': year_list,
         })
+        
         # --------------------------------------------------------------------
         # softhealer custom code ends here
         # --------------------------------------------------------------------

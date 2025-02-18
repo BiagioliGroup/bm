@@ -34,7 +34,7 @@
 
                         <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height: 38px;'>
                             <i class="fa fa-search"></i>
-                        </button>
+                        </button
 
                         <!-- select a saved bike button -->
 
