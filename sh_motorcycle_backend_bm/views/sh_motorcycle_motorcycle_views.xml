@@ -3,14 +3,15 @@
     <!-- menuitem -->
     <!-- Motorcycle menuitem root -->
     <menuitem
-	    id="sh_motorcycle_menuitem_root"
-	    sequence="1"
-	    name="Auto Parts"
-	    groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager" 
-	    web_icon="sh_motorcycle_backend,static/src/img/menu_icon.png"
+        id="sh_motorcycle_menuitem_root"
+        sequence="1"
+        name="Auto Parts"
+        groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager" 
+        web_icon="sh_motorcycle_backend,static/src/img/menu_icon.png"
     />
 
     <menuitem id="sh_motorcycle_menuitem_config" sequence="3" name="Configurations" parent="sh_motorcycle_menuitem_root" groups="sh_motorcycle_backend.group_sh_motorcycle_manager" />
+    
     <!-- form view -->
     <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle</field>
@@ -28,15 +29,8 @@
                     <group>
                         <group>
                             <field name="mmodel_id" />
-                        <div class="o_row o_td_label">
-                        <label for="year_id" string="Range of years"/>
-                        </div>
-                        <div class="o_row">
-                            <field name="year_id"/>
-                            <label for="end_year_id" string="->"/>
-                            <field name="end_year_id"/>
-                        </div>
-                        
+                            <field name="year" />
+                            <field name="market" />
                         </group>
                         <group>
                             <field name="type_id" />
@@ -68,8 +62,8 @@
                 <field name="type_id" />
                 <field name="make_id" />
                 <field name="mmodel_id" />
-                <field name="year_id" />
-                <field name="end_year_id" />     
+                <field name="year" />  
+                <field name="market" />   
             </list>
         </field>
     </record>
@@ -80,19 +74,19 @@
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
             <search string="Auto Parts">
-                <field name="name" string="Auto Parts" filter_domain="['|','|','|','|',('end_year_id','ilike',self),('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year_id','ilike',self)]" />
+                <field name="name" string="Auto Parts" filter_domain="['|','|','|',('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]" />
                 <field name="type_id" />
                 <field name="make_id" />
                 <field name="mmodel_id" />
-                <field name="year_id" />
-                <field name="end_year_id" />
-                
+                <field name="year" />
+                <field name="market" />
+
                 <group expand="0" string="Group By">
                     <filter name="group_make_id" string="Make" domain="[]" context="{'group_by':'make_id'}" />
                     <filter name="group_type_id" string="Type" domain="[]" context="{'group_by':'type_id'}" />
                     <filter name="group_mmodel_id" string="Model" domain="[]" context="{'group_by':'mmodel_id'}" />
-                    <filter name="group_year_id" string="Start year" domain="[]" context="{'group_by':'year_id'}" />
-                    <filter name="group_end_year_id" string="End year" domain="[]" context="{'group_by':'end_year_id'}" />
+                    <filter name="group_year" string="Year" domain="[]" context="{'group_by':'year'}" />
+                    <filter name="group_market" string="Market" domain="[]" context="{'group_by':'market'}" />
                 </group>
             </search>
         </field>
@@ -114,25 +108,4 @@
         action="sh_motorcycle_motorcycle_action"
         groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
-	<menuitem
-		id="sh_motorcycle_products_main_menu"
-		sequence="2"
-		name="Products"
-		parent="sh_motorcycle_menuitem_root"
-	/>
-	<menuitem
-		id="sh_motorcycle_products_menu"
-		sequence="1"
-		name="Products"
-		parent="sh_motorcycle_products_main_menu"
-		action='product.product_template_action'
-	/>
-	<menuitem
-		id="sh_motorcycle_products_variants_menu"
-		sequence="2"
-		name="Product Variants"
-		parent="sh_motorcycle_products_main_menu"
-		action='product.product_normal_action_sell'
-	/>
-    
 </odoo>

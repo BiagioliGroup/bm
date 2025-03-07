@@ -1,0 +1,58 @@
+# -*- coding: utf-8 -*-
+# Part of Softhealer Technologies.
+
+from odoo import fields, models, api, _
+from odoo.exceptions import ValidationError
+
+
+class Motorcycle(models.Model):
+    _name = "motorcycle.motorcycle"
+    _description = "Motorcycle"
+    _order = "id desc"
+
+    name = fields.Char(compute="_compute_complete_name", store=True)
+    type_id = fields.Many2one("motorcycle.type", string="Type", required=True)
+    make_id = fields.Many2one("motorcycle.make", string="Make", required=True)
+    mmodel_id = fields.Many2one("motorcycle.mmodel", string="Model", required=True)
+    year = fields.Integer(string="Year", required=True, index=True)
+    market = fields.Selection([
+        ('USA', 'USA'),
+        ('ARG', 'Argentina'),
+        ('EUR', 'Europe'),
+        ('AUS', 'Australia'),
+        ('USA-CAN', 'USA & Canada'),
+        ('EURO5+', 'Euro 5+'),
+        ('CANADA', 'Canada'),
+        ('JP', 'Japan'),
+        ('CH', 'China'),
+    ], string="Market", required=True, default="USA")
+
+    
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        default=lambda self: self.env.user.company_id.id)
+    
+    product_ids = fields.Many2many(
+        "product.product",
+        "motorcycle_product_rel",
+        "motorcycle_id",
+        "product_id",
+        string="Compatible Products",
+    )
+
+    @api.depends("type_id", "make_id", "mmodel_id", "year")
+    def _compute_complete_name(self):
+        for record in self:
+            market = record.market if record.market else ""
+            record.name = f"{record.make_id.name} {record.mmodel_id.name} {str(record.year)} {market}"
+            #asdsa
+            # name_parts = [record.type_id.name, record.make_id.name, record.mmodel_id.name, str(record.year)]
+            # record.name = " - ".join(filter(None, name_parts))
+
+    @api.constrains("year")
+    def _check_year(self):
+        current_year = fields.Date.today().year
+        for record in self:
+            if record.year < 1900 or record.year > current_year:
+                raise ValidationError(_("The year must be between 1900 and %s.") % current_year)

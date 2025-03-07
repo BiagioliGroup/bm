@@ -40,6 +40,7 @@ Find Vehicle Details Module Odoo.
             "views/sh_motorcycle_mmodel_views.xml",
             "views/sh_motorcycle_year_views.xml",
             "views/product_views.xml",
+
             ],
     "images": ["static/description/background.png", ],
     "application": True,
