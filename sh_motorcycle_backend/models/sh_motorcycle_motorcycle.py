@@ -16,9 +16,9 @@ class Motorcycle(models.Model):
     mmodel_id = fields.Many2one("motorcycle.mmodel", string="Model", required=True)
     year = fields.Integer(string="Year", required=True, index=True)
     market = fields.Selection([
+        ('EUR', 'Europe'),
         ('USA', 'USA'),
         ('ARG', 'Argentina'),
-        ('EUR', 'Europe'),
         ('AUS', 'Australia'),
         ('USA-CAN', 'USA & Canada'),
         ('EURO5+', 'Euro 5+'),
@@ -33,13 +33,10 @@ class Motorcycle(models.Model):
         string='Company',
         default=lambda self: self.env.user.company_id.id)
     
-    product_ids = fields.Many2many(
-        "product.product",
-        "motorcycle_product_rel",
-        "motorcycle_id",
-        "product_id",
-        string="Compatible Products",
-    )
+    product_ids = fields.Many2many('product.product',
+                                   'product_product_motorcycle_motorcycle_rel',
+                                   'motorcycle_id', 'product_id',
+                                   string='Productos Compatibles', copy=True)
 
     @api.depends("type_id", "make_id", "mmodel_id", "year")
     def _compute_complete_name(self):
