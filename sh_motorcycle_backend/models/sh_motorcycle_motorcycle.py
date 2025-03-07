@@ -11,8 +11,16 @@ class Motorcycle(models.Model):
     _order = "id desc"
 
     name = fields.Char(compute="_compute_complete_name", store=True)
-    type_id = fields.Many2one("motorcycle.type", string="Type", required=True)
-    make_id = fields.Many2one("motorcycle.make", string="Make", required=True)
+    type_id = fields.Many2one(comodel_name="motorcycle.type",
+                          string="Type",
+                          related="mmodel_id.type_id",
+                          store=True
+                          )
+    make_id = fields.Many2one(comodel_name="motorcycle.make",
+                              string="Make",
+                              related="mmodel_id.make_id",
+                              store=True
+                              )
     mmodel_id = fields.Many2one("motorcycle.mmodel", string="Model", required=True)
     year = fields.Integer(string="Year", required=True, index=True)
     market = fields.Selection([
