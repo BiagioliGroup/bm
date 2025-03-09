@@ -25,6 +25,10 @@
                             <field name="name" placeholder="Motorcycle Name" />
                         </h1>
                     </div>
+                    <!-- Nueva Sección: Imagen -->
+                    <group string="Motorcycle Image">
+                        <field name="motorcycle_image" widget="image"/>
+                    </group>
 
                     <group>
                         <group>
@@ -45,10 +49,6 @@
                         <field name="user_manual" filename="user_manual_filename"/>
                     </group>
 
-                    <!-- Nueva Sección: Imagen -->
-                    <group string="Motorcycle Image">
-                        <field name="motorcycle_image"/>
-                    </group>
 
                     <field name="product_ids">
                         <list editable="bottom">

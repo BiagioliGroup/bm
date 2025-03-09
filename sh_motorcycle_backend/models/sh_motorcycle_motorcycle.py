@@ -48,7 +48,7 @@ class Motorcycle(models.Model):
     
     oem_manual = fields.Binary(string="OEM Manual", attachment=True)
     user_manual = fields.Binary(string="User Manual", attachment=True)
-    motorcycle_image = fields.Image(string="Motorcycle Image", max_width=1024, max_height=1024)
+    motorcycle_image = fields.Binary(string="Motorcycle Image", default= '_get_default_image', max_width=1024, max_height=1024)
     
 
     @api.depends("type_id", "make_id", "mmodel_id", "year")
@@ -60,6 +60,10 @@ class Motorcycle(models.Model):
             # name_parts = [record.type_id.name, record.make_id.name, record.mmodel_id.name, str(record.year)]
             # record.name = " - ".join(filter(None, name_parts))
 
+    def _get_default_image(self):
+        image_path = modules.get_module_resource('your_module_name', 'static/src/img', 'default.png')
+        return tools.image_resize_image_big(base64.b64encode(open(image_path, 'rb').read()))
+    
     @api.constrains("year")
     def _check_year(self):
         current_year = fields.Date.today().year
