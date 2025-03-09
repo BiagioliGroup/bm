@@ -45,6 +45,11 @@ class Motorcycle(models.Model):
                                    'product_product_motorcycle_motorcycle_rel',
                                    'motorcycle_id', 'product_id',
                                    string='Productos Compatibles', copy=True)
+    
+    oem_manual = fields.Binary(string="OEM Manual", attachment=True)
+    user_manual = fields.Binary(string="User Manual", attachment=True)
+    motorcycle_image = fields.Image(string="Motorcycle Image", max_width=1024, max_height=1024)
+    
 
     @api.depends("type_id", "make_id", "mmodel_id", "year")
     def _compute_complete_name(self):

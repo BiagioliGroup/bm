@@ -12,7 +12,7 @@
 
     <menuitem id="sh_motorcycle_menuitem_config" sequence="3" name="Configurations" parent="sh_motorcycle_menuitem_root" groups="sh_motorcycle_backend.group_sh_motorcycle_manager" />
     
-    <!-- form view -->
+    <!-- Form View -->
     <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle</field>
         <field name="model">motorcycle.motorcycle</field>
@@ -39,6 +39,17 @@
                         </group>
                     </group>
 
+                    <!-- Nueva Sección: Documentos -->
+                    <group string="Documents">
+                        <field name="oem_manual" filename="oem_manual_filename"/>
+                        <field name="user_manual" filename="user_manual_filename"/>
+                    </group>
+
+                    <!-- Nueva Sección: Imagen -->
+                    <group string="Motorcycle Image">
+                        <field name="motorcycle_image"/>
+                    </group>
+
                     <field name="product_ids">
                         <list editable="bottom">
                             <field name="default_code" />
@@ -48,7 +59,7 @@
                         </list>
                     </field>
                 </sheet>
-            </form>
+            </form> 
         </field>
     </record>
 
@@ -62,13 +73,14 @@
                 <field name="type_id" />
                 <field name="make_id" />
                 <field name="mmodel_id" />
-                <field name="year" />  
-                <field name="market" />   
+                <field name="year" />
+                <field name="market" />
+                <field name="motorcycle_image"/> <!-- Agregada la imagen en la lista -->
             </list>
         </field>
     </record>
 
-    <!-- search view -->
+    <!-- Search View -->
     <record id="sh_motorcycle_motorcycle_search" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle.search</field>
         <field name="model">motorcycle.motorcycle</field>
@@ -80,6 +92,8 @@
                 <field name="mmodel_id" />
                 <field name="year" />
                 <field name="market" />
+                <field name="oem_manual"/> <!-- Permite buscar por manual OEM -->
+                <field name="user_manual"/> <!-- Permite buscar por manual de usuario -->
 
                 <group expand="0" string="Group By">
                     <filter name="group_make_id" string="Make" domain="[]" context="{'group_by':'make_id'}" />
