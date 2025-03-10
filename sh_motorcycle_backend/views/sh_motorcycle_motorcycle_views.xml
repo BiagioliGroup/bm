@@ -27,7 +27,7 @@
                     </div>
                     <!-- Nueva Sección: Imagen -->
                     <group string="Motorcycle Image">
-                            <field name="motorcycle_image" widget="image" options="{'size': [180, 180]}"/>
+                            <field name="motorcycle_image" widget="image" options="{'size': [360, 360   ]}"/>
                     </group>
 
                     <group>
@@ -45,15 +45,13 @@
 
                     <!-- Nueva Sección: Documentos -->
                     <notebook>
-                        <page string='Manuals'>
-                            <group string="Documents">
-                                <group>
-                                    <group>
-                                        <field name="oem_manual" filename="oem_manual_filename" widget='pdf_viewer'/>
-                                    </group>
-                                    <group>
-                                        <field name="user_manual" filename="user_manual_filename" widget='pdf_viewer'/>
-                                    </group>
+                        <page string="Manuals">
+                            <group string="Documents" colspan="2">
+                                <group colspan="1">
+                                    <field name="oem_manual" filename="oem_manual_filename" widget="pdf_viewer"/>
+                                </group>
+                                <group colspan="1">
+                                    <field name="user_manual" filename="user_manual_filename" widget="pdf_viewer"/>
                                 </group>
                             </group>
                         </page>
