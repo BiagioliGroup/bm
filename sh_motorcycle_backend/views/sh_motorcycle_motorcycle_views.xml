@@ -27,7 +27,7 @@
                     </div>
                     <!-- Nueva Sección: Imagen -->
                     <group string="Motorcycle Image">
-                        <field name="motorcycle_image" widget="image" options="{'size': [360, 360   ]}"/>
+                        <field name="motorcycle_image" widget="image" options="{'size': [450, 450]}"/>
                     </group>
 
                     <group>
@@ -84,7 +84,7 @@
                 <field name="mmodel_id" />
                 <field name="year" />
                 <field name="market" />
-                <field name="motorcycle_image"/> <!-- Agregada la imagen en la lista -->
+                <field name="motorcycle_image" filename='motorcycle image' widget="image" options="{'size': [180, 180   ]}"/> 
             </list>
         </field>
     </record>
