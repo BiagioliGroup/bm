@@ -25,10 +25,9 @@
                             <field name="name" placeholder="Motorcycle Name" />
                         </h1>
                     </div>
-
                     <!-- Nueva Sección: Imagen -->
                     <group string="Motorcycle Image">
-                        <field name="motorcycle_image" widget="image" options="{'size': [360, 360]}"/>
+                        <field name="motorcycle_image" widget="image" options="{'size': [360, 360   ]}"/>
                     </group>
 
                     <group>
@@ -58,36 +57,18 @@
                         </page>
                     </notebook>
 
-                    <!-- Sección de Productos Compatibles agrupados por Categoría -->
-                    <group string="Equivalent Products">
-                        <field name="product_ids" mode="tree" widget="many2many_tags">
-                            <tree editable="bottom">
-                                <field name="categ_id"/> <!-- Ahora sí existe en 'product.product' -->
-                                <field name="default_code"/>
-                                <field name="name"/>
-                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant"/>
-                                <field name="lst_price"/>
-                            </tree>
+                    <group string='Equivalent products'>
+                        <field name="product_ids">
+                            <list editable="bottom">
+                                <field name="default_code" />
+                                <field name="name" />
+                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant" />
+                                <field name="lst_price" />
+                            </list>
                         </field>
                     </group>
-
                 </sheet>
             </form> 
-        </field>
-    </record>
-
-    <!-- Definición de la Vista en Lista Agrupada por Categoría -->
-    <record id="view_product_tree_by_category" model="ir.ui.view">
-        <field name="name">product.product.tree.view.grouped</field>
-        <field name="model">product.product</field>
-        <field name="arch" type="xml">
-            <tree editable="bottom" default_order="categ_id">
-                <field name="categ_id" />
-                <field name="default_code" />
-                <field name="name" />
-                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant" />
-                <field name="lst_price" />
-            </tree>
         </field>
     </record>
 
