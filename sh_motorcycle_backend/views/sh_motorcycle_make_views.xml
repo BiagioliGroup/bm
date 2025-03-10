@@ -12,6 +12,7 @@
             </list>
         </field>
     </record>
+    
 
     <!-- action -->
     <record id="sh_motorcycle_make_action" model="ir.actions.act_window">

@@ -14,3 +14,4 @@ class MotorcycleMake(models.Model):
         string='Company',
         default=lambda self: self.env.user.company_id.id
     )
+
