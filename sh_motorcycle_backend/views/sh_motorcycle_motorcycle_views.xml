@@ -62,11 +62,11 @@
                     <group string="Equivalent Products">
                         <field name="product_ids" mode="tree" widget="many2many_tags" context="{'default_order': 'categ_id'}">
                             <tree editable="bottom">
-                                <field name="categ_id" />
-                                <field name="default_code" />
-                                <field name="name" />
-                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant" />
-                                <field name="lst_price" />
+                                <field name="product_tmpl_id.categ_id"/>  <!-- Cambio aquí -->
+                                <field name="default_code"/>
+                                <field name="name"/>
+                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant"/>
+                                <field name="lst_price"/>
                             </tree>
                         </field>
                     </group>
