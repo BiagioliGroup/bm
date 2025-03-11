@@ -41,7 +41,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       type_id: result["type"],
       make_id: result["make"],
       model_id: result["model"],
-      year_id: result["year"],
+      year: result["year"],
     }).then(function (rec) {
       if (rec.is_bike_already_in_garage) {
         $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
@@ -179,7 +179,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       type_id: result["type"],
       make_id: result["make"],
       model_id: result["model"],
-      year_id: result["year"],
+      year: result["year"],
     }).then(function (rec) {
       //refresh the page
       location.reload(true);

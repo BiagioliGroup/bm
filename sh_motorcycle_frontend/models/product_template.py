@@ -2,7 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, models
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
@@ -75,40 +76,15 @@ class ProductTemplate(models.Model):
 
     @api.model
     def _get_year_list(self, type_id=None, make_id=None, model_id=None):
-        """
-            METHOD BY SOFTHEALER
-            to get product year list
-        """
         year_list = []
-        if (
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False) and
-            model_id not in ('', "", None, False)
-        ):
-            if type_id != int:
-                type_id = int(type_id)
-            if make_id != int:
-                make_id = int(make_id)
-            if model_id != int:
-                model_id = int(model_id)
+        if type_id and make_id and model_id:
+            type_id, make_id, model_id = int(type_id), int(make_id), int(model_id)
             vehicles = self.env['motorcycle.motorcycle'].sudo().search([
                 ('type_id', '=', type_id),
                 ('make_id', '=', make_id),
                 ('mmodel_id', '=', model_id),
-            ]
-            )
-            if vehicles:
-                year_list_ruff = []
-                for vehicle in vehicles:
-                    if vehicle.year_id:
-                        year_list_ruff.append(vehicle.year_id.name)
-                    if vehicle.end_year_id:
-                        year_list_ruff.append(vehicle.end_year_id.name)
-                if year_list_ruff:
-                    min_year = min(year_list_ruff)
-                    max_year = max(year_list_ruff)
-                    for year in range(min_year, max_year+1):
-                        year_list.append(year)
+            ])
+            year_list = sorted(set(vehicle.year for vehicle in vehicles), reverse=True)
         return year_list or []
 
     @api.model
@@ -155,7 +131,7 @@ class ProductTemplate(models.Model):
         type_id = False
         make_id = False
         mmodel_id = False
-        year_id = False
+        year = False
 
         type_list = []
         make_list = []
@@ -175,7 +151,7 @@ class ProductTemplate(models.Model):
             type_id = options.get('type')
             make_id = options.get('make')
             mmodel_id = options.get('model')
-            year_id = options.get('year')
+            year = options.get('year')
 
             try:
                 if type(type_id) != int:
@@ -184,19 +160,18 @@ class ProductTemplate(models.Model):
                     make_id = int(make_id)
                 if type(mmodel_id) != int:
                     mmodel_id = int(mmodel_id)
-                if type(year_id) != int:
-                    year_id = int(year_id)
+                if type(year) != int:
+                    year = int(year)
 
                 vehicle_domain = [
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', mmodel_id),
-                    ('year_id.name', '<=', year_id),
-                    ('end_year_id.name', '>=', year_id),
+                    ('year', '=', year),  # <- Verificar que la condición es correcta
                 ]
-                search_motorcycles = self.env[
-                    'motorcycle.motorcycle'
-                ].sudo().search(vehicle_domain)
+                _logger.info(f"Searching motorcycles with: {vehicle_domain}")
+                search_motorcycles = self.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
+                
 
                 # =========================================================
                 # Type, Make, Model, Year selected when page refresh.
@@ -222,8 +197,8 @@ class ProductTemplate(models.Model):
                             vehicle_name += motorcycle.make_id.name + ' '
                         if motorcycle.mmodel_id:
                             vehicle_name += motorcycle.mmodel_id.name + ' '
-                        if motorcycle.year_id:
-                            vehicle_name += str(year_id)
+                        if motorcycle.year:
+                            vehicle_name += str(motorcycle.year)
                         if vehicle_name == '':
                             vehicle_name = False
                         motorcycle_heading = vehicle_name
@@ -254,7 +229,7 @@ class ProductTemplate(models.Model):
             'motorcycle_type': type_id,
             'motorcycle_make': make_id,
             'motorcycle_model': mmodel_id,
-            'motorcycle_year': year_id,
+            'motorcycle_year': year,
             'type_list': type_list,
             'make_list': make_list,
             'model_list': model_list,

@@ -15,10 +15,12 @@
                             <table class="table table-striped table-sm table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Manufacturer</th>
-                                        <th>Model</th>
-                                        <th>Start Year</th>
-                                        <th>End Year</th>
+                                        <th colspan="3" class="text-center">Compatible con:</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Año</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -26,8 +28,7 @@
                                         <tr>
                                             <td><t t-if="vehicle.make_id" t-esc="vehicle.make_id.name" /></td>
                                             <td><t t-if="vehicle.mmodel_id" t-esc="vehicle.mmodel_id.name" /></td>
-                                            <td><t t-if="vehicle.year_id" t-esc="vehicle.year_id.name" /></td>
-                                            <td><t t-if="vehicle.end_year_id" t-esc="vehicle.end_year_id.name" /></td>
+                                            <td><t t-if="vehicle.year" t-esc="vehicle.year" /></td>
                                         </tr>
                                     </t>
                                 </tbody>
