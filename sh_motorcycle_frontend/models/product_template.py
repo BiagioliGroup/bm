@@ -131,7 +131,7 @@ class ProductTemplate(models.Model):
         type_id = False
         make_id = False
         mmodel_id = False
-        year_id = False
+        year = False
 
         type_list = []
         make_list = []
@@ -151,7 +151,7 @@ class ProductTemplate(models.Model):
             type_id = options.get('type')
             make_id = options.get('make')
             mmodel_id = options.get('model')
-            year_id = options.get('year')
+            year = options.get('year')
 
             try:
                 if type(type_id) != int:
@@ -160,14 +160,14 @@ class ProductTemplate(models.Model):
                     make_id = int(make_id)
                 if type(mmodel_id) != int:
                     mmodel_id = int(mmodel_id)
-                if type(year_id) != int:
-                    year_id = int(year_id)
+                if type(year) != int:
+                    year = int(year)
 
                 vehicle_domain = [
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', mmodel_id),
-                    ('year', '=', year_id),  # <- Verificar que la condición es correcta
+                    ('year', '=', year),  # <- Verificar que la condición es correcta
                 ]
                 _logger.info(f"Searching motorcycles with: {vehicle_domain}")
                 search_motorcycles = self.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
@@ -198,7 +198,7 @@ class ProductTemplate(models.Model):
                         if motorcycle.mmodel_id:
                             vehicle_name += motorcycle.mmodel_id.name + ' '
                         if motorcycle.year:
-                            vehicle_name += str(year)
+                            vehicle_name += str(motorcycle.year)
                         if vehicle_name == '':
                             vehicle_name = False
                         motorcycle_heading = vehicle_name
@@ -229,7 +229,7 @@ class ProductTemplate(models.Model):
             'motorcycle_type': type_id,
             'motorcycle_make': make_id,
             'motorcycle_model': mmodel_id,
-            'motorcycle_year': year_id,
+            'motorcycle_year': year,
             'type_list': type_list,
             'make_list': make_list,
             'model_list': model_list,
