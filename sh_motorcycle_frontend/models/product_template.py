@@ -197,8 +197,8 @@ class ProductTemplate(models.Model):
                             vehicle_name += motorcycle.make_id.name + ' '
                         if motorcycle.mmodel_id:
                             vehicle_name += motorcycle.mmodel_id.name + ' '
-                        if motorcycle.year_id:
-                            vehicle_name += str(year_id)
+                        if motorcycle.year:
+                            vehicle_name += str(year)
                         if vehicle_name == '':
                             vehicle_name = False
                         motorcycle_heading = vehicle_name
