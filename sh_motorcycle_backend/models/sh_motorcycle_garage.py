@@ -7,6 +7,7 @@ class MotorcycleGarage(models.Model):
     _name = "motorcycle.garage"
     _description = "Motorcycle Garage"
     _order = "id desc"
+    
 
     name = fields.Char(compute="_compute_complete_name", store=True)
     user_id = fields.Many2one("res.users", string="User", required=True)

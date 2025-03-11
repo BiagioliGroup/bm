@@ -13,7 +13,8 @@
     <menuitem id="sh_motorcycle_menuitem_config" sequence="3" name="Configurations" parent="sh_motorcycle_menuitem_root" groups="sh_motorcycle_backend.group_sh_motorcycle_manager" />
     
     <!-- Form View -->
-    <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view">
+    <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view"> 
+    
         <field name="name">sh.motorcycle.motorcycle</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
