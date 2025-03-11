@@ -15,9 +15,12 @@
                             <table class="table table-striped table-sm table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Manufacturer</th>
-                                        <th>Model</th>
-                                        <th>Year</th>
+                                        <th colspan="3" class="text-center">Compatible con:</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Año</th>
                                     </tr>
                                 </thead>
                                 <tbody>
