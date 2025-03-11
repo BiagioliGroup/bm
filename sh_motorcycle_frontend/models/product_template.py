@@ -2,7 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, models
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
@@ -166,12 +167,11 @@ class ProductTemplate(models.Model):
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', mmodel_id),
-                    ('year_id.name', '<=', year_id),
-                    ('end_year_id.name', '>=', year_id),
+                    ('year', '=', year_id),  # <- Verificar que la condición es correcta
                 ]
-                search_motorcycles = self.env[
-                    'motorcycle.motorcycle'
-                ].sudo().search(vehicle_domain)
+                _logger.info(f"Searching motorcycles with: {vehicle_domain}")
+                search_motorcycles = self.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
+                
 
                 # =========================================================
                 # Type, Make, Model, Year selected when page refresh.
