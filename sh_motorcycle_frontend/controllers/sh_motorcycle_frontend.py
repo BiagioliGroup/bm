@@ -29,18 +29,12 @@ class MotorCycleWebsiteSale(WebsiteSale):
             for product_variant in product.product_variant_ids:
                 if product_variant.motorcycle_ids:
                     vehicles_ids += product_variant.motorcycle_ids.ids
-            if vehicles_ids:
-                # To Make List Unique
-                # insert the list to the set
-                list_set = set(vehicles_ids)
-                # convert the set to the list
-                vehicles_ids = (list(list_set))
+            vehicles_ids = list(set(vehicles_ids))
             vehicles = vehicles.browse(vehicles_ids).sorted(
                 key=lambda r: r.make_id.id or 0)
 
         values['vehicles'] = vehicles
         values['sh_is_common_product'] = sh_is_common_product
-
         return values
 
     def _shop_lookup_products(self, attrib_set, options, post, search, website):
@@ -292,34 +286,25 @@ class sh_motorcycle(http.Controller):
         """
         year_list = []
         if (
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False) and
-            model_id not in ('', "", None, False)
+            type_id not in ('', None, False) and
+            make_id not in ('', None, False) and
+            model_id not in ('', None, False)
         ):
-            if type_id != int:
+            try:
                 type_id = int(type_id)
-            if make_id != int:
                 make_id = int(make_id)
-            if model_id != int:
                 model_id = int(model_id)
-            vehicles = request.env['motorcycle.motorcycle'].sudo().search([
-                ('type_id', '=', type_id),
-                ('make_id', '=', make_id),
-                ('mmodel_id', '=', model_id),
-            ]
-            )
-            if vehicles:
-                year_list_ruff = []
-                for vehicle in vehicles:
-                    if vehicle.year_id:
-                        year_list_ruff.append(vehicle.year_id.name)
-                    if vehicle.end_year_id:
-                        year_list_ruff.append(vehicle.end_year_id.name)
-                if year_list_ruff:
-                    min_year = min(year_list_ruff)
-                    max_year = max(year_list_ruff)
-                    for year in range(min_year, max_year+1):
-                        year_list.append(year)
+                
+                vehicles = request.env['motorcycle.motorcycle'].sudo().search([
+                    ('type_id', '=', type_id),
+                    ('make_id', '=', make_id),
+                    ('mmodel_id', '=', model_id),
+                ])
+
+                year_list = list(set(vehicle.year for vehicle in vehicles))
+                year_list.sort(reverse=True)
+            except ValueError:
+                pass
         return year_list or []
 
     @http.route(['/sh_motorcycle/is_bike_already_in_garage'], type='json', auth='public', website=True)

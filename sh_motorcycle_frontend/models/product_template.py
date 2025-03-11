@@ -75,40 +75,15 @@ class ProductTemplate(models.Model):
 
     @api.model
     def _get_year_list(self, type_id=None, make_id=None, model_id=None):
-        """
-            METHOD BY SOFTHEALER
-            to get product year list
-        """
         year_list = []
-        if (
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False) and
-            model_id not in ('', "", None, False)
-        ):
-            if type_id != int:
-                type_id = int(type_id)
-            if make_id != int:
-                make_id = int(make_id)
-            if model_id != int:
-                model_id = int(model_id)
+        if type_id and make_id and model_id:
+            type_id, make_id, model_id = int(type_id), int(make_id), int(model_id)
             vehicles = self.env['motorcycle.motorcycle'].sudo().search([
                 ('type_id', '=', type_id),
                 ('make_id', '=', make_id),
                 ('mmodel_id', '=', model_id),
-            ]
-            )
-            if vehicles:
-                year_list_ruff = []
-                for vehicle in vehicles:
-                    if vehicle.year_id:
-                        year_list_ruff.append(vehicle.year_id.name)
-                    if vehicle.end_year_id:
-                        year_list_ruff.append(vehicle.end_year_id.name)
-                if year_list_ruff:
-                    min_year = min(year_list_ruff)
-                    max_year = max(year_list_ruff)
-                    for year in range(min_year, max_year+1):
-                        year_list.append(year)
+            ])
+            year_list = sorted(set(vehicle.year for vehicle in vehicles), reverse=True)
         return year_list or []
 
     @api.model
