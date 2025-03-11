@@ -26,7 +26,6 @@
                                             <td><t t-if="vehicle.make_id" t-esc="vehicle.make_id.name" /></td>
                                             <td><t t-if="vehicle.mmodel_id" t-esc="vehicle.mmodel_id.name" /></td>
                                             <td><t t-if="vehicle.year" t-esc="vehicle.year" /></td>
-                                            <td><t t-if="vehicle.end_year_id" t-esc="vehicle.end_year_id.name" /></td>
                                         </tr>
                                     </t>
                                 </tbody>
