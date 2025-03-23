@@ -31,7 +31,7 @@
                     <table t-if="motorcycles" class="table">
                         <tbody>
                             <t t-foreach="motorcycles" t-as="motorcycle">
-                                <t t-set="motorcycle_url" t-value="'/shop?type=%s&amp;make=%s&amp;model=%s&amp;year=%s' % (motorcycle.type_id.id, motorcycle.make_id.id, motorcycle.mmodel_id.id, motorcycle.year_id)" />
+                                <t t-set="motorcycle_url" t-value="'/shop?type=%s&amp;make=%s&amp;model=%s&amp;year=%s' % (motorcycle.type_id.id, motorcycle.make_id.id, motorcycle.mmodel_id.id, motorcycle.year)" />
 
                                 <tr>
                                     <td><span t-field="motorcycle.name" /></td>

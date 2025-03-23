@@ -24,5 +24,6 @@ class MotorcycleGarage(models.Model):
     @api.depends("type_id", "make_id", "mmodel_id", "year")
     def _compute_complete_name(self):
         for record in self:
-            name_parts = [record.type_id.name, record.make_id.name, record.mmodel_id.name, str(record.year)]
+            name_parts = [record.type_id.name, record.make_id.
+            name, record.mmodel_id.name, str(record.year)]
             record.name = " - ".join(filter(None, name_parts))
