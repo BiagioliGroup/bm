@@ -308,7 +308,7 @@ class sh_motorcycle(http.Controller):
         return year_list or []
 
     @http.route(['/sh_motorcycle/is_bike_already_in_garage'], type='json', auth='public', website=True)
-    def is_bike_already_in_garage(self, type_id=None, make_id=None, model_id=None, year_id=None):
+    def is_bike_already_in_garage(self, type_id=None, make_id=None, model_id=None, year=None):
         """
             METHOD BY SOFTHEALER
             to check vehicle is already in garage or not
@@ -320,19 +320,19 @@ class sh_motorcycle(http.Controller):
             type_id not in ('', "", None, False) and
             make_id not in ('', "", None, False) and
             model_id not in ('', "", None, False) and
-            year_id not in ('', "", None, False)
+            year not in ('', "", None, False)
         ):
             try:
                 type_id = int(type_id)
                 make_id = int(make_id)
                 model_id = int(model_id)
-                year_id = int(year_id)
+                year = int(year)
 
                 search_motorcycle = request.env['motorcycle.garage'].sudo().search([
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', model_id),
-                    ('year_id', '=', year_id),
+                    ('year', '=', year),
                     ('user_id', '=', request.env.user.id)
                 ], limit=1)
 
@@ -346,7 +346,7 @@ class sh_motorcycle(http.Controller):
         }
 
     @http.route(['/sh_motorcycle/add_bike_to_garage'], type='json', auth='public', website=True)
-    def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year_id=None):
+    def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year=None):
         """
             METHOD BY SOFTHEALER
             to add vehicle to garage option
@@ -357,7 +357,7 @@ class sh_motorcycle(http.Controller):
             type_id not in ('', "", None, False) and
             make_id not in ('', "", None, False) and
             model_id not in ('', "", None, False) and
-            year_id not in ('', "", None, False)
+            year not in ('', "", None, False)
         ):
             try:
                 if type_id != int:
@@ -366,14 +366,14 @@ class sh_motorcycle(http.Controller):
                     make_id = int(make_id)
                 if model_id != int:
                     model_id = int(model_id)
-                if year_id != int:
-                    year_id = int(year_id)
+                if year != int:
+                    year = int(year)
                 garage_obj = request.env['motorcycle.garage']
                 search_motorcycle = garage_obj.sudo().search([
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', model_id),
-                    ('year_id', '=', year_id),
+                    ('year', '=', year),
                     ('user_id', '=', request.env.user.id)
                 ], limit=1)
             except ValueError:
@@ -384,7 +384,7 @@ class sh_motorcycle(http.Controller):
                     'type_id': type_id,
                     'make_id': make_id,
                     'mmodel_id': model_id,
-                    'year_id': year_id,
+                    'year': year,
                     'user_id': request.env.user.id,
                 }
                 garage_obj.sudo().create(garage_vals)
@@ -455,7 +455,7 @@ class sh_motorcycle(http.Controller):
                 saved_bike_dic = {}
                 for motorcycle in search_motorcycles:
                     moto_url = '/shop?type=' + str(motorcycle.type_id.id) + '&make=' + str(
-                        motorcycle.make_id.id) + '&model=' + str(motorcycle.mmodel_id.id) + '&year=' + str(motorcycle.year_id)
+                        motorcycle.make_id.id) + '&model=' + str(motorcycle.mmodel_id.id) + '&year=' + str(motorcycle.year)
                     saved_bike_dic.update({
                         motorcycle.id:
                             {
