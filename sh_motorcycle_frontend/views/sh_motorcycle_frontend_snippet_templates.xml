@@ -45,7 +45,7 @@
                         <div id="id_sh_motorcycle_snippet_select_saved_bike_dropdown" class="dropdown sh_garage_buttons_cls">
 
                             <button
-                                id="id_sh_motorcycle_snippet_save_bike_to_garage_btn"
+                                id="id_sh_motorcycle_save_bike_to_garage_btn"
                                 type="button"
                                 class="btn btn-secondary"
                                 style="height: 38px; margin-left: 10px; display: none;">
