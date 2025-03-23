@@ -313,43 +313,37 @@ class sh_motorcycle(http.Controller):
             METHOD BY SOFTHEALER
             to check vehicle is already in garage or not
         """
-        search_motorcycle = False
+        is_already = False
+
         if (
-            request.env.user and
+            request.session.uid and
             type_id not in ('', "", None, False) and
             make_id not in ('', "", None, False) and
             model_id not in ('', "", None, False) and
             year_id not in ('', "", None, False)
         ):
             try:
-                if type_id != int:
-                    type_id = int(type_id)
-                if make_id != int:
-                    make_id = int(make_id)
-                if model_id != int:
-                    model_id = int(model_id)
-                if year_id != int:
-                    year_id = int(year_id)
-                garage_obj = request.env['motorcycle.garage']
+                type_id = int(type_id)
+                make_id = int(make_id)
+                model_id = int(model_id)
+                year_id = int(year_id)
 
-                search_motorcycle = garage_obj.sudo().search([
+                search_motorcycle = request.env['motorcycle.garage'].sudo().search([
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', model_id),
                     ('year_id', '=', year_id),
                     ('user_id', '=', request.env.user.id)
                 ], limit=1)
+
+                is_already = bool(search_motorcycle)
+
             except ValueError:
                 pass
 
-            if search_motorcycle:
-                return {
-                    'is_bike_already_in_garage': True
-                }
-            return {
-                'is_bike_already_in_garage': False
-            }
-        return {}
+        return {
+            'is_bike_already_in_garage': is_already
+        }
 
     @http.route(['/sh_motorcycle/add_bike_to_garage'], type='json', auth='public', website=True)
     def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year_id=None):
