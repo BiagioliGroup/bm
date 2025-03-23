@@ -20,7 +20,6 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     "click .js_cls_remove_vehicle_button": "_onClickRemoveVehicle",
   },
 
-  
   start: function () {
     var self = this;
     $("#id_sh_motorcycle_type_select > option").not(":first").remove();
@@ -175,14 +174,19 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   _onClickSaveBikeToGarage: function (ev) {
     var self = this;
     var result = self.getQueryString();
+
     rpc("/sh_motorcycle/add_bike_to_garage", {
       type_id: result["type"],
       make_id: result["make"],
       model_id: result["model"],
       year: result["year"],
     }).then(function (rec) {
-      //refresh the page
-      location.reload(true);
+      // Oculta el botón una vez guardado
+      $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
+
+      // Redirige como si se hubiera hecho clic en la lupa
+      var query = $.param(result); // convierte el objeto en query string
+      window.location.href = "/shop?" + query;
     });
   },
 
