@@ -19,12 +19,12 @@
                   type="object"
                   string="Generar Link de Pago de Prueba"
                   class="btn btn-primary"
-                  attrs="{'invisible': [('code', '!=', 'viumi')]}"/>
+                  invisible="code != 'viumi'"/>
         </xpath>
       </field>
     </record>
 
-    <!-- Botón para probar token, separado en su propio record -->
+    <!-- Botón para probar token (en pestaña Credenciales) -->
     <record id="view_payment_provider_form_viumi_token_test" model="ir.ui.view">
       <field name="name">payment.provider.form.viumi.token.test</field>
       <field name="model">payment.provider</field>
@@ -36,7 +36,7 @@
                     type="object"
                     string="Probar Token de Autenticación"
                     class="btn btn-secondary"
-                    attrs="{'invisible': [('code', '!=', 'viumi')]}"/>
+                    invisible="code != 'viumi'"/>
           </group>
         </xpath>
       </field>
