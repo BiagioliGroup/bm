@@ -23,9 +23,10 @@ class PaymentProvider(models.Model):
     viumi_sandbox_mode = fields.Boolean(string="Modo Sandbox", default=True)
 
     def _viumi_get_api_url(self):
-        """Base API endpoint para VIÜMI"""
-        return "https://sandbox.viumi.com.ar" if self.viumi_sandbox_mode else "https://api.viumi.com.ar"
-
+        if self.viumi_sandbox_mode:
+            return "https://auth.sandbox.geopagos.com"
+        return "https://auth.geopagos.com"
+    
     def _viumi_get_auth_url(self):
         """Base AUTH endpoint para VIÜMI (GeoPagos Auth Server)"""
         return "https://auth.sandbox.geopagos.com" if self.viumi_sandbox_mode else "https://auth.geopagos.com"
