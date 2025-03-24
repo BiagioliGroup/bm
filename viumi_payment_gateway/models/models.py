@@ -91,7 +91,8 @@ class PaymentProvider(models.Model):
         except requests.exceptions.RequestException as e:
             _logger.error(f"[VIUMI] Error al generar link de pago: {e}")
             return None
-    
+    #---------------------- -Acciones para testear-----------------
+
     def action_test_viumi_checkout(self):
         self.ensure_one()
         try:
@@ -132,3 +133,10 @@ class PaymentProvider(models.Model):
             }
         except Exception as e:
             raise UserError(f"Error al generar link de pago: {e}")
+        
+    def action_test_viumi_token(self):
+        self.ensure_one()
+        token = self._viumi_get_access_token()
+        if not token:
+            raise UserError("❌ No se pudo obtener el token. Verifica el Client ID y Secret.")
+        raise UserError(f"✅ Token obtenido correctamente:\n{token}")

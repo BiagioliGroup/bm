@@ -1,11 +1,11 @@
 <odoo>
   <data>
+    <!-- Vista principal extendida con campos de credenciales y botón de pago -->
     <record id="view_payment_provider_form_viumi" model="ir.ui.view">
       <field name="name">payment.provider.form.viumi</field>
       <field name="model">payment.provider</field>
       <field name="inherit_id" ref="payment.payment_provider_form"/>
       <field name="arch" type="xml">
-
         <!-- Campos de credenciales -->
         <xpath expr="//group[@name='provider_credentials']" position="inside">
           <field name="viumi_client_id" required="1"/>
@@ -19,9 +19,26 @@
                   type="object"
                   string="Generar Link de Pago de Prueba"
                   class="btn btn-primary"
-                  invisible="code != 'viumi'"/>
+                  attrs="{'invisible': [('code', '!=', 'viumi')]}"/>
         </xpath>
+      </field>
+    </record>
 
+    <!-- Botón para probar token, separado en su propio record -->
+    <record id="view_payment_provider_form_viumi_token_test" model="ir.ui.view">
+      <field name="name">payment.provider.form.viumi.token.test</field>
+      <field name="model">payment.provider</field>
+      <field name="inherit_id" ref="payment.payment_provider_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//page[@name='credentials']" position="inside">
+          <group>
+            <button name="action_test_viumi_token"
+                    type="object"
+                    string="Probar Token de Autenticación"
+                    class="btn btn-secondary"
+                    attrs="{'invisible': [('code', '!=', 'viumi')]}"/>
+          </group>
+        </xpath>
       </field>
     </record>
   </data>
