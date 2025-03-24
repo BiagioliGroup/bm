@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class PaymentProvider(models.Model):
     _inherit = 'payment.provider'
 
-    provider = fields.Selection(
+    code = fields.Selection(
         selection_add=[('viumi', "VIÜMI")],
         ondelete={'viumi': 'set default'}
     )
