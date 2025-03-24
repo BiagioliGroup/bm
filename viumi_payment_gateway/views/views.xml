@@ -1,19 +1,16 @@
 <odoo>
   <data>
-  <record id="view_payment_provider_form_viumi" model="ir.ui.view">
+    <record id="view_payment_provider_form_viumi" model="ir.ui.view">
       <field name="name">payment.provider.form.viumi</field>
       <field name="model">payment.provider</field>
       <field name="inherit_id" ref="payment.payment_provider_form"/>
       <field name="arch" type="xml">
           <xpath expr="//group[@name='provider_credentials']" position="inside">
-              <div attrs="{'invisible': [('code', '!=', 'viumi')]}">
-                  <field name="viumi_client_id" required="1"/>
-                  <field name="viumi_client_secret" password="True" required="1"/>
-                  <field name="viumi_sandbox_mode"/>
-              </div>
+              <field name="viumi_client_id" required="1"/>
+              <field name="viumi_client_secret" password="True" required="1"/>
+              <field name="viumi_sandbox_mode"/>
           </xpath>
       </field>
-  </record>
-
+    </record>
   </data>
 </odoo>
