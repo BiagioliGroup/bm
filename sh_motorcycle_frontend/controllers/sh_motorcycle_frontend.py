@@ -39,6 +39,37 @@ class MotorCycleWebsiteSale(WebsiteSale):
         values['vehicles'] = vehicles
         values['sh_is_common_product'] = sh_is_common_product
         return values
+    
+    def _get_motorcycle_context_from_details(self, details):
+        motorcycle_type = details[0].get('motorcycle_type')
+        motorcycle_make = details[0].get('motorcycle_make')
+        motorcycle_model = details[0].get('motorcycle_model')
+        motorcycle_year = details[0].get('motorcycle_year')
+
+        motorcycle_heading = ''
+
+        if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
+            try:
+                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
+                model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
+                motorcycle_heading = f"{type_obj.name} - {make_obj.name} - {model_obj.name} - {motorcycle_year}"
+                _logger.info(f"[🚀 Motorcycle Selected] {motorcycle_heading}")
+            except Exception as e:
+                _logger.warning(f"[⚠️ Error generating motorcycle_heading] {e}")
+                motorcycle_heading = ''
+
+        return {
+            'motorcycle_type': motorcycle_type or '',
+            'motorcycle_make': motorcycle_make or '',
+            'motorcycle_model': motorcycle_model or '',
+            'motorcycle_year': motorcycle_year or '',
+            'type_list': details[0].get('type_list', ''),
+            'make_list': details[0].get('make_list', ''),
+            'model_list': details[0].get('model_list', ''),
+            'year_list': details[0].get('year_list', ''),
+            'motorcycle_heading': motorcycle_heading,
+        }
 
     def _shop_lookup_products(self, attrib_set, options, post, search, website):
         """
@@ -217,17 +248,18 @@ class MotorCycleWebsiteSale(WebsiteSale):
         res = super(MotorCycleWebsiteSale, self).shop(
         page, category, search, min_price, max_price, ppg, **post)
 
-        _, _, _, moto_context = self._shop_lookup_products(
-            attrib_set=None,
-            options=self._get_search_options(category=category, **post),
-            post=post,
-            search=search,
-            website=request.website
+        # Obtener detalles de productos (como hace Odoo por defecto)
+        product_count, details, fuzzy_search_term = request.website._search_with_fuzzy(
+            "products_only", search,
+            limit=None,
+            order=self._get_search_order(post),
+            options=self._get_search_options(category=category, **post)
         )
 
+        moto_context = self._get_motorcycle_context_from_details(details)
         _logger.info("[🧠 DEBUG SHOP] Moto context: %s", moto_context)
 
-        res.qcontext.update(moto_context or {})
+        res.qcontext.update(moto_context)
         return res
 
 
