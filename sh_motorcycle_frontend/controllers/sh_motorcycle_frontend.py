@@ -6,6 +6,9 @@ from odoo import http
 from itertools import product as cartesian_product
 from collections import defaultdict
 from odoo.addons.website_sale.controllers.main import WebsiteSale
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class MotorCycleWebsiteSale(WebsiteSale):
     _sh_motorcycle_frontend_detail = {}
@@ -82,8 +85,10 @@ class MotorCycleWebsiteSale(WebsiteSale):
                 make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
                 model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
                 motorcycle_heading = f"{type_obj.name} - {make_obj.name} - {model_obj.name} - {motorcycle_year}"
-            except Exception:
-                motorcycle_heading = ''  # fallback por si alguno lanza error
+                _logger.info(f"[🚀 Motorcycle Selected] {motorcycle_heading}")
+            except Exception as e:
+                motorcycle_heading = ''
+                _logger.warning(f"[⚠️ Error generating motorcycle_heading] {e}")
 
         self._sh_motorcycle_frontend_detail = {
             'motorcycle_type': motorcycle_type or '',
