@@ -80,13 +80,13 @@
 
             <div t-if="not motorcycle_heading" id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width: 100%; position: relative;">
                 <h4 class="text-center" style="display: block; width: 100%;">
-                    Select your vehicle
+                    Seleccioná el vehiculo
                 </h4>
 
                 <form id="id_sh_motorcycle_search_form" class="form-inline" action="" method="get" style="justify-content: center !important; padding-right: 1%; display: flex; width: 90%;margin: 0 auto;">
                         
                         <select name="type" class="form-select" id='id_sh_motorcycle_type_select' style='height:38px;'>
-                            <option value="">Type</option>
+                            <option value="">Tipo</option>
                             	<!-- <t t-if="type_list">
                                		<t t-foreach="type_list" t-as="type_dic">
                                			 <option t-attf-value="#{type_dic.get('id','')}"  t-att-selected="type_dic.get('id','') == motorcycle_type"><t t-esc="type_dic.get('name','')"/></option>
@@ -96,7 +96,7 @@
 
 						
                         <select name="make" class="form-select " id='id_sh_motorcycle_make_select' style='height:38px;'>
-                            <option value="">Make</option>
+                            <option value="">Marca</option>
 
                             <t t-if="make_list">
                                 <t t-foreach="make_list" t-as="make_dic">
@@ -106,7 +106,7 @@
                         </select>
 
                         <select name="model" class="form-select " id='id_sh_motorcycle_model_select' style='height:38px;'>
-                            <option value="">Model</option>
+                            <option value="">Modelo</option>
 
                             <t t-if="model_list">
                                 <t t-foreach="model_list" t-as="model_dic">
@@ -116,7 +116,7 @@
                         </select>
 
                         <select name="year" class="form-select " id='id_sh_motorcycle_year_select' style='height:38px;'>
-                            <option value="">Year</option>
+                            <option value="">Año</option>
 
                             <t t-if="year_list">
                                 <t t-foreach="year_list" t-as="year_item">
