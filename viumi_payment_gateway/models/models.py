@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
-from odoo.addons.payment.models.payment_provider import PROVIDER_SELECTION
+from odoo import models, fields, api, _Er
 import requests
 import json
 import logging
-
-PROVIDER_SELECTION.append(('viumi', "VIÜMI"))
 
 _logger = logging.getLogger(__name__)
 
 class PaymentProvider(models.Model):
     _inherit = 'payment.provider'
 
+    provider = fields.Selection(
+        selection_add=[('viumi', "VIÜMI")],
+        ondelete={'viumi': 'set default'}
+    )
     
     # Campos de configuración
     viumi_client_id = fields.Char(string="VIÜMI Client ID", help="ID público proporcionado por VIÜMI")
