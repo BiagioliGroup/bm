@@ -213,6 +213,8 @@ class MotorCycleWebsiteSale(WebsiteSale):
         get motorcyle values from self._sh_motorcycle_frontend_detail and add in qcontext in order to use in
         template - website_sale.products
         """
+        
+        _logger.info("[🔧 Custom Shop Controller Hit]")
         res = super(MotorCycleWebsiteSale, self).shop(
             page, category, search, min_price, max_price, ppg, **post)
         res.qcontext.update(self._sh_motorcycle_frontend_detail)
