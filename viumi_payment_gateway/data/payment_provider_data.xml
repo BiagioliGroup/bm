@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="payment_provider_viumi" model="payment.provider">
+        <field name="name">VIÜMI</field>
+        <field name="code">viumi</field>
+        <field name="module_id" ref="base.module_payment"/> <!-- opcional -->
+        <field name="state">disabled</field> <!-- o 'test' si querés habilitarlo ya -->
+        <field name="viumi_client_id">test_client_id</field> <!-- si querés preconfigurar -->
+        <field name="viumi_client_secret">test_secret</field>
+        <field name="viumi_sandbox_mode">True</field>
+    </record>
+</odoo>
