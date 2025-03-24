@@ -90,7 +90,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
                 motorcycle_heading = ''
                 _logger.warning(f"[⚠️ Error generating motorcycle_heading] {e}")
 
-        self._sh_motorcycle_frontend_detail = {
+        return fuzzy_search_term, product_count, search_result, {
             'motorcycle_type': motorcycle_type or '',
             'motorcycle_make': motorcycle_make or '',
             'motorcycle_model': motorcycle_model or '',
@@ -214,10 +214,20 @@ class MotorCycleWebsiteSale(WebsiteSale):
         template - website_sale.products
         """
         
-        _logger.info("[🔧 Custom Shop Controller Hit]")
         res = super(MotorCycleWebsiteSale, self).shop(
-            page, category, search, min_price, max_price, ppg, **post)
-        res.qcontext.update(self._sh_motorcycle_frontend_detail)
+        page, category, search, min_price, max_price, ppg, **post)
+
+        _, _, _, moto_context = self._shop_lookup_products(
+            attrib_set=None,
+            options=self._get_search_options(category=category, **post),
+            post=post,
+            search=search,
+            website=request.website
+        )
+
+        _logger.info("[🧠 DEBUG SHOP] Moto context: %s", moto_context)
+
+        res.qcontext.update(moto_context or {})
         return res
 
 
