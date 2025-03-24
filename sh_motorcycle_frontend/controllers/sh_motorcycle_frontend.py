@@ -69,8 +69,20 @@ class MotorCycleWebsiteSale(WebsiteSale):
         # --------------------------------------------------------------------
         # we assigned motorcycle detaile in controller variable - _sh_motorcycle_frontend_detail
         # in order to use it in shop controller.
+        motorcycle_type = details[0].get('motorcycle_type')
+        motorcycle_make = details[0].get('motorcycle_make')
+        motorcycle_model = details[0].get('motorcycle_model')
+        motorcycle_year = details[0].get('motorcycle_year')
+
+        motorcycle_heading = ''
+        if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
+            type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
+            make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
+            model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
+            motorcycle_heading = f"{type_obj.name} - {make_obj.name} - {model_obj.name} - {motorcycle_year}"
+
         self._sh_motorcycle_frontend_detail = {
-            'motorcycle_heading': details[0].get('motorcycle_heading', ''),
+            'motorcycle_heading': motorcycle_heading,
             'motorcycle_type': details[0].get('motorcycle_type', ''),
             'motorcycle_make': details[0].get('motorcycle_make', ''),
             'motorcycle_model': details[0].get('motorcycle_model', ''),
