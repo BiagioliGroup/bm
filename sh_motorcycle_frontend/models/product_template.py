@@ -235,6 +235,8 @@ class ProductTemplate(models.Model):
             'model_list': model_list,
             'year_list': year_list,
         })
+
+        _logger.info(f"motorcycle_heading = {motorcycle_heading}")
         # --------------------------------------------------------------------
         # softhealer custom code ends here
         # --------------------------------------------------------------------
