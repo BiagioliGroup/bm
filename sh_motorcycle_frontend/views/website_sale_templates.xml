@@ -69,12 +69,14 @@
     -->
     
     <template id="sh_motorcycle_website_sale_products" inherit_id="website_sale.products" name="Motorcycle Filter" customize_show="True">
-        <xpath expr="//div[hasclass('oe_website_sale')]//div[1]" position="before">
+        <xpath expr="//div[contains(@class, 'oe_website_sale')]" position="inside">
             <t t-if="motorcycle_heading">
                 <h3 class="text-center mt-3 text-center">
-                    <t t-esc="motorcycle_heading" />
+                    Vehículo seleccionado: <t t-esc="motorcycle_heading" />
                 </h3>
             </t>
+        </xpath>
+           
 
             <div t-if="not motorcycle_heading" id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width: 100%; position: relative;">
                 <h4 class="text-center" style="display: block; width: 100%;">
