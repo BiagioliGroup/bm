@@ -75,22 +75,26 @@ class MotorCycleWebsiteSale(WebsiteSale):
         motorcycle_year = details[0].get('motorcycle_year')
 
         motorcycle_heading = ''
+
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
-            type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
-            make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
-            model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
-            motorcycle_heading = f"{type_obj.name} - {make_obj.name} - {model_obj.name} - {motorcycle_year}"
+            try:
+                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
+                model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
+                motorcycle_heading = f"{type_obj.name} - {make_obj.name} - {model_obj.name} - {motorcycle_year}"
+            except Exception:
+                motorcycle_heading = ''  # fallback por si alguno lanza error
 
         self._sh_motorcycle_frontend_detail = {
-            'motorcycle_heading': motorcycle_heading,
-            'motorcycle_type': details[0].get('motorcycle_type', ''),
-            'motorcycle_make': details[0].get('motorcycle_make', ''),
-            'motorcycle_model': details[0].get('motorcycle_model', ''),
-            'motorcycle_year': details[0].get('motorcycle_year', ''),
+            'motorcycle_type': motorcycle_type or '',
+            'motorcycle_make': motorcycle_make or '',
+            'motorcycle_model': motorcycle_model or '',
+            'motorcycle_year': motorcycle_year or '',
             'type_list': details[0].get('type_list', ''),
             'make_list': details[0].get('make_list', ''),
             'model_list': details[0].get('model_list', ''),
             'year_list': details[0].get('year_list', ''),
+            'motorcycle_heading': motorcycle_heading,
         }
         # --------------------------------------------------------------------
         # softhealer custom code ends here

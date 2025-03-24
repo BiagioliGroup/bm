@@ -75,15 +75,12 @@
                     Vehículo seleccionado: <t t-esc="motorcycle_heading"/>
                 </h3>
             </t>
-            <t t-if="not motorcycle_heading">
-                <h3 class="text-center mt-3 text-muted">
-                    No hay ningún vehículo seleccionado
-                </h3>
-            </t>
-        
            
 
             <div t-if="not motorcycle_heading" id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width: 100%; position: relative;">
+                <h4 class="text-center mt-3 text-muted">
+                    No hay ningún vehículo seleccionado
+                </h4>
                 <h4 class="text-center" style="display: block; width: 100%;">
                     Seleccioná el vehiculo '
                 </h4>
