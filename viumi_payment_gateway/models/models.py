@@ -21,8 +21,12 @@ class PaymentProvider(models.Model):
     viumi_sandbox_mode = fields.Boolean(string="Modo Sandbox", default=True)
 
     def _viumi_get_api_url(self):
-        """Retorna la base_url de la API según entorno"""
+        """Base API endpoint para VIÜMI"""
         return "https://sandbox.viumi.com.ar" if self.viumi_sandbox_mode else "https://api.viumi.com.ar"
+
+    def _viumi_get_auth_url(self):
+        """Base AUTH endpoint para VIÜMI (GeoPagos Auth Server)"""
+        return "https://auth.sandbox.geopagos.com" if self.viumi_sandbox_mode else "https://auth.geopagos.com"
 
     def _viumi_get_access_token(self):
         """Autenticación y obtención del JWT para usar en la API"""
@@ -84,3 +88,44 @@ class PaymentProvider(models.Model):
         except requests.exceptions.RequestException as e:
             _logger.error(f"[VIUMI] Error al generar link de pago: {e}")
             return None
+    
+    def action_test_viumi_checkout(self):
+        self.ensure_one()
+        try:
+            link = self.viumi_generate_checkout_link(
+                amount=1500.00,
+                concept="Prueba desde botón",
+                success_url="https://biagioligroup.com.ar/pago-exitoso",
+                error_url="https://biagioligroup.com.ar/pago-error"
+            )
+            if not link:
+                raise UserError("No se generó el link de pago.")
+
+            # Mostramos el link como popup
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Link de pago VIÜMI',
+                'res_model': 'ir.ui.view',
+                'view_mode': 'form',
+                'target': 'new',
+                'views': [(False, 'form')],
+                'context': {
+                    'default_name': 'Link de pago generado',
+                    'default_arch': f'''
+                        <form string="Link de Pago VIÜMI">
+                            <sheet>
+                                <group>
+                                    <label string="Copia y pegá este link en el navegador:"/>
+                                    <field name="type" invisible="1"/>
+                                    <field name="arch" invisible="1"/>
+                                    <div>
+                                        <p><a href="{link}" target="_blank">{link}</a></p>
+                                    </div>
+                                </group>
+                            </sheet>
+                        </form>
+                    ''',
+                },
+            }
+        except Exception as e:
+            raise UserError(f"Error al generar link de pago: {e}")
