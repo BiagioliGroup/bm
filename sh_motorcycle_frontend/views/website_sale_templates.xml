@@ -75,7 +75,7 @@
                     Vehículo seleccionado: <t t-esc="motorcycle_heading" />
                 </h3>
             </t>
-        </xpath>
+        
            
 
             <div t-if="not motorcycle_heading" id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width: 100%; position: relative;">
