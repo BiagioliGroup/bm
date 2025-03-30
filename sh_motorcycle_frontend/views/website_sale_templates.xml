@@ -136,7 +136,7 @@
                 </a>
                 <div class="dropdown sh_garage_buttons_cls" t-if="request.session.uid and website.sh_is_show_garage">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 10%;">
-                        My Garage
+                        My Garage 
                     </button>
                     <div class="dropdown-menu" id='id_sh_motorcycle_select_saved_bike_div' aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
                         <a class="dropdown-item" href="#">Action</a>
@@ -154,7 +154,7 @@
                 <t t-if="request.session.uid and website.sh_is_show_garage">
                     <span id="id_sh_motorcycle_save_bike_to_garage_btn" class="btn ui-link link-primary">
                         <i class="fa fa-plus"></i>
-                        Save bike to garage
+                        Guardar moto al garage
                     </span>
                 </t>
 
