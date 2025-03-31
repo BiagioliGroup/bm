@@ -256,9 +256,9 @@
 
     <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
         <xpath expr="//div[@id='product_details']/h1" position="before">
-            <t t-if="product.default_code">
-                <div class="text-muted small mb-2">
-                    <strong>Código:</strong> <t t-esc="product.default_code"/>
+            <t t-if="product_variant and product_variant.default_code">
+                <div id="variant_default_code" class="text-muted small mb-2">
+                    <strong>Código:</strong> <span t-esc="product_variant.default_code"/>
                 </div>
             </t>
         </xpath>
