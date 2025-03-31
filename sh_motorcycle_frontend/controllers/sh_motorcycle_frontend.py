@@ -38,6 +38,9 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
         values['vehicles'] = vehicles
         values['sh_is_common_product'] = sh_is_common_product
+
+        values['default_code'] = product.default_code
+
         return values
     
     def _get_motorcycle_context_from_details(self, details):

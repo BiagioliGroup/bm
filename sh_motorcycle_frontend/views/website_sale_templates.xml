@@ -7,6 +7,9 @@
 	-->
 	<template id="sh_supported_vehicles" inherit_id="website_sale.product" active="True" customize_show="True" name="Supported Vehicles">
         <xpath expr="//div[@id='product_detail_main']" position="after">
+        
+            <!-- 🛠️ TABLA DE COMPATIBILIDAD VEHICULAR -->
+
             <div class="tab-pane" id="sh_supported" role="tabpanel">
                 <section class="container">
                     <div class="row">
@@ -38,7 +41,7 @@
 
                         <div t-if="sh_is_common_product" class="col-lg-12">
                             <div class="alert alert-success text-center">
-                                <strong>Producto universal para todos los vehiculos</strong>
+                                <strong>Mounting is possible on all vehicles.</strong>
                             </div>
                         </div>
                     </div>
@@ -237,4 +240,28 @@
             </div>
         </xpath>
     </template>
+
+    <!-- Agregado de linea de codigo para Tarjeta de Productos , por BiagioliGroup -->
+
+   <!-- ✅ GRID VIEW (tarjetas) -->
+    <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
+        <xpath expr="//div[contains(@class, 'o_wsale_product_information')]" position="inside">
+            <t t-if="product.default_code">
+                <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
+            </t>
+        </xpath>
+    </template>
+
+
+
+    <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
+        <xpath expr="//div[@id='product_details']/h1" position="before">
+            <t t-if="product.default_code">
+                <div class="text-muted small mb-2">
+                    <strong>Código:</strong> <t t-esc="product.default_code"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
 </odoo>
