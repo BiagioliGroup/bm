@@ -22,12 +22,12 @@
                             <option value="">Marca</option>
                         </select>
 
-                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style='height: 38px;'>
-                            <option value="">Modelo</option>
-                        </select>
-
                         <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style='height: 38px;'>
                             <option value="">Año</option>
+                        </select>
+
+                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style='height: 38px;'>
+                            <option value="">Modelo</option>
                         </select>
 
                         <input type="hidden" id="id_input_sh_moto_categ_id" name="category" value="" />

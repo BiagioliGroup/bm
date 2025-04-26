@@ -75,54 +75,75 @@ class MotorCycleWebsiteSale(WebsiteSale):
         }
 
     def _shop_lookup_products(self, attrib_set, options, post, search, website):
-        """
-        REPLACE/OVERWRITE METHOD BY SOFTHEALER
-        """
+        _logger.info(
+            "[🔎 _shop_lookup_products] ENTER options=%s, post=%s, search=%r",
+            options, post, search
+        )
+
+        # Llamada original al método fuzzy
         product_count, details, fuzzy_search_term = website._search_with_fuzzy(
             "products_only", search,
             limit=None,
             order=self._get_search_order(post),
             options=options
         )
-        
-        search_result = details[0].get('results', request.env['product.template']).with_context(bin_size=True)
 
-        # Softhealer context
-        motorcycle_type = details[0].get('motorcycle_type')
-        motorcycle_make = details[0].get('motorcycle_make')
+        search_result = details[0].get('results', request.env['product.template'])\
+                                     .with_context(bin_size=True)
+
+        _logger.info(
+            "[🔎 _shop_lookup_products] fuzzy='%s', count=%s, result_ids=%s",
+            fuzzy_search_term, product_count, search_result.ids
+        )
+
+        # Extraemos el contexto motero
+        motorcycle_type  = details[0].get('motorcycle_type')
+        motorcycle_make  = details[0].get('motorcycle_make')
         motorcycle_model = details[0].get('motorcycle_model')
-        motorcycle_year = details[0].get('motorcycle_year')
+        motorcycle_year  = details[0].get('motorcycle_year')
 
         motorcycle_heading = ''
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             try:
-                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
-                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
+                type_obj  = request.env['motorcycle.type'].browse(int(motorcycle_type))
+                make_obj  = request.env['motorcycle.make'].browse(int(motorcycle_make))
                 model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
-                motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
-                _logger.info(f"[🚀 Motorcycle Selected de _shop_lookup_products] {motorcycle_heading}")
+                motorcycle_heading = (
+                    f"{type_obj.name} - {make_obj.name} "
+                    f"{model_obj.name} {motorcycle_year}"
+                )
+                _logger.info(
+                    "[🚀 _shop_lookup_products] motorcycle_heading=%r",
+                    motorcycle_heading
+                )
             except Exception as e:
-                _logger.warning(f"[⚠️ Error generating motorcycle_heading] {e}")
+                _logger.warning(
+                    "[⚠️ _shop_lookup_products] Error generating heading: %s", e
+                )
 
-        # Guardamos el contexto extendido en el atributo del controlador
+        # Guardamos el contexto extendido
         self._sh_motorcycle_frontend_detail = {
             'motorcycle_type': motorcycle_type or '',
             'motorcycle_make': motorcycle_make or '',
             'motorcycle_model': motorcycle_model or '',
             'motorcycle_year': motorcycle_year or '',
-            'type_list': details[0].get('type_list', ''),
-            'make_list': details[0].get('make_list', ''),
-            'model_list': details[0].get('model_list', ''),
-            'year_list': details[0].get('year_list', ''),
+            'type_list':   details[0].get('type_list',   []),
+            'make_list':   details[0].get('make_list',   []),
+            'model_list':  details[0].get('model_list',  []),
+            'year_list':   details[0].get('year_list',   []),
             'motorcycle_heading': motorcycle_heading,
         }
 
-        # Attribute filtering
+        _logger.info(
+            "[🔎 _shop_lookup_products] context saved: %s",
+            self._sh_motorcycle_frontend_detail
+        )
+
+        # Filtrado por atributos (sin cambios)
         if attrib_set:
             attribute_values = request.env['product.attribute.value'].browse(attrib_set)
             values_per_attribute = defaultdict(lambda: request.env['product.attribute.value'])
             multi_value_attribute = False
-
             for value in attribute_values:
                 values_per_attribute[value.attribute_id] |= value
                 if len(values_per_attribute[value.attribute_id]) > 1:
@@ -164,7 +185,12 @@ class MotorCycleWebsiteSale(WebsiteSale):
             search_result = search_result.filtered(
                 lambda tmpl: filter_template(tmpl, possible_attrib_values_list)
             )
+            _logger.info(
+                "[🔎 _shop_lookup_products] after attribute filter, ids=%s",
+                search_result.ids
+            )
 
+        _logger.info("[🔎 _shop_lookup_products] RETURNING")
         return fuzzy_search_term, product_count, search_result
 
 
@@ -186,6 +212,8 @@ class MotorCycleWebsiteSale(WebsiteSale):
             'model': post.get('model', False),
             'year': post.get('year', False),
         }
+        _logger.info("[🔍 _get_search_options] post params: %s", post)
+        _logger.info("[🔍 _get_search_options] options built: %s", result)
         result.update(options_motorcycle)
         return result
 
@@ -229,8 +257,13 @@ class MotorCycleWebsiteSale(WebsiteSale):
             website=request.website
         )
 
-        moto_context = self._sh_motorcycle_frontend_detail
-        _logger.info("[🧠 CONTEXTO PARA SHOP] %s", moto_context)
+        moto_context = self._sh_motorcycle_frontend_detail.copy()
+        moto_context.update({
+        'filter_order': request.website.sh_filter_order,
+        'show_only_with_products': request.website.sh_show_only_with_products,
+    })
+        _logger.info("🔧 filter_order=%s, show_only_with_products=%s", 
+                 moto_context['filter_order'], moto_context['show_only_with_products'])
 
         request.update_context(**moto_context)
 

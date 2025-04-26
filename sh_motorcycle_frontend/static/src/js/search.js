@@ -9,9 +9,9 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   selector: "#wrap",
   events: {
     "change #id_sh_motorcycle_type_select": "_onChangeTypeGetMake",
-    "change #id_sh_motorcycle_make_select": "_onChangeMakeGetModel",
-    "change #id_sh_motorcycle_model_select": "_onChangeModelGetYear",
-    "change #id_sh_motorcycle_year_select": "_onChangeYear",
+    "change #id_sh_motorcycle_make_select": "_onChangeMakeGetYear",
+    "change #id_sh_motorcycle_year_select": "_onChangeYearGetModel",
+    "change #id_sh_motorcycle_model_select": "_onChangeModel",
     "click #id_sh_motorcycle_select_diff_bike_btn": "_onClickSelectDiffVehicle",
     "click #id_sh_motorcycle_search_diff_bike_close":
       "_onClickSelectDiffVehicleClose",
@@ -98,54 +98,47 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     });
   },
 
-  _onChangeMakeGetModel: function (e) {
-    var self = this;
+  _onChangeMakeGetYear: function (e) {
     e.preventDefault();
-
-    //clean model
+    // Limpia año y modelo
+    $("#id_sh_motorcycle_year_select > option").not(":first").remove();
     $("#id_sh_motorcycle_model_select > option").not(":first").remove();
-
-    //clean year
-    $("#id_sh_motorcycle_year_select > option").not(":first").remove();
-
-    rpc("/sh_motorcycle/get_model_list", {
-      type_id: $("#id_sh_motorcycle_type_select > option:selected").val(),
-      make_id: $("#id_sh_motorcycle_make_select > option:selected").val(),
-    }).then(function (data) {
-      jQuery.each(data, function (key, value) {
-        $("#id_sh_motorcycle_model_select").append(
-          '<option value="' + value.id + '">' + value.name + "</option>"
-        );
-      });
-      self.diable_select_options();
-    });
-  },
-
-  _onChangeModelGetYear: function (e) {
-    var self = this;
-    e.preventDefault();
-
-    //clean year
-    $("#id_sh_motorcycle_year_select > option").not(":first").remove();
-
+    // Carga años para tipo+marca
     rpc("/sh_motorcycle/get_year_list", {
-      type_id: $("#id_sh_motorcycle_type_select > option:selected").val(),
-      make_id: $("#id_sh_motorcycle_make_select > option:selected").val(),
-      model_id: $("#id_sh_motorcycle_model_select > option:selected").val(),
-    }).then(function (data) {
-      jQuery.each(data, function (key, value) {
+      type_id: $("#id_sh_motorcycle_type_select").val(),
+      make_id: $("#id_sh_motorcycle_make_select").val(),
+    }).then((data) => {
+      data.forEach((year) => {
         $("#id_sh_motorcycle_year_select").append(
-          '<option value="' + value + '">' + value + "</option>"
+          `<option value="${year}">${year}</option>`
         );
       });
-      self.diable_select_options();
+      this.diable_select_options();
     });
   },
 
-  _onChangeYear: function (e) {
-    var self = this;
+  _onChangeYearGetModel: function (e) {
     e.preventDefault();
-    self.diable_select_options();
+    // Limpia modelo
+    $("#id_sh_motorcycle_model_select > option").not(":first").remove();
+    // Carga modelos para tipo+marca+año
+    rpc("/sh_motorcycle/get_model_list", {
+      type_id: $("#id_sh_motorcycle_type_select").val(),
+      make_id: $("#id_sh_motorcycle_make_select").val(),
+      year: $("#id_sh_motorcycle_year_select").val(),
+    }).then((data) => {
+      data.forEach((d) => {
+        $("#id_sh_motorcycle_model_select").append(
+          `<option value="${d.id}">${d.name}</option>`
+        );
+      });
+      this.diable_select_options();
+    });
+  },
+
+  _onChangeModel: function (e) {
+    e.preventDefault();
+    this.diable_select_options();
   },
 
   _onClickSelectDiffVehicle: function () {

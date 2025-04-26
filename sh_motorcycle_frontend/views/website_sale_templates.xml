@@ -111,24 +111,30 @@
                             </t>
                         </select>
 
-                        <select name="model" class="form-select " id='id_sh_motorcycle_model_select' style='height:38px;'>
-                            <option value="">Modelo</option>
-
-                            <t t-if="model_list">
-                                <t t-foreach="model_list" t-as="model_dic">
-                                    <option t-attf-value="#{model_dic.get('id','')}" t-att-selected="model_dic.get('id','') == motorcycle_model"><t t-esc="model_dic.get('name','')" /></option>
+                        <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style="height:38px;">
+                            <option value="">Año</option>
+                            <t t-if="year_list">
+                                <t t-foreach="year_list" t-as="year_item">
+                                <option 
+                                    t-att-value="#{year_item}"
+                                    t-att-selected="year_item == motorcycle_year">
+                                    <t t-esc="year_item"/>
+                                </option>
                                 </t>
                             </t>
                         </select>
 
-                        <select name="year" class="form-select " id='id_sh_motorcycle_year_select' style='height:38px;'>
-                            <option value="">Año</option>
-
-                            <t t-if="year_list">
-                                <t t-foreach="year_list" t-as="year_item">
-                                    <option t-attf-value="#{year_item}" t-att-selected="year_item == motorcycle_year"><t t-esc="year_item" /></option>
+                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style="height:38px;">
+                            <option value="">Modelo</option>
+                                <t t-if="model_list">
+                                    <t t-foreach="model_list" t-as="model_dic">
+                                    <option 
+                                        t-attf-value="#{model_dic.get('id','')}"
+                                        t-att-selected="model_dic.get('id','') == motorcycle_model">
+                                        <t t-esc="model_dic.get('name','')"/>
+                                    </option>
+                                    </t>
                                 </t>
-                            </t>
                         </select>
 
                     <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height:38px;'>
@@ -192,25 +198,32 @@
                                 </t>
                             </select>
 
-                            <select name="model" class="form-select " id='id_sh_motorcycle_model_select' style='height:38px;'>
-                                <option value="">Modelo</option>
+                            <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style="height:38px;">
+                            <option value="">Año</option>
+                            <t t-if="year_list">
+                                <t t-foreach="year_list" t-as="year_item">
+                                <option 
+                                    t-att-value="#{year_item}"
+                                    t-att-selected="year_item == motorcycle_year">
+                                    <t t-esc="year_item"/>
+                                </option>
+                                </t>
+                            </t>
+                        </select>
 
+                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style="height:38px;">
+                            <option value="">Modelo</option>
                                 <t t-if="model_list">
                                     <t t-foreach="model_list" t-as="model_dic">
-                                        <option t-attf-value="#{model_dic.get('id','')}" t-att-selected="model_dic.get('id','') == motorcycle_model"><t t-esc="model_dic.get('name','')" /></option>
+                                    <option 
+                                        t-attf-value="#{model_dic.get('id','')}"
+                                        t-att-selected="model_dic.get('id','') == motorcycle_model">
+                                        <t t-esc="model_dic.get('name','')"/>
+                                    </option>
                                     </t>
                                 </t>
-                            </select>
+                        </select>
 
-                            <select name="year" class="form-select " id='id_sh_motorcycle_year_select' style='height:38px;'>
-                                <option value="">Año</option>
-
-                                <t t-if="year_list">
-                                    <t t-foreach="year_list" t-as="year_item">
-                                        <option t-attf-value="#{year_item}" t-att-selected="year_item == motorcycle_year"><t t-esc="year_item" /></option>
-                                    </t>
-                                </t>
-                            </select>
 
                         <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height: 38px;'>
                             <i class="fa fa-search"></i>
