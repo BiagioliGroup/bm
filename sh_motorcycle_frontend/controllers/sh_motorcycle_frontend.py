@@ -259,9 +259,10 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
         moto_context = self._sh_motorcycle_frontend_detail.copy()
         moto_context.update({
-        'filter_order': request.website.sh_filter_order,
-        'show_only_with_products': request.website.sh_show_only_with_products,
-    })
+            'filter_order': getattr(request.website, 'sh_filter_order', False),
+            'show_only_with_products': getattr(request.website, 'sh_show_only_with_products', False),
+        })
+        
         _logger.info("🔧 filter_order=%s, show_only_with_products=%s", 
                  moto_context['filter_order'], moto_context['show_only_with_products'])
 
