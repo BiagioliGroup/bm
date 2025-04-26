@@ -73,24 +73,22 @@
 	    IN ORDER TO GIVE SEARCH OPTIONS
     -->
     
-    <template id="sh_motorcycle_override_search_block"
-                inherit_id="website_sale.products"
-                name="Replace motorcycle search block"
-                active="True"
-                customize_show="True">
-        <!-- Reemplaza todo el DIV que contiene los h4 y el form -->
-        <xpath expr="//div[@id='id_sh_motorcycle_search_div']" position="replace">
-        <div id="id_sh_motorcycle_search_div"
-            class="form-inline justify-content-center"
-            t-if="not motorcycle_heading"
-            style="width:100%;position:relative;">
-            <h4 class="text-center mt-3 text-muted">No hay ningún vehículo seleccionado</h4>
-            <h4 class="text-center" style="display:block;width:100%;">Seleccioná tu Vehículo</h4>
-            <form id="id_sh_motorcycle_search_form"
-                class="form-inline"
-                action=""
-                method="get"
-                style="justify-content:center;display:flex;width:90%;margin:0 auto;">
+    <template id="sh_override_search_block"
+          inherit_id="sh_motorcycle_frontend.sh_motorcycle_website_sale_products"
+          name="Replace motorcycle search block">
+  <xpath expr="//div[@id='id_sh_motorcycle_search_div']" position="replace">
+    <!-- Aquí va TODO tu nuevo bloque con Tipo → Marca → Año → Modelo -->
+    <div id="id_sh_motorcycle_search_div"
+         class="form-inline justify-content-center"
+         t-if="not motorcycle_heading"
+         style="width:100%;position:relative;">
+      <h4 class="text-center mt-3 text-muted">No hay ningún vehículo seleccionado</h4>
+      <h4 class="text-center" style="display:block;width:100%;">Seleccioná tu Vehículo</h4>
+      <form id="id_sh_motorcycle_search_form"
+            class="form-inline"
+            action=""
+            method="get"
+            style="justify-content:center;display:flex;width:90%;margin:0 auto;">
                     <!-- 1) Tipo -->
                     <select name="type"
                             id="id_sh_motorcycle_type_select"
