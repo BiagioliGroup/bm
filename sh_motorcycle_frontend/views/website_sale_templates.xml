@@ -73,73 +73,84 @@
 	    IN ORDER TO GIVE SEARCH OPTIONS
     -->
     
-    <template id="sh_motorcycle_website_sale_products" inherit_id="website_sale.products" name="Motorcycle Filter" customize_show="True">
-        <xpath expr="//div[contains(@class, 'oe_website_sale')]" position="before">
-            <t t-if="motorcycle_heading">
-                <h4 class="text-center mt-3 text-primary">
-                    Vehículo seleccionado: <b><t t-esc="motorcycle_heading"/></b>
-                </h4>
-            </t>
-
-            <div t-if="not motorcycle_heading" id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width: 100%; position: relative;">
-                <h4 class="text-center mt-3 text-muted">
-                    No hay ningún vehículo seleccionado
-                </h4>
-                <h4 class="text-center" style="display: block; width: 100%;">
-                    Seleccioná el vehiculo '
-                </h4>
-
-                <form id="id_sh_motorcycle_search_form" class="form-inline" action="" method="get" style="justify-content: center !important; padding-right: 1%; display: flex; width: 90%;margin: 0 auto;">
-                        
-                        <select name="type" class="form-select" id='id_sh_motorcycle_type_select' style='height:38px;'>
-                            <option value="">Tipo</option>
-                            	<!-- <t t-if="type_list">
-                               		<t t-foreach="type_list" t-as="type_dic">
-                               			 <option t-attf-value="#{type_dic.get('id','')}"  t-att-selected="type_dic.get('id','') == motorcycle_type"><t t-esc="type_dic.get('name','')"/></option>
-                               		</t>
-                               	</t> -->
-                        </select>
-
-						
-                        <select name="make" class="form-select " id='id_sh_motorcycle_make_select' style='height:38px;'>
-                            <option value="">Marca</option>
-
-                            <t t-if="make_list">
-                                <t t-foreach="make_list" t-as="make_dic">
-                                    <option t-attf-value="#{make_dic.get('id','')}" t-att-selected="make_dic.get('id','') == motorcycle_make"><t t-esc="make_dic.get('name','')" /></option>
-                                </t>
-                            </t>
-                        </select>
-
-                        <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style="height:38px;">
-                            <option value="">Año</option>
-                            <t t-if="year_list">
-                                <t t-foreach="year_list" t-as="year_item">
-                                <option 
-                                    t-att-value="#{year_item}"
+    <template id="sh_motorcycle_override_search_block"
+                inherit_id="website_sale.products"
+                name="Replace motorcycle search block"
+                active="True"
+                customize_show="True">
+        <!-- Reemplaza todo el DIV que contiene los h4 y el form -->
+        <xpath expr="//div[@id='id_sh_motorcycle_search_div']" position="replace">
+        <div id="id_sh_motorcycle_search_div"
+            class="form-inline justify-content-center"
+            t-if="not motorcycle_heading"
+            style="width:100%;position:relative;">
+            <h4 class="text-center mt-3 text-muted">No hay ningún vehículo seleccionado</h4>
+            <h4 class="text-center" style="display:block;width:100%;">Seleccioná tu Vehículo</h4>
+            <form id="id_sh_motorcycle_search_form"
+                class="form-inline"
+                action=""
+                method="get"
+                style="justify-content:center;display:flex;width:90%;margin:0 auto;">
+                    <!-- 1) Tipo -->
+                    <select name="type"
+                            id="id_sh_motorcycle_type_select"
+                            class="form-select"
+                            style="height:38px;">
+                        <option value="">Tipo</option>
+                    </select>
+                    <!-- 2) Marca -->
+                    <select name="make"
+                            id="id_sh_motorcycle_make_select"
+                            class="form-select"
+                            style="height:38px;">
+                        <option value="">Marca</option>
+                        <t t-if="make_list">
+                        <t t-foreach="make_list" t-as="make_dic">
+                            <option t-att-value="make_dic.get('id')"
+                                    t-att-selected="make_dic.get('id') == motorcycle_make">
+                            <t t-esc="make_dic.get('name')"/>
+                            </option>
+                        </t>
+                        </t>
+                    </select>
+                    <!-- 3) Año -->
+                    <select name="year"
+                            id="id_sh_motorcycle_year_select"
+                            class="form-select"
+                            style="height:38px;">
+                        <option value="">Año</option>
+                        <t t-if="year_list">
+                        <t t-foreach="year_list" t-as="year_item">
+                            <option t-att-value="year_item"
                                     t-att-selected="year_item == motorcycle_year">
-                                    <t t-esc="year_item"/>
-                                </option>
-                                </t>
-                            </t>
-                        </select>
-
-                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style="height:38px;">
-                            <option value="">Modelo</option>
-                                <t t-if="model_list">
-                                    <t t-foreach="model_list" t-as="model_dic">
-                                    <option 
-                                        t-attf-value="#{model_dic.get('id','')}"
-                                        t-att-selected="model_dic.get('id','') == motorcycle_model">
-                                        <t t-esc="model_dic.get('name','')"/>
-                                    </option>
-                                    </t>
-                                </t>
-                        </select>
-
-                    <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height:38px;'>
-                        <i class="fa fa-search"></i>
+                            <t t-esc="year_item"/>
+                            </option>
+                        </t>
+                        </t>
+                    </select>
+                    <!-- 4) Modelo -->
+                    <select name="model"
+                            id="id_sh_motorcycle_model_select"
+                            class="form-select"
+                            style="height:38px;">
+                        <option value="">Modelo</option>
+                        <t t-if="model_list">
+                        <t t-foreach="model_list" t-as="model_dic">
+                            <option t-att-value="model_dic.get('id')"
+                                    t-att-selected="model_dic.get('id') == motorcycle_model">
+                            <t t-esc="model_dic.get('name')"/>
+                            </option>
+                        </t>
+                        </t>
+                    </select>
+                    <!-- Botón Ir -->
+                    <button id="id_sh_motorcycle_go_submit_button"
+                            type="submit"
+                            class="btn btn-secondary"
+                            style="height:38px;">
+                        <i class="fa fa-search"/>
                     </button>
+                    
                     <!-- select a saved bike button -->
 
                 <a t-if="not request.session.uid and website.sh_is_show_garage" href="/web/login" class="btn btn-secondary sh_garage_buttons_cls" role="button" style='height:38px;white-space:nowrap;margin-left:10px;'>
