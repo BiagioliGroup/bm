@@ -179,7 +179,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     ).css("display");
     $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
 
-    // 🔥 Limpiar los selectores del modal
+    // 🔥 Limpiar selectores del modal
     $("#id_sh_motorcycle_type_select").val("");
     $("#id_sh_motorcycle_make_select")
       .html('<option value="">Marca</option>')
@@ -191,59 +191,38 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
-    // 🔥 Limpiar los selectores principales (header de la tienda)
+    // 🔥 Limpiar selectores principales (header)
+    $('select[name="type"]').val("").prop("disabled", false); // Solo Tipo habilitado
     $('select[name="make"]')
+      .val("")
       .html('<option value="">Marca</option>')
       .prop("disabled", true);
     $('select[name="year"]')
+      .val("")
       .html('<option value="">Año</option>')
       .prop("disabled", true);
     $('select[name="model"]')
+      .val("")
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
-
-    // 🔥 Limpiar valores
-    $('select[name="type"]').val("").trigger("change");
-    $('select[name="make"]').val("");
-    $('select[name="year"]').val("");
-    $('select[name="model"]').val("");
-
-    // 🔥 Eliminar mensajes de error viejos
-    $("#no_model_message").remove();
 
     // 🔥 Ocultar botón de búsqueda
     $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
 
+    // 🔥 Eliminar mensajes de error viejos
+    $("#no_model_message").remove();
+
     // 🔥 Eliminar texto de "Vehículo seleccionado"
     $(".motorcycle_heading_section").fadeOut();
 
-    // 🔥 Recargar tipos de vehículos
+    // 🔥 Volver a cargar la lista de tipos en el modal
     $("#id_sh_motorcycle_type_select > option").not(":first").remove();
-    $('select[name="type"] > option').not(":first").remove();
-
     rpc("/sh_motorcycle/get_type_list").then(function (data) {
       jQuery.each(data, function (key, value) {
-        // Modal
         $("#id_sh_motorcycle_type_select").append(
           '<option value="' + value.id + '">' + value.name + "</option>"
         );
-        // Header
-        $('select[name="type"]').append(
-          '<option value="' + value.id + '">' + value.name + "</option>"
-        );
       });
-
-      // 🔥 Al terminar de recargar tipos de vehículo...
-      $("#id_sh_motorcycle_type_select")
-        .prop("disabled", false)
-        .hide()
-        .fadeIn(300);
-      $('select[name="type"]').prop("disabled", false).hide().fadeIn(300);
-
-      // 🔥 Esperar 100ms para asegurar que el DOM cargó y TRIGGER el flujo normal
-      setTimeout(() => {
-        $('select[name="type"]').trigger("change"); // Llama a _onChangeTypeGetMake
-      }, 100);
     });
 
     self.diable_select_options();
