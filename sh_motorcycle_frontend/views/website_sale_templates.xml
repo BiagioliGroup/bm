@@ -49,7 +49,8 @@
 
   <!-- 🚀 Buscador de motos + seleccionar vehículo diferente -->
   <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Replace motorcycle search block">
-    <xpath expr="//div[contains(@class,'oe_website_sale')]" position="before">
+    <xpath expr="//div[@id='wrap']" position="inside">
+
 
 
       <!-- 🚘 Cuando NO hay vehículo seleccionado -->
