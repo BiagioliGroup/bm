@@ -337,31 +337,6 @@ class sh_motorcycle(http.Controller):
 
         return make_list or []
 
-    @http.route(['/sh_motorcycle/get_model_list'], type='json', auth='public', website=True)
-    def get_model_list(self, type_id=None, make_id=None):
-        """
-            METHOD BY SOFTHEALER
-            to get vehicle model
-        """
-        model_list = []
-        if (
-            type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False)
-        ):
-            if type_id != int:
-                type_id = int(type_id)
-            if make_id != int:
-                make_id = int(make_id)
-            model_list = request.env['motorcycle.mmodel'].sudo().search_read(
-                domain=[
-                    ('make_id', '=', make_id),
-                    ('type_id', '=', type_id),
-                ],
-                fields=['id', 'name'],
-                order="name asc",
-            )
-        return model_list or []
-
     @http.route(['/sh_motorcycle/get_year_list'], type='json', auth='public', website=True)
     def get_year_list(self, type_id=None, make_id=None):
         """
@@ -386,6 +361,39 @@ class sh_motorcycle(http.Controller):
             except ValueError:
                 pass
         return year_list or []
+
+    @http.route(['/sh_motorcycle/get_model_list'], type='json', auth='public', website=True)
+    def get_model_list(self, type_id=None, make_id=None, year=None):
+        """
+            MODIFICADO: ahora filtra también por Año.
+        """
+        model_list = []
+        if (
+            type_id not in ('', "", None, False) and
+            make_id not in ('', "", None, False) and
+            year not in ('', "", None, False)
+        ):
+            try:
+                type_id = int(type_id)
+                make_id = int(make_id)
+                year = int(year)
+
+                # Ahora buscamos las motos específicas para tipo+marca+año
+                motorcycles = request.env['motorcycle.motorcycle'].sudo().search([
+                    ('type_id', '=', type_id),
+                    ('make_id', '=', make_id),
+                    ('year', '=', year),
+                ])
+
+                # Extraemos los modelos de esas motos
+                model_ids = motorcycles.mapped('mmodel_id').filtered(lambda m: m.id)
+
+                # Eliminamos duplicados
+                model_list = [{'id': model.id, 'name': model.name} for model in model_ids.sorted(key=lambda m: m.name)]
+            except ValueError:
+                pass
+
+        return model_list or []
 
     @http.route(['/sh_motorcycle/is_bike_already_in_garage'], type='json', auth='public', website=True)
     def is_bike_already_in_garage(self, type_id=None, make_id=None, model_id=None, year=None):
