@@ -363,26 +363,22 @@ class sh_motorcycle(http.Controller):
         return model_list or []
 
     @http.route(['/sh_motorcycle/get_year_list'], type='json', auth='public', website=True)
-    def get_year_list(self, type_id=None, make_id=None, model_id=None):
+    def get_year_list(self, type_id=None, make_id=None):
         """
-            METHOD BY SOFTHEALER
-            to get vehicle year
+            CORREGIDO: Get vehicle year based only on type and make
         """
         year_list = []
         if (
             type_id not in ('', None, False) and
-            make_id not in ('', None, False) and
-            model_id not in ('', None, False)
+            make_id not in ('', None, False)
         ):
             try:
                 type_id = int(type_id)
                 make_id = int(make_id)
-                model_id = int(model_id)
                 
                 vehicles = request.env['motorcycle.motorcycle'].sudo().search([
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
-                    ('mmodel_id', '=', model_id),
                 ])
 
                 year_list = list(set(vehicle.year for vehicle in vehicles))
