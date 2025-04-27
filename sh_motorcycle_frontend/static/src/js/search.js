@@ -38,12 +38,12 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     var result = self.getQueryString();
 
     // Mostrar el botón solo si hay búsqueda completa
-    if (result["type"] && result["make"] && result["model"] && result["year"]) {
+    if (result["type"] && result["make"] && result["year"] && result["model"]) {
       rpc("/sh_motorcycle/is_bike_already_in_garage", {
         type_id: result["type"],
         make_id: result["make"],
-        model_id: result["model"],
         year: result["year"],
+        model_id: result["model"],
       }).then(function (rec) {
         if (rec.is_bike_already_in_garage) {
           $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
