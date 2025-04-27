@@ -162,7 +162,8 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   _onClickSelectDiffVehicle: function () {
     var self = this;
 
-    // Mostrar/Ocultar bloque de selección diferente
+    // 🔥 Ocultar bloque de vehículo seleccionado
+    $(".motorcycle_heading_section").fadeOut();
     $("#id_sh_motorcycle_search_diff_bike_div").toggle();
     $("#id_sh_motorcycle_select_diff_bike_btn").toggle();
 
@@ -172,7 +173,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     ).css("display");
     $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
 
-    // 🔥 Limpiar los selectores del modal
+    // 🔥 Limpiar selects del MODAL
     $("#id_sh_motorcycle_type_select").val("");
     $("#id_sh_motorcycle_make_select")
       .html('<option value="">Marca</option>')
@@ -184,19 +185,37 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
-    // 🔥 Limpiar los selectores principales (header de la tienda)
-    $('select[name="type"]').val("").trigger("change");
-    $('select[name="make"]').val("").trigger("change");
-    $('select[name="year"]').val("").trigger("change");
-    $('select[name="model"]').val("").trigger("change");
-
-    // 🔥 Eliminar el texto del "Vehículo seleccionado"
-    $(".motorcycle_heading_section").fadeOut();
+    // 🔥 Limpiar selects del HEADER
+    $('select[name="type"]').val("").prop("disabled", false); // Tipo queda habilitado
+    $('select[name="make"]')
+      .val("")
+      .find("option")
+      .not(":first")
+      .remove()
+      .end()
+      .prop("disabled", true);
+    $('select[name="year"]')
+      .val("")
+      .find("option")
+      .not(":first")
+      .remove()
+      .end()
+      .prop("disabled", true);
+    $('select[name="model"]')
+      .val("")
+      .find("option")
+      .not(":first")
+      .remove()
+      .end()
+      .prop("disabled", true);
 
     // 🔥 Eliminar mensajes de error viejos
     $("#no_model_message").remove();
 
-    // 🔥 Volver a cargar los tipos de vehículos en el formulario
+    // 🔥 Ocultar botón de búsqueda
+    $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
+
+    // 🔥 Volver a cargar los tipos de vehículo en el MODAL
     $("#id_sh_motorcycle_type_select > option").not(":first").remove();
     rpc("/sh_motorcycle/get_type_list").then(function (data) {
       jQuery.each(data, function (key, value) {
