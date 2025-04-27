@@ -1,271 +1,271 @@
-    <?xml version="1.0" encoding="utf-8"?>
-    <odoo>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- 
+        INHERIT BY SOFTHELAER
+        MOTORCYCLE SUPPORTED VEHICLES
+    -->
+    <template id="sh_supported_vehicles" inherit_id="website_sale.product" active="True" customize_show="True" name="Supported Vehicles">
+        <xpath expr="//div[@id='product_detail_main']" position="after">
         
-        <!-- 
-            INHERIT BY SOFTHELAER
-            MOTORCYCLE SUPPORTED VEHICLES
-        -->
-        <template id="sh_supported_vehicles" inherit_id="website_sale.product" active="True" customize_show="True" name="Supported Vehicles">
-            <xpath expr="//div[@id='product_detail_main']" position="after">
-            
-                <!-- 🛠️ TABLA DE COMPATIBILIDAD VEHICULAR -->
+            <!-- 🛠️ TABLA DE COMPATIBILIDAD VEHICULAR -->
 
-                <div class="tab-pane" id="sh_supported" role="tabpanel">
-                    <section class="container">
-                        <div class="row">
-                            <div t-if="not sh_is_common_product" class="col-lg-12">
-                                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 5px;">
-                                    <table class="table table-striped table-sm table-hover mb-0">
-                                        <thead>
+            <div class="tab-pane" id="sh_supported" role="tabpanel">
+                <section class="container">
+                    <div class="row">
+                        <div t-if="not sh_is_common_product" class="col-lg-12">
+                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 5px;">
+                                <table class="table table-striped table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="3" class="text-center">Compatible con:</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Marca</th>
+                                            <th>Modelo</th>
+                                            <th>Año</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if='vehicles' t-foreach="vehicles" t-as="vehicle">
                                             <tr>
-                                                <th colspan="3" class="text-center">Compatible con:</th>
+                                                <td><t t-if="vehicle.make_id" t-esc="vehicle.make_id.name" /></td>
+                                                <td><t t-if="vehicle.mmodel_id" t-esc="vehicle.mmodel_id.name" /></td>
+                                                <td><t t-if="vehicle.year" t-esc="vehicle.year" /></td>
                                             </tr>
-                                            <tr>
-                                                <th>Marca</th>
-                                                <th>Modelo</th>
-                                                <th>Año</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-if='vehicles' t-foreach="vehicles" t-as="vehicle">
-                                                <tr>
-                                                    <td><t t-if="vehicle.make_id" t-esc="vehicle.make_id.name" /></td>
-                                                    <td><t t-if="vehicle.mmodel_id" t-esc="vehicle.mmodel_id.name" /></td>
-                                                    <td><t t-if="vehicle.year" t-esc="vehicle.year" /></td>
-                                                </tr>
-                                            </t>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <div t-if="sh_is_common_product" class="col-lg-12">
-                                <div class="alert alert-success text-center">
-                                    <strong>Mounting is possible on all vehicles.</strong>
-                                </div>
+                                        </t>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    </section>
-                </div>
-            </xpath>
-        </template>
 
-        
-        <!--  
-        INHERIT BY SOFTHELAER
-        IN ORDER TO KEEP VEHICLE FILTER WHILE CLICK ON ATTRIBUTE FILTER.
-        -->
-        <template id="products_attributes"
-            inherit_id="website_sale.products_attributes" 
-            customize_show="False"
-            active="True"
-            name="Keep Motorcycle Attributes &amp; Variants filters">
-                <xpath expr="//input[@name='category']" position="after">
-                    <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_type" type="hidden" name="type" t-att-value="motorcycle_type" />
-                    <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_make" type="hidden" name="make" t-att-value="motorcycle_make" />
-                    <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_model" type="hidden" name="model" t-att-value="motorcycle_model" />
-                    <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_year" type="hidden" name="year" t-att-value="motorcycle_year" />    		          		      
-                </xpath>
-        </template>
-        
-        <!-- 
-            INHERIT BY SOFTHELAER
-            IN ORDER TO GIVE SEARCH OPTIONS
-        -->
-        
-          <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Replace motorcycle search block">
-            <xpath expr="//div[contains(@class,'oe_website_sale')]" position="before">
-            <t t-if="not motorcycle_heading">
-                <div id="id_sh_motorcycle_search_div"
-                    class="form-inline justify-content-center"
-                    style="width:100%;position:relative;">
-                <h4 class="text-center mt-3 text-muted">No hay ningún vehículo seleccionado</h4>
-                <h4 class="text-center" style="display:block;width:100%;">Seleccioná tu Vehículo</h4>
-                <form id="id_sh_motorcycle_search_form"
-                        action="/shop" method="get"
-                        class="form-inline"
-                        style="justify-content:center;display:flex;width:90%;margin:0 auto;">
-                    <!-- 1) Tipo -->
-                    <select name="type" id="id_sh_motorcycle_type_select" class="form-select" style="height:38px;">
-                    <option value="">Tipo</option>
-                    </select>
-                    <!-- 2) Marca -->
-                    <select name="make" id="id_sh_motorcycle_make_select" class="form-select" style="height:38px;">
-                    <option value="">Marca</option>
-                    <t t-if="make_list">
-                        <t t-foreach="make_list" t-as="make_dic">
-                        <option t-att-value="make_dic.get('id')"
-                                t-att-selected="make_dic.get('id') == motorcycle_make">
-                            <t t-esc="make_dic.get('name')"/>
-                        </option>
-                        </t>
-                    </t>
-                    </select>
-                    <!-- 3) Año -->
-                    <select name="year" id="id_sh_motorcycle_year_select" class="form-select" style="height:38px;">
-                    <option value="">Año</option>
-                    <t t-if="year_list">
-                        <t t-foreach="year_list" t-as="year_item">
-                        <option t-att-value="year_item"
-                                t-att-selected="year_item == motorcycle_year">
-                            <t t-esc="year_item"/>
-                        </option>
-                        </t>
-                    </t>
-                    </select>
-                    <!-- 4) Modelo -->
-                    <select name="model" id="id_sh_motorcycle_model_select" class="form-select" style="height:38px;">
-                    <option value="">Modelo</option>
-                    <t t-if="model_list">
-                        <t t-foreach="model_list" t-as="model_dic">
-                        <option t-att-value="model_dic.get('id')"
-                                t-att-selected="model_dic.get('id') == motorcycle_model">
-                            <t t-esc="model_dic.get('name')"/>
-                        </option>
-                        </t>
-                    </t>
-                    </select>
-                    <!-- Botón Ir -->
-                    <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style="height:38px;">
-                    <i class="fa fa-search"/>
-                    </button>
-            
-                        
-                        <!-- select a saved bike button -->
-
-                    <a t-if="not request.session.uid and website.sh_is_show_garage" href="/web/login" class="btn btn-secondary sh_garage_buttons_cls" role="button" style='height:38px;white-space:nowrap;margin-left:10px;'>
-                        My Garage
-                    </a>
-                    <div class="dropdown sh_garage_buttons_cls" t-if="request.session.uid and website.sh_is_show_garage">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 10%;">
-                            My Garage
-                        </button>
-                        <div class="dropdown-menu" id='id_sh_motorcycle_select_saved_bike_div' aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
+                        <div t-if="sh_is_common_product" class="col-lg-12">
+                            <div class="alert alert-success text-center">
+                                <strong>Mounting is possible on all vehicles.</strong>
+                            </div>
                         </div>
                     </div>
-                    </form>
+                </section>
+            </div>
+        </xpath>
+    </template>
 
-                    
-                </div>
-
-                <div t-if="motorcycle_heading" class="form-inline justify-content-center text-center">
-                    <!-- save bike to garage -->
-                    <t t-if="request.session.uid and website.sh_is_show_garage">
-                        <span id="id_sh_motorcycle_save_bike_to_garage_btn" class="btn ui-link link-primary">
-                            <i class="fa fa-plus"></i>
-                            Save bike to garage
-                        </span>
+    
+    <!--  
+    INHERIT BY SOFTHELAER
+    IN ORDER TO KEEP VEHICLE FILTER WHILE CLICK ON ATTRIBUTE FILTER.
+    -->
+    <template id="products_attributes"
+        inherit_id="website_sale.products_attributes" 
+        customize_show="False"
+        active="True"
+        name="Keep Motorcycle Attributes &amp; Variants filters">
+            <xpath expr="//input[@name='category']" position="after">
+                <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_type" type="hidden" name="type" t-att-value="motorcycle_type" />
+                <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_make" type="hidden" name="make" t-att-value="motorcycle_make" />
+                <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_model" type="hidden" name="model" t-att-value="motorcycle_model" />
+                <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_year" type="hidden" name="year" t-att-value="motorcycle_year" />    		          		      
+            </xpath>
+    </template>
+    
+    <!-- 
+        INHERIT BY SOFTHELAER
+        IN ORDER TO GIVE SEARCH OPTIONS
+    -->
+    
+        <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Replace motorcycle search block">
+        <xpath expr="//div[contains(@class,'oe_website_sale')]" position="before">
+        <t t-if="not motorcycle_heading">
+            <div id="id_sh_motorcycle_search_div"
+                class="form-inline justify-content-center"
+                style="width:100%;position:relative;">
+            <h4 class="text-center mt-3 text-muted">No hay ningún vehículo seleccionado</h4>
+            <h4 class="text-center" style="display:block;width:100%;">Seleccioná tu Vehículo</h4>
+            <form id="id_sh_motorcycle_search_form"
+                    action="/shop" method="get"
+                    class="form-inline"
+                    style="justify-content:center;display:flex;width:90%;margin:0 auto;">
+                <!-- 1) Tipo -->
+                <select name="type" id="id_sh_motorcycle_type_select" class="form-select" style="height:38px;">
+                <option value="">Tipo</option>
+                </select>
+                <!-- 2) Marca -->
+                <select name="make" id="id_sh_motorcycle_make_select" class="form-select" style="height:38px;">
+                <option value="">Marca</option>
+                <t t-if="make_list">
+                    <t t-foreach="make_list" t-as="make_dic">
+                    <option t-att-value="make_dic.get('id')"
+                            t-att-selected="make_dic.get('id') == motorcycle_make">
+                        <t t-esc="make_dic.get('name')"/>
+                    </option>
                     </t>
-
-                    <!-- select a different bike -->
-                    <span class="btn ui-link link-secondary" id='id_sh_motorcycle_select_diff_bike_btn'>
-                        <i class="fa fa-retweet"></i>
-                        Seleccioná un vehiculo diferente
-                    </span>
+                </t>
+                </select>
+                <!-- 3) Año -->
+                <select name="year" id="id_sh_motorcycle_year_select" class="form-select" style="height:38px;">
+                <option value="">Año</option>
+                <t t-if="year_list">
+                    <t t-foreach="year_list" t-as="year_item">
+                    <option t-att-value="year_item"
+                            t-att-selected="year_item == motorcycle_year">
+                        <t t-esc="year_item"/>
+                    </option>
+                    </t>
+                </t>
+                </select>
+                <!-- 4) Modelo -->
+                <select name="model" id="id_sh_motorcycle_model_select" class="form-select" style="height:38px;">
+                <option value="">Modelo</option>
+                <t t-if="model_list">
+                    <t t-foreach="model_list" t-as="model_dic">
+                    <option t-att-value="model_dic.get('id')"
+                            t-att-selected="model_dic.get('id') == motorcycle_model">
+                        <t t-esc="model_dic.get('name')"/>
+                    </option>
+                    </t>
+                </t>
+                </select>
+                <!-- Botón Ir -->
+                <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style="height:38px;">
+                <i class="fa fa-search"/>
+                </button>
+        
                     
-                    <div id="id_sh_motorcycle_search_diff_bike_div" class="form-inline justify-content-center" style="display: none; width: 100%; position: relative; transform: translate(-50%, 0%); left: 50%;padding: 2rem 0rem;z-index: 5;">
-                        
-                        
-                        <form id="id_sh_motorcycle_search_diff_bike_form" class="form-inline" action="" method="get" style="justify-content: center !important; padding-right: 1%; display: flex; width: 90%;margin: 0 auto;">
-                                <select name="type" class="form-select" id='id_sh_motorcycle_type_select' style='height:38px;'>
-                                    <option value="">Tipo</option>
-                                        <!-- <t t-if="type_list">
-                                            <t t-foreach="type_list" t-as="type_dic">
-                                                <option t-attf-value="#{type_dic.get('id','')}"  t-att-selected="type_dic.get('id','') == motorcycle_type"><t t-esc="type_dic.get('name','')"/></option>
-                                            </t>
-                                        </t> -->
-                                </select>
+                    <!-- select a saved bike button -->
 
-                                <select name="make" class="form-select " id='id_sh_motorcycle_make_select' style='height:38px;'>
-                                    <option value="">Marca</option>
+                <a t-if="not request.session.uid and website.sh_is_show_garage" href="/web/login" class="btn btn-secondary sh_garage_buttons_cls" role="button" style='height:38px;white-space:nowrap;margin-left:10px;'>
+                    My Garage
+                </a>
+                <div class="dropdown sh_garage_buttons_cls" t-if="request.session.uid and website.sh_is_show_garage">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 10%;">
+                        My Garage
+                    </button>
+                    <div class="dropdown-menu" id='id_sh_motorcycle_select_saved_bike_div' aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </div>
+                </form>
 
-                                    <t t-if="make_list">
-                                        <t t-foreach="make_list" t-as="make_dic">
-                                            <option t-attf-value="#{make_dic.get('id','')}" t-att-selected="make_dic.get('id','') == motorcycle_make"><t t-esc="make_dic.get('name','')" /></option>
+                
+            </div>
+
+            <div t-if="motorcycle_heading" class="form-inline justify-content-center text-center">
+                <!-- save bike to garage -->
+                <t t-if="request.session.uid and website.sh_is_show_garage">
+                    <span id="id_sh_motorcycle_save_bike_to_garage_btn" class="btn ui-link link-primary">
+                        <i class="fa fa-plus"></i>
+                        Save bike to garage
+                    </span>
+                </t>
+
+                <!-- select a different bike -->
+                <span class="btn ui-link link-secondary" id='id_sh_motorcycle_select_diff_bike_btn'>
+                    <i class="fa fa-retweet"></i>
+                    Seleccioná un vehiculo diferente
+                </span>
+                
+                <div id="id_sh_motorcycle_search_diff_bike_div" class="form-inline justify-content-center" style="display: none; width: 100%; position: relative; transform: translate(-50%, 0%); left: 50%;padding: 2rem 0rem;z-index: 5;">
+                    
+                    
+                    <form id="id_sh_motorcycle_search_diff_bike_form" class="form-inline" action="" method="get" style="justify-content: center !important; padding-right: 1%; display: flex; width: 90%;margin: 0 auto;">
+                            <select name="type" class="form-select" id='id_sh_motorcycle_type_select' style='height:38px;'>
+                                <option value="">Tipo</option>
+                                    <!-- <t t-if="type_list">
+                                        <t t-foreach="type_list" t-as="type_dic">
+                                            <option t-attf-value="#{type_dic.get('id','')}"  t-att-selected="type_dic.get('id','') == motorcycle_type"><t t-esc="type_dic.get('name','')"/></option>
                                         </t>
-                                    </t>
-                                </select>
+                                    </t> -->
+                            </select>
 
-                                <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style="height:38px;">
-                                <option value="">Año</option>
-                                <t t-if="year_list">
-                                    <t t-foreach="year_list" t-as="year_item">
-                                    <option 
-                                        t-att-value="#{year_item}"
-                                        t-att-selected="year_item == motorcycle_year">
-                                        <t t-esc="year_item"/>
-                                    </option>
+                            <select name="make" class="form-select " id='id_sh_motorcycle_make_select' style='height:38px;'>
+                                <option value="">Marca</option>
+
+                                <t t-if="make_list">
+                                    <t t-foreach="make_list" t-as="make_dic">
+                                        <option t-attf-value="#{make_dic.get('id','')}" t-att-selected="make_dic.get('id','') == motorcycle_make"><t t-esc="make_dic.get('name','')" /></option>
                                     </t>
                                 </t>
                             </select>
 
-                            <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style="height:38px;">
-                                <option value="">Modelo</option>
-                                    <t t-if="model_list">
-                                        <t t-foreach="model_list" t-as="model_dic">
-                                        <option 
-                                            t-attf-value="#{model_dic.get('id','')}"
-                                            t-att-selected="model_dic.get('id','') == motorcycle_model">
-                                            <t t-esc="model_dic.get('name','')"/>
-                                        </option>
-                                        </t>
+                            <select name="year" class="form-select" id="id_sh_motorcycle_year_select" style="height:38px;">
+                            <option value="">Año</option>
+                            <t t-if="year_list">
+                                <t t-foreach="year_list" t-as="year_item">
+                                <option 
+                                    t-att-value="#{year_item}"
+                                    t-att-selected="year_item == motorcycle_year">
+                                    <t t-esc="year_item"/>
+                                </option>
+                                </t>
+                            </t>
+                        </select>
+
+                        <select name="model" class="form-select" id="id_sh_motorcycle_model_select" style="height:38px;">
+                            <option value="">Modelo</option>
+                                <t t-if="model_list">
+                                    <t t-foreach="model_list" t-as="model_dic">
+                                    <option 
+                                        t-attf-value="#{model_dic.get('id','')}"
+                                        t-att-selected="model_dic.get('id','') == motorcycle_model">
+                                        <t t-esc="model_dic.get('name','')"/>
+                                    </option>
                                     </t>
-                            </select>
+                                </t>
+                        </select>
 
 
-                            <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height: 38px;'>
-                                <i class="fa fa-search"></i>
-                            </button>
+                        <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style='height: 38px;'>
+                            <i class="fa fa-search"></i>
+                        </button>
 
-                            <!-- select a saved bike button -->
-                            <a t-if="not request.session.uid" href="/web/login" class="btn btn-secondary sh_garage_buttons_cls" role="button" style="margin-left: 2%;">
-                                Mi Garage
-                            </a>
-
-                            <div class="dropdown sh_garage_buttons_cls" t-if="request.session.uid">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 10%;">
-                                    Mi Garage
-                                </button>
-                                <div class="dropdown-menu" id='id_sh_motorcycle_select_saved_bike_div' aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
-                        </form>
-
-                        <a href='' rol="button" class="close id_sh_motorcycle_search_diff_bike_close" style="position: absolute; right: 20px; top: 12px; font-size: 15px; font-weight: normal;">
-                            <span class='sh_cls_close_btn'></span>
+                        <!-- select a saved bike button -->
+                        <a t-if="not request.session.uid" href="/web/login" class="btn btn-secondary sh_garage_buttons_cls" role="button" style="margin-left: 2%;">
+                            Mi Garage
                         </a>
-                    </div>
+
+                        <div class="dropdown sh_garage_buttons_cls" t-if="request.session.uid">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 10%;">
+                                Mi Garage
+                            </button>
+                            <div class="dropdown-menu" id='id_sh_motorcycle_select_saved_bike_div' aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
+                                <a class="dropdown-item" href="#">Action</a>
+                                <a class="dropdown-item" href="#">Another action</a>
+                                <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <a href='' rol="button" class="close id_sh_motorcycle_search_diff_bike_close" style="position: absolute; right: 20px; top: 12px; font-size: 15px; font-weight: normal;">
+                        <span class='sh_cls_close_btn'></span>
+                    </a>
                 </div>
-            </xpath>
-        </template>
+            </div>
+        </xpath>
+    </template>
 
-        <!-- Agregado de linea de codigo para Tarjeta de Productos , por BiagioliGroup -->
+    <!-- Agregado de linea de codigo para Tarjeta de Productos , por BiagioliGroup -->
 
-    <!-- ✅ GRID VIEW (tarjetas) -->
-        <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
-            <xpath expr="//div[contains(@class, 'o_wsale_product_information')]" position="inside">
-                <t t-if="product.default_code">
-                    <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
-                </t>
-            </xpath>
-        </template>
+<!-- ✅ GRID VIEW (tarjetas) -->
+    <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
+        <xpath expr="//div[contains(@class, 'o_wsale_product_information')]" position="inside">
+            <t t-if="product.default_code">
+                <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
+            </t>
+        </xpath>
+    </template>
 
 
 
-        <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
-            <xpath expr="//div[@id='product_details']/h1" position="before">
-                <t t-if="product_variant and product_variant.default_code">
-                    <div id="variant_default_code" class="text-muted small mb-2">
-                        <strong>Código:</strong> <span t-esc="product_variant.default_code"/>
-                    </div>
-                </t>
-            </xpath>
-        </template>
+    <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
+        <xpath expr="//div[@id='product_details']/h1" position="before">
+            <t t-if="product_variant and product_variant.default_code">
+                <div id="variant_default_code" class="text-muted small mb-2">
+                    <strong>Código:</strong> <span t-esc="product_variant.default_code"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
 
-    </odoo>
+</odoo>
