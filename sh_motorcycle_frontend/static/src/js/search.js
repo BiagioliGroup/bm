@@ -162,18 +162,17 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   _onClickSelectDiffVehicle: function () {
     var self = this;
 
-    // 🔥 Ocultar bloque de vehículo seleccionado
-    $(".motorcycle_heading_section").fadeOut();
+    // Mostrar/Ocultar bloque de selección diferente
     $("#id_sh_motorcycle_search_diff_bike_div").toggle();
     $("#id_sh_motorcycle_select_diff_bike_btn").toggle();
 
-    // Guardar estado viejo del botón
+    // Guardar el estilo anterior del botón "Guardar en garage"
     self.save_bike_to_garage_btn_old_style = $(
       "#id_sh_motorcycle_save_bike_to_garage_btn"
     ).css("display");
     $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
 
-    // 🔥 Limpiar selects del MODAL
+    // 🔥 Limpiar los selectores del modal
     $("#id_sh_motorcycle_type_select").val("");
     $("#id_sh_motorcycle_make_select")
       .html('<option value="">Marca</option>')
@@ -185,44 +184,53 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
-    // 🔥 Limpiar selects del HEADER
-    $('select[name="type"]').val("").prop("disabled", false); // Tipo queda habilitado
+    // 🔥 Limpiar los selectores principales (header)
+    $('select[name="type"]').val("").trigger("change");
+    $('select[name="make"]').val("").trigger("change");
+    $('select[name="year"]').val("").trigger("change");
+    $('select[name="model"]').val("").trigger("change");
+
     $('select[name="make"]')
-      .val("")
-      .find("option")
-      .not(":first")
-      .remove()
-      .end()
+      .html('<option value="">Marca</option>')
       .prop("disabled", true);
     $('select[name="year"]')
-      .val("")
-      .find("option")
-      .not(":first")
-      .remove()
-      .end()
+      .html('<option value="">Año</option>')
       .prop("disabled", true);
     $('select[name="model"]')
-      .val("")
-      .find("option")
-      .not(":first")
-      .remove()
-      .end()
+      .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
     // 🔥 Eliminar mensajes de error viejos
     $("#no_model_message").remove();
 
-    // 🔥 Ocultar botón de búsqueda
+    // 🔥 Ocultar botón "Buscar"
     $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
 
-    // 🔥 Volver a cargar los tipos de vehículo en el MODAL
+    // 🔥 Eliminar texto de "Vehículo seleccionado"
+    $(".motorcycle_heading_section").fadeOut();
+
+    // 🔥 Recargar tipos de vehículo en ambos selectores (modal + header)
     $("#id_sh_motorcycle_type_select > option").not(":first").remove();
+    $('select[name="type"] > option').not(":first").remove();
+
     rpc("/sh_motorcycle/get_type_list").then(function (data) {
       jQuery.each(data, function (key, value) {
+        // Modal
         $("#id_sh_motorcycle_type_select").append(
           '<option value="' + value.id + '">' + value.name + "</option>"
         );
+        // Header
+        $('select[name="type"]').append(
+          '<option value="' + value.id + '">' + value.name + "</option>"
+        );
       });
+
+      // 🔥 Habilitar el select de tipo con una animación
+      $("#id_sh_motorcycle_type_select")
+        .prop("disabled", false)
+        .hide()
+        .fadeIn(300);
+      $('select[name="type"]').prop("disabled", false).hide().fadeIn(300);
     });
 
     self.diable_select_options();
