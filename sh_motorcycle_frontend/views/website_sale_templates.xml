@@ -51,6 +51,7 @@
   <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Replace motorcycle search block">
     <xpath expr="//div[contains(@class,'oe_website_sale')]" position="before">
 
+
       <!-- 🚘 Cuando NO hay vehículo seleccionado -->
       <t t-if="not motorcycle_heading">
         <div id="id_sh_motorcycle_search_div" class="form-inline justify-content-center" style="width:100%;position:relative;">
