@@ -8,10 +8,17 @@ import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_d
 publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   selector: "#wrap",
   events: {
+    // Modal
     "change #id_sh_motorcycle_type_select": "_onChangeTypeGetMake",
     "change #id_sh_motorcycle_make_select": "_onChangeMakeGetYear",
     "change #id_sh_motorcycle_year_select": "_onChangeYearGetModel",
     "change #id_sh_motorcycle_model_select": "_onChangeModel",
+    // Header
+    "change select[name='type']": "_onChangeTypeGetMake",
+    "change select[name='make']": "_onChangeMakeGetYear",
+    "change select[name='year']": "_onChangeYearGetModel",
+    "change select[name='model']": "_onChangeModel",
+    // Botones
     "click #id_sh_motorcycle_select_diff_bike_btn": "_onClickSelectDiffVehicle",
     "click #id_sh_motorcycle_search_diff_bike_close":
       "_onClickSelectDiffVehicleClose",
