@@ -119,19 +119,37 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
 
   _onChangeYearGetModel: function (e) {
     e.preventDefault();
+
     // Limpia modelo
     $("#id_sh_motorcycle_model_select > option").not(":first").remove();
+    $("#no_model_message").remove(); // 🔥 eliminar mensajes anteriores
+
     // Carga modelos para tipo+marca+año
     rpc("/sh_motorcycle/get_model_list", {
       type_id: $("#id_sh_motorcycle_type_select").val(),
       make_id: $("#id_sh_motorcycle_make_select").val(),
       year: $("#id_sh_motorcycle_year_select").val(),
     }).then((data) => {
-      data.forEach((d) => {
-        $("#id_sh_motorcycle_model_select").append(
-          `<option value="${d.id}">${d.name}</option>`
+      if (data.length === 0) {
+        // 🔥 Si no hay modelos, mostramos mensaje
+        $("#id_sh_motorcycle_model_select").after(
+          '<small id="no_model_message" class="text-danger d-block mt-1">No hay modelos disponibles para este año.</small>'
         );
-      });
+        $("#id_sh_motorcycle_model_select").prop("disabled", true);
+      } else {
+        data.forEach((d) => {
+          $("#id_sh_motorcycle_model_select").append(
+            `<option value="${d.id}">${d.name}</option>`
+          );
+        });
+        $("#id_sh_motorcycle_model_select").prop("disabled", false);
+
+        // 🔥 Si hay solo uno, lo seleccionamos automáticamente
+        if (data.length === 1) {
+          $("#id_sh_motorcycle_model_select").val(data[0].id);
+        }
+      }
+
       this.diable_select_options();
     });
   },
@@ -143,13 +161,43 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
 
   _onClickSelectDiffVehicle: function () {
     var self = this;
+
+    // Mostrar/Ocultar el bloque de selección diferente
     $("#id_sh_motorcycle_search_diff_bike_div").toggle();
     $("#id_sh_motorcycle_select_diff_bike_btn").toggle();
+
+    // Guardar estilo previo del botón
     self.save_bike_to_garage_btn_old_style = $(
       "#id_sh_motorcycle_save_bike_to_garage_btn"
     ).css("display");
     $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
-    self.get_param_from_vehicle();
+
+    // 🔥 Limpiar todos los selectores
+    $("#id_sh_motorcycle_type_select").val("");
+    $("#id_sh_motorcycle_make_select")
+      .html('<option value="">Marca</option>')
+      .prop("disabled", true);
+    $("#id_sh_motorcycle_year_select")
+      .html('<option value="">Año</option>')
+      .prop("disabled", true);
+    $("#id_sh_motorcycle_model_select")
+      .html('<option value="">Modelo</option>')
+      .prop("disabled", true);
+
+    // 🔥 Eliminar mensajes anteriores si existían
+    $("#no_model_message").remove();
+
+    // Volver a cargar solo los tipos de vehículos
+    $("#id_sh_motorcycle_type_select > option").not(":first").remove();
+    rpc("/sh_motorcycle/get_type_list").then(function (data) {
+      jQuery.each(data, function (key, value) {
+        $("#id_sh_motorcycle_type_select").append(
+          '<option value="' + value.id + '">' + value.name + "</option>"
+        );
+      });
+    });
+
+    self.diable_select_options();
   },
 
   _onClickSelectDiffVehicleClose: function (ev) {
