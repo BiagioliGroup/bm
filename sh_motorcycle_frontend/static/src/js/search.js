@@ -198,6 +198,9 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     });
 
     self.diable_select_options();
+
+    // 🔥 Limpiar URL y recargar página
+    window.location.href = "/shop";
   },
 
   _onClickSelectDiffVehicleClose: function (ev) {
