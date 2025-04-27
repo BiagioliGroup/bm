@@ -162,17 +162,17 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   _onClickSelectDiffVehicle: function () {
     var self = this;
 
-    // Mostrar/Ocultar el bloque de selección diferente
+    // Mostrar/Ocultar bloque de selección diferente
     $("#id_sh_motorcycle_search_diff_bike_div").toggle();
     $("#id_sh_motorcycle_select_diff_bike_btn").toggle();
 
-    // Guardar estilo previo del botón
+    // Guardar estado viejo del botón
     self.save_bike_to_garage_btn_old_style = $(
       "#id_sh_motorcycle_save_bike_to_garage_btn"
     ).css("display");
     $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
 
-    // 🔥 Limpiar todos los selectores
+    // 🔥 Limpiar los selectores del modal
     $("#id_sh_motorcycle_type_select").val("");
     $("#id_sh_motorcycle_make_select")
       .html('<option value="">Marca</option>')
@@ -184,10 +184,19 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
-    // 🔥 Eliminar mensajes anteriores si existían
+    // 🔥 Limpiar los selectores principales (header de la tienda)
+    $('select[name="type"]').val("").trigger("change");
+    $('select[name="make"]').val("").trigger("change");
+    $('select[name="year"]').val("").trigger("change");
+    $('select[name="model"]').val("").trigger("change");
+
+    // 🔥 Eliminar el texto del "Vehículo seleccionado"
+    $(".motorcycle_heading_section").fadeOut();
+
+    // 🔥 Eliminar mensajes de error viejos
     $("#no_model_message").remove();
 
-    // Volver a cargar solo los tipos de vehículos
+    // 🔥 Volver a cargar los tipos de vehículos en el formulario
     $("#id_sh_motorcycle_type_select > option").not(":first").remove();
     rpc("/sh_motorcycle/get_type_list").then(function (data) {
       jQuery.each(data, function (key, value) {
@@ -198,12 +207,9 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     });
 
     self.diable_select_options();
-
-    // 🔥 Limpiar URL y recargar página
-    window.location.href = "/shop";
   },
 
-  _onClickSelectDiffVehicleClose: function (ev) {
+  _ctDiffVehicleClose: function (ev) {
     var self = this;
     $("#id_sh_motorcycle_search_diff_bike_div").toggle();
     $("#id_sh_motorcycle_select_diff_bike_btn").toggle();
