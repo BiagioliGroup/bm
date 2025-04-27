@@ -38,7 +38,7 @@
   </template>
 
   <!-- ✅ Mantener filtros de moto -->
-  <template id="products_attributes" inherit_id="website_sale.products_attributes" customize_show="False" active="True" name="Keep Motorcycle Attributes & Variants filters">
+  <template id="products_attributes" inherit_id="website_sale.products_attributes" customize_show="False" active="True" name="Keep Motorcycle Attributes and Variants filters">
     <xpath expr="//input[@name='category']" position="after">
       <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_type" type="hidden" name="type" t-att-value="motorcycle_type"/>
       <input t-if="not website.sh_do_not_consider_vehicle_over_attribute and motorcycle_make" type="hidden" name="make" t-att-value="motorcycle_make"/>
