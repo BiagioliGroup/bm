@@ -248,46 +248,44 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   },
 
   diable_select_options: function () {
-    var selectedOptions = false;
-
-    //make
-    var selectedOptions = $(
+    // Marca
+    var typeSelected = $(
       "#id_sh_motorcycle_type_select > option:selected"
     ).val();
-    if (selectedOptions == false) {
-      $("#id_sh_motorcycle_make_select").prop("disabled", true);
-    } else {
+    if (typeSelected) {
       $("#id_sh_motorcycle_make_select").prop("disabled", false);
+    } else {
+      $("#id_sh_motorcycle_make_select").prop("disabled", true);
     }
 
-    //model
-    var selectedOptions = $(
+    // Año
+    var makeSelected = $(
       "#id_sh_motorcycle_make_select > option:selected"
     ).val();
-    if (selectedOptions == false) {
-      $("#id_sh_motorcycle_model_select").prop("disabled", true);
-    } else {
-      $("#id_sh_motorcycle_model_select").prop("disabled", false);
-    }
-
-    //year
-    var selectedOptions = $(
-      "#id_sh_motorcycle_model_select > option:selected"
-    ).val();
-    if (selectedOptions == false) {
-      $("#id_sh_motorcycle_year_select").prop("disabled", true);
-    } else {
+    if (makeSelected) {
       $("#id_sh_motorcycle_year_select").prop("disabled", false);
+    } else {
+      $("#id_sh_motorcycle_year_select").prop("disabled", true);
     }
 
-    //go button
-    var selectedOptions = $(
+    // Modelo
+    var yearSelected = $(
       "#id_sh_motorcycle_year_select > option:selected"
     ).val();
-    if (selectedOptions == false) {
-      $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
+    if (yearSelected) {
+      $("#id_sh_motorcycle_model_select").prop("disabled", false);
     } else {
+      $("#id_sh_motorcycle_model_select").prop("disabled", true);
+    }
+
+    // Botón Ir
+    var modelSelected = $(
+      "#id_sh_motorcycle_model_select > option:selected"
+    ).val();
+    if (modelSelected) {
       $("#id_sh_motorcycle_go_submit_button").prop("disabled", false);
+    } else {
+      $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
     }
   },
 
