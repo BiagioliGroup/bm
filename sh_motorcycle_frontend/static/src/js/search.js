@@ -169,17 +169,13 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   _onClickSelectDiffVehicle: function () {
     var self = this;
 
-    // Mostrar/Ocultar bloque de selección diferente
     $("#id_sh_motorcycle_search_diff_bike_div").toggle();
     $("#id_sh_motorcycle_select_diff_bike_btn").toggle();
-
-    // Guardar estado viejo del botón
     self.save_bike_to_garage_btn_old_style = $(
       "#id_sh_motorcycle_save_bike_to_garage_btn"
     ).css("display");
     $("#id_sh_motorcycle_save_bike_to_garage_btn").hide();
 
-    // 🔥 Limpiar selectores del modal
     $("#id_sh_motorcycle_type_select").val("");
     $("#id_sh_motorcycle_make_select")
       .html('<option value="">Marca</option>')
@@ -191,8 +187,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
-    // 🔥 Limpiar selectores principales (header)
-    $('select[name="type"]').val("").prop("disabled", false); // Solo Tipo habilitado
+    $('select[name="type"]').val("").prop("disabled", false);
     $('select[name="make"]')
       .val("")
       .html('<option value="">Marca</option>')
@@ -206,16 +201,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       .html('<option value="">Modelo</option>')
       .prop("disabled", true);
 
-    // 🔥 Ocultar botón de búsqueda
     $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
-
-    // 🔥 Eliminar mensajes de error viejos
     $("#no_model_message").remove();
-
-    // 🔥 Eliminar texto de "Vehículo seleccionado"
     $(".motorcycle_heading_section").fadeOut();
 
-    // 🔥 Volver a cargar la lista de tipos en el modal
     $("#id_sh_motorcycle_type_select > option").not(":first").remove();
     rpc("/sh_motorcycle/get_type_list").then(function (data) {
       jQuery.each(data, function (key, value) {
@@ -224,6 +213,11 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
         );
       });
     });
+
+    // 🚨 Reenganchar evento de selección de Tipo
+    $('select[name="type"]')
+      .off("change")
+      .on("change", this._onChangeTypeGetMake.bind(this));
 
     self.diable_select_options();
   },
