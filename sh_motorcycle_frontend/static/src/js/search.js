@@ -61,12 +61,12 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   /*** CARGA LISTAS DE OPCIONES ***/
 
   loadTypeList: function () {
+    this._fillSelect("#id_sh_motorcycle_type_select", "Tipo");
+    this._fillSelect("select[name='type']", "Tipo");
+
     rpc("/sh_motorcycle/get_type_list").then((data) => {
       data.forEach((type) => {
-        $("#id_sh_motorcycle_type_select").append(
-          `<option value="${type.id}">${type.name}</option>`
-        );
-        $("select[name='type']").append(
+        $("#id_sh_motorcycle_type_select, select[name='type']").append(
           `<option value="${type.id}">${type.name}</option>`
         );
       });
@@ -76,16 +76,12 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   loadMakeList: function (type_id) {
     if (!type_id) return;
 
-    // Limpiar selects
     this._fillSelect("#id_sh_motorcycle_make_select", "Marca");
     this._fillSelect("select[name='make']", "Marca");
 
     rpc("/sh_motorcycle/get_make_list", { type_id }).then((data) => {
       data.forEach((make) => {
-        $("#id_sh_motorcycle_make_select").append(
-          `<option value="${make.id}">${make.name}</option>`
-        );
-        $("select[name='make']").append(
+        $("#id_sh_motorcycle_make_select, select[name='make']").append(
           `<option value="${make.id}">${make.name}</option>`
         );
       });
@@ -100,10 +96,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
 
     rpc("/sh_motorcycle/get_year_list", { type_id, make_id }).then((data) => {
       data.forEach((year) => {
-        $("#id_sh_motorcycle_year_select").append(
-          `<option value="${year}">${year}</option>`
-        );
-        $("select[name='year']").append(
+        $("#id_sh_motorcycle_year_select, select[name='year']").append(
           `<option value="${year}">${year}</option>`
         );
       });
@@ -119,22 +112,23 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     rpc("/sh_motorcycle/get_model_list", { type_id, make_id, year }).then(
       (data) => {
         if (data.length === 0) {
-          $("#id_sh_motorcycle_model_select").prop("disabled", true);
-          $("select[name='model']").prop("disabled", true);
+          $("#id_sh_motorcycle_model_select, select[name='model']").prop(
+            "disabled",
+            true
+          );
           $("#id_sh_motorcycle_model_select").after(
-            '<small id="no_model_message" class="text-danger d-block mt-1">No hay modelos disponibles para este año.</small>'
+            '<small id="no_model_message" class="text-danger">No hay modelos disponibles.</small>'
           );
         } else {
           data.forEach((model) => {
-            $("#id_sh_motorcycle_model_select").append(
-              `<option value="${model.id}">${model.name}</option>`
-            );
-            $("select[name='model']").append(
+            $("#id_sh_motorcycle_model_select, select[name='model']").append(
               `<option value="${model.id}">${model.name}</option>`
             );
           });
-          $("#id_sh_motorcycle_model_select").prop("disabled", false);
-          $("select[name='model']").prop("disabled", false);
+          $("#id_sh_motorcycle_model_select, select[name='model']").prop(
+            "disabled",
+            false
+          );
         }
       }
     );
