@@ -79,8 +79,8 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   loadMakeList: function (type_id) {
     if (!type_id) return;
 
-    this._fillSelect("#id_sh_motorcycle_make_select", "Marca");
-    this._fillSelect("select[name='make']", "Marca");
+    this._fillSelect("#id_sh_motorcycle_make_select", "Marca", false);
+    this._fillSelect("select[name='make']", "Marca", false);
 
     rpc("/sh_motorcycle/get_make_list", { type_id }).then((data) => {
       data.forEach((make) => {
@@ -97,8 +97,8 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   loadYearList: function (type_id, make_id) {
     if (!type_id || !make_id) return;
 
-    this._fillSelect("#id_sh_motorcycle_year_select", "Año");
-    this._fillSelect("select[name='year']", "Año");
+    this._fillSelect("#id_sh_motorcycle_year_select", "Año", false);
+    this._fillSelect("select[name='year']", "Año", false);
 
     rpc("/sh_motorcycle/get_year_list", { type_id, make_id }).then((data) => {
       data.forEach((year) => {
@@ -115,8 +115,8 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   loadModelList: function (type_id, make_id, year) {
     if (!type_id || !make_id || !year) return;
 
-    this._fillSelect("#id_sh_motorcycle_model_select", "Modelo");
-    this._fillSelect("select[name='model']", "Modelo");
+    this._fillSelect("#id_sh_motorcycle_model_select", "Modelo", false);
+    this._fillSelect("select[name='model']", "Modelo", false);
 
     rpc("/sh_motorcycle/get_model_list", { type_id, make_id, year }).then(
       (data) => {
