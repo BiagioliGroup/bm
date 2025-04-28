@@ -66,7 +66,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
 
     rpc("/sh_motorcycle/get_type_list").then((data) => {
       data.forEach((type) => {
-        $("#id_sh_motorcycle_type_select, select[name='type']").append(
+        $("#id_sh_motorcycle_type_select").append(
+          `<option value="${type.id}">${type.name}</option>`
+        );
+        $("select[name='type']").append(
           `<option value="${type.id}">${type.name}</option>`
         );
       });
@@ -81,7 +84,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
 
     rpc("/sh_motorcycle/get_make_list", { type_id }).then((data) => {
       data.forEach((make) => {
-        $("#id_sh_motorcycle_make_select, select[name='make']").append(
+        $("#id_sh_motorcycle_make_select").append(
+          `<option value="${make.id}">${make.name}</option>`
+        );
+        $("select[name='make']").append(
           `<option value="${make.id}">${make.name}</option>`
         );
       });
@@ -96,7 +102,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
 
     rpc("/sh_motorcycle/get_year_list", { type_id, make_id }).then((data) => {
       data.forEach((year) => {
-        $("#id_sh_motorcycle_year_select, select[name='year']").append(
+        $("#id_sh_motorcycle_year_select").append(
+          `<option value="${year}">${year}</option>`
+        );
+        $("select[name='year']").append(
           `<option value="${year}">${year}</option>`
         );
       });
@@ -121,7 +130,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
           );
         } else {
           data.forEach((model) => {
-            $("#id_sh_motorcycle_model_select, select[name='model']").append(
+            $("#id_sh_motorcycle_model_select").append(
+              `<option value="${model.id}">${model.name}</option>`
+            );
+            $("select[name='model']").append(
               `<option value="${model.id}">${model.name}</option>`
             );
           });
