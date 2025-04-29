@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_biagioli_ecom_module_biagioli_ecom_module,biagioli_ecom_module.biagioli_ecom_module,model_biagioli_ecom_module_biagioli_ecom_module,base.group_user,1,1,1,1
