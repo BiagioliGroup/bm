@@ -13,21 +13,19 @@
     </record>
 
     <record id="product_product_tree_view_inherit_ribbon" model="ir.ui.view">
-        <field name="name">product.product.tree.ribbon.button</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_product_tree_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//tree" position="attributes">
-                <attribute name="multi_edit">1</attribute>
-            </xpath>
-            <xpath expr="//tree" position="inside">
-                <button name="action_apply_ribbon_by_supplier"
-                        type="object"
-                        string="Aplicar cinta"
-                        class="btn-primary"
-                        icon="fa-tags"/>
-            </xpath>
-        </field>
-    </record>
+    <field name="name">product.product.tree.ribbon.button</field>
+    <field name="model">product.product</field>
+    <field name="inherit_id" ref="product.product_product_tree_view"/>
+    <field name="arch" type="xml">
+        <xpath expr="//tree" position="inside">
+            <button name="action_apply_ribbon_by_supplier"
+                    type="object"
+                    string="Aplicar cinta"
+                    class="btn-primary"
+                    icon="fa-tags"/>
+        </xpath>
+    </field>
+</record>
+  
 
 </odoo>
