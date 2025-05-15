@@ -1,19 +1,14 @@
-# -*- coding: utf-8 -*-
+from odoo import models
 
-# from odoo import models, fields, api
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
 
-
-# class biagioli_ecom_module(models.Model):
-#     _name = 'biagioli_ecom_module.biagioli_ecom_module'
-#     _description = 'biagioli_ecom_module.biagioli_ecom_module'
-
-#     name = fields.Char()
-#     value = fields.Integer()
-#     value2 = fields.Float(compute="_value_pc", store=True)
-#     description = fields.Text()
-#
-#     @api.depends('value')
-#     def _value_pc(self):
-#         for record in self:
-#             record.value2 = float(record.value) / 100
-
+    def action_apply_ribbon_by_supplier(self):
+        for producto in self:
+            supplierinfo = producto.seller_ids[:1]
+            if supplierinfo and supplierinfo.name and producto.inventory_quantity_auto_apply == 0:
+                proveedor = supplierinfo.name
+                if proveedor.country_id and proveedor.country_id.name == "Argentina":
+                    producto.website_ribbon_id = 6  # 24 hs de demora
+                else:
+                    producto.website_ribbon_id = 5  # para Importar
