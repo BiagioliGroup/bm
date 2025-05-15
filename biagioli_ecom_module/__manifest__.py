@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "biagioli_ecom_module",
-
+    'name': 'Biagioli Ecom Module', 
     'summary': "Short (1 phrase/line) summary of the module's purpose",
 
     'description': """
@@ -18,14 +17,15 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
-
-    # always loaded
-    'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+    'depends': [
+        'product',
+        'website_sale',  # si estás usando website ribbons
     ],
+    'data': [
+        'views/views.xml',
+    ],
+    'installable': True,
+    'application': False,
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',

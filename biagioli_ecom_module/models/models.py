@@ -8,7 +8,7 @@ class ProductProduct(models.Model):
             supplierinfo = producto.seller_ids[:1]
             if supplierinfo and supplierinfo.partner_id and producto.inventory_quantity_auto_apply == 0:
                 proveedor = supplierinfo.partner_id
-                if proveedor.country_id and proveedor.country_id.name == "Argentina":
+                if proveedor.country_id and proveedor.country_id.code == "AR":
                     producto.website_ribbon_id = 6  # 24 hs de demora
                 else:
                     producto.website_ribbon_id = 5  # para Importar
