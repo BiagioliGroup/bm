@@ -21,4 +21,4 @@ class MotorcycleYear(models.Model):
         for record in self:
             if record.year < 1900 or record.year > current_year:
                 raise ValidationError(_("The year must be between 1900 and %s.") % current_year)    
-            
+                

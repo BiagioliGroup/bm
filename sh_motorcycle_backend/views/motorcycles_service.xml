@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Acción principal -->
+    <record id="action_motorcycle_service" model="ir.actions.act_window">
+        <field name="name">Servicios de Motocicletas</field>
+        <field name="res_model">motorcycle.service</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Crea tu primer servicio de moto</p>
+        </field>
+    </record>
+
+    <!-- Menú superior dentro de Auto Parts -->
+    <menuitem id="menu_motorcycle_service_root"
+              name="Servicios de Motos"
+              parent="sh_motorcycle_menuitem_root"
+              sequence="25" />
+
+    <!-- Submenú que abre la vista -->
+    <menuitem id="menu_motorcycle_service"
+              name="Gestión de Servicios"
+              parent="menu_motorcycle_service_root"
+              action="action_motorcycle_service"
+              sequence="1" />
+
+    <!-- Vista Tree -->
+    <record id="view_motorcycle_service_tree" model="ir.ui.view">
+        <field name="name">motorcycle.service.tree</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="motorcycle_id"/>
+                <field name="description"/>
+                <field name="total_labor_cost"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_motorcycle_service_form" model="ir.ui.view">
+        <field name="name">motorcycle.service.form</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <form string="Servicio Técnico">
+                <sheet>
+                    <group>
+                        <field name="motorcycle_id"/>
+                        <field name="description"/>
+                        <field name="labor_description"/>
+                        <field name="service_product_ids" widget="many2many_tags"/>
+                        <field name="product_ids" widget="many2many_tags"/>
+                        <field name="total_labor_cost" readonly="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Checklist del Operario">
+                            <field name="step_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence"/>
+                                    <field name="name"/>
+                                    <field name="is_done"/>
+                                    <field name="note"/>
+                                    <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

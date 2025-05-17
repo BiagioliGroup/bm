@@ -46,7 +46,7 @@
 
                     <!-- Nueva Sección: Documentos -->
                     <notebook>
-                        <page string="Manuals">
+                        <page string="Manuales">
                             <group string="Documents" colspan="2">
                                 <group colspan="1">
                                     <field name="oem_manual" filename="oem_manual_filename" widget="pdf_viewer"/>
