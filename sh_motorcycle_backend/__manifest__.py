@@ -34,6 +34,7 @@ Find Vehicle Details Module Odoo.
     "data": [
             "security/sh_motorcycle_backend_groups.xml",
             "security/ir.model.access.csv",
+            "data/ir_sequence_data.xml",
             "views/sh_motorcycle_motorcycle_views.xml",
             "views/sh_motorcycle_type_views.xml",
             "views/sh_motorcycle_make_views.xml",
@@ -41,7 +42,6 @@ Find Vehicle Details Module Odoo.
             "views/sh_motorcycle_year_views.xml",
             "views/product_views.xml",
             "views/motorcycles_service.xml",
-
             ],
     "images": ["static/description/background.png", ],
     "application": True,

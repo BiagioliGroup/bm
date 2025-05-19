@@ -8,3 +8,4 @@ from . import sh_motorcycle_mmodel
 from . import product
 from . import sh_motorcycle_make
 from . import sh_motorcycle_garage
+from . import motorcycle_service
