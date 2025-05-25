@@ -38,7 +38,5 @@ class PaymentTransaction(models.Model):
                     'street_name': self.partner_address,
                 },
             },
-            'payment_methods': {
-                'installments': 1,
-            },
+            'payment_methods': {},
         }
