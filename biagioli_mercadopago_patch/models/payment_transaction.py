@@ -10,13 +10,7 @@ class PaymentTransaction(models.Model):
     def _mercado_pago_prepare_preference_request_payload(self):
         # Forzar base_url a HTTPS
         base_url = self.provider_id.get_base_url().replace('http://', 'https://')  # Forzado a HTTPS - Linea agrgado el 25/10/2023.
-        
-
-        # Usar URL de retorno personalizada si está definida, si no usar la default
-        return_url = (self.provider_id.mercadopago_success_url or
-                      urls.url_join(base_url, MercadoPagoController._return_url))
- 
-        # Sanitizar referencia y formar URL webhook
+        return_url = urls.url_join(base_url, MercadoPagoController._return_url)
         sanitized_reference = url_quote(self.reference)
         webhook_url = urls.url_join(base_url, f'{MercadoPagoController._webhook_url}/{sanitized_reference}')
 
