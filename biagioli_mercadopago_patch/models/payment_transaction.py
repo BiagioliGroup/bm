@@ -10,15 +10,11 @@ class PaymentTransaction(models.Model):
     def _mercado_pago_prepare_preference_request_payload(self):
         # Forzar base_url a HTTPS
         base_url = self.provider_id.get_base_url().replace('http://', 'https://')  # Forzado a HTTPS - Linea agrgado el 25/10/2023.
-        
-
-        # Usar URL de retorno personalizada si está definida, si no usar la default
-        return_url = (self.provider_id.mercadopago_success_url or
-                      urls.url_join(base_url, MercadoPagoController._return_url))
- 
-        # Sanitizar referencia y formar URL webhook
+        return_url = urls.url_join(base_url, MercadoPagoController._return_url)
         sanitized_reference = url_quote(self.reference)
         webhook_url = urls.url_join(base_url, f'{MercadoPagoController._webhook_url}/{sanitized_reference}')
+
+        full_name = self.partner_id.name or ''
 
         return {
             'auto_return': 'all',
@@ -30,21 +26,25 @@ class PaymentTransaction(models.Model):
             'external_reference': self.reference,
             'items': [{
                 'title': self.reference,
+                'id': self.reference,
+                'category_id': 'motorcycle_parts',
+                'description': f'Compra efectuada en Moto Integrale - Ref {self.reference}',
                 'quantity': 1,
                 'currency_id': self.currency_id.name,
                 'unit_price': self.amount,
             }],
             'notification_url': webhook_url,
             'payer': {
-                'name': self.partner_name,
-                'email': self.partner_email,
-                'phone': {'number': self.partner_phone},
+                'first_name': full_name,
+                'last_name': full_name,
+                'email': self.partner_id.email,
+                'phone': {
+                    'number': self.partner_id.phone,
+                },
                 'address': {
-                    'zip_code': self.partner_zip,
-                    'street_name': self.partner_address,
+                    'zip_code': self.partner_id.zip,
+                    'street_name': self.partner_id.street,
                 },
             },
-            'payment_methods': {
-                'installments': 1,
-            },
+            'payment_methods': {},
         }
