@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="biagioli_mercadopago_patch.list">
+      <field name="name">biagioli_mercadopago_patch list</field>
+      <field name="model">biagioli_mercadopago_patch.biagioli_mercadopago_patch</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </list>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="biagioli_mercadopago_patch.action_window">
+      <field name="name">biagioli_mercadopago_patch window</field>
+      <field name="res_model">biagioli_mercadopago_patch.biagioli_mercadopago_patch</field>
+      <field name="view_mode">list,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="biagioli_mercadopago_patch.action_server">
+      <field name="name">biagioli_mercadopago_patch server</field>
+      <field name="model_id" ref="model_biagioli_mercadopago_patch_biagioli_mercadopago_patch"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="biagioli_mercadopago_patch" id="biagioli_mercadopago_patch.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="biagioli_mercadopago_patch.menu_1" parent="biagioli_mercadopago_patch.menu_root"/>
+    <menuitem name="Menu 2" id="biagioli_mercadopago_patch.menu_2" parent="biagioli_mercadopago_patch.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="biagioli_mercadopago_patch.menu_1_list" parent="biagioli_mercadopago_patch.menu_1"
+              action="biagioli_mercadopago_patch.action_window"/>
+    <menuitem name="Server to list" id="biagioli_mercadopago_patch" parent="biagioli_mercadopago_patch.menu_2"
+              action="biagioli_mercadopago_patch.action_server"/>
+-->
+  </data>
+</odoo>
