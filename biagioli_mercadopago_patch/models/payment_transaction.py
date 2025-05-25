@@ -14,6 +14,8 @@ class PaymentTransaction(models.Model):
         sanitized_reference = url_quote(self.reference)
         webhook_url = urls.url_join(base_url, f'{MercadoPagoController._webhook_url}/{sanitized_reference}')
 
+        full_name = self.partner_id.name or ''
+
         return {
             'auto_return': 'all',
             'back_urls': {
@@ -24,18 +26,24 @@ class PaymentTransaction(models.Model):
             'external_reference': self.reference,
             'items': [{
                 'title': self.reference,
+                'id': self.reference,
+                'category_id': 'motorcycle_parts',
+                'description': f'Compra efectuada en Moto Integrale - Ref {self.reference}',
                 'quantity': 1,
                 'currency_id': self.currency_id.name,
                 'unit_price': self.amount,
             }],
             'notification_url': webhook_url,
             'payer': {
-                'name': self.partner_name,
-                'email': self.partner_email,
-                'phone': {'number': self.partner_phone},
+                'first_name': full_name,
+                'last_name': full_name,
+                'email': self.partner_id.email,
+                'phone': {
+                    'number': self.partner_id.phone,
+                },
                 'address': {
-                    'zip_code': self.partner_zip,
-                    'street_name': self.partner_address,
+                    'zip_code': self.partner_id.zip,
+                    'street_name': self.partner_id.street,
                 },
             },
             'payment_methods': {},
