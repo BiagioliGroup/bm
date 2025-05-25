@@ -16,5 +16,6 @@
     'installable': True,
     'application': False,
     'auto_install': False,
+    'license': 'GPL-3'
 }
 

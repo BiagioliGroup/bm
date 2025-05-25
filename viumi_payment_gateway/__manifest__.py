@@ -35,5 +35,6 @@ Long description of module's purpose
     'demo': [
         'demo/demo.xml',
     ],
+    'license': 'GPL-3'
 }
 
