@@ -190,40 +190,45 @@
 /*--media-query--*/
 
 /*–– fixed header, scroll sólo en tbody ––*/
+/*–– contenedor general ––*/
 .sh-supported-container {
   border: 1px solid #ddd;
   border-radius: 5px;
   margin-top: 1rem;
-}
-
-.sh-supported-table {
   width: 100%;
-  table-layout: fixed; /* reparte el ancho en partes iguales */
-  border-collapse: collapse;
 }
 
-/* encabezado fijo, fondo claro */
-.sh-supported-table thead {
-  display: table-header-group;
-  background-color: #f8f9fa !important;
-}
-.sh-supported-table thead th {
-  background-color: #f8f9fa !important;
-  color: #333 !important;
-  font-weight: bold;
-  border-bottom: 2px solid #ccc;
-}
-
-/* solo tbody scrolleable, ocupando todo el ancho */
-.sh-supported-table tbody {
-  display: block;
-  width: 100%; /* <— aquí estaba fallando */
+/*–– area scroll ––*/
+.sh-supported-scroll {
   max-height: 300px;
   overflow-y: auto;
 }
 
+/*–– tabla completa ––*/
+.sh-supported-table {
+  width: 100%;
+  table-layout: fixed; /* reparte el ancho de las 3 columnas */
+  border-collapse: collapse;
+}
+
+/*–– encabezados fijos ––*/
+.sh-supported-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa; /* o el color de fondo de tu theme */
+  z-index: 2;
+  border-bottom: 2px solid #ccc;
+  color: #333;
+  font-weight: bold;
+}
+
+/*–– filas normales ––*/
 .sh-supported-table tbody tr {
-  display: table; /* simula de nuevo la fila como tabla */
-  width: 100%; /* para que llene el 100 % del contenedor */
-  table-layout: fixed; /* aplica el mismo reparto que la tabla padre */
+  /* nada especial, hereda el ancho fijo */
+}
+
+/*–– opcional: si quieres que el primer <tr> de thead tenga otro estilo ––*/
+.sh-supported-table thead tr:first-child th {
+  background-color: #e9ecef;
+  font-size: 1rem;
 }
