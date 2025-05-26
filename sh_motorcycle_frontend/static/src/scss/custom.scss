@@ -198,32 +198,32 @@
 
 .sh-supported-table {
   width: 100%;
-  table-layout: fixed;
+  table-layout: fixed; /* reparte el ancho en partes iguales */
   border-collapse: collapse;
 }
 
-/* Encabezado claro */
+/* encabezado fijo, fondo claro */
 .sh-supported-table thead {
   display: table-header-group;
-  background-color: #f8f9fa !important; /* color de fondo claro */
+  background-color: #f8f9fa !important;
 }
-
 .sh-supported-table thead th {
   background-color: #f8f9fa !important;
-  color: #333 !important; /* texto oscuro */
+  color: #333 !important;
   font-weight: bold;
   border-bottom: 2px solid #ccc;
 }
 
-/* Cuerpo con scroll */
+/* solo tbody scrolleable, ocupando todo el ancho */
 .sh-supported-table tbody {
   display: block;
+  width: 100%; /* <— aquí estaba fallando */
   max-height: 300px;
   overflow-y: auto;
 }
 
 .sh-supported-table tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+  display: table; /* simula de nuevo la fila como tabla */
+  width: 100%; /* para que llene el 100 % del contenedor */
+  table-layout: fixed; /* aplica el mismo reparto que la tabla padre */
 }
