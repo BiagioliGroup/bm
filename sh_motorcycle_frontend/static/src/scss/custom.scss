@@ -194,23 +194,34 @@
   border: 1px solid #ddd;
   border-radius: 5px;
   margin-top: 1rem;
-  /* opcional: padding si lo quieres */
 }
+
 .sh-supported-table {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
+
+/* Encabezado claro */
 .sh-supported-table thead {
-  /* keep header visible */
   display: table-header-group;
-  background-color: o-color("o-color-2"); /* o el color que quieras */
+  background-color: #f8f9fa !important; /* color de fondo claro */
 }
+
+.sh-supported-table thead th {
+  background-color: #f8f9fa !important;
+  color: #333 !important; /* texto oscuro */
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+}
+
+/* Cuerpo con scroll */
 .sh-supported-table tbody {
   display: block;
   max-height: 300px;
   overflow-y: auto;
 }
+
 .sh-supported-table tbody tr {
   display: table;
   width: 100%;
