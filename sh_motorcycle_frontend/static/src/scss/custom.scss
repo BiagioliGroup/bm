@@ -211,24 +211,45 @@
   border-collapse: collapse;
 }
 
-/*–– encabezados fijos ––*/
-.sh-supported-table thead th {
-  position: sticky;
-  top: 0;
-  background-color: #f8f9fa; /* o el color de fondo de tu theme */
-  z-index: 2;
-  border-bottom: 2px solid #ccc;
-  color: #333;
-  font-weight: bold;
-}
+// /*–– encabezados fijos ––*/
+// .sh-supported-table thead th {
+//   position: sticky;
+//   top: 0;
+//   background-color: #f8f9fa; /* o el color de fondo de tu theme */
+//   z-index: 2;
+//   border-bottom: 2px solid #ccc;
+//   color: #333;
+//   font-weight: bold;
+// }
 
-/*–– filas normales ––*/
-.sh-supported-table tbody tr {
-  /* nada especial, hereda el ancho fijo */
-}
+// /*–– filas normales ––*/
+// .sh-supported-table tbody tr {
+//   /* nada especial, hereda el ancho fijo */
+// }
 
-/*–– opcional: si quieres que el primer <tr> de thead tenga otro estilo ––*/
-.sh-supported-table thead tr:first-child th {
-  background-color: #e9ecef;
-  font-size: 1rem;
+// /*–– opcional: si quieres que el primer <tr> de thead tenga otro estilo ––*/
+// .sh-supported-table thead tr:first-child th {
+//   background-color: #e9ecef;
+//   font-size: 1rem;
+// }
+/*–– Ahora las dos filas por separado ––*/
+.sh-supported-table {
+  thead {
+    /* Primera fila: título “Compatible con:” */
+    tr:nth-child(1) th {
+      position: sticky;
+      top: 0;
+      z-index: 3; /* por encima del segundo tr */
+      background-color: #e9ecef; /* mismo color de fondo del thead */
+      border-bottom: 1px solid #ccc;
+    }
+    /* Segunda fila: nombres de columna */
+    tr:nth-child(2) th {
+      position: sticky;
+      top: 2.5rem; /* altura de la primera fila; ajústalo si cambias el padding/font */
+      z-index: 2;
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #ccc;
+    }
+  }
 }
