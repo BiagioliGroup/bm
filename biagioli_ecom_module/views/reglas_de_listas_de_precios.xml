@@ -1,0 +1,35 @@
+<odoo>
+
+<menuitem id="menu_mass_edit_pricelist_items"
+          name="Reglas de precio (masivo)"
+          parent="product.menu_catalog_pricelists"
+          action="biagioli_ecom_module.action_mass_edit_pricelist_items"/>
+
+          
+<record id="view_pricelist_item_mass_edit_tree" model="ir.ui.view">
+    <field name="name">product.pricelist.item.tree.editable</field>
+    <field name="model">product.pricelist.item</field>
+    <field name="arch" type="xml">
+        <tree editable="bottom" string="Reglas de precio (Edición masiva)">
+            <field name="pricelist_id"/>
+            <field name="product_id"/>
+            <field name="product_tmpl_id"/>
+            <field name="name"/>
+            <field name="price"/>
+            <field name="min_quantity"/>
+            <field name="date_start"/>
+            <field name="date_end"/>
+        </tree>
+    </field>
+</record>
+
+
+<record id="action_mass_edit_pricelist_items" model="ir.actions.act_window">
+    <field name="name">Edición masiva de reglas de precio</field>
+    <field name="res_model">product.pricelist.item</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="biagioli_ecom_module.view_pricelist_item_mass_edit_tree"/>
+    <field name="context">{}</field>
+</record>
+
+</odoo>
