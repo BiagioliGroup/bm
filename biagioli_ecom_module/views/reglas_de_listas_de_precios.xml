@@ -1,8 +1,8 @@
 <odoo>
 
 <menuitem id="menu_mass_edit_pricelist_items"
-          name="Reglas de precio (masivo)"
-          parent="product.menu_catalog_pricelists"
+          name="Editor de Reglas de precio"
+          parent="sale.sale_menu_root"
           action="biagioli_ecom_module.action_mass_edit_pricelist_items"/>
 
           
