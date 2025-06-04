@@ -1,0 +1,25 @@
+<odoo>
+    <record id="action_mass_edit_pricelist_dates" model="ir.actions.act_window">
+        <field name="name">Editar fechas</field>
+        <field name="res_model">mass.edit.pricelist.dates</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_server_mass_edit_pricelist_dates" model="ir.actions.server">
+        <field name="name">Editar fechas (en lote)</field>
+        <field name="model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_window',
+                'res_model': 'mass.edit.pricelist.dates',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'active_ids': active_ids},
+            }
+        </field>
+    </record>
+</odoo>

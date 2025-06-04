@@ -24,6 +24,8 @@ Long description of module's purpose
     'data': [
         'views/views.xml',
         'views/reglas_de_listas_de_precios.xml',
+        'views/mass_edit_pricelist_dates_view.xml',
+        'views/mass_edit_pricelist_dates_action.xml',
     ],
     'installable': True,
     'application': False,

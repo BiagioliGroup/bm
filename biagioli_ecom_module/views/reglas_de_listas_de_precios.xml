@@ -7,8 +7,8 @@
     <field name="arch" type="xml">
         <list editable="bottom" string="Editor de listas de precios">
             <field name="pricelist_id"/>
-            <field name="product_id"/>
             <field name="product_tmpl_id"/>
+            <field name="product_id"/>
             <field name="name"/>
             <field name="price"/>
             <field name="min_quantity"/>
