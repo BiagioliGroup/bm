@@ -5,7 +5,7 @@
     <field name="name">product.pricelist.item.tree.editable</field>
     <field name="model">product.pricelist.item</field>
     <field name="arch" type="xml">
-        <tree editable="bottom" string="Reglas de precio (Edición masiva)">
+        <list editable="bottom" string="Editor de listas de precios">
             <field name="pricelist_id"/>
             <field name="product_id"/>
             <field name="product_tmpl_id"/>
@@ -14,7 +14,7 @@
             <field name="min_quantity"/>
             <field name="date_start"/>
             <field name="date_end"/>
-        </tree>
+        </list>
     </field>
 </record>
 
