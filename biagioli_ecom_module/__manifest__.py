@@ -23,6 +23,7 @@ Long description of module's purpose
     ],
     'data': [
         'views/views.xml',
+        'views/reglas_de_listas_de_precios.xml',
     ],
     'installable': True,
     'application': False,
