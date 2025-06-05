@@ -22,6 +22,7 @@ Long description of module's purpose
         'website_sale',  # si estás usando website ribbons
     ],
     'data': [
+        'security/ir.model.access.csv',
         'views/views.xml',
         'views/reglas_de_listas_de_precios.xml',
         'views/mass_edit_pricelist_dates_view.xml',
