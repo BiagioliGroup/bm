@@ -18,7 +18,10 @@
                 'res_model': 'mass.edit.pricelist.dates',
                 'view_mode': 'form',
                 'target': 'new',
-                'context': {'active_ids': active_ids},
+                'context': {
+                    'active_model': model._name,
+                    'active_ids': model.ids,
+                },
             }
         </field>
     </record>
