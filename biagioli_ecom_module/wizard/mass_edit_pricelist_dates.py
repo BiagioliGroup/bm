@@ -1,5 +1,6 @@
 from odoo import models, fields, tools, api
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+from odoo.exceptions import UserError
 from datetime import datetime, time, timedelta
 from datetime import date
 import pytz
@@ -111,23 +112,39 @@ class ProductTemplate(models.Model):
 
         if 'list_price' in vals:
             for template in self:
+                company = template.company_id or self.env.company
+
+                # Validar que solo haya una empresa activa
+                if len(self.env.companies) > 1 and not company:
+                    raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
+
+                # Buscar el país de la empresa actual
+                country_group = False
+                if company.partner_id.country_id:
+                    country_group = self.env['res.country.group'].search([
+                        ('country_ids', 'in', company.partner_id.country_id.id)
+                    ], limit=1)
+
+                # Buscar o crear la lista de precios "Historial precio público"
                 historial_pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
                     ('currency_id', '=', template.currency_id.id),
-                    ('company_id', 'in', [template.company_id.id, False])
+                    ('company_id', '=', company.id),
                 ], limit=1)
 
                 if not historial_pricelist:
                     historial_pricelist = self.env['product.pricelist'].create({
                         'name': 'Historial precio público',
                         'currency_id': template.currency_id.id,
-                        'company_id': template.company_id.id,
+                        'company_id': company.id,
+                        'country_group_ids': [(6, 0, [country_group.id])] if country_group else False,
+                        'selectable': False,
+                        'website_id': False,
                     })
 
-                # Obtener fecha actual
                 now = datetime.now()
 
-                # Buscar el último registro sin fecha de fin
+                # Cerrar el último registro anterior sin fecha de fin
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', historial_pricelist.id),
                     ('product_tmpl_id', '=', template.id),
@@ -135,10 +152,9 @@ class ProductTemplate(models.Model):
                 ], order='date_start desc', limit=1)
 
                 if last_item:
-                    # Cierra el último registro justo antes del nuevo
                     last_item.date_end = now - timedelta(seconds=1)
 
-                # Crear el nuevo registro con el nuevo precio
+                # Crear nueva entrada con precio actualizado
                 self.env['product.pricelist.item'].create({
                     'pricelist_id': historial_pricelist.id,
                     'product_tmpl_id': template.id,
