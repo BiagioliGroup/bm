@@ -112,10 +112,10 @@ class ProductTemplate(models.Model):
                     raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
 
                 country = company.country_id
-
                 all_groups = self.env['res.country.group'].search([])
                 country_group = all_groups.filtered(lambda g: g.country_ids == country)
 
+                # Buscar o crear la lista de precios
                 historial_pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
                     ('currency_id', '=', template.currency_id.id),
@@ -132,17 +132,17 @@ class ProductTemplate(models.Model):
                         'website_id': False,
                     })
 
-                now = datetime.now()
+                new_start = datetime.now()
 
+                # 🔥 IMPORTANTE: Buscar el último item antes de usarlo
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', historial_pricelist.id),
                     ('product_tmpl_id', '=', template.id),
                     ('date_end', '=', False)
                 ], order='date_start desc', limit=1)
 
-                if last_item:
-                    last_item.write({'date_end': now - timedelta(minutes=1)})
-
+                if last_item and last_item.date_start < new_start:
+                    last_item.date_end = new_start - timedelta(seconds=1)
 
                 self.env['product.pricelist.item'].create({
                     'pricelist_id': historial_pricelist.id,
@@ -150,7 +150,7 @@ class ProductTemplate(models.Model):
                     'applied_on': '1_product',
                     'compute_price': 'fixed',
                     'fixed_price': vals['list_price'],
-                    'date_start': now,
+                    'date_start': new_start,
                     'date_end': False
                 })
 
