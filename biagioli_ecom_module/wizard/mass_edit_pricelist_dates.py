@@ -2,6 +2,9 @@ from odoo import models, fields
 import logging
 
 
+_logger = logging.getLogger(__name__)
+
+
 class MassEditPricelistDates(models.TransientModel):
     _name = 'mass.edit.pricelist.dates'
     _description = 'Editor masivo de fechas de listas de precios'
