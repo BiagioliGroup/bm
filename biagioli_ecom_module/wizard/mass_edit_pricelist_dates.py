@@ -28,7 +28,7 @@ class MassEditPricelistDates(models.TransientModel):
                 item.date_end = self.date_end
                 _logger.info(f"✅ Fecha de fin aplicada: {self.date_end}")
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        # return {
+        #     'type': 'ir.actions.client',
+        #     'tag': 'reload',
+        # }
