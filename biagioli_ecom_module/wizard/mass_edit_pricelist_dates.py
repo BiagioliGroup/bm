@@ -1,8 +1,7 @@
-from odoo import models, fields, tools, api
+from odoo import models, fields, tools, api, _
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 from odoo.exceptions import UserError
-from datetime import datetime, time, timedelta
-from datetime import date
+from datetime import datetime, time, timedelta, date
 import pytz
 import logging
 
@@ -41,14 +40,9 @@ class MassEditPricelistAdjustment(models.TransientModel):
     def apply_adjustment(self):
         _logger.info("🛠 Aplicando ajustes de precio")
 
-        # Detectar zona horaria del usuario (si está definida en la sesión)
         user_tz = self.env.user.tz or 'UTC'
         tz = pytz.timezone(user_tz)
-        _logger.info(f"🌐 Zona horaria del usuario: {user_tz}")
-
-        # Convertir la fecha al comienzo del día en su zona horaria local
         local_dt = tz.localize(datetime.combine(self.date_start, time.min))
-        # Convertir de vuelta a fecha pura en UTC (eliminando desfase)
         corrected_date_start = local_dt.astimezone(pytz.utc).date()
 
         active_ids = self.env.context.get('active_ids', [])
@@ -58,10 +52,11 @@ class MassEditPricelistAdjustment(models.TransientModel):
             if item.compute_price != 'fixed':
                 continue
 
-            if self.increase_type == 'percent':
-                new_price = item.fixed_price * (1 + self.value / 100)
-            else:
-                new_price = item.fixed_price + self.value
+            new_price = (
+                item.fixed_price * (1 + self.value / 100)
+                if self.increase_type == 'percent'
+                else item.fixed_price + self.value
+            )
 
             item.write({
                 'fixed_price': new_price,
@@ -69,40 +64,39 @@ class MassEditPricelistAdjustment(models.TransientModel):
                 'date_end': False
             })
 
-    class MassEditPricelistCloneAdjustment(models.TransientModel):
-        _name = 'mass.edit.pricelist.clone.adjustment'
-        _description = 'Clonar reglas de precios con ajuste'
 
-        increase_type = fields.Selection([
-            ('percent', 'Porcentaje'),
-            ('fixed', 'Monto fijo')
-        ], string='Tipo de aumento', required=True)
-        value = fields.Float('Valor del aumento', required=True)
+class MassEditPricelistCloneAdjustment(models.TransientModel):
+    _name = 'mass.edit.pricelist.clone.adjustment'
+    _description = 'Clonar reglas de precios con ajuste'
 
-        def apply_clone_adjustment(self):
-            today = fields.Date.today()
-            active_ids = self.env.context.get('active_ids', [])
-            items = self.env['product.pricelist.item'].browse(active_ids)
+    increase_type = fields.Selection([
+        ('percent', 'Porcentaje'),
+        ('fixed', 'Monto fijo')
+    ], string='Tipo de aumento', required=True)
+    value = fields.Float('Valor del aumento', required=True)
 
-            for item in items:
-                if item.compute_price != 'fixed':
-                    continue
+    def apply_clone_adjustment(self):
+        today = fields.Date.today()
+        active_ids = self.env.context.get('active_ids', [])
+        items = self.env['product.pricelist.item'].browse(active_ids)
 
-                # Calcular nuevo precio
-                if self.increase_type == 'percent':
-                    new_price = item.fixed_price * (1 + self.value / 100)
-                else:
-                    new_price = item.fixed_price + self.value
+        for item in items:
+            if item.compute_price != 'fixed':
+                continue
 
-                # Cerrar regla actual
-                item.write({'date_end': today})
+            new_price = (
+                item.fixed_price * (1 + self.value / 100)
+                if self.increase_type == 'percent'
+                else item.fixed_price + self.value
+            )
 
-                # Crear nueva regla clonada
-                item.copy({
-                    'fixed_price': new_price,
-                    'date_start': today,
-                    'date_end': False,
-                })
+            item.write({'date_end': today})
+            item.copy({
+                'fixed_price': new_price,
+                'date_start': today,
+                'date_end': False,
+            })
+
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
@@ -114,18 +108,14 @@ class ProductTemplate(models.Model):
             for template in self:
                 company = template.company_id or self.env.company
 
-                # Validar que solo haya una empresa activa
                 if len(self.env.companies) > 1 and not company:
                     raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
 
-                # Buscar el país de la empresa actual
                 country = company.country_id
 
-                # Filtra grupos que contengan solo ese país (nada más)
                 all_groups = self.env['res.country.group'].search([])
                 country_group = all_groups.filtered(lambda g: g.country_ids == country)
 
-                # Buscar o crear la lista de precios "Historial precio público"
                 historial_pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
                     ('currency_id', '=', template.currency_id.id),
@@ -144,7 +134,6 @@ class ProductTemplate(models.Model):
 
                 now = datetime.now()
 
-                # Cerrar el último registro anterior sin fecha de fin
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', historial_pricelist.id),
                     ('product_tmpl_id', '=', template.id),
@@ -152,9 +141,8 @@ class ProductTemplate(models.Model):
                 ], order='date_start desc', limit=1)
 
                 if last_item:
-                    last_item.date_end = now - timedelta(seconds=1)
+                    last_item.write({'date_end': now - timedelta(seconds=1)})
 
-                # Crear nueva entrada con precio actualizado
                 self.env['product.pricelist.item'].create({
                     'pricelist_id': historial_pricelist.id,
                     'product_tmpl_id': template.id,
@@ -166,15 +154,14 @@ class ProductTemplate(models.Model):
                 })
 
         return res
-    
+
+
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     def write(self, vals):
         res = super().write(vals)
-
         if 'list_price' in vals:
             for product in self:
                 product.product_tmpl_id.write({'list_price': vals['list_price']})
-                
         return res
