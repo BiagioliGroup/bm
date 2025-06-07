@@ -19,8 +19,7 @@
                 'view_mode': 'form',
                 'target': 'new',
                 'context': {
-                    'active_model': model._name,
-                    'active_ids': model.ids,
+                    'active_ids': env.context.get('active_ids'),
                 },
             }
         </field>
