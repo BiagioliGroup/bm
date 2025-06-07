@@ -27,6 +27,7 @@ Long description of module's purpose
         'views/reglas_de_listas_de_precios.xml',
         'views/mass_edit_pricelist_dates_view.xml',
         'views/mass_edit_pricelist_dates_action.xml',
+        'views/product_product_price_readonly.xml',
     ],
     'installable': True,
     'application': False,
