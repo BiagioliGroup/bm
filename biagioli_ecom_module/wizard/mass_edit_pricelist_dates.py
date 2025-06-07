@@ -101,3 +101,27 @@ class MassEditPricelistAdjustment(models.TransientModel):
                     'date_start': today,
                     'date_end': False,
                 })
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    def write(self, vals):
+        # Verificamos si se actualizó el campo list_price
+        if 'list_price' in vals:
+            today = date.today()
+            # Buscar o crear la lista de precios "Historial precio público"
+            pricelist = self.env['product.pricelist'].search([('name', '=', 'Historial precio público')], limit=1)
+            if not pricelist:
+                pricelist = self.env['product.pricelist'].create({'name': 'Historial precio público', 'currency_id': self.env.company.currency_id.id})
+
+            # Crear el nuevo historial para cada producto afectado
+            for template in self:
+                self.env['product.pricelist.item'].create({
+                    'pricelist_id': pricelist.id,
+                    'product_tmpl_id': template.id,
+                    'compute_price': 'fixed',
+                    'fixed_price': vals['list_price'],
+                    'date_start': today,
+                    'date_end': False,
+                })
+        return super().write(vals)

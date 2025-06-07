@@ -2,3 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_mass_edit_pricelist_dates_user,mass.edit.pricelist.dates,model_mass_edit_pricelist_dates,base.group_user,1,1,1,0
 access_mass_edit_pricelist_adjustment_user,mass.edit.pricelist.adjustment user,model_mass_edit_pricelist_adjustment,base.group_user,1,1,1,0
 access_mass_edit_pricelist_clone_adjustment,mass.edit.pricelist.clone.adjustment,model_mass_edit_pricelist_clone_adjustment,base.group_user,1,1,1,0
+access_pricelist_historial,access_pricelist_historial,model_product_pricelist,,1,1,1,0
+access_pricelist_item_historial,access_pricelist_item_historial,model_product_pricelist_item,,1,1,1,0
