@@ -119,11 +119,10 @@ class ProductTemplate(models.Model):
                     raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
 
                 # Buscar el país de la empresa actual
-                country_group = False
-                if company.partner_id.country_id:
-                    country_group = self.env['res.country.group'].search([
-                        ('country_ids', 'in', company.partner_id.country_id.id)
-                    ], limit=1)
+                country = company.country_id
+                country_group = self.env['res.country.group'].search([
+                    ('country_ids', '=', country.id)
+                ], limit=1)
 
                 # Buscar o crear la lista de precios "Historial precio público"
                 historial_pricelist = self.env['product.pricelist'].search([
