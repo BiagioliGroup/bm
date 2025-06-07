@@ -19,19 +19,19 @@
         </field>
     </record>
 
-    <!-- 🧩 Acción para abrir la vista en modo lista editable -->
+    <!-- Acción para abrir la vista -->
     <record id="action_mass_edit_pricelist_items" model="ir.actions.act_window">
-        <field name="name">Editor de reglas de precio</field>
+        <field name="name">Edición masiva de reglas de precio</field>
         <field name="res_model">product.pricelist.item</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="view_id" ref="biagioli_ecom_module.view_pricelist_item_mass_edit_tree"/>
         <field name="context">{}</field>
     </record>
 
-    <!-- 📂 Submenú bajo Listas de precios -->
+    <!-- Submenú dentro de 'Listas de precios' -->
     <menuitem id="menu_mass_edit_pricelist_items"
               name="Editor de reglas de precio"
-              parent="product.menu_product_pricelists"
+              parent="product.menu_product_pricelist"
               action="biagioli_ecom_module.action_mass_edit_pricelist_items"
-              sequence="20"/>
+              sequence="35"/>
 </odoo>
