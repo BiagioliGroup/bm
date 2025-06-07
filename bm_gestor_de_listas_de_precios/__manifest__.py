@@ -29,7 +29,6 @@ Ideal para empresas que manejan múltiples listas de precios y requieren eficien
 
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
         'views/reglas_de_listas_de_precios.xml',
         'views/mass_edit_pricelist_dates_view.xml',
         'views/mass_edit_pricelist_dates_action.xml',
