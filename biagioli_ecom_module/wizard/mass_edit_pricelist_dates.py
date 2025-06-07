@@ -1,9 +1,8 @@
 from odoo import models, fields
 import logging
-
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 
 _logger = logging.getLogger(__name__)
-
 
 class MassEditPricelistDates(models.TransientModel):
     _name = 'mass.edit.pricelist.dates'
@@ -13,9 +12,7 @@ class MassEditPricelistDates(models.TransientModel):
     date_end = fields.Date("Nueva fecha de finalización")
 
     def apply_mass_edit(self):
-
         active_ids = self.env.context.get('active_ids', [])
-
         items = self.env['product.pricelist.item'].browse(active_ids)
         for item in items:
             if self.date_start:
@@ -23,7 +20,7 @@ class MassEditPricelistDates(models.TransientModel):
             if self.date_end:
                 item.date_end = self.date_end
 
-    
+
 class MassEditPricelistAdjustment(models.TransientModel):
     _name = 'mass.edit.pricelist.adjustment'
     _description = 'Ajuste masivo de precios'
@@ -32,6 +29,7 @@ class MassEditPricelistAdjustment(models.TransientModel):
         ('percent', 'Porcentaje'),
         ('fixed', 'Monto fijo')
     ], string='Tipo de aumento', required=True)
+
     value = fields.Float('Valor del aumento', required=True)
     date_start = fields.Date('Fecha de inicio', required=True)
 
@@ -41,9 +39,12 @@ class MassEditPricelistAdjustment(models.TransientModel):
         active_ids = self.env.context.get('active_ids', [])
         items = self.env['product.pricelist.item'].browse(active_ids)
 
+        # ✅ Corrección de desfase por zona horaria
+        date_start_clean = fields.Date.to_date(self.date_start.strftime(DEFAULT_SERVER_DATE_FORMAT))
+
         for item in items:
             if item.compute_price != 'fixed':
-                continue  # ignorar dinámicos
+                continue  # Ignorar reglas dinámicas
 
             if self.increase_type == 'percent':
                 new_price = item.fixed_price * (1 + self.value / 100)
@@ -52,6 +53,6 @@ class MassEditPricelistAdjustment(models.TransientModel):
 
             item.write({
                 'fixed_price': new_price,
-                'date_start': self.date_start,
-                'date_end': False
+                'date_start': date_start_clean,
+                'date_end': False  # Dejamos sin fecha de fin
             })
