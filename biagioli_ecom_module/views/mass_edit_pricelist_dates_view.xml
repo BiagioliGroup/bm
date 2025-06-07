@@ -1,4 +1,5 @@
 <odoo>
+    <!-- Acción para editar fechas en lote -->
     <record id="view_mass_edit_pricelist_dates_wizard" model="ir.ui.view">
         <field name="name">mass.edit.pricelist.dates.form</field>
         <field name="model">mass.edit.pricelist.dates</field>
