@@ -166,3 +166,15 @@ class ProductTemplate(models.Model):
                 })
 
         return res
+    
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    def write(self, vals):
+        res = super().write(vals)
+
+        if 'list_price' in vals:
+            for product in self:
+                product.product_tmpl_id.write({'list_price': vals['list_price']})
+                
+        return res
