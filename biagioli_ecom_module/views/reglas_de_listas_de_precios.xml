@@ -1,5 +1,4 @@
 <odoo>
-    <!-- 📄 Vista tipo "tree" editable para editar reglas de precios directamente desde la lista -->
     <record id="view_pricelist_item_mass_edit_list" model="ir.ui.view">
         <field name="name">product.pricelist.item.list.editable</field>
         <field name="model">product.pricelist.item</field>
