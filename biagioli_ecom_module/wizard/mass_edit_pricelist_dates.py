@@ -112,7 +112,6 @@ class ProductTemplate(models.Model):
                     raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
 
                 country = company.country_id
-
                 all_groups = self.env['res.country.group'].search([])
                 country_group = all_groups.filtered(lambda g: g.country_ids == country)
 
@@ -133,7 +132,6 @@ class ProductTemplate(models.Model):
                     })
 
                 new_start = datetime.now()
-
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', historial_pricelist.id),
                     ('product_tmpl_id', '=', template.id),
@@ -145,7 +143,6 @@ class ProductTemplate(models.Model):
                     if last_item.date_start < safe_end:
                         last_item.date_end = safe_end
                     else:
-                        # Si la fecha de inicio nueva no es mayor, forzar desfase
                         new_start = last_item.date_start + timedelta(seconds=2)
                         last_item.date_end = last_item.date_start + timedelta(seconds=1)
 
@@ -166,8 +163,10 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     def write(self, vals):
-        res = super().write(vals)
-        if 'list_price' in vals:
-            for product in self:
-                product.product_tmpl_id.write({'list_price': vals['list_price']})
-        return res
+        # Ejecutar el write del template solo si no viene del template
+        template_ids = self.mapped('product_tmpl_id.id')
+        if 'list_price' in vals and self.env.context.get('from_template_write') is not True:
+            self.env['product.template'].browse(template_ids).with_context(from_template_write=True).write({
+                'list_price': vals['list_price']
+            })
+        return super().write(vals)
