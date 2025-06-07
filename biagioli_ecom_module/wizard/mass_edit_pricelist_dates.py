@@ -141,7 +141,8 @@ class ProductTemplate(models.Model):
                 ], order='date_start desc', limit=1)
 
                 if last_item:
-                    last_item.write({'date_end': now - timedelta(seconds=1)})
+                    last_item.write({'date_end': now - timedelta(minutes=1)})
+
 
                 self.env['product.pricelist.item'].create({
                     'pricelist_id': historial_pricelist.id,
