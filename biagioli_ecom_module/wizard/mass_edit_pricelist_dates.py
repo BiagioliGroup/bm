@@ -1,24 +1,10 @@
-from odoo import models, fields
-import logging
+from odoo import models, fields, tools
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+from datetime import datetime, time
+import pytz
+import logging
 
 _logger = logging.getLogger(__name__)
-
-class MassEditPricelistDates(models.TransientModel):
-    _name = 'mass.edit.pricelist.dates'
-    _description = 'Editor masivo de fechas de listas de precios'
-
-    date_start = fields.Date("Nueva fecha de inicio")
-    date_end = fields.Date("Nueva fecha de finalización")
-
-    def apply_mass_edit(self):
-        active_ids = self.env.context.get('active_ids', [])
-        items = self.env['product.pricelist.item'].browse(active_ids)
-        for item in items:
-            if self.date_start:
-                item.date_start = self.date_start
-            if self.date_end:
-                item.date_end = self.date_end
 
 
 class MassEditPricelistAdjustment(models.TransientModel):
@@ -36,15 +22,22 @@ class MassEditPricelistAdjustment(models.TransientModel):
     def apply_adjustment(self):
         _logger.info("🛠 Aplicando ajustes de precio")
 
+        # Detectar zona horaria del usuario (si está definida en la sesión)
+        user_tz = self.env.user.tz or 'UTC'
+        tz = pytz.timezone(user_tz)
+        _logger.info(f"🌐 Zona horaria del usuario: {user_tz}")
+
+        # Convertir la fecha al comienzo del día en su zona horaria local
+        local_dt = tz.localize(datetime.combine(self.date_start, time.min))
+        # Convertir de vuelta a fecha pura en UTC (eliminando desfase)
+        corrected_date_start = local_dt.astimezone(pytz.utc).date()
+
         active_ids = self.env.context.get('active_ids', [])
         items = self.env['product.pricelist.item'].browse(active_ids)
 
-        # ✅ Corrección de desfase por zona horaria
-        date_start_clean = fields.Date.to_date(self.date_start.strftime(DEFAULT_SERVER_DATE_FORMAT))
-
         for item in items:
             if item.compute_price != 'fixed':
-                continue  # Ignorar reglas dinámicas
+                continue
 
             if self.increase_type == 'percent':
                 new_price = item.fixed_price * (1 + self.value / 100)
@@ -53,6 +46,6 @@ class MassEditPricelistAdjustment(models.TransientModel):
 
             item.write({
                 'fixed_price': new_price,
-                'date_start': date_start_clean,
-                'date_end': False  # Dejamos sin fecha de fin
+                'date_start': corrected_date_start,
+                'date_end': False
             })
