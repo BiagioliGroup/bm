@@ -36,7 +36,7 @@
                 <filter name="expired" string="Vencidas" domain="[('date_end', '&lt;', (context_today()))]"/>
                 <filter name="no_start_date" string="Sin fecha de inicio" domain="[('date_start','=',False)]"/>
                 <filter name="no_end_date" string="Sin fecha de fin" domain="[('date_end','=',False)]"/>
-                <filter name="price_zero" string="Precio = 0" domain="[('price','=',0)]"/>
+                <filter name="price_zero" string="Precio fijo = 0" domain="[('fixed_price','=',0)]"/>
                 <filter name="min_quantity_gt1" string="Cantidad mínima &gt; 1" domain="[('min_quantity','&gt;',1)]"/>
             </search>
 
