@@ -15,15 +15,7 @@
         <field name="binding_model_id" ref="product.model_product_pricelist_item"/>
         <field name="binding_view_types">list</field>                               <!-- Se activa en la vista de lista -->
         <field name="state">code</field>
-        <field name="code">
-            action = {
-                'type': 'ir.actions.act_window',
-                'res_model': 'mass.edit.pricelist.dates',
-                'view_mode': 'form',
-                'target': 'new',
-                'context': {'active_ids': env.context.get('active_ids')}
-            }
-        </field>
+        <field name="code">action = {'type': 'ir.actions.act_window','res_model': 'mass.edit.pricelist.dates','view_mode': 'form','target': 'new','context': {'active_ids': env.context.get('active_ids')}} </field>
     </record>
 
     <!-- Acción principal que abre la vista de edición de reglas de precio -->
@@ -52,15 +44,7 @@
         <field name="binding_model_id" ref="product.model_product_pricelist_item"/>
         <field name="binding_view_types">list</field>                              <!-- Solo disponible en vista lista -->
         <field name="state">code</field>
-        <field name="code">
-            action = {
-                'type': 'ir.actions.act_window',
-                'res_model': 'mass.edit.pricelist.adjustment',
-                'view_mode': 'form',
-                'target': 'new',
-                'context': {'active_ids': env.context.get('active_ids')}          <!-- Pasa los IDs seleccionados -->
-            }
-        </field>
+        <field name="code">action = {'type': 'ir.actions.act_window','res_model': 'mass.edit.pricelist.adjustment','view_mode': 'form','target': 'new','context': {'active_ids': env.context.get('active_ids')}} </field>
     </record>
 
 </odoo>
