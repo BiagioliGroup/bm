@@ -105,7 +105,7 @@ class ProductTemplate(models.Model):
         res = super().write(vals)
 
         if 'list_price' in vals:
-            for template in self:
+            for template in self.filtered(lambda t: t.id == t.product_variant_id.product_tmpl_id.id):
                 company = template.company_id or self.env.company
 
                 if len(self.env.companies) > 1 and not company:
