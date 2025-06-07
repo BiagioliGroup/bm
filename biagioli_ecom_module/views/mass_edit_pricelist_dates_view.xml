@@ -70,4 +70,22 @@
         </field>
     </record>
 
+    
+    <record id="view_mass_edit_pricelist_clone_adjustment_wizard" model="ir.ui.view">
+        <field name="name">mass.edit.pricelist.clone.adjustment.form</field>
+        <field name="model">mass.edit.pricelist.clone.adjustment</field>
+        <field name="arch" type="xml">
+            <form string="Nueva regla de precio sobre existentes">
+                <group>
+                    <field name="increase_type"/>
+                    <field name="value"/>
+                </group>
+                <footer>
+                    <button string="Aplicar" type="object" name="apply_clone_adjustment" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
 </odoo>

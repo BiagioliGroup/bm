@@ -66,3 +66,38 @@ class MassEditPricelistAdjustment(models.TransientModel):
                 'date_start': corrected_date_start,
                 'date_end': False
             })
+
+    class MassEditPricelistCloneAdjustment(models.TransientModel):
+        _name = 'mass.edit.pricelist.clone.adjustment'
+        _description = 'Clonar reglas de precios con ajuste'
+
+        increase_type = fields.Selection([
+            ('percent', 'Porcentaje'),
+            ('fixed', 'Monto fijo')
+        ], string='Tipo de aumento', required=True)
+        value = fields.Float('Valor del aumento', required=True)
+
+        def apply_clone_adjustment(self):
+            today = fields.Date.today()
+            active_ids = self.env.context.get('active_ids', [])
+            items = self.env['product.pricelist.item'].browse(active_ids)
+
+            for item in items:
+                if item.compute_price != 'fixed':
+                    continue
+
+                # Calcular nuevo precio
+                if self.increase_type == 'percent':
+                    new_price = item.fixed_price * (1 + self.value / 100)
+                else:
+                    new_price = item.fixed_price + self.value
+
+                # Cerrar regla actual
+                item.write({'date_end': today})
+
+                # Crear nueva regla clonada
+                item.copy({
+                    'fixed_price': new_price,
+                    'date_start': today,
+                    'date_end': False,
+                })
