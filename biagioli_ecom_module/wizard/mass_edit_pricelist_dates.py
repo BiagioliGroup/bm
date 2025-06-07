@@ -120,9 +120,10 @@ class ProductTemplate(models.Model):
 
                 # Buscar el país de la empresa actual
                 country = company.country_id
-                country_group = self.env['res.country.group'].search([
-                    ('country_ids', '=', country.id)
-                ], limit=1)
+
+                # Filtra grupos que contengan solo ese país (nada más)
+                all_groups = self.env['res.country.group'].search([])
+                country_group = all_groups.filtered(lambda g: g.country_ids == country)
 
                 # Buscar o crear la lista de precios "Historial precio público"
                 historial_pricelist = self.env['product.pricelist'].search([
