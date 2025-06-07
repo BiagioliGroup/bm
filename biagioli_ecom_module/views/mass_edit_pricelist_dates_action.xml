@@ -21,9 +21,7 @@
                 'res_model': 'mass.edit.pricelist.dates',
                 'view_mode': 'form',
                 'target': 'new',
-                'context': {
-                    'active_ids': env.context.get('active_ids'),                   <!-- Pasa los IDs seleccionados -->
-                },
+                'context': {'active_ids': env.context.get('active_ids')}
             }
         </field>
     </record>
