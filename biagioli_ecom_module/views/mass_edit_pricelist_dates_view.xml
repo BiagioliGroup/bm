@@ -15,4 +15,31 @@
             </form>
         </field>
     </record>
+
+    <!-- Vista de Busqueda-Search -->
+    <record id="view_pricelist_item_mass_edit_search" model="ir.ui.view">
+        <field name="name">product.pricelist.item.search</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="arch" type="xml">
+            <search string="Buscar reglas de precios">
+                <field name="pricelist_id"/>
+                <field name="product_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+
+                <filter name="future" string="Futuras" domain="[('date_start', '>', (context_today()))]"/>
+                <filter name="active_today" string="Vigentes hoy" domain="[
+                    ('date_start', '<=', (context_today())),
+                    ('date_end', '>=', (context_today()))
+                ]"/>
+                <filter name="expired" string="Vencidas" domain="[('date_end', '<', (context_today()))]"/>
+                <filter name="no_start_date" string="Sin fecha de inicio" domain="[('date_start','=',False)]"/>
+                <filter name="no_end_date" string="Sin fecha de fin" domain="[('date_end','=',False)]"/>
+                <filter name="price_zero" string="Precio = 0" domain="[('price','=',0)]"/>
+                <filter name="min_quantity_gt1" string="Cantidad mínima > 1" domain="[('min_quantity','>',1)]"/>
+
+
+            </search>
+        </field>
+    </record>
 </odoo>
