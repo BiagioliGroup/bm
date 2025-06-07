@@ -110,20 +110,23 @@ class ProductTemplate(models.Model):
         res = super().write(vals)
 
         if 'list_price' in vals:
-            historial_pricelist = self.env['product.pricelist'].search([
-                ('name', '=', 'Historial precio público (ARS)'),
-                ('currency_id', '=', self.currency_id.id),
-                ('company_id', 'in', [self.company_id.id, False])
-            ], limit=1)
-
-            if not historial_pricelist:
-                historial_pricelist = self.env['product.pricelist'].create({
-                    'name': 'Historial precio público (ARS)',
-                    'currency_id': self.currency_id.id,
-                    'company_id': self.company_id.id,
-                })
-
             for template in self:
+                historial_pricelist = self.env['product.pricelist'].search([
+                    ('name', '=', 'Historial precio público'),
+                    ('currency_id', '=', template.currency_id.id),
+                    ('company_id', 'in', [template.company_id.id, False])
+                ], limit=1)
+
+                if not historial_pricelist:
+                    historial_pricelist = self.env['product.pricelist'].create({
+                        'name': 'Historial precio público',
+                        'currency_id': template.currency_id.id,
+                        'company_id': template.company_id.id,
+                    })
+
+                # Obtener fecha actual
+                now = datetime.now()
+
                 # Buscar el último registro sin fecha de fin
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', historial_pricelist.id),
@@ -131,19 +134,18 @@ class ProductTemplate(models.Model):
                     ('date_end', '=', False)
                 ], order='date_start desc', limit=1)
 
-                today = datetime.now()
-
                 if last_item:
-                    last_item.write({'date_end': today})
+                    # Cierra el último registro justo antes del nuevo
+                    last_item.date_end = now - timedelta(seconds=1)
 
-                # Crear nueva entrada con el nuevo precio
+                # Crear el nuevo registro con el nuevo precio
                 self.env['product.pricelist.item'].create({
                     'pricelist_id': historial_pricelist.id,
                     'product_tmpl_id': template.id,
                     'applied_on': '1_product',
                     'compute_price': 'fixed',
-                    'fixed_price': template.list_price,
-                    'date_start': today,
+                    'fixed_price': vals['list_price'],
+                    'date_start': now,
                     'date_end': False
                 })
 
