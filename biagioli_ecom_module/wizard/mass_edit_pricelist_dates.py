@@ -15,3 +15,9 @@ class MassEditPricelistDates(models.TransientModel):
                 item.date_start = self.date_start
             if self.date_end:
                 item.date_end = self.date_end
+        
+        # ✅ Acción para cerrar el wizard y refrescar la vista
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
