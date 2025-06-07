@@ -1,4 +1,4 @@
-from odoo import models, fields, tools
+from odoo import models, fields, tools, api
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 from datetime import datetime, time
 from datetime import date
@@ -107,22 +107,44 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
-        # Verificamos si se actualizó el campo list_price
-        if 'list_price' in vals:
-            today = date.today()
-            # Buscar o crear la lista de precios "Historial precio público"
-            pricelist = self.env['product.pricelist'].search([('name', '=', 'Historial precio público')], limit=1)
-            if not pricelist:
-                pricelist = self.env['product.pricelist'].create({'name': 'Historial precio público', 'currency_id': self.env.company.currency_id.id})
+        res = super().write(vals)
 
-            # Crear el nuevo historial para cada producto afectado
-            for template in self:
-                self.env['product.pricelist.item'].create({
-                    'pricelist_id': pricelist.id,
-                    'product_tmpl_id': template.id,
-                    'compute_price': 'fixed',
-                    'fixed_price': vals['list_price'],
-                    'date_start': today,
-                    'date_end': False,
+        if 'list_price' in vals:
+            historial_pricelist = self.env['product.pricelist'].search([
+                ('name', '=', 'Historial precio público (ARS)'),
+                ('currency_id', '=', self.currency_id.id),
+                ('company_id', 'in', [self.company_id.id, False])
+            ], limit=1)
+
+            if not historial_pricelist:
+                historial_pricelist = self.env['product.pricelist'].create({
+                    'name': 'Historial precio público (ARS)',
+                    'currency_id': self.currency_id.id,
+                    'company_id': self.company_id.id,
                 })
-        return super().write(vals)
+
+            for template in self:
+                # Buscar el último registro sin fecha de fin
+                last_item = self.env['product.pricelist.item'].search([
+                    ('pricelist_id', '=', historial_pricelist.id),
+                    ('product_tmpl_id', '=', template.id),
+                    ('date_end', '=', False)
+                ], order='date_start desc', limit=1)
+
+                today = datetime.now()
+
+                if last_item:
+                    last_item.write({'date_end': today})
+
+                # Crear nueva entrada con el nuevo precio
+                self.env['product.pricelist.item'].create({
+                    'pricelist_id': historial_pricelist.id,
+                    'product_tmpl_id': template.id,
+                    'applied_on': '1_product',
+                    'compute_price': 'fixed',
+                    'fixed_price': template.list_price,
+                    'date_start': today,
+                    'date_end': False
+                })
+
+        return res
