@@ -24,8 +24,8 @@
         <field name="name">Edición masiva de reglas de precio</field>
         <field name="res_model">product.pricelist.item</field>
         <field name="view_mode">list,form</field>
-        <field name="view_id" ref="biagioli_ecom_module.view_pricelist_item_mass_edit_tree"/>
-        <field name="search_view_id" ref="biagioli_ecom_module.view_pricelist_item_mass_edit_search"/>
+        <field name="view_id" ref="bm_gestor_de_listas_de_precios.view_pricelist_item_mass_edit_tree"/>
+        <field name="search_view_id" ref="bm_gestor_de_listas_de_precios.view_pricelist_item_mass_edit_search"/>
         <field name="context">{}</field>
     </record>
 
