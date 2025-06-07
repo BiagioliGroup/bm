@@ -1,7 +1,6 @@
-from odoo import models, fields, tools, api, _
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from datetime import datetime, time, timedelta, date
+from datetime import datetime, time, timedelta
 import pytz
 import logging
 
@@ -32,32 +31,19 @@ class MassEditPricelistAdjustment(models.TransientModel):
     increase_type = fields.Selection([
         ('percent', 'Porcentaje'),
         ('fixed', 'Monto fijo')
-    ], string='Tipo de aumento', required=True)
-
-    value = fields.Float('Valor del aumento', required=True)
-    date_start = fields.Date('Fecha de inicio', required=True)
+    ], required=True)
+    value = fields.Float(required=True)
+    date_start = fields.Date(required=True)
 
     def apply_adjustment(self):
-        _logger.info("🛠 Aplicando ajustes de precio")
-
         user_tz = self.env.user.tz or 'UTC'
         tz = pytz.timezone(user_tz)
         local_dt = tz.localize(datetime.combine(self.date_start, time.min))
         corrected_date_start = local_dt.astimezone(pytz.utc).date()
 
-        active_ids = self.env.context.get('active_ids', [])
-        items = self.env['product.pricelist.item'].browse(active_ids)
-
-        for item in items:
-            if item.compute_price != 'fixed':
-                continue
-
-            new_price = (
-                item.fixed_price * (1 + self.value / 100)
-                if self.increase_type == 'percent'
-                else item.fixed_price + self.value
-            )
-
+        items = self.env['product.pricelist.item'].browse(self.env.context.get('active_ids', []))
+        for item in items.filtered(lambda i: i.compute_price == 'fixed'):
+            new_price = item.fixed_price * (1 + self.value / 100) if self.increase_type == 'percent' else item.fixed_price + self.value
             item.write({
                 'fixed_price': new_price,
                 'date_start': corrected_date_start,
@@ -72,42 +58,33 @@ class MassEditPricelistCloneAdjustment(models.TransientModel):
     increase_type = fields.Selection([
         ('percent', 'Porcentaje'),
         ('fixed', 'Monto fijo')
-    ], string='Tipo de aumento', required=True)
-    value = fields.Float('Valor del aumento', required=True)
+    ], required=True)
+    value = fields.Float(required=True)
 
     def apply_clone_adjustment(self):
         today = fields.Date.today()
-        active_ids = self.env.context.get('active_ids', [])
-        items = self.env['product.pricelist.item'].browse(active_ids)
-
-        for item in items:
-            if item.compute_price != 'fixed':
-                continue
-
-            new_price = (
-                item.fixed_price * (1 + self.value / 100)
-                if self.increase_type == 'percent'
-                else item.fixed_price + self.value
-            )
-
+        items = self.env['product.pricelist.item'].browse(self.env.context.get('active_ids', []))
+        for item in items.filtered(lambda i: i.compute_price == 'fixed'):
+            new_price = item.fixed_price * (1 + self.value / 100) if self.increase_type == 'percent' else item.fixed_price + self.value
             item.write({'date_end': today})
-            item.copy({
-                'fixed_price': new_price,
-                'date_start': today,
-                'date_end': False,
-            })
+            item.copy({'fixed_price': new_price, 'date_start': today, 'date_end': False})
 
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
+    # Ya no necesita lógica en write()
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
 
     def write(self, vals):
         res = super().write(vals)
-
         if 'list_price' in vals:
-            for template in self.filtered(lambda t: t.id == t.product_variant_id.product_tmpl_id.id):
+            now = datetime.now()
+            for product in self:
+                template = product.product_tmpl_id
                 company = template.company_id or self.env.company
-
                 if len(self.env.companies) > 1 and not company:
                     raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
 
@@ -115,14 +92,14 @@ class ProductTemplate(models.Model):
                 all_groups = self.env['res.country.group'].search([])
                 country_group = all_groups.filtered(lambda g: g.country_ids == country)
 
-                historial_pricelist = self.env['product.pricelist'].search([
+                pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
                     ('currency_id', '=', template.currency_id.id),
                     ('company_id', '=', company.id),
                 ], limit=1)
 
-                if not historial_pricelist:
-                    historial_pricelist = self.env['product.pricelist'].create({
+                if not pricelist:
+                    pricelist = self.env['product.pricelist'].create({
                         'name': 'Historial precio público',
                         'currency_id': template.currency_id.id,
                         'company_id': company.id,
@@ -131,42 +108,27 @@ class ProductTemplate(models.Model):
                         'website_id': False,
                     })
 
-                new_start = datetime.now()
                 last_item = self.env['product.pricelist.item'].search([
-                    ('pricelist_id', '=', historial_pricelist.id),
+                    ('pricelist_id', '=', pricelist.id),
                     ('product_tmpl_id', '=', template.id),
                     ('date_end', '=', False)
                 ], order='date_start desc', limit=1)
 
                 if last_item:
-                    safe_end = new_start - timedelta(seconds=1)
+                    safe_end = now - timedelta(seconds=1)
                     if last_item.date_start < safe_end:
                         last_item.date_end = safe_end
                     else:
-                        new_start = last_item.date_start + timedelta(seconds=2)
+                        now = last_item.date_start + timedelta(seconds=2)
                         last_item.date_end = last_item.date_start + timedelta(seconds=1)
 
                 self.env['product.pricelist.item'].create({
-                    'pricelist_id': historial_pricelist.id,
+                    'pricelist_id': pricelist.id,
                     'product_tmpl_id': template.id,
                     'applied_on': '1_product',
                     'compute_price': 'fixed',
                     'fixed_price': vals['list_price'],
-                    'date_start': new_start,
+                    'date_start': now,
                     'date_end': False
                 })
-
         return res
-
-
-class ProductProduct(models.Model):
-    _inherit = 'product.product'
-
-    def write(self, vals):
-        # Ejecutar el write del template solo si no viene del template
-        template_ids = self.mapped('product_tmpl_id.id')
-        if 'list_price' in vals and self.env.context.get('from_template_write') is not True:
-            self.env['product.template'].browse(template_ids).with_context(from_template_write=True).write({
-                'list_price': vals['list_price']
-            })
-        return super().write(vals)
