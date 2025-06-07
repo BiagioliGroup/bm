@@ -32,6 +32,6 @@
     <menuitem id="menu_mass_edit_pricelist_items"
               name="Editor de Reglas de precio"
               parent="sale.sale_menu_root"
-              action="biagioli_ecom_module.action_mass_edit_pricelist_items"/>
+              action="bm_gestor_de_listas_de_precios.action_mass_edit_pricelist_items"/>
 
 </odoo>
