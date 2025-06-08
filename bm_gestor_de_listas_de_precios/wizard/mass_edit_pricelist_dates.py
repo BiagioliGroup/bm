@@ -45,9 +45,8 @@ class MassEditPricelistAdjustment(models.TransientModel):
                     if self.increase_type == 'percent'
                     else product.list_price + self.value
                 )
-                product.list_price = new_price
+                product.with_context(skip_price_history=True).write({'list_price': new_price})
 
-                # Guardar historial
                 pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
                     ('currency_id', '=', product.currency_id.id),
@@ -107,7 +106,7 @@ class MassEditPricelistCloneAdjustment(models.TransientModel):
                     if self.increase_type == "percent"
                     else product.list_price + self.value
                 )
-                product.list_price = new_price
+                product.with_context(skip_price_history=True).write({'list_price': new_price})
 
                 pricelist = self.env["product.pricelist"].search([
                     ("name", "=", "Historial precio público"),
@@ -153,6 +152,10 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
+        # 🚫 No guardar historial si venimos del wizard
+        if self.env.context.get('skip_price_history'):
+            return super().write(vals)
+
         res = super().write(vals)
 
         if 'list_price' in vals:
