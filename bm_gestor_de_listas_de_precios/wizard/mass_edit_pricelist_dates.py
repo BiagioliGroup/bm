@@ -152,21 +152,22 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
+        updating_price = 'list_price' in vals
         res = super().write(vals)
 
-        if 'list_price' in vals:
+        if updating_price:
             for template in self:
                 new_price = vals['list_price']
                 old_price = template.list_price
+
                 if new_price == old_price:
                     continue  # No hubo cambio real
 
                 company = template.company_id or self.env.company
                 currency = template.currency_id
                 now = datetime.now()
-                skip_history = self.env.context.get('skip_price_history', False)
 
-                # Buscar o crear la lista 'Historial precio público'
+                # Buscar el historial (crear si no existe)
                 pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
                     ('currency_id', '=', currency.id),
@@ -181,7 +182,7 @@ class ProductTemplate(models.Model):
                         'selectable': False,
                     })
 
-                # Cerrar el último registro abierto
+                # Cerrar el último registro
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', pricelist.id),
                     ('product_tmpl_id', '=', template.id),
@@ -196,8 +197,8 @@ class ProductTemplate(models.Model):
                         last_item.date_end = last_item.date_start + timedelta(seconds=1)
                         now = last_item.date_end + timedelta(seconds=1)
 
-                # Guardar nuevo historial solo si corresponde
-                if not skip_history:
+                # Solo crear nuevo si NO se pidió saltear
+                if not self.env.context.get('skip_price_history', False):
                     self.env['product.pricelist.item'].create({
                         'pricelist_id': pricelist.id,
                         'product_tmpl_id': template.id,
@@ -209,3 +210,4 @@ class ProductTemplate(models.Model):
                     })
 
         return res
+
