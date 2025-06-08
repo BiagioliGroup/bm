@@ -1,7 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from datetime import datetime, time, timedelta
-import pytz
+from datetime import datetime, timedelta
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -15,8 +14,7 @@ class MassEditPricelistDates(models.TransientModel):
     date_end = fields.Date("Nueva fecha de finalización")
 
     def apply_mass_edit(self):
-        active_ids = self.env.context.get('active_ids', [])
-        items = self.env['product.pricelist.item'].browse(active_ids)
+        items = self.env['product.pricelist.item'].browse(self.env.context.get('active_ids', []))
         for item in items:
             if self.date_start:
                 item.date_start = self.date_start
@@ -35,20 +33,33 @@ class MassEditPricelistAdjustment(models.TransientModel):
     value = fields.Float(required=True)
     date_start = fields.Date(required=True)
 
-    def apply_adjustment(self):
-        user_tz = self.env.user.tz or 'UTC'
-        tz = pytz.timezone(user_tz)
-        local_dt = tz.localize(datetime.combine(self.date_start, time.min))
-        corrected_date_start = local_dt.astimezone(pytz.utc).date()
+    def apply_adjustments(self):
+        active_model = self.env.context.get('active_model')
+        active_ids = self.env.context.get('active_ids')
 
-        items = self.env['product.pricelist.item'].browse(self.env.context.get('active_ids', []))
-        for item in items.filtered(lambda i: i.compute_price == 'fixed'):
-            new_price = item.fixed_price * (1 + self.value / 100) if self.increase_type == 'percent' else item.fixed_price + self.value
-            item.write({
-                'fixed_price': new_price,
-                'date_start': corrected_date_start,
-                'date_end': False
-            })
+        if active_model == 'product.template':
+            products = self.env['product.template'].browse(active_ids)
+            for product in products:
+                new_price = (
+                    product.list_price * (1 + self.value / 100)
+                    if self.increase_type == 'percent'
+                    else product.list_price + self.value
+                )
+                product.write({'list_price': new_price})
+        else:
+            items = self.env['product.pricelist.item'].browse(active_ids)
+            for item in items.filtered(lambda i: i.compute_price == 'fixed'):
+                new_price = (
+                    item.fixed_price * (1 + self.value / 100)
+                    if self.increase_type == 'percent'
+                    else item.fixed_price + self.value
+                )
+                item.write({'date_end': self.date_start - timedelta(days=1)})
+                item.copy({
+                    'fixed_price': new_price,
+                    'date_start': self.date_start,
+                    'date_end': False
+                })
 
 
 class MassEditPricelistCloneAdjustment(models.TransientModel):
@@ -63,11 +74,33 @@ class MassEditPricelistCloneAdjustment(models.TransientModel):
 
     def apply_clone_adjustment(self):
         today = fields.Date.today()
-        items = self.env['product.pricelist.item'].browse(self.env.context.get('active_ids', []))
-        for item in items.filtered(lambda i: i.compute_price == 'fixed'):
-            new_price = item.fixed_price * (1 + self.value / 100) if self.increase_type == 'percent' else item.fixed_price + self.value
-            item.write({'date_end': today})
-            item.copy({'fixed_price': new_price, 'date_start': today, 'date_end': False})
+        active_model = self.env.context.get("active_model", "")
+        active_ids = self.env.context.get("active_ids", [])
+
+        if active_model == "product.template":
+            products = self.env["product.template"].browse(active_ids)
+            for product in products:
+                new_price = (
+                    product.list_price * (1 + self.value / 100)
+                    if self.increase_type == "percent"
+                    else product.list_price + self.value
+                )
+                product.write({'list_price': new_price})
+
+        else:
+            items = self.env["product.pricelist.item"].browse(active_ids)
+            for item in items.filtered(lambda i: i.compute_price == 'fixed'):
+                new_price = (
+                    item.fixed_price * (1 + self.value / 100)
+                    if self.increase_type == "percent"
+                    else item.fixed_price + self.value
+                )
+                item.write({"date_end": today})
+                item.copy({
+                    "fixed_price": new_price,
+                    "date_start": today,
+                    "date_end": False
+                })
 
 
 class ProductTemplate(models.Model):
@@ -81,7 +114,7 @@ class ProductTemplate(models.Model):
                 company = template.company_id or self.env.company
 
                 if len(self.env.companies) > 1 and not company:
-                    raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
+                    raise UserError("Debe seleccionar una sola empresa antes de realizar la creación del precio.")
 
                 country = company.country_id
                 all_groups = self.env['res.country.group'].search([])
@@ -130,5 +163,3 @@ class ProductTemplate(models.Model):
                 })
 
         return res
-
-
