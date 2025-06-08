@@ -45,28 +45,7 @@ class MassEditPricelistAdjustment(models.TransientModel):
                     if self.increase_type == 'percent'
                     else product.list_price + self.value
                 )
-                product.with_context(skip_price_history=True).write({'list_price': new_price})
-
-                pricelist = self.env['product.pricelist'].search([
-                    ('name', '=', 'Historial precio público'),
-                    ('currency_id', '=', product.currency_id.id),
-                    ('company_id', '=', product.company_id.id),
-                ], limit=1)
-                if not pricelist:
-                    pricelist = self.env['product.pricelist'].create({
-                        'name': 'Historial precio público',
-                        'currency_id': product.currency_id.id,
-                        'company_id': product.company_id.id,
-                        'selectable': False,
-                    })
-                self.env['product.pricelist.item'].create({
-                    'pricelist_id': pricelist.id,
-                    'product_tmpl_id': product.id,
-                    'applied_on': '1_product',
-                    'compute_price': 'fixed',
-                    'fixed_price': new_price,
-                    'date_start': fields.Date.today(),
-                })
+                product.with_context(skip_historial=True).write({'list_price': new_price})
         else:
             items = self.env['product.pricelist.item'].browse(active_ids)
             for item in items.filtered(lambda i: i.compute_price == 'fixed'):
@@ -106,31 +85,7 @@ class MassEditPricelistCloneAdjustment(models.TransientModel):
                     if self.increase_type == "percent"
                     else product.list_price + self.value
                 )
-                product.with_context(skip_price_history=True).write({'list_price': new_price})
-
-                pricelist = self.env["product.pricelist"].search([
-                    ("name", "=", "Historial precio público"),
-                    ("currency_id", "=", product.currency_id.id),
-                    ("company_id", "=", product.company_id.id),
-                ], limit=1)
-
-                if not pricelist:
-                    pricelist = self.env["product.pricelist"].create({
-                        "name": "Historial precio público",
-                        "currency_id": product.currency_id.id,
-                        "company_id": product.company_id.id,
-                        "selectable": False,
-                    })
-
-                self.env["product.pricelist.item"].create({
-                    "pricelist_id": pricelist.id,
-                    "product_tmpl_id": product.id,
-                    "applied_on": "1_product",
-                    "compute_price": "fixed",
-                    "fixed_price": new_price,
-                    "date_start": today,
-                    "date_end": False,
-                })
+                product.with_context(skip_historial=True).write({'list_price': new_price})
 
         else:
             items = self.env["product.pricelist.item"].browse(active_ids)
@@ -152,62 +107,60 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
-        updating_price = 'list_price' in vals
+        skip_historial = self.env.context.get("skip_historial")
         res = super().write(vals)
 
-        if updating_price:
+        if 'list_price' in vals and not skip_historial:
             for template in self:
-                new_price = vals['list_price']
-                old_price = template.list_price
-
-                if new_price == old_price:
-                    continue  # No hubo cambio real
-
                 company = template.company_id or self.env.company
-                currency = template.currency_id
-                now = datetime.now()
 
-                # Buscar el historial (crear si no existe)
-                pricelist = self.env['product.pricelist'].search([
+                if len(self.env.companies) > 1 and not company:
+                    raise UserError("Debe seleccionar una sola empresa antes de realizar la creación del precio.")
+
+                country = company.country_id
+                all_groups = self.env['res.country.group'].search([])
+                country_group = all_groups.filtered(lambda g: g.country_ids == country)
+
+                historial_pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
-                    ('currency_id', '=', currency.id),
+                    ('currency_id', '=', template.currency_id.id),
                     ('company_id', '=', company.id),
                 ], limit=1)
 
-                if not pricelist:
-                    pricelist = self.env['product.pricelist'].create({
+                if not historial_pricelist:
+                    historial_pricelist = self.env['product.pricelist'].create({
                         'name': 'Historial precio público',
-                        'currency_id': currency.id,
+                        'currency_id': template.currency_id.id,
                         'company_id': company.id,
+                        'country_group_ids': [(6, 0, [country_group.id])] if country_group else False,
                         'selectable': False,
+                        'website_id': False,
                     })
 
-                # Cerrar el último registro
+                new_start = datetime.now()
+
                 last_item = self.env['product.pricelist.item'].search([
-                    ('pricelist_id', '=', pricelist.id),
+                    ('pricelist_id', '=', historial_pricelist.id),
                     ('product_tmpl_id', '=', template.id),
                     ('date_end', '=', False)
                 ], order='date_start desc', limit=1)
 
                 if last_item:
-                    safe_end = now - timedelta(seconds=1)
+                    safe_end = new_start - timedelta(seconds=1)
                     if last_item.date_start < safe_end:
                         last_item.date_end = safe_end
                     else:
+                        new_start = last_item.date_start + timedelta(seconds=2)
                         last_item.date_end = last_item.date_start + timedelta(seconds=1)
-                        now = last_item.date_end + timedelta(seconds=1)
 
-                # Solo crear nuevo si NO se pidió saltear
-                if not self.env.context.get('skip_price_history', False):
-                    self.env['product.pricelist.item'].create({
-                        'pricelist_id': pricelist.id,
-                        'product_tmpl_id': template.id,
-                        'applied_on': '1_product',
-                        'compute_price': 'fixed',
-                        'fixed_price': new_price,
-                        'date_start': now,
-                        'date_end': False
-                    })
+                self.env['product.pricelist.item'].create({
+                    'pricelist_id': historial_pricelist.id,
+                    'product_tmpl_id': template.id,
+                    'applied_on': '1_product',
+                    'compute_price': 'fixed',
+                    'fixed_price': vals['list_price'],
+                    'date_start': new_start,
+                    'date_end': False
+                })
 
         return res
-
