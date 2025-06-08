@@ -152,53 +152,59 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
-        # Cierre de historial incluso si no vamos a crear uno nuevo
-        skip_history = self.env.context.get('skip_price_history', False)
         res = super().write(vals)
 
         if 'list_price' in vals:
             for template in self:
-                new_start = datetime.now()
-                company = template.company_id or self.env.company
+                new_price = vals['list_price']
+                old_price = template.list_price
+                if new_price == old_price:
+                    continue  # No hubo cambio real
 
-                historial_pricelist = self.env['product.pricelist'].search([
+                company = template.company_id or self.env.company
+                currency = template.currency_id
+                now = datetime.now()
+                skip_history = self.env.context.get('skip_price_history', False)
+
+                # Buscar o crear la lista 'Historial precio público'
+                pricelist = self.env['product.pricelist'].search([
                     ('name', '=', 'Historial precio público'),
-                    ('currency_id', '=', template.currency_id.id),
+                    ('currency_id', '=', currency.id),
                     ('company_id', '=', company.id),
                 ], limit=1)
 
-                if historial_pricelist:
-                    last_item = self.env['product.pricelist.item'].search([
-                        ('pricelist_id', '=', historial_pricelist.id),
-                        ('product_tmpl_id', '=', template.id),
-                        ('date_end', '=', False)
-                    ], order='date_start desc', limit=1)
+                if not pricelist:
+                    pricelist = self.env['product.pricelist'].create({
+                        'name': 'Historial precio público',
+                        'currency_id': currency.id,
+                        'company_id': company.id,
+                        'selectable': False,
+                    })
 
-                    if last_item:
-                        safe_end = new_start - timedelta(seconds=1)
-                        if last_item.date_start < safe_end:
-                            last_item.date_end = safe_end
-                        else:
-                            last_item.date_end = last_item.date_start + timedelta(seconds=1)
-                            new_start = last_item.date_end + timedelta(seconds=1)
+                # Cerrar el último registro abierto
+                last_item = self.env['product.pricelist.item'].search([
+                    ('pricelist_id', '=', pricelist.id),
+                    ('product_tmpl_id', '=', template.id),
+                    ('date_end', '=', False)
+                ], order='date_start desc', limit=1)
 
-                # Solo si no es ajuste desde wizard, guardamos nuevo item
+                if last_item:
+                    safe_end = now - timedelta(seconds=1)
+                    if last_item.date_start < safe_end:
+                        last_item.date_end = safe_end
+                    else:
+                        last_item.date_end = last_item.date_start + timedelta(seconds=1)
+                        now = last_item.date_end + timedelta(seconds=1)
+
+                # Guardar nuevo historial solo si corresponde
                 if not skip_history:
-                    if not historial_pricelist:
-                        historial_pricelist = self.env['product.pricelist'].create({
-                            'name': 'Historial precio público',
-                            'currency_id': template.currency_id.id,
-                            'company_id': company.id,
-                            'selectable': False,
-                        })
-
                     self.env['product.pricelist.item'].create({
-                        'pricelist_id': historial_pricelist.id,
+                        'pricelist_id': pricelist.id,
                         'product_tmpl_id': template.id,
                         'applied_on': '1_product',
                         'compute_price': 'fixed',
-                        'fixed_price': vals['list_price'],
-                        'date_start': new_start,
+                        'fixed_price': new_price,
+                        'date_start': now,
                         'date_end': False
                     })
 
