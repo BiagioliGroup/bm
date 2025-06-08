@@ -152,41 +152,22 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
-        # 🚫 No guardar historial si venimos del wizard
-        if self.env.context.get('skip_price_history'):
-            return super().write(vals)
+    # Cierre de historial incluso si no vamos a crear uno nuevo
+    skip_history = self.env.context.get('skip_price_history', False)
+    res = super().write(vals)
 
-        res = super().write(vals)
+    if 'list_price' in vals:
+        for template in self:
+            new_start = datetime.now()
+            company = template.company_id or self.env.company
 
-        if 'list_price' in vals:
-            for template in self:
-                company = template.company_id or self.env.company
+            historial_pricelist = self.env['product.pricelist'].search([
+                ('name', '=', 'Historial precio público'),
+                ('currency_id', '=', template.currency_id.id),
+                ('company_id', '=', company.id),
+            ], limit=1)
 
-                if len(self.env.companies) > 1 and not company:
-                    raise UserError(_("Debe seleccionar una sola empresa antes de realizar la creación del precio."))
-
-                country = company.country_id
-                all_groups = self.env['res.country.group'].search([])
-                country_group = all_groups.filtered(lambda g: g.country_ids == country)
-
-                historial_pricelist = self.env['product.pricelist'].search([
-                    ('name', '=', 'Historial precio público'),
-                    ('currency_id', '=', template.currency_id.id),
-                    ('company_id', '=', company.id),
-                ], limit=1)
-
-                if not historial_pricelist:
-                    historial_pricelist = self.env['product.pricelist'].create({
-                        'name': 'Historial precio público',
-                        'currency_id': template.currency_id.id,
-                        'company_id': company.id,
-                        'country_group_ids': [(6, 0, [country_group.id])] if country_group else False,
-                        'selectable': False,
-                        'website_id': False,
-                    })
-
-                new_start = datetime.now()
-
+            if historial_pricelist:
                 last_item = self.env['product.pricelist.item'].search([
                     ('pricelist_id', '=', historial_pricelist.id),
                     ('product_tmpl_id', '=', template.id),
@@ -198,8 +179,18 @@ class ProductTemplate(models.Model):
                     if last_item.date_start < safe_end:
                         last_item.date_end = safe_end
                     else:
-                        new_start = last_item.date_start + timedelta(seconds=2)
                         last_item.date_end = last_item.date_start + timedelta(seconds=1)
+                        new_start = last_item.date_end + timedelta(seconds=1)
+
+            # Solo si no es ajuste desde wizard, guardamos nuevo item
+            if not skip_history:
+                if not historial_pricelist:
+                    historial_pricelist = self.env['product.pricelist'].create({
+                        'name': 'Historial precio público',
+                        'currency_id': template.currency_id.id,
+                        'company_id': company.id,
+                        'selectable': False,
+                    })
 
                 self.env['product.pricelist.item'].create({
                     'pricelist_id': historial_pricelist.id,
@@ -211,4 +202,4 @@ class ProductTemplate(models.Model):
                     'date_end': False
                 })
 
-        return res
+    return res
