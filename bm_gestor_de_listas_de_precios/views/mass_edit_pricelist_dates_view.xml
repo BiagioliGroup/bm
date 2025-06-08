@@ -36,7 +36,7 @@
                     <field name="date_start"/>
                 </group>
                 <footer>
-                    <button string="Aplicar" type="object" name="apply_adjustment" class="btn-primary"/>
+                    <button string="Aplicar" type="object" name="apply_adjustments" class="btn-primary"/>
                     <button string="Cancelar" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
