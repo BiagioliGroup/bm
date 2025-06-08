@@ -164,3 +164,4 @@ class ProductTemplate(models.Model):
                 })
 
         return res
+    
