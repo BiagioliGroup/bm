@@ -45,7 +45,7 @@ class MassEditPricelistAdjustment(models.TransientModel):
                     if self.increase_type == 'percent'
                     else product.list_price + self.value
                 )
-                product.with_context(skip_historial=True).write({'list_price': new_price})
+                product.write({'list_price': new_price})
         else:
             items = self.env['product.pricelist.item'].browse(active_ids)
             for item in items.filtered(lambda i: i.compute_price == 'fixed'):
@@ -85,7 +85,7 @@ class MassEditPricelistCloneAdjustment(models.TransientModel):
                     if self.increase_type == "percent"
                     else product.list_price + self.value
                 )
-                product.with_context(skip_historial=True).write({'list_price': new_price})
+                product.write({'list_price': new_price})
 
         else:
             items = self.env["product.pricelist.item"].browse(active_ids)
@@ -107,10 +107,9 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def write(self, vals):
-        skip_historial = self.env.context.get("skip_historial")
         res = super().write(vals)
 
-        if 'list_price' in vals and not skip_historial:
+        if 'list_price' in vals:
             for template in self:
                 company = template.company_id or self.env.company
 
@@ -164,4 +163,3 @@ class ProductTemplate(models.Model):
                 })
 
         return res
-    
