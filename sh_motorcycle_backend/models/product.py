@@ -2,7 +2,8 @@
 # Part of Softhealer Technologies.
 
 from odoo import fields, models, api
-
+from odoo.osv import expression
+import re
 
 class ProductProduct(models.Model):
     _inherit = "product.product"
@@ -28,6 +29,8 @@ class ProductProduct(models.Model):
             for record in self:
                 if record.motorcycle_ids:
                     record.sh_is_common_product = False
+
+
 
 
 # class MotorcycleService(models.Model):

@@ -49,6 +49,22 @@ class Motorcycle(models.Model):
     oem_manual = fields.Binary(string="OEM Manual", attachment=True)
     user_manual = fields.Binary(string="User Manual", attachment=True)
     motorcycle_image = fields.Binary(string="Motorcycle Image", attachment=True)
+
+    service_ids = fields.Many2many(
+        'motorcycle.service',
+        'motorcycle_service_rel',  # nombre de la tabla relacional
+        'motorcycle_id',           # campo local en la tabla relacional
+        'service_id',              # campo remoto
+        string='Servicios asignados',
+        compute='_compute_service_ids',
+        store=False
+    )
+
+    def _compute_service_ids(self):
+        for moto in self:
+            moto.service_ids = self.env['motorcycle.service'].search([
+                ('motorcycle_ids', 'in', moto.id)
+            ])
     
 
     @api.depends("type_id", "make_id", "mmodel_id", "year")
@@ -67,3 +83,17 @@ class Motorcycle(models.Model):
         for record in self:
             if record.year < 1900 or record.year > current_year:
                 raise ValidationError(_("The year must be between 1900 and %s.") % current_year)
+            
+    
+    def action_create_service(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Nuevo Servicio',
+            'res_model': 'motorcycle.service',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_motorcycle_ids': [self.id],
+            },
+        }
