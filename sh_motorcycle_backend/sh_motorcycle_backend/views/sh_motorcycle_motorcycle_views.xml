@@ -46,7 +46,7 @@
 
                     <!-- Nueva Sección: Documentos -->
                     <notebook>
-                        <page string="Manuals">
+                        <page string="Manuales">
                             <group string="Documents" colspan="2">
                                 <group colspan="1">
                                     <field name="oem_manual" filename="oem_manual_filename" widget="pdf_viewer"/>
@@ -56,6 +56,17 @@
                                 </group>
                             </group>
                         </page>
+                        <page string="Servicios asignados">
+                            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">
+                                <field name="service_ids" mode="kanban,tree,form" context="{}">
+                                    <list>
+                                        <field name="name" />
+                                        <field name="description" />
+                                    </list>
+                                </field>
+                            </div>
+                        </page>
+
                     </notebook>
 
                     <group string='Equivalent products'>

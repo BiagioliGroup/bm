@@ -1,0 +1,91 @@
+<odoo>
+
+    <!-- 🎯 Vista del wizard: Editar fechas en lote -->
+    <record id="view_mass_edit_pricelist_dates_wizard" model="ir.ui.view">
+        <field name="name">mass.edit.pricelist.dates.form</field>
+        <field name="model">mass.edit.pricelist.dates</field> <!-- Modelo TransientModel -->
+        <field name="arch" type="xml">
+            <form string="Editar fechas en lote">
+                <group>
+                    <!-- Campos de fecha de inicio y fin a modificar -->
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                </group>
+                <footer>
+                    <!-- Botón para aplicar cambios -->
+                    <button string="Aplicar" type="object" name="apply_mass_edit" class="btn-primary"/>
+                    <!-- Botón para cerrar sin cambios -->
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- 🔧 Vista del wizard: Ajuste de precios en lote -->
+    <record id="view_mass_edit_pricelist_adjustment_wizard" model="ir.ui.view">
+        <field name="name">mass.edit.pricelist.adjustment.form</field>
+        <field name="model">mass.edit.pricelist.adjustment</field>
+        <field name="arch" type="xml">
+            <form string="Ajuste de precios">
+                <group>
+                    <!-- Tipo de incremento: porcentaje o monto fijo -->
+                    <field name="increase_type"/>
+                    <!-- Valor del incremento -->
+                    <field name="value"/>
+                    <!-- Fecha de inicio de la nueva regla -->
+                    <field name="date_start"/>
+                </group>
+                <footer>
+                    <button string="Aplicar" type="object" name="apply_adjustments" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- 🔍 Vista de búsqueda (Search View) para reglas de precios -->
+    <record id="view_pricelist_item_mass_edit_search" model="ir.ui.view">
+        <field name="name">product.pricelist.item.search</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="arch" type="xml">
+            <search string="Buscar reglas de precios">
+                <!-- Campos estándar -->
+                <field name="pricelist_id"/>
+                <field name="product_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+
+                <!-- Filtros personalizados útiles para mantenimiento -->
+                <filter name="future" string="Futuras" domain="[('date_start', '&gt;', (context_today()))]"/>
+                <filter name="active_today" string="Vigentes hoy" domain="[
+                    ('date_start', '&lt;=', (context_today())),
+                    ('date_end', '&gt;=', (context_today()))
+                ]"/>
+                <filter name="expired" string="Vencidas" domain="[('date_end', '&lt;', (context_today()))]"/>
+                <filter name="no_start_date" string="Sin fecha de inicio" domain="[('date_start','=',False)]"/>
+                <filter name="no_end_date" string="Sin fecha de fin" domain="[('date_end','=',False)]"/>
+                <filter name="price_zero" string="Precio fijo = 0" domain="[('fixed_price','=',0)]"/>
+                <filter name="min_quantity_gt1" string="Cantidad mínima &gt; 1" domain="[('min_quantity','&gt;',1)]"/>
+            </search>
+        </field>
+    </record>
+
+    
+    <record id="view_mass_edit_pricelist_clone_adjustment_wizard" model="ir.ui.view">
+        <field name="name">mass.edit.pricelist.clone.adjustment.form</field>
+        <field name="model">mass.edit.pricelist.clone.adjustment</field>
+        <field name="arch" type="xml">
+            <form string="Nueva regla de precio sobre existentes">
+                <group>
+                    <field name="increase_type"/>
+                    <field name="value"/>
+                </group>
+                <footer>
+                    <button string="Aplicar" type="object" name="apply_clone_adjustment" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

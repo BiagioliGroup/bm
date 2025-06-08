@@ -1,51 +1,43 @@
 # -*- coding: utf-8 -*-
-# Part of Softhealer Technologies.
 {
-    "name": "Auto Parts Base",
-    "author": "Softhealer Technologies",
-    "website": "https://www.softhealer.com",
-    "support": "support@softhealer.com",
-    "license": "OPL-1",
-    "category": "Industries",
-    "summary": "Auto Parts Base Odoo Auto Parts Management Manage Auto Parts Variants Find High Quality Auto Parts Handle Auto Parts By Make Model Year Type Find Vehicle Details Module Odoo Equipment Maintenance Repair Operation Assets Maintenance Equipment Repair Maintenance Request Auto Parts Repair Auto Parts Maintenance Machine Maintenance Machine Repair Product Repair Assets Repair Car Repair Maintenance Product Maintenance",
-    "description": """
-In automobile shops have numerous auto parts there is no count for
-parts and it's variants that's the way it is quite difficult to
-manage into the shop. So that's why we created a model that will
-help you to manage it. This module will help to manage an
-auto part by make, model, year, type. You can also assign vehicles
-in auto parts product variants so it will become very easy to find
-the product using vehicle details. In this module provide two groups
-for user and manager so you can easily apply access rights
-for user and manager. This is very clean and transparent
-so the user can easily understand how it works.
-Auto Parts Base Odoo, Auto Parts And Variants Management Odoo
-Manage Auto Parts And Variants Module, Find High Quality Auto Parts,
-Feature Of Maintain Auto Parts By Make, Model, Year, Type Odoo, Help
-You For Search Right Vehicle Parts,
-Assign Vehicles In Auto Parts Product Variants,
-Find Product Using Vehicle Details For User And Manager Odoo.
-Manage Auto Parts & Variants App, Find High Quality Auto Parts,
-Handle Auto Parts By Make, Model, Year, Type,
-Find Vehicle Details Module Odoo.
-""",
-    "version": "0.0.1",
-    "depends": ["sale_management"],
-    "data": [
-            "security/sh_motorcycle_backend_groups.xml",
-            "security/ir.model.access.csv",
-            "views/sh_motorcycle_motorcycle_views.xml",
-            "views/sh_motorcycle_type_views.xml",
-            "views/sh_motorcycle_make_views.xml",
-            "views/sh_motorcycle_mmodel_views.xml",
-            "views/sh_motorcycle_year_views.xml",
-            "views/product_views.xml",
+    'name': 'Editor Avanzado de Listas de Precios',
+    'summary': 'Mejoras en la gestión y edición masiva de reglas de precios',
+    'description': """
+Este módulo extiende las funcionalidades estándar de Odoo para la gestión de listas de precios, permitiendo una edición más ágil, masiva y controlada de reglas de precios sobre productos.
 
-            ],
-    "images": ["static/description/background.png", ],
-    "application": True,
-    "auto_install": False,
-    "installable": True,
-    "price": 80,
-    "currency": "EUR",
+🚀 Funcionalidades principales:
+-------------------------------------
+- Nueva vista tipo lista (tree) editable directamente desde el listado.
+- Permite modificar en línea los campos clave de las reglas de precios: producto, fecha de inicio y fin, cantidad mínima, etc.
+- Agrega un menú exclusivo bajo el apartado "Listas de precios" para acceder al editor.
+- Mejora la experiencia de usuarios que gestionan grandes volúmenes de reglas de precios.
+- Prepara el sistema para integraciones futuras como duplicaciones automáticas, historial de precios y ajustes por porcentaje o monto.
+
+Ideal para empresas que manejan múltiples listas de precios y requieren eficiencia en el mantenimiento de tarifas.
+""",
+
+    'author': 'Biagioli Group',
+    'website': 'https://www.biagioligroup.com.ar',
+
+    'category': 'Ventas',
+    'version': '1.0',
+
+    'depends': [
+        'product',
+        'website_sale',  # Requerido si estás integrando con funcionalidades de eCommerce
+    ],
+
+    'data': [
+        'security/ir.model.access.csv',
+        'views/reglas_de_listas_de_precios.xml',
+        'views/mass_edit_pricelist_dates_view.xml',
+        'views/mass_edit_pricelist_dates_action.xml',
+        'views/product_product_price_readonly.xml',
+    ],
+
+    'installable': True,
+    'application': False,
+    'auto_install': False,
+
+    'license': 'LGPL-3',
 }
