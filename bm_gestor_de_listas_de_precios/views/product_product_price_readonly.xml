@@ -1,0 +1,25 @@
+<odoo>
+    <!-- Vista FORMULARIO para VARIANTES (product.product) -->
+    <record id="view_product_product_form_readonly_price" model="ir.ui.view">
+        <field name="name">product.product.form.readonly.price</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <field name="lst_price" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista LISTA para VARIANTES (product.product) -->
+    <record id="view_product_product_tree_readonly_price" model="ir.ui.view">
+        <field name="name">product.product.tree.readonly.price</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="lst_price" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

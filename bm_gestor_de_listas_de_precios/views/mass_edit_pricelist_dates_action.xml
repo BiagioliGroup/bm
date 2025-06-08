@@ -1,0 +1,75 @@
+<odoo>
+
+    <!-- Acción que abre el wizard de edición de fechas (modal) -->
+    <record id="action_mass_edit_pricelist_dates" model="ir.actions.act_window">
+        <field name="name">Editar fechas</field>
+        <field name="res_model">mass.edit.pricelist.dates</field> <!-- Modelo TransientModel -->
+        <field name="view_mode">form</field>                      <!-- Solo modo formulario -->
+        <field name="target">new</field>                          <!-- Abre en modal -->
+    </record>
+
+    <!-- Acción de servidor vinculada a la vista lista que lanza el wizard anterior -->
+    <record id="action_server_mass_edit_pricelist_dates" model="ir.actions.server">
+        <field name="name">Editar fechas (en lote)</field>
+        <field name="model_id" ref="product.model_product_pricelist_item"/>        <!-- Modelo principal -->
+        <field name="binding_model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_view_types">list</field>                               <!-- Se activa en la vista de lista -->
+        <field name="state">code</field>
+        <field name="code">action = {'type': 'ir.actions.act_window','res_model': 'mass.edit.pricelist.dates','view_mode': 'form','target': 'new','context': {'active_ids': env.context.get('active_ids')}} </field>
+    </record>
+
+    <!-- Acción principal que abre la vista de edición de reglas de precio -->
+    <record id="action_mass_edit_pricelist_items" model="ir.actions.act_window">
+        <field name="domain">[('compute_price', '=', 'fixed')]</field>             <!-- Solo reglas con precio fijo -->
+        <field name="name">Edición masiva de reglas de precio</field>
+        <field name="res_model">product.pricelist.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="bm_gestor_de_listas_de_precios.view_pricelist_item_mass_edit_tree"/>
+        <field name="search_view_id" ref="bm_gestor_de_listas_de_precios.view_pricelist_item_mass_edit_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Acción que abre el wizard para aplicar aumentos de precio -->
+    <record id="action_mass_edit_pricelist_adjustment" model="ir.actions.act_window">
+        <field name="name">Ajuste de precios</field>
+        <field name="res_model">mass.edit.pricelist.adjustment</field>            <!-- Segundo wizard -->
+        <field name="view_mode">form</field>
+        <field name="target">new</field>                                           <!-- También en modal -->
+    </record>
+
+    <!-- Acción de servidor que lanza el wizard de ajuste desde la vista lista -->
+    <record id="server_action_mass_edit_pricelist_adjustment" model="ir.actions.server">
+        <field name="name">Ajuste de precios (en lote)</field>
+        <field name="model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_view_types">list</field>                              <!-- Solo disponible en vista lista -->
+        <field name="state">code</field>
+        <field name="code">action = {'type': 'ir.actions.act_window','res_model': 'mass.edit.pricelist.adjustment','view_mode': 'form','target': 'new','context': {'active_ids': env.context.get('active_ids')}} </field>
+    </record>
+
+
+    <record id="action_mass_edit_pricelist_clone_adjustment" model="ir.actions.act_window">
+        <field name="name">Clonar y ajustar precios</field>
+        <field name="res_model">mass.edit.pricelist.clone.adjustment</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Acción de servidor que lanza el wizard de clonado y ajuste desde la vista lista -->
+    <record id="server_action_mass_edit_pricelist_clone_adjustment" model="ir.actions.server">
+        <field name="name">Clonar y ajustar precios (en lote)</field>
+        <field name="model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_model_id" ref="product.model_product_pricelist_item"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+        action = {
+            'type': 'ir.actions.act_window',
+            'res_model': 'mass.edit.pricelist.clone.adjustment',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': env.context.get('active_ids')}
+        }
+        </field>
+    </record>
+</odoo>
