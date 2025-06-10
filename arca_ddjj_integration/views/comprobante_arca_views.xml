@@ -1,11 +1,26 @@
 <odoo>
 
-    <!-- 📄 Vista tipo lista (tree) para los comprobantes descargados -->
+    <!-- Acción para abrir el wizard -->
+    <record id="action_open_wizard_importar_comprobantes" model="ir.actions.act_window">
+        <field name="name">Importar comprobantes ARCA</field>
+        <field name="res_model">wizard.importar.comprobantes</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Vista tipo lista (tree) -->
     <record id="view_comprobante_arca_tree" model="ir.ui.view">
         <field name="name">comprobante.arca.tree</field>
         <field name="model">comprobante.arca</field>
         <field name="arch" type="xml">
-            <list string="Comprobantes Recibidos ARCA">
+            <tree string="Comprobantes Recibidos ARCA">
+                <header>
+                    <button name="%(action_open_wizard_importar_comprobantes)d"
+                            type="action"
+                            string="Importar comprobantes ARCA"
+                            class="btn-primary"
+                            icon="fa-download"/>
+                </header>
                 <field name="company_id"/>
                 <field name="fecha_emision"/>
                 <field name="tipo_comprobante"/>
@@ -14,11 +29,11 @@
                 <field name="importe_total"/>
                 <field name="estado_coincidencia"/>
                 <field name="incluir_en_ddjj"/>
-            </list>
+            </tree>
         </field>
     </record>
 
-    <!-- 📝 Vista formulario -->
+    <!-- Vista formulario -->
     <record id="view_comprobante_arca_form" model="ir.ui.view">
         <field name="name">comprobante.arca.form</field>
         <field name="model">comprobante.arca</field>
@@ -40,18 +55,35 @@
         </field>
     </record>
 
-    <!-- 🎯 Acción de menú -->
+    <!-- Acción -->
     <record id="action_comprobante_arca" model="ir.actions.act_window">
         <field name="name">Comprobantes Recibidos</field>
         <field name="res_model">comprobante.arca</field>
         <field name="view_mode">list,form</field>
     </record>
 
-    <!-- 📂 Menú -->
+    <!-- Menú -->
     <menuitem id="menu_ddjj_root" name="DDJJ ARCA" parent="accountant.menu_accounting" sequence="90"/>
-
     <menuitem id="menu_comprobantes_arca" name="Comprobantes Recibidos"
-          parent="menu_ddjj_root"
-          action="action_comprobante_arca" sequence="1"/>
+              parent="menu_ddjj_root"
+              action="action_comprobante_arca" sequence="1"/>
+
+    <!-- Wizard -->
+    <record id="view_wizard_importar_comprobantes" model="ir.ui.view">
+        <field name="name">wizard.importar.comprobantes.form</field>
+        <field name="model">wizard.importar.comprobantes</field>
+        <field name="arch" type="xml">
+            <form string="Importar Comprobantes ARCA">
+                <group>
+                    <field name="fecha_desde"/>
+                    <field name="fecha_hasta"/>
+                </group>
+                <footer>
+                    <button name="action_importar" type="object" string="Importar" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 
 </odoo>
