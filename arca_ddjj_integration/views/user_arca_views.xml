@@ -30,7 +30,6 @@
                             string="Crear usuario en ARCA"
                             type="object"
                             class="btn btn-primary"
-                            invisible="1"
                             modifiers="{'invisible': [['show_warning_create', '=', True]]}"/>
                 </footer>
             </form>
