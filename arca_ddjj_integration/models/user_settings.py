@@ -1,6 +1,8 @@
 from odoo import models, fields, api
 from . import comprobante_arca
 from . import user_settings  
+import requests
+from odoo.exceptions import UserError
 
 
 class ArcaSettings(models.Model):
