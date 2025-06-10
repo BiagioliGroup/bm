@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+import requests
 
 class ComprobanteArca(models.Model):
     _name = 'comprobante.arca'
@@ -22,8 +23,7 @@ class ComprobanteArca(models.Model):
     ], string='Estado de coincidencia', default='solo_arca')
     incluir_en_ddjj = fields.Boolean(string='¿Incluir en DDJJ?', default=True)
 
-from odoo import models, fields, api
-import requests
+
 
 class ArcaSettings(models.Model):
     _name = 'arca.settings'
