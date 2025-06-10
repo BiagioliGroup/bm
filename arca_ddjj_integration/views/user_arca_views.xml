@@ -29,8 +29,7 @@
                     <button name="action_create_user"
                             string="Crear usuario en ARCA"
                             type="object"
-                            class="btn btn-primary"
-                            modifiers="{'invisible': [['show_warning_create', '=', True]]}"/>
+                            class="btn btn-primary"/>
                 </footer>
             </form>
         </field>
