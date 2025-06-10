@@ -19,13 +19,18 @@ class ArcaSettings(models.Model):
         for rec in self:
             if not rec.email:
                 raise UserError("Debés completar el campo Email para crear el usuario.")
+
             payload = {"mail": rec.email}
             response = requests.post("https://api-bot-mc.mrbot.com.ar/api/v1/users/", json=payload)
+
             if response.status_code == 200:
-                data = response.json()
-                rec.api_key = data.get("data", {}).get("api_key", "")
+                rec.message_post(
+                    body="El usuario fue creado correctamente. Revisá tu correo electrónico para obtener la API Key."
+                )
+            elif response.status_code == 422:
+                raise UserError("Ya existe un usuario con este mail.")
             else:
-                raise UserError(f"Error al crear usuario: {response.text}")
+                raise UserError(f"Error al crear el usuario: {response.text}")
             
     @api.model
     def create(self, vals):
