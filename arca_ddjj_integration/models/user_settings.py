@@ -31,9 +31,8 @@ class ArcaSettings(models.Model):
             response = requests.post("https://api-bot-mc.mrbot.com.ar/api/v1/users/", json=payload)
 
             if response.status_code == 200:
-                rec.message_post(
-                    body="El usuario fue creado correctamente. Revisá tu correo electrónico para obtener la API Key."
-                )
+                raise UserError("El usuario fue creado correctamente. Revisá tu correo electrónico para obtener la API Key.")
+
             elif response.status_code == 422:
                 raise UserError("Ya existe un usuario con este mail.")
             else:
