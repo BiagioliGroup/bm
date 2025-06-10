@@ -22,14 +22,22 @@
                          groups="base.group_user">
                         <field name="show_warning_create" widget="boolean" invisible="1"/>
                         <span>⚠️ Guardá el formulario antes de crear el usuario en ARCA.</span>
+                        
                     </div>
                 </group>
 
                 <footer>
-                    <button name="action_create_user"
-                            string="Crear usuario en ARCA"
-                            type="object"
-                            class="btn btn-primary"/>
+                    <div class="oe_button_box" name="button_box_arca">
+                        <button type="object"
+                                name="action_create_user"
+                                string="Crear usuario"
+                                confirm="¿Estás seguro que querés registrar este mail en ARCA?"
+                                class="oe_stat_button"
+                                modifiers="{'invisible': [['show_warning_create', '=', True]]}">
+                            <i class="fa fa-user-plus"/> <!-- O usar un img si tenés logo -->
+                            <span>Crear usuario</span>
+                        </button>
+                    </div>
                 </footer>
             </form>
         </field>
