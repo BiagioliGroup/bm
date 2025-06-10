@@ -2,4 +2,3 @@
 
 from . import comprobante_arca
 from . import user_settings
-from . import models
