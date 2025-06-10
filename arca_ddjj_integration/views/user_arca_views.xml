@@ -26,7 +26,7 @@
                     </div>
                 </group>
 
-                <footer>
+                <group>
                     <div class="oe_button_box" name="button_box_arca">
                         <button type="object"
                                 name="action_create_user"
@@ -34,11 +34,22 @@
                                 confirm="¿Estás seguro que querés registrar este mail en ARCA?"
                                 class="oe_stat_button"
                                 modifiers="{'invisible': [['show_warning_create', '=', True]]}">
-                            <i class="fa fa-user-plus"/> <!-- O usar un img si tenés logo -->
+                            <i class="fa fa-user-plus" title="Crear usuario"/>
                             <span>Crear usuario</span>
                         </button>
                     </div>
-                </footer>
+                </group>
+
+                <!-- 🛠️ Botón para crear usuario en ARCA -->
+                <group>
+                    <div class="oe_button_box" name="button_box_arca">
+                        <button type="object"
+                                name="action_create_user"
+                                string="Crear usuario"
+                                confirm="¿Estás seguro que querés registrar este mail en ARCA?"
+                                class="oe_stat_button"
+                                modifiers="{'invisible': [['show_warning_create', '=', True]]}">
+                            <i class="fa fa-user
             </form>
         </field>
     </record>
