@@ -10,7 +10,10 @@ class ComprobanteArca(models.Model):
     fecha_emision = fields.Date(string='Fecha de Emisión')
     tipo_comprobante = fields.Char(string='Tipo Comprobante')
     nro_comprobante = fields.Char(string='Número de Comprobante')
-    importe_total = fields.Monetary(string='Importe Total')
+    importe_total = fields.Monetary(
+        string='Importe Total',
+        currency_field='moneda_id'
+    )
     moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id)
     estado_coincidencia = fields.Selection([
         ('coincide', 'Coincide con Odoo'),
