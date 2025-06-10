@@ -1,0 +1,36 @@
+<odoo>
+    <!-- 🧩 Vista de configuración ARCA -->
+    <record id="view_arca_settings_form" model="ir.ui.view">
+        <field name="name">arca.settings.form</field>
+        <field name="model">arca.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configuración ARCA">
+                <group>
+                    <field name="company_id"/>
+                    <field name="nombre"/>
+                    <field name="cuit"/>
+                    <field name="email"/>
+                    <field name="telefono"/>
+                    <field name="api_key"/>
+                    <field name="consultas_disponibles"/>
+                </group>
+                <footer>
+                    <button name="action_create_user" string="Crear usuario en ARCA" type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- 🎯 Acción para acceder al panel -->
+    <record id="action_arca_settings" model="ir.actions.act_window">
+        <field name="name">Panel Cliente ARCA</field>
+        <field name="res_model">arca.settings</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- 📂 Menú en Contabilidad → DDJJ ARCA -->
+    <menuitem id="menu_arca_settings"
+              name="Panel de cliente ARCA"
+              parent="menu_ddjj_root"
+              action="action_arca_settings"/>
+</odoo>
