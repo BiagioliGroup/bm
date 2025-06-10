@@ -1,0 +1,55 @@
+<odoo>
+
+    <!-- 📄 Vista tipo lista (tree) para los comprobantes descargados -->
+    <record id="view_comprobante_arca_tree" model="ir.ui.view">
+        <field name="name">comprobante.arca.tree</field>
+        <field name="model">comprobante.arca</field>
+        <field name="arch" type="xml">
+            <list string="Comprobantes Recibidos ARCA">
+                <field name="company_id"/>
+                <field name="fecha_emision"/>
+                <field name="tipo_comprobante"/>
+                <field name="nro_comprobante"/>
+                <field name="razon_social_emisor"/>
+                <field name="importe_total"/>
+                <field name="estado_coincidencia"/>
+                <field name="incluir_en_ddjj"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 📝 Vista formulario -->
+    <record id="view_comprobante_arca_form" model="ir.ui.view">
+        <field name="name">comprobante.arca.form</field>
+        <field name="model">comprobante.arca</field>
+        <field name="arch" type="xml">
+            <form string="Comprobante ARCA">
+                <group>
+                    <field name="company_id"/>
+                    <field name="fecha_emision"/>
+                    <field name="tipo_comprobante"/>
+                    <field name="nro_comprobante"/>
+                    <field name="cuit_emisor"/>
+                    <field name="razon_social_emisor"/>
+                    <field name="importe_total"/>
+                    <field name="moneda_id"/>
+                    <field name="estado_coincidencia"/>
+                    <field name="incluir_en_ddjj"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- 🎯 Acción de menú -->
+    <record id="action_comprobante_arca" model="ir.actions.act_window">
+        <field name="name">Comprobantes Recibidos</field>
+        <field name="res_model">comprobante.arca</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- 📂 Menú -->
+    <menuitem id="menu_ddjj_root" name="DDJJ ARCA" parent="account.menu_finance"/>
+    <menuitem id="menu_comprobantes_arca" name="Comprobantes Recibidos"
+              parent="menu_ddjj_root" action="action_comprobante_arca"/>
+
+</odoo>
