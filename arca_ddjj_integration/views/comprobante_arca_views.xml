@@ -13,7 +13,7 @@
         <field name="name">comprobante.arca.tree</field>
         <field name="model">comprobante.arca</field>
         <field name="arch" type="xml">
-            <tree string="Comprobantes Recibidos ARCA">
+            <list string="Comprobantes Recibidos ARCA">
                 <header>
                     <button name="%(action_open_wizard_importar_comprobantes)d"
                             type="action"
@@ -29,7 +29,7 @@
                 <field name="importe_total"/>
                 <field name="estado_coincidencia"/>
                 <field name="incluir_en_ddjj"/>
-            </tree>
+            </list>
         </field>
     </record>
 
