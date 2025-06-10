@@ -16,18 +16,20 @@ class ArcaSettings(models.Model):
     consultas_disponibles = fields.Integer(string='Consultas disponibles', readonly=True)
 
     def action_create_user(self):
-        """Crear usuario en la API de ARCA"""
         for rec in self:
-            payload = {
-                "name": rec.nombre,
-                "cuit": rec.cuit,
-                "email": rec.email,
-                "telefono": rec.telefono
-            }
+            if not rec.email:
+                raise UserError("Debés completar el campo Email para crear el usuario.")
+            payload = {"mail": rec.email}
             response = requests.post("https://api-bot-mc.mrbot.com.ar/api/v1/users/", json=payload)
             if response.status_code == 200:
                 data = response.json()
-                rec.api_key = data.get("api_key", "")
+                rec.api_key = data.get("data", {}).get("api_key", "")
             else:
-                raise UserError("Error al crear usuario: %s" % response.text)
+                raise UserError(f"Error al crear usuario: {response.text}")
+            
+    @api.model
+    def create(self, vals):
+        if self.env['arca.settings'].search_count([]) >= 1:
+            raise UserError("Ya existe una configuración ARCA. No se pueden crear múltiples.")
+        return super().create(vals)
 

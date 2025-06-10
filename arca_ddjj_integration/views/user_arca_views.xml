@@ -15,7 +15,8 @@
                     <field name="consultas_disponibles"/>
                 </group>
                 <footer>
-                    <button name="action_create_user" string="Crear usuario en ARCA" type="object" class="btn-primary"/>
+                    <button name="action_create_user" string="Crear usuario en ARCA" type="object"
+                            class="btn-primary" attrs="{'invisible': ['|', ('id', '=', False), ('api_key', '!=', False)]}"/>
                 </footer>
             </form>
         </field>
