@@ -12,7 +12,7 @@ class ArcaSettings(models.Model):
     cuit = fields.Char(string='CUIT', required=True)
     email = fields.Char(string='Email', required=True)
     telefono = fields.Char(string='Teléfono')
-    api_key = fields.Char(string='API Key', readonly=True)
+    api_key = fields.Char(string='API Key')
     consultas_disponibles = fields.Integer(string='Consultas disponibles', readonly=True)
 
     def action_create_user(self):
