@@ -12,8 +12,13 @@ class ArcaSettings(models.Model):
     cuit = fields.Char(string='CUIT', required=True)
     email = fields.Char(string='Email', required=True)
     telefono = fields.Char(string='Teléfono')
-    api_key = fields.Char(string='API Key')
+    api_key = fields.Char(string='API Key', help="Copiá aquí la API Key que recibiste por correo electrónico después de crear el usuario.")
     consultas_disponibles = fields.Integer(string='Consultas disponibles', readonly=True)
+    show_warning_create = fields.Boolean(compute="_compute_show_warning_create")
+
+    def _compute_show_warning_create(self):
+        for rec in self:
+            rec.show_warning_create = not rec.id
 
     def action_create_user(self):
         for rec in self:
