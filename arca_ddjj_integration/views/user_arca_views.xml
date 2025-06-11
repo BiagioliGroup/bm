@@ -7,10 +7,12 @@
             <form string="Configuración ARCA">
                 <group>
                     <field name="company_id"/>
-                    <field name="nombre"/>
+                    <!-- <field name="nombre"/> -->
                     <field name="cuit"/>
+                    <field name="cuit representante"/>
                     <field name="email"/>
-                    <field name="telefono"/>
+                    <field name="clave_fiscal"/>
+                    <!-- <field name="telefono"/> -->
                     <field name="api_key"/>
                     <field name="consultas_disponibles"/>
                 </group>
