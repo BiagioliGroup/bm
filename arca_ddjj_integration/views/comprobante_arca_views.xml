@@ -15,9 +15,9 @@
             <list string="Comprobantes Recibidos desde ARCA" editable="bottom">
                 <field name="fecha_emision"/>
                 <field name="tipo_comprobante"/>
-                <field name="letra" invisible="1"/>
+                <!-- <field name="letra" invisible="1"/>
                 <field name="punto_venta" invisible="1"/>
-                <field name="nro_comprobante"/>
+                <field name="nro_comprobante"/> -->
                 <field name="razon_social_emisor"/>
                 <field name="cuit_emisor"/>
                 <field name="moneda_id"/>
@@ -26,7 +26,6 @@
                 <field name="importe_total"/>
                 <field name="tipo_cambio" widget="float" digits="0"/>
                 <field name="codigo_autorizacion"/>
-                <field name="estado_coincidencia"/>
                 <field name="estado_coincidencia"
                     decoration-success="estado_coincidencia == 'coincide'"
                     decoration-warning="estado_coincidencia == 'solo_arca'"
