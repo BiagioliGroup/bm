@@ -1,6 +1,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 import requests
+import logging
+_logger = logging.getLogger(__name__)
 
 class ComprobanteArca(models.Model):
     _name = 'comprobante.arca'
@@ -83,28 +85,33 @@ class WizardImportarComprobantes(models.TransientModel):
 
         tipo_map = self.TIPO_MAP
 
+        # Claves únicas para evitar duplicados (ej: cuit + punto_venta + numero)
+        existentes = set(
+            comprobante_model.search([]).mapped(
+                lambda r: f"{r.cuit_emisor}-{r.punto_venta}-{r.nro_comprobante}"
+            )
+        )
+
+        duplicados_omitidos = 0
+
         for comp in data.get("mis_comprobantes_recibidos", []):
             tipo_codigo = str(comp["Tipo"]).zfill(3)
             letra = tipo_map.get(tipo_codigo, "X")
 
-
-            
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
             numero = str(comp["Número Desde"]).zfill(8)
+            clave = f"{comp['Nro. Doc. Receptor/Emisor']}-{punto_venta}-{numero}"
+
+            if clave in existentes:
+                duplicados_omitidos += 1
+                continue
+
+            existentes.add(clave)  # Agregamos para evitar duplicados dentro del mismo batch
+
             numero_formateado = f"FA-{letra} {punto_venta}-{numero}"
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
-            
-                        
-            # Verificar si ya existe el comprobante
-            existing = comprobante_model.search([
-                ("letra", "=", letra),
-                ("punto_venta", "=", punto_venta),
-                ("nro_comprobante", "=", numero),
-                ("company_id", "=", self.env.company.id),
-            ], limit=1)
 
-            if not existing:
-                comprobante_model.create({
+            comprobante_model.create({
                 "company_id": self.env.company.id,
                 "fecha_emision": comp["Fecha"],
                 "letra": letra,
@@ -120,11 +127,9 @@ class WizardImportarComprobantes(models.TransientModel):
                 "codigo_autorizacion": comp.get("Cód. Autorización"),
                 "moneda_id": moneda.id,
             })
-            else:
-                _logger.info(f"Comprobante duplicado omitido: {numero_formateado}")
+            
 
-    
-        return {
+        actions = [{
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
@@ -140,6 +145,24 @@ class WizardImportarComprobantes(models.TransientModel):
                     "target": "current",
                 }
             }
+        }]
+
+        if duplicados_omitidos > 0:
+            actions.append({
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Aviso",
+                    "message": f"Se omitieron {duplicados_omitidos} comprobantes duplicados.",
+                    "type": "warning",
+                    "sticky": False,
+                }
+            })
+
+        return actions[0] if len(actions) == 1 else {
+            "type": "ir.actions.act_multi",
+            "actions": actions
         }
+
 
 
