@@ -80,12 +80,13 @@ class WizardImportarComprobantes(models.TransientModel):
 
         # Procesar comprobantes emitidos
         comprobante_model = self.env['comprobante.arca']
-        tipo_map = self.TIPO_MAP
 
+        tipo_map = self.TIPO_MAP
 
         for comp in data.get("mis_comprobantes_recibidos", []):
             tipo_codigo = str(comp["Tipo"]).zfill(3)
-            letra = TIPO_MAP.get(tipo_codigo, "X")
+            letra = tipo_map.get(tipo_codigo, "X")
+
 
             
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
