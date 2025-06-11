@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_comprobante_arca,access_comprobante_arca,model_comprobante_arca,,1,1,1,1
 access_arca_settings,access_arca_settings,model_arca_settings,,1,1,1,1
+access_wizard_importar_comprobantes,wizard.importar.comprobantes,model_wizard_importar_comprobantes,base.group_system,1,1,1,1
+
