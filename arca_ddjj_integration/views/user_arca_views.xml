@@ -9,7 +9,7 @@
                     <field name="company_id"/>
                     <!-- <field name="nombre"/> -->
                     <field name="cuit"/>
-                    <field name="cuit representante"/>
+                    <field name="cuit_representante"/>
                     <field name="email"/>
                     <field name="clave_fiscal"/>
                     <!-- <field name="telefono"/> -->
