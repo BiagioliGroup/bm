@@ -86,6 +86,8 @@
                 <group>
                     <field name="fecha_desde"/>
                     <field name="fecha_hasta"/>
+                    <field name="descarga_emitidos"/>
+                    <field name="descarga_recibidos"/>
                 </group>
                 <footer>
                     <button name="action_importar" type="object" string="Importar" class="btn-primary"/>

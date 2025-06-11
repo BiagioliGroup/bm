@@ -10,10 +10,12 @@ class ArcaSettings(models.Model):
     _description = 'Configuración de conexión ARCA'
 
     company_id = fields.Many2one('res.company', string='Compañía', default=lambda self: self.env.company, required=True)
-    nombre = fields.Char(string='Nombre completo', required=True)
-    cuit = fields.Char(string='CUIT', required=True)
+    nombre = fields.Char(string='Nombre del Representado', required=True)
+    cuit = fields.Char(string='CUIT del Representado', required=True)
+    cuit_representante = fields.Char(string='CUIT del Representante', required=True)
+    clave_fiscal = fields.Char(string='Clave fiscal', required=True)
     email = fields.Char(string='Email', required=True)
-    telefono = fields.Char(string='Teléfono')
+    telefono = fields.Char(stsring='Teléfono')
     api_key = fields.Char(string='API Key', help="Copiá aquí la API Key que recibiste por correo electrónico después de crear el usuario.")
     consultas_disponibles = fields.Integer(string='Consultas disponibles', readonly=True)
     show_warning_create = fields.Boolean(compute="_compute_show_warning_create", store=True)
