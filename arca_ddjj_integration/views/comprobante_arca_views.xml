@@ -12,20 +12,34 @@
         <field name="name">comprobante.arca.tree</field>
         <field name="model">comprobante.arca</field>
         <field name="arch" type="xml">
-            <list string="Comprobantes Recibidos ARCA">
-                <field name="company_id"/>
+            <tree string="Comprobantes Recibidos desde ARCA" editable="false">
                 <field name="fecha_emision"/>
                 <field name="tipo_comprobante"/>
+                <field name="letra" invisible="1"/>
+                <field name="punto_venta" invisible="1"/>
                 <field name="nro_comprobante"/>
                 <field name="razon_social_emisor"/>
                 <field name="cuit_emisor"/>
                 <field name="moneda_id"/>
+                <field name="importe_neto"/>
+                <field name="iva"/>
                 <field name="importe_total"/>
+                <field name="tipo_cambio" widget="float" digits="0"/>
+                <field name="codigo_autorizacion"/>
                 <field name="estado_coincidencia"/>
                 <field name="incluir_en_ddjj"/>
-            </list>
+
+                <!-- Decoraciones visuales -->
+                <decoration-danger bg_color="lightcoral" text_color="white"
+                    states="solo_odoo"/>
+                <decoration-warning bg_color="khaki" text_color="black"
+                    states="solo_arca"/>
+                <decoration-success bg_color="lightgreen" text_color="black"
+                    states="coincide"/>
+            </tree>
         </field>
     </record>
+
 
     <!-- Vista formulario -->
     <record id="view_comprobante_arca_form" model="ir.ui.view">
