@@ -129,39 +129,19 @@ class WizardImportarComprobantes(models.TransientModel):
             })
             
 
-        actions = [{
+        return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
                 "title": "Importación exitosa",
-                "message": "Los comprobantes han sido importados correctamente.",
+                "message": (
+                    f"Se importaron correctamente. Se omitieron {duplicados_omitidos} duplicados."
+                    if duplicados_omitidos else
+                    "Los comprobantes han sido importados correctamente."
+                ),
                 "type": "success",
                 "sticky": False,
-                "next": {
-                    "type": "ir.actions.act_window",
-                    "name": "Comprobantes ARCA",
-                    "res_model": "comprobante.arca",
-                    "view_mode": "list,form",
-                    "target": "current",
-                }
             }
-        }]
-
-        if duplicados_omitidos > 0:
-            actions.append({
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Aviso",
-                    "message": f"Se omitieron {duplicados_omitidos} comprobantes duplicados.",
-                    "type": "warning",
-                    "sticky": False,
-                }
-            })
-
-        return actions[0] if len(actions) == 1 else {
-            "type": "ir.actions.act_multi",
-            "actions": actions
         }
 
 
