@@ -123,7 +123,7 @@ class WizardImportarComprobantes(models.TransientModel):
             else:
                 _logger.info(f"Comprobante duplicado omitido: {numero_formateado}")
 
-
+    
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
@@ -132,6 +132,13 @@ class WizardImportarComprobantes(models.TransientModel):
                 "message": "Los comprobantes han sido importados correctamente.",
                 "type": "success",
                 "sticky": False,
+                "next": {
+                    "type": "ir.actions.act_window",
+                    "name": "Comprobantes ARCA",
+                    "res_model": "comprobante.arca",
+                    "view_mode": "list,form",
+                    "target": "current",
+                }
             }
         }
 
