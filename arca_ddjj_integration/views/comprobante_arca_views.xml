@@ -28,14 +28,10 @@
                 <field name="codigo_autorizacion"/>
                 <field name="estado_coincidencia"/>
                 <field name="incluir_en_ddjj"/>
+                <field name="estado_coincidencia" decoration-success="record.estado_coincidencia == 'coincide'"
+                               decoration-warning="record.estado_coincidencia == 'solo_arca'"
+                               decoration-danger="record.estado_coincidencia == 'solo_odoo'"/>
 
-                <!-- Decoraciones visuales -->
-                <decoration-danger bg_color="lightcoral" text_color="white"
-                    states="solo_odoo"/>
-                <decoration-warning bg_color="khaki" text_color="black"
-                    states="solo_arca"/>
-                <decoration-success bg_color="lightgreen" text_color="black"
-                    states="coincide"/>
             </list>
         </field>
     </record>
