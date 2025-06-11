@@ -95,7 +95,16 @@ class WizardImportarComprobantes(models.TransientModel):
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
             
                         
-            comprobante_model.create({
+            # Verificar si ya existe el comprobante
+            existing = comprobante_model.search([
+                ("letra", "=", letra),
+                ("punto_venta", "=", punto_venta),
+                ("nro_comprobante", "=", numero),
+                ("company_id", "=", self.env.company.id),
+            ], limit=1)
+
+            if not existing:
+                comprobante_model.create({
                 "company_id": self.env.company.id,
                 "fecha_emision": comp["Fecha"],
                 "letra": letra,
@@ -111,6 +120,8 @@ class WizardImportarComprobantes(models.TransientModel):
                 "codigo_autorizacion": comp.get("Cód. Autorización"),
                 "moneda_id": moneda.id,
             })
+            else:
+                _logger.info(f"Comprobante duplicado omitido: {numero_formateado}")
 
 
         return {
