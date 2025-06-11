@@ -12,7 +12,7 @@
         <field name="name">comprobante.arca.tree</field>
         <field name="model">comprobante.arca</field>
         <field name="arch" type="xml">
-            <tree string="Comprobantes Recibidos desde ARCA" editable="false">
+            <list string="Comprobantes Recibidos desde ARCA" editable="false">
                 <field name="fecha_emision"/>
                 <field name="tipo_comprobante"/>
                 <field name="letra" invisible="1"/>
@@ -36,7 +36,7 @@
                     states="solo_arca"/>
                 <decoration-success bg_color="lightgreen" text_color="black"
                     states="coincide"/>
-            </tree>
+            </list>
         </field>
     </record>
 
