@@ -3,6 +3,8 @@ from . import comprobante_arca
 from . import user_settings  
 import requests
 from odoo.exceptions import UserError
+from datetime import datetime
+
 
 
 class ArcaSettings(models.Model):
@@ -39,6 +41,29 @@ class ArcaSettings(models.Model):
                 raise UserError("Ya existe un usuario con este mail.")
             else:
                 raise UserError(f"Error al crear el usuario: {response.text}")
+            
+    def actualizar_consultas_disponibles(self):
+        for rec in self:
+            if not rec.email:
+                raise UserError("Falta el email para consultar la disponibilidad.")
+            url = f"https://api-bot-mc.mrbot.com.ar/api/v1/users/consultas/{rec.email}"
+            headers = {
+                "x-api-key": rec.api_key,
+                "email": rec.email,
+            }
+            response = requests.get(url, headers=headers)
+
+            if response.status_code != 200:
+                raise UserError(f"Error al consultar las consultas disponibles: {response.text}")
+            
+            data = response.json()
+            rec.consultas_disponibles = data.get("consultas_disponibles", 0)
+            fecha = data.get("fecha_ultimo_reset")
+            if fecha:
+                try:
+                    rec.fecha_ultimo_reset = datetime.strptime(fecha, "%Y-%m-%dT%H:%M:%S.%fZ")
+                except Exception:
+                    rec.fecha_ultimo_reset = False
             
     @api.model
     def create(self, vals):

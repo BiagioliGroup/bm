@@ -98,6 +98,9 @@ class WizardImportarComprobantes(models.TransientModel):
             raise UserError(f"Error al consultar ARCA: {response.text}")
 
         data = response.json()
+        # Al finalizar la importación, restar 1 consulta
+        if config.consultas_disponibles > 0:
+            config.consultas_disponibles -= 1
 
         if not data.get("success"):
             raise UserError(f"Consulta fallida: {data.get('message')}")
@@ -150,18 +153,29 @@ class WizardImportarComprobantes(models.TransientModel):
                 "codigo_autorizacion": comp.get("Cód. Autorización"),
                 "moneda_id": moneda.id,
             })
+
             
 
         return {
-        'type': 'ir.actions.act_window',
-        'res_model': 'comprobante.arca',
-        'view_mode': 'list,form',
-        'name': 'Comprobantes ARCA',
-        'target': 'current',  # Esto cierra el wizard
-        'context': {
-            'default_show_notification': True,
-            'default_duplicados_omitidos': duplicados_omitidos,
-        },
-    }
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Importación completada",
+                "message": (
+                    f"Se importaron correctamente. Se omitieron {duplicados_omitidos} duplicados."
+                    if duplicados_omitidos else
+                    "Los comprobantes han sido importados correctamente."
+                ),
+                "type": "success",
+                "sticky": False,
+                "next": {
+                    "type": "ir.actions.act_window",
+                    "res_model": "comprobante.arca",
+                    "view_mode": "list,form",
+                    "target": "current",
+                }
+            }
+        }
+    
 
 

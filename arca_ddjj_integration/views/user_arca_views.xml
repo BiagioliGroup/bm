@@ -14,7 +14,8 @@
                     <field name="clave_fiscal"/>
                     <!-- <field name="telefono"/> -->
                     <field name="api_key"/>
-                    <field name="consultas_disponibles"/>
+                    <field name="consultas_disponibles" readonly="1"/>
+                    <field name="fecha_ultimo_reset" readonly="1"/>
                 </group>
 
                 <!-- ✅ Sección de advertencia si el registro no está creado -->
@@ -39,6 +40,8 @@
                             <i class="fa fa-user-plus" title="Crear usuario"/>
                             <span>Crear usuario</span>
                         </button>
+                        <button name="actualizar_consultas_disponibles" type="object" string="Actualizar consultas disponibles" class="btn-secondary"/>
+
                     </div>
                 </group>
             </form>
