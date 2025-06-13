@@ -32,6 +32,28 @@ class ComprobanteArca(models.Model):
     ], string='Estado de coincidencia', default='solo_arca')
     incluir_en_ddjj = fields.Boolean(string='¿Incluir en DDJJ?', default=True)
 
+    @api.model
+    def default_get(self, fields):
+        res = super().default_get(fields)
+        ctx = self.env.context
+        if ctx.get('default_show_notification'):
+            mensaje = "Los comprobantes han sido importados correctamente."
+            if ctx.get('default_duplicados_omitidos'):
+                mensaje += f" Se omitieron {ctx['default_duplicados_omitidos']} comprobantes duplicados."
+
+            self.env.context.get('request').env['bus.bus']._sendone(
+                self.env.user.partner_id, 'notification',
+                {
+                    'type': 'success',
+                    'title': 'Importación exitosa',
+                    'message': mensaje,
+                    'sticky': False,
+                }
+            )
+        return res
+
+
+
 class WizardImportarComprobantes(models.TransientModel):
     _name = 'wizard.importar.comprobantes'
     _description = 'Importar Comprobantes desde ARCA'
@@ -130,19 +152,15 @@ class WizardImportarComprobantes(models.TransientModel):
             
 
         return {
-            "type": "ir.actions.client",
-            "tag": "display_notification",
-            "params": {
-                "title": "Importación exitosa",
-                "message": (
-                    f"Se importaron correctamente. Se omitieron {duplicados_omitidos} duplicados."
-                    if duplicados_omitidos else
-                    "Los comprobantes han sido importados correctamente."
-                ),
-                "type": "success",
-                "sticky": False,
-            }
-        }
-
+        'type': 'ir.actions.act_window',
+        'res_model': 'comprobante.arca',
+        'view_mode': 'list,form',
+        'name': 'Comprobantes ARCA',
+        'target': 'current',  # Esto cierra el wizard
+        'context': {
+            'default_show_notification': True,
+            'default_duplicados_omitidos': duplicados_omitidos,
+        },
+    }
 
 

@@ -1,7 +1,7 @@
 <odoo>
 
     <!-- Menú -->
-    <menuitem id="menu_ddjj_root" name="DDJJ ARCA" parent="accountant.menu_accounting" sequence="90"/>
+    <menuitem id="menu_ddjj_root" name="Prep. DDJJ ARCA" parent="accountant.menu_accounting" sequence="90"/>
     <menuitem id="menu_comprobantes_arca" name="Comprobantes Recibidos"
               parent="menu_ddjj_root"
               action="action_comprobante_arca" sequence="1"/>
