@@ -42,28 +42,23 @@ class ArcaSettings(models.Model):
             else:
                 raise UserError(f"Error al crear el usuario: {response.text}")
             
-    def actualizar_consultas_disponibles(self):
-        for rec in self:
-            if not rec.email:
-                raise UserError("Falta el email para consultar la disponibilidad.")
-            url = f"https://api-bot-mc.mrbot.com.ar/api/v1/users/consultas/{rec.email}"
-            headers = {
-                "x-api-key": rec.api_key,
-                "email": rec.email,
-            }
-            response = requests.get(url, headers=headers)
+    def action_actualizar_consultas_disponibles(self):
+        self.ensure_one()
+        if not self.email or not self.api_key:
+            raise UserError("Debés configurar el email y la API Key para consultar.")
 
-            if response.status_code != 200:
-                raise UserError(f"Error al consultar las consultas disponibles: {response.text}")
-            
+        url = f"https://api-bot-mc.mrbot.com.ar/api/v1/users/consultas/{self.email}"
+        headers = {
+            "x-api-key": self.api_key,
+            "Accept": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
             data = response.json()
-            rec.consultas_disponibles = data.get("consultas_disponibles", 0)
-            fecha = data.get("fecha_ultimo_reset")
-            if fecha:
-                try:
-                    rec.fecha_ultimo_reset = datetime.strptime(fecha, "%Y-%m-%dT%H:%M:%S.%fZ")
-                except Exception:
-                    rec.fecha_ultimo_reset = False
+            self.consultas_disponibles = data.get("consultas_disponibles", 0)
+            self.fecha_ultimo_reset = data.get("fecha_ultimo_reset")
+        else:
+            raise UserError(f"No se pudo obtener la información de consultas. Error: {response.text}")
             
     @api.model
     def create(self, vals):
