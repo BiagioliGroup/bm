@@ -22,7 +22,7 @@ class ArcaSettings(models.Model):
     api_key = fields.Char(string='API Key', help="Copiá aquí la API Key que recibiste por correo electrónico después de crear el usuario.")
     consultas_disponibles = fields.Integer(string='Consultas disponibles', readonly=True)
     show_warning_create = fields.Boolean(compute="_compute_show_warning_create", store=True)
-    fecha_ultimo_reset = fields.Datetime(string="Fecha último reset", readonly=True)
+    fecha_ultimo_reset = fields.Datetime(string="FechaC último reset", readonly=True)
     
     def _compute_show_warning_create(self):
         for rec in self:
@@ -58,8 +58,8 @@ class ArcaSettings(models.Model):
         if response.status_code == 200:
             data = response.json()
             self.consultas_disponibles = data.get("consultas_disponibles", 0)
-            if data.get("fecha_ultimo_reset"):
-                self.fecha_ultimo_reset = Datetime.from_string(data["fecha_ultimo_reset"])
+            iso_string = data["fecha_ultimo_reset"]
+            self.fecha_ultimo_reset = datetime.fromisoformat(iso_string)
         else:
             raise UserError(f"No se pudo obtener la información de consultas. Error: {response.text}")
             
