@@ -21,6 +21,7 @@ class ArcaSettings(models.Model):
     api_key = fields.Char(string='API Key', help="Copiá aquí la API Key que recibiste por correo electrónico después de crear el usuario.")
     consultas_disponibles = fields.Integer(string='Consultas disponibles', readonly=True)
     show_warning_create = fields.Boolean(compute="_compute_show_warning_create", store=True)
+    fecha_ultimo_reset = fields.Datetime(string="Fecha último reset", readonly=True)
     
     def _compute_show_warning_create(self):
         for rec in self:
