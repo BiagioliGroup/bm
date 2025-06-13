@@ -4,6 +4,7 @@ from . import user_settings
 import requests
 from odoo.exceptions import UserError
 from datetime import datetime
+from odoo.fields import Datetime  
 
 
 
@@ -57,7 +58,8 @@ class ArcaSettings(models.Model):
         if response.status_code == 200:
             data = response.json()
             self.consultas_disponibles = data.get("consultas_disponibles", 0)
-            self.fecha_ultimo_reset = data.get("fecha_ultimo_reset")
+            if data.get("fecha_ultimo_reset"):
+                self.fecha_ultimo_reset = Datetime.from_string(data["fecha_ultimo_reset"])
         else:
             raise UserError(f"No se pudo obtener la información de consultas. Error: {response.text}")
             
