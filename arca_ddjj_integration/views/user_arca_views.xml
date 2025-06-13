@@ -40,7 +40,7 @@
                             <i class="fa fa-user-plus" title="Crear usuario"/>
                             <span>Crear usuario</span>
                         </button>
-                        <button name="actualizar_consultas_disponibles" type="object" string="Actualizar consultas disponibles" class="btn-secondary"/>
+                        <button name="action_actualizar_consultas_disponibles" type="object" string="Actualizar consultas disponibles" class="btn-secondary"/>
 
                     </div>
                 </group>
