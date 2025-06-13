@@ -36,12 +36,13 @@ class ComprobanteArca(models.Model):
     def default_get(self, fields):
         res = super().default_get(fields)
         ctx = self.env.context
-        if ctx.get('default_show_notification'):
+
+        if ctx.get('default_show_notification') and ctx.get('request'):
             mensaje = "Los comprobantes han sido importados correctamente."
             if ctx.get('default_duplicados_omitidos'):
                 mensaje += f" Se omitieron {ctx['default_duplicados_omitidos']} comprobantes duplicados."
 
-            self.env.context.get('request').env['bus.bus']._sendone(
+            ctx['request'].env['bus.bus']._sendone(
                 self.env.user.partner_id, 'notification',
                 {
                     'type': 'success',
