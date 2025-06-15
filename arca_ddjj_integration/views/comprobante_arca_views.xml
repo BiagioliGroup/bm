@@ -24,7 +24,7 @@
                 <field name="importe_neto"/>
                 <field name="iva"/>
                 <field name="importe_total"/>
-                <field name="tipo_cambio" widget="float" digits="0"/>
+                <field name="tipo_cambio"/>
                 <field name="codigo_autorizacion"/>
                 <field name="estado_coincidencia"
                     decoration-success="estado_coincidencia == 'coincide'"
