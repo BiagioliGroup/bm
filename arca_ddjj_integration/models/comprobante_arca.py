@@ -127,19 +127,32 @@ class WizardImportarComprobantes(models.TransientModel):
 
         duplicados_omitidos = 0
 
+        # Procesar comprobantes recibidos y cruzarlos con los existentes en Odoo
+        move_model = self.env['account.move']
+
         for comp in data.get("mis_comprobantes_recibidos", []):
             tipo_codigo = str(comp["Tipo"]).zfill(3)
             letra = tipo_map.get(tipo_codigo, "X")
-
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
             numero = str(comp["Número Desde"]).zfill(8)
-            clave = f"{comp['Nro. Doc. Receptor/Emisor']}-{punto_venta}-{numero}"
 
+            clave = f"{comp['Nro. Doc. Receptor/Emisor']}-{punto_venta}-{numero}"
             if clave in existentes:
                 duplicados_omitidos += 1
                 continue
 
-            existentes.add(clave)  # Agregamos para evitar duplicados dentro del mismo batch
+            existentes.add(clave)
+
+            # 📌 Buscar si hay un move que coincida
+            move = move_model.search([
+                ('partner_id.vat', '=', comp["Nro. Doc. Receptor/Emisor"]),
+                ('ref', 'ilike', numero),
+                ('move_type', 'in', ['in_invoice', 'in_refund']),
+                ('date', '=', comp["Fecha"]),
+            ], limit=1)
+
+            estado = 'coincide' if move else 'solo_arca'
+
 
             numero_formateado = f"FA-{letra} {punto_venta}-{numero}"
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
@@ -150,7 +163,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 "letra": letra,
                 "punto_venta": punto_venta,
                 "nro_comprobante": numero,
-                "tipo_comprobante": numero_formateado,
+                "tipo_comprobante": f"FA-{letra} {punto_venta}-{numero}",
                 "razon_social_emisor": comp["Denominación Receptor/Emisor"],
                 "cuit_emisor": comp["Nro. Doc. Receptor/Emisor"],
                 "iva": float(comp.get("IVA", 0)),
@@ -159,6 +172,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 "tipo_cambio": float(comp.get("Tipo Cambio", 1.0)),
                 "codigo_autorizacion": comp.get("Cód. Autorización"),
                 "moneda_id": moneda.id,
+                "estado_coincidencia": estado,
             })
 
             
