@@ -116,7 +116,7 @@
                     <field name="descarga_recibidos"/>
                 </group>
                 <group string="O procesar lote ya descargado">
-                    <field name="lote_id" context="{'default_usado': False}" options="{'no_create': True}" domain="[('usado','=',False)]"/>
+                    <field name="lote_id" context="{'default_usado': False}" options="{'no_create': True}" />
                 </group>
                 <footer>
                     <button name="action_importar" type="object" string="Importar desde ARCA" class="btn-primary"/>

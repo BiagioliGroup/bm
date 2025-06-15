@@ -285,3 +285,5 @@ class ArcaLote(models.Model):
 
     def cargar_dict(self):
         return json.loads(self.datos_json or "{}")
+    
+    
