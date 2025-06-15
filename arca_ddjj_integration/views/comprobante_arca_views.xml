@@ -22,6 +22,7 @@
 
     
 
+
     <!-- Vista tipo lista (tree) -->
     <record id="view_comprobante_arca_tree" model="ir.ui.view">
         <field name="name">comprobante.arca.tree</field>
