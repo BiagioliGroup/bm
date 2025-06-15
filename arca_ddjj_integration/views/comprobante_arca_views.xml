@@ -6,6 +6,36 @@
               parent="menu_ddjj_root"
               action="action_comprobante_arca" sequence="1"/>
 
+    <record id="action_importar_comprobantes_global" model="ir.actions.server">
+        <field name="name">Importar comprobantes ARCA</field>
+        <field name="model_id" ref="arca_ddjj_integration.model_comprobante_arca"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_window',
+                'res_model': 'wizard.importar.comprobantes',
+                'view_mode': 'form',
+                'target': 'new',
+            }
+        </field>
+    </record>
+
+    <record id="action_importar_comprobantes_global_button" model="ir.ui.view">
+        <field name="name">comprobante.arca.button.import</field>
+        <field name="model">comprobante.arca</field>
+        <field name="inherit_id" ref="view_comprobante_arca_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(action_importar_comprobantes_global)d"
+                        string="Importar desde ARCA"
+                        type="action"
+                        class="btn-primary"
+                        context="{}"
+                        />
+            </xpath>
+        </field>
+    </record>
+
 
     <!-- Vista tipo lista (tree) -->
     <record id="view_comprobante_arca_tree" model="ir.ui.view">
