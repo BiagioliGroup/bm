@@ -159,7 +159,7 @@ class WizardImportarComprobantes(models.TransientModel):
         }
 
     def _procesar_comprobantes(self, data):
-        tipo_map = WizardImportarComprobantes.TIPO_MAP
+        tipo_map = self.__class__.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
 
