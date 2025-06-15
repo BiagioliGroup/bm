@@ -20,22 +20,7 @@
         </field>
     </record>
 
-    <record id="action_importar_comprobantes_global_button" model="ir.ui.view">
-        <field name="name">comprobante.arca.button.import</field>
-        <field name="model">comprobante.arca</field>
-        <field name="inherit_id" ref="view_comprobante_arca_tree"/>
-        <field name="arch" type="xml">
-            <xpath expr="//header" position="inside">
-                <button name="%(action_importar_comprobantes_global)d"
-                        string="Importar desde ARCA"
-                        type="action"
-                        class="btn-primary"
-                        context="{}"
-                        />
-            </xpath>
-        </field>
-    </record>
-
+    
 
     <!-- Vista tipo lista (tree) -->
     <record id="view_comprobante_arca_tree" model="ir.ui.view">
