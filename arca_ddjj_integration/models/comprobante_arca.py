@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.tools import float_repr
 from odoo.exceptions import UserError
 import requests
 import logging
