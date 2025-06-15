@@ -35,6 +35,8 @@ class ComprobanteArca(models.Model):
         ('solo_odoo', 'Solo en Odoo'),
     ], string='Estado de coincidencia', default='solo_arca')
     incluir_en_ddjj = fields.Boolean(string='¿Incluir en DDJJ?', default=True)
+    raw_data = fields.Text(string="Última respuesta ARCA (JSON)", readonly=True)
+    
     
 
 
