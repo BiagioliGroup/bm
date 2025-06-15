@@ -158,12 +158,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 ),
                 "type": "success",
                 "sticky": False,
-                "next": {
-                    "type": "ir.actions.act_window",
-                    "res_model": "comprobante.arca",
-                    "view_mode": "list,form",
-                    "target": "current",
-                }
+                "next": None
             }
         }
 
