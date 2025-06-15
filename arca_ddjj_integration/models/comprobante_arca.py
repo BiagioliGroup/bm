@@ -4,6 +4,9 @@ from odoo.tools import float_repr
 from odoo.exceptions import UserError
 import requests
 import logging
+import requests
+from datetime import timedelta
+
 _logger = logging.getLogger(__name__)
 
 class ComprobanteArca(models.Model):
@@ -63,10 +66,6 @@ class ComprobanteArca(models.Model):
 
 
 
-from odoo.exceptions import UserError
-import requests
-from datetime import timedelta
-
 class WizardImportarComprobantes(models.TransientModel):
     _name = 'wizard.importar.comprobantes'
     _description = 'Importar Comprobantes desde ARCA'
@@ -75,6 +74,16 @@ class WizardImportarComprobantes(models.TransientModel):
     fecha_hasta = fields.Date(string="Hasta", required=True)
     descarga_emitidos = fields.Boolean(string="Descargar Emitidos", default=False)
     descarga_recibidos = fields.Boolean(string="Descargar Recibidos", default=True)
+    lote_id = fields.Many2one('arca.lote', string="Lote ya descargado")
+
+
+    TIPO_MAP = {
+        '001': 'A', '002': 'A', '003': 'A', '004': 'A', '005': 'A',
+        '006': 'B', '007': 'B', '008': 'B', '009': 'B', '010': 'B',
+        '011': 'C', '012': 'C', '013': 'C', '015': 'C', '016': 'C',
+        '051': 'M', '052': 'M', '053': 'M', '054': 'M', '055': 'M',
+        '201': 'A', '206': 'B', '211': 'C',
+    }
 
     def _buscar_lote_existente(self):
         return self.env['arca.lote'].search([
@@ -159,7 +168,7 @@ class WizardImportarComprobantes(models.TransientModel):
         }
 
     def _procesar_comprobantes(self, data):
-        tipo_map = self.__class__.TIPO_MAP
+        tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
 
@@ -213,6 +222,38 @@ class WizardImportarComprobantes(models.TransientModel):
             })
 
         return duplicados
+    
+    def action_procesar_lote(self):
+        self.ensure_one()
+
+        if not self.lote_id:
+            raise UserError("Debe seleccionar un lote previamente descargado.")
+
+        data = self.lote_id.cargar_dict()
+        duplicados_omitidos = self._procesar_comprobantes(data)
+        self.lote_id.usado = True
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Lote procesado",
+                "message": (
+                    f"Se procesó el lote seleccionado. Se omitieron {duplicados_omitidos} duplicados."
+                    if duplicados_omitidos else
+                    "Lote procesado correctamente sin duplicados."
+                ),
+                "type": "success",
+                "sticky": False,
+                "next": {
+                    "type": "ir.actions.act_window",
+                    "res_model": "comprobante.arca",
+                    "view_mode": "list,form",
+                    "target": "current",
+                }
+            }
+        }
+
 
     
 
@@ -226,6 +267,13 @@ class ArcaLote(models.Model):
     fecha_hasta = fields.Date(string="Hasta")
     datos_json = fields.Text(string="JSON crudo ARCA")
     usado = fields.Boolean(string="Ya fue procesado", default=False)
+    
+
+    @api.model
+    def create(self, vals):
+        if vals.get('fecha_desde') and vals.get('fecha_hasta') and not vals.get('name'):
+            vals['name'] = f"Lote {vals['fecha_desde']} - {vals['fecha_hasta']}"
+        return super().create(vals)
 
     @classmethod
     def guardar_lote(cls, env, fecha_desde, fecha_hasta, datos_dict):

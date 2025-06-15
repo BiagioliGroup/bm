@@ -115,13 +115,18 @@
                     <field name="descarga_emitidos"/>
                     <field name="descarga_recibidos"/>
                 </group>
+                <group string="O procesar lote ya descargado">
+                    <field name="lote_id" context="{'default_usado': False}" options="{'no_create': True}" domain="[('usado','=',False)]"/>
+                </group>
                 <footer>
-                    <button name="action_importar" type="object" string="Importar" class="btn-primary"/>
+                    <button name="action_importar" type="object" string="Importar desde ARCA" class="btn-primary"/>
+                    <button name="action_procesar_lote" type="object" string="Procesar desde lote" class="btn-secondary"/>
                     <button string="Cancelar" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>
         </field>
     </record>
+
 
     <!-- Acción para abrir el wizard -->
     <record id="action_open_wizard_importar_comprobantes" model="ir.actions.act_window">
