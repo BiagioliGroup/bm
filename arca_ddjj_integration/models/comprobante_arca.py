@@ -23,7 +23,10 @@ class ComprobanteArca(models.Model):
         string='Importe Total', 
         currency_field='moneda_id'
     )
-    tipo_cambio = fields.Float(string="Tipo de Cambio")
+    # Definimos los dígitos para el tipo de cambio
+    DIGITS_TC = (16, 4)
+
+    tipo_cambio = fields.Float(string="Tipo de Cambio", digits=DIGITS_TC)
     codigo_autorizacion = fields.Char(string="CAE")
     estado_coincidencia = fields.Selection([
         ('coincide', 'Coincide con Odoo'),
