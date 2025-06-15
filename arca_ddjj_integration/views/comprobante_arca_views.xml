@@ -63,7 +63,7 @@
     <record id="action_comprobante_arca" model="ir.actions.act_window">
         <field name="name">Comprobantes Recibidos</field>
         <field name="res_model">comprobante.arca</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">form</field>
         <field name="view_id" ref="view_comprobante_arca_tree"/>
         <field name="context">{}</field>
     </record>
