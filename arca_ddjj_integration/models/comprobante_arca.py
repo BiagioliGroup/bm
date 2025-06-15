@@ -35,7 +35,6 @@ class ComprobanteArca(models.Model):
         ('solo_odoo', 'Solo en Odoo'),
     ], string='Estado de coincidencia', default='solo_arca')
     incluir_en_ddjj = fields.Boolean(string='¿Incluir en DDJJ?', default=True)
-    raw_data = fields.Text(string="Última respuesta ARCA (JSON)", readonly=True)
     
     
 
@@ -187,3 +186,10 @@ class WizardImportarComprobantes(models.TransientModel):
     
 
 
+class ArcaLote(models.Model):
+    _name = 'arca.lote'
+    _description = 'Lote de comprobantes importados de ARCA'
+
+    name = fields.Char(string="Descripción", required=True, default=lambda self: f"Lote {fields.Date.today()}")
+    raw_json = fields.Text(string="Datos Crudos JSON")
+    comprobante_ids = fields.One2many('comprobante.arca', 'lote_id', string='Comprobantes')
