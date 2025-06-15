@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import _, models, fields, api
 import json
 from odoo.tools import float_repr
 from odoo.exceptions import UserError
