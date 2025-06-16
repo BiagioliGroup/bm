@@ -54,10 +54,10 @@
                 <field name="importe_neto"/>
                 <field name="iva"/>
                 <field name="importe_total"/>
-                <field name="percepcion_iibb"/>
-                <field name="percepcion_iva"/>
-                <field name="impuesto_municipal"/>
-                <field name="impuesto_interno"/>
+                <field name="perc_iibb"/>
+                <field name="perc_iva"/>
+                <field name="perc_tem"/>
+                <field name="imp_internos"/>
                 <field name="tipo_cambio"/>
                 <field name="codigo_autorizacion"/>
                 <field name="estado_coincidencia"
