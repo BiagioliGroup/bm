@@ -161,8 +161,15 @@ class WizardImportarComprobantes(models.TransientModel):
                 "next": None
             }
         }
+    
 
     def _procesar_comprobantes(self, data):
+
+        # 🔁 Normalizador de CUIT para evitar fallas por guiones o espacios
+        def normalize_cuit(cuit):
+            return cuit.replace("-", "").replace(" ", "").strip() if cuit else ""
+        
+        
         tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
@@ -180,21 +187,26 @@ class WizardImportarComprobantes(models.TransientModel):
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
             numero = str(comp["Número Desde"]).zfill(8)
 
-            clave = f"{comp['Nro. Doc. Receptor/Emisor']}-{punto_venta}-{numero}"
+            cuit_arca = normalize_cuit(comp['Nro. Doc. Receptor/Emisor'])
+            clave = f"{cuit_arca}-{punto_venta}-{numero}"
             if clave in existentes:
                 duplicados += 1
                 continue
 
             existentes.add(clave)
 
+            # Buscar coincidencia en account.move
             move = move_model.search([
-                ('partner_id.vat', '=', comp["Nro. Doc. Receptor/Emisor"]),
                 ('ref', 'ilike', numero),
                 ('move_type', 'in', ['in_invoice', 'in_refund']),
-                ('date', '=', comp["Fecha"]),
-            ], limit=1)
+            ], limit=10)
 
-            estado = 'coincide' if move else 'solo_arca'
+            estado = 'solo_arca'
+            for m in move:
+                partner_cuit = normalize_cuit(m.partner_id.vat)
+                if partner_cuit == cuit_arca:
+                    estado = 'coincide'
+                    break
 
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
 
