@@ -193,8 +193,8 @@ class WizardImportarComprobantes(models.TransientModel):
 
         def calcular_impuestos(importe_neto, iva, total, moneda_str):
             """
-            Calcula percepciones/impuestos agrupados a partir de la diferencia entre
-            total y neto+iva. Admite tasas múltiples por tipo si la moneda es ARS/PES.
+            Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva,
+            solo si la moneda es ARS/PES. Agrupa por tipo permitiendo múltiples percepciones acumuladas.
             """
             if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
                 return 0, 0, 0, 0
@@ -204,12 +204,11 @@ class WizardImportarComprobantes(models.TransientModel):
                 return 0, 0, 0, 0
 
             tasas_posibles = [
+                (0.01238, "perc_iibb"),
                 (0.015, "perc_iibb"),
                 (0.045, "perc_iibb"),
                 (0.04545, "perc_iibb"),
-                (0.01238, "perc_iibb"),
                 (0.03, "perc_iva"),
-                (0.32783, "mixto"),
                 (0.011, "perc_tem"),
                 (0.13352, "imp_internos"),
                 (0.18545, "imp_internos"),
@@ -217,40 +216,34 @@ class WizardImportarComprobantes(models.TransientModel):
                 (0.2406, "imp_internos"),
                 (0.17959, "imp_internos"),
                 (0.14546, "imp_internos"),
+                (0.32783, "mixto"),  # Al final, porque representa combinación
             ]
 
             iibb = percep_iva = tem = internos = 0
 
-            # Recorremos múltiples veces para poder combinar tasas del mismo tipo
-            for _ in range(5):
-                for tasa, tipo in tasas_posibles:
-                    if otros <= 0.5:
+            for tasa, tipo in tasas_posibles:
+                estimado = round(importe_neto * tasa, 2)
+                if estimado <= otros + 0.01:
+                    if tipo == "perc_iibb":
+                        iibb += estimado
+                    elif tipo == "perc_iva":
+                        percep_iva += estimado
+                    elif tipo == "perc_tem":
+                        tem += estimado
+                    elif tipo == "imp_internos":
+                        internos += estimado
+                    elif tipo == "mixto":
+                        iibb += round(importe_neto * 0.2506921369, 2)
+                        percep_iva += round(importe_neto * 0.07713842, 2)
+                        estimado = round(importe_neto * 0.32783, 2)
+
+                    otros -= estimado
+                    otros = round(otros, 2)
+                    if otros <= 0:
                         break
 
-                    if tipo == "mixto":
-                        est_iibb = round(importe_neto * 0.2506921369, 2)
-                        est_iva = round(importe_neto * 0.07713842, 2)
-                        estimado = est_iibb + est_iva
-                        if estimado <= otros + 0.1:
-                            iibb += est_iibb
-                            percep_iva += est_iva
-                            otros -= estimado
-                            otros = round(otros, 2)
-                    else:
-                        estimado = round(importe_neto * tasa, 2)
-                        if estimado <= otros + 0.1:
-                            if tipo == "perc_iibb":
-                                iibb += estimado
-                            elif tipo == "perc_iva":
-                                percep_iva += estimado
-                            elif tipo == "perc_tem":
-                                tem += estimado
-                            elif tipo == "imp_internos":
-                                internos += estimado
-                            otros -= estimado
-                            otros = round(otros, 2)
+            return iibb, percep_iva, tem, internos
 
-            return round(iibb, 2), round(percep_iva, 2), round(tem, 2), round(internos, 2)
 
 
 
