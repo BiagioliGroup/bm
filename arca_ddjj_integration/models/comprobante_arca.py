@@ -12,6 +12,8 @@ from datetime import timedelta
 import base64
 import io
 import xlsxwriter
+from io import BytesIO
+
 
 
 
