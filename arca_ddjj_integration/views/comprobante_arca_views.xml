@@ -55,29 +55,6 @@
     </record>
 
 
-    <!-- Vista formulario -->
-    <record id="view_comprobante_arca_form" model="ir.ui.view">
-        <field name="name">comprobante.arca.form</field>
-        <field name="model">comprobante.arca</field>
-        <field name="arch" type="xml">
-            <form string="Comprobante ARCA">
-                <group>
-                    <field name="company_id"/>
-                    <field name="clave_debug"/>
-                    <field name="clave_comparacion"/>
-                    <field name="fecha_emision"/>
-                    <field name="tipo_comprobante"/>
-                    <field name="nro_comprobante"/>
-                    <field name="cuit_emisor"/>
-                    <field name="razon_social_emisor"/>
-                    <field name="importe_total"/>
-                    <field name="moneda_id"/>
-                    <field name="estado_coincidencia"/>
-                    <field name="incluir_en_ddjj"/>
-                </group>
-            </form>
-        </field>
-    </record>
 
     <!-- Acción para abrir la lista de comprobantes -->
     <record id="action_comprobante_arca" model="ir.actions.act_window">

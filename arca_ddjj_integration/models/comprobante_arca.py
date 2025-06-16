@@ -180,22 +180,23 @@ class WizardImportarComprobantes(models.TransientModel):
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
 
-        # 🔎 Generamos las claves de account.move una sola vez
-        claves_odoo = {
-            build_clave(move.partner_id.vat, *re.search(r'(\d{5})[- ]?(\d{8})', move.ref or "").groups()):
-            move.id
-            for move in move_model.search([
-                ('move_type', 'in', ['in_invoice', 'in_refund']),
-                ('ref', '!=', False)
-            ])
-            if re.search(r'\d{5}[- ]?\d{8}', move.ref or "") and move.partner_id.vat
-        }
-
+        # 🔎 Claves de facturas ya importadas
         existentes = set(
             comprobante_model.search([]).mapped(
                 lambda r: f"{normalize_cuit(r.cuit_emisor)}-{r.punto_venta}-{r.nro_comprobante}"
             )
         )
+
+        # 🔎 Claves posibles desde account.move.name
+        claves_odoo = {
+            build_clave(m.partner_id.vat, *re.search(r'(\d{5})[- ]?(\d{8})', m.name or "").groups()): m.id
+            for m in move_model.search([
+                ('move_type', 'in', ['in_invoice', 'in_refund']),
+                ('name', '!=', False),
+                ('partner_id.vat', '!=', False)
+            ])
+            if re.search(r'\d{5}[- ]?\d{8}', m.name or "")
+        }
 
         duplicados = 0
         for comp in data.get("mis_comprobantes_recibidos", []):
@@ -203,7 +204,6 @@ class WizardImportarComprobantes(models.TransientModel):
             letra = tipo_map.get(tipo_codigo, "X")
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
             numero = str(comp["Número Desde"]).zfill(8)
-
             cuit_arca = comp['Nro. Doc. Receptor/Emisor']
             clave = build_clave(cuit_arca, punto_venta, numero)
 
@@ -213,10 +213,8 @@ class WizardImportarComprobantes(models.TransientModel):
 
             existentes.add(clave)
 
-
-            clave_odoo = clave if clave in claves_odoo else "NO_MATCH"
-            clave_debug = f"{{{clave}}} & {{{clave_odoo}}}"
             estado = 'coincide' if clave in claves_odoo else 'solo_arca'
+            clave_debug = f"{{{clave}}} & {{{clave if clave in claves_odoo else 'NO_MATCH'}}}"
 
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
 
@@ -237,10 +235,11 @@ class WizardImportarComprobantes(models.TransientModel):
                 "moneda_id": moneda.id,
                 "estado_coincidencia": estado,
                 "clave_comparacion": clave,
-                "clave_debug": clave_debug,     
+                "clave_debug": clave_debug,
             })
 
         return duplicados
+
 
     
     def action_procesar_lote(self):
