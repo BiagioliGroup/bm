@@ -26,7 +26,12 @@
         <field name="binding_model_id" ref="model_comprobante_arca"/>
         <field name="binding_type">action</field>
         <field name="state">code</field>
-        <field name="code">action = env['comprobante.arca']._generar_libro_iva(env.context.get('active_ids'))</field>
+        <field name="code">action = {
+                                        'type': 'ir.actions.act_url',
+                                        'url': f"/descargar/libro_iva?ids={','.join(map(str, env.context.get('active_ids', [])))}",
+                                        'target': 'self',
+                                    }
+        </field>
     </record>
 
 
