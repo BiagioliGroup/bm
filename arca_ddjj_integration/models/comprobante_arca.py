@@ -192,7 +192,10 @@ class WizardImportarComprobantes(models.TransientModel):
             return f"{normalize_cuit(cuit)}-{str(punto_vta).zfill(5)}-{str(numero).zfill(8)}"
 
         def calcular_impuestos(importe_neto, iva, total, moneda_str):
-            """Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva, solo si la moneda es ARS/PES"""
+            """
+            Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva,
+            solo si la moneda es ARS/PES. Agrupa por tipo según combinaciones posibles.
+            """
             if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
                 return 0, 0, 0, 0
 
@@ -200,26 +203,48 @@ class WizardImportarComprobantes(models.TransientModel):
             if otros <= 0:
                 return 0, 0, 0, 0
 
-            tasa = round((otros / importe_neto), 5)
+            # Tasas posibles asociadas a su tipo
+            tasas_posibles = [
+                (0.015, "perc_iibb"),
+                (0.045, "perc_iibb"),
+                (0.04545, "perc_iibb"),
+                (0.01238, "perc_iibb"),
+                (0.03, "perc_iva"),
+                (0.32783, "mixto"),  # Combina IIBB + IVA
+                (0.011, "perc_tem"),
+                (0.13352, "imp_internos"),
+                (0.18545, "imp_internos"),
+                (0.24017, "imp_internos"),
+                (0.2406, "imp_internos"),
+                (0.17959, "imp_internos"),
+                (0.14546, "imp_internos"),
+            ]
+
             iibb = percep_iva = tem = internos = 0
 
-            if tasa in [0.015, 0.045, 0.04545, 0.01238]:
-                iibb = round(importe_neto * tasa, 2)
-            elif tasa == 0.32783:
-                iibb = round(importe_neto * 0.2506921369, 2)
+            for tasa, tipo in tasas_posibles:
+                estimado = round(importe_neto * tasa, 2)
+                if estimado <= otros + 0.01:  # permitimos pequeño redondeo
+                    if tipo == "perc_iibb":
+                        iibb += estimado
+                    elif tipo == "perc_iva":
+                        percep_iva += estimado
+                    elif tipo == "perc_tem":
+                        tem += estimado
+                    elif tipo == "imp_internos":
+                        internos += estimado
+                    elif tipo == "mixto":
+                        iibb += round(importe_neto * 0.2506921369, 2)
+                        percep_iva += round(importe_neto * 0.07713842, 2)
+                        estimado = round(importe_neto * 0.32783, 2)
 
-            if tasa in [0.04545, 0.045, 0.03]:
-                percep_iva = round(importe_neto * 0.03, 2)
-            elif tasa == 0.32783:
-                percep_iva = round(importe_neto * 0.07713842, 2)
-
-            if tasa == 0.011:
-                tem = round(importe_neto * 0.011, 2)
-
-            if tasa in [0.13352, 0.18545, 0.01238, 0.17959, 0.14546, 0.24017, 0.2406]:
-                internos = round(importe_neto * tasa, 2)
+                    otros -= estimado
+                    otros = round(otros, 2)
+                    if otros <= 0:
+                        break
 
             return iibb, percep_iva, tem, internos
+
 
         tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
