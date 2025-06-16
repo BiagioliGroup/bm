@@ -351,10 +351,10 @@ class WizardImportarComprobantes(models.TransientModel):
                 "estado_coincidencia": estado,
                 "clave_comparacion": clave,
                 "clave_debug": clave_debug,
-                "percepcion_iibb": iibb,
-                "percepcion_iva": percep_iva,
-                "impuesto_municipal": tem,
-                "impuesto_interno": internos,
+                "perc_iibb": iibb,
+                "perc_iva": percep_iva,
+                "perc_tem": tem,
+                "imp_internos": internos,
             })
 
         return duplicados
