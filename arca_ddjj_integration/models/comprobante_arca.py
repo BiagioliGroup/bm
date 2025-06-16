@@ -30,8 +30,12 @@ class ComprobanteArca(models.Model):
     punto_venta = fields.Char(string='Punto de Venta')
     nro_comprobante = fields.Char(string='Número de Comprobante')
     moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id)
-    iva = fields.Monetary(string="IVA", currency_field="moneda_id")
     importe_neto = fields.Monetary(string="Importe Neto Gravado", currency_field="moneda_id")
+    iva = fields.Monetary(string="IVA", currency_field="moneda_id")
+    percepcion_iibb = fields.Monetary(string="Percepción IIBB", currency_field="moneda_id")
+    percepcion_iva = fields.Monetary(string="Percepción IVA", currency_field="moneda_id")
+    impuesto_municipal = fields.Monetary(string="Imp. municipal (TEM)", currency_field="moneda_id")
+    impuesto_interno = fields.Monetary(string="Impuestos Internos", currency_field="moneda_id")
     importe_total = fields.Monetary(
         string='Importe Total', 
         currency_field='moneda_id'
@@ -255,18 +259,44 @@ class WizardImportarComprobantes(models.TransientModel):
         def build_clave(cuit, punto_vta, numero):
             return f"{normalize_cuit(cuit)}-{str(punto_vta).zfill(5)}-{str(numero).zfill(8)}"
 
+        def calcular_impuestos(importe_neto, iva, total):
+            """Calcula percepciones/impuestos a partir de diferencia entre total y neto+iva"""
+            if not importe_neto:
+                return 0, 0, 0, 0  # IIBB, IVA, TEM, Internos
+
+            otros = round(total - importe_neto - iva, 2)
+            tasa = round((otros / importe_neto), 5) if importe_neto else 0
+
+            iibb = percep_iva = tem = internos = 0
+
+            if tasa in [0.015, 0.045, 0.04545, 0.01238]:
+                iibb = round(importe_neto * tasa, 2)
+            elif tasa == 0.32783:
+                iibb = round(importe_neto * 0.2506921369, 2)
+
+            if tasa in [0.04545, 0.045, 0.03]:
+                percep_iva = round(importe_neto * 0.03, 2)
+            elif tasa == 0.32783:
+                percep_iva = round(importe_neto * 0.07713842, 2)
+
+            if tasa == 0.011:
+                tem = round(importe_neto * 0.011, 2)
+
+            if tasa in [0.13352, 0.18545, 0.01238, 0.17959, 0.14546, 0.24017, 0.2406]:
+                internos = round(importe_neto * tasa, 2)
+
+            return iibb, percep_iva, tem, internos
+
         tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
 
-        # 🔎 Claves de facturas ya importadas
         existentes = set(
             comprobante_model.search([]).mapped(
                 lambda r: f"{normalize_cuit(r.cuit_emisor)}-{r.punto_venta}-{r.nro_comprobante}"
             )
         )
 
-        # 🔎 Claves posibles desde account.move.name
         claves_odoo = {
             build_clave(m.partner_id.vat, *re.search(r'(\d{5})[- ]?(\d{8})', m.name or "").groups()): m.id
             for m in move_model.search([
@@ -291,11 +321,15 @@ class WizardImportarComprobantes(models.TransientModel):
                 continue
 
             existentes.add(clave)
-
             estado = 'coincide' if clave in claves_odoo else 'solo_arca'
             clave_debug = f"{{{clave}}} & {{{clave if clave in claves_odoo else 'NO_MATCH'}}}"
-
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
+
+            # Calcular impuestos
+            importe_neto = float(comp.get("Imp. Neto Gravado", 0))
+            iva = float(comp.get("IVA", 0))
+            total = float(comp.get("Imp. Total", 0))
+            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva, total)
 
             comprobante_model.create({
                 "company_id": self.env.company.id,
@@ -306,18 +340,23 @@ class WizardImportarComprobantes(models.TransientModel):
                 "tipo_comprobante": f"FA-{letra} {punto_venta}-{numero}",
                 "razon_social_emisor": comp["Denominación Receptor/Emisor"],
                 "cuit_emisor": cuit_arca,
-                "iva": float(comp.get("IVA", 0)),
-                "importe_total": float(comp.get("Imp. Total", 0)),
-                "importe_neto": float(comp.get("Imp. Neto Gravado", 0)),
+                "iva": iva,
+                "importe_total": total,
+                "importe_neto": importe_neto,
                 "tipo_cambio": float(comp.get("Tipo Cambio", 1.0)),
                 "codigo_autorizacion": comp.get("Cód. Autorización"),
                 "moneda_id": moneda.id,
                 "estado_coincidencia": estado,
                 "clave_comparacion": clave,
                 "clave_debug": clave_debug,
+                "percepcion_iibb": iibb,
+                "percepcion_iva": percep_iva,
+                "impuesto_municipal": tem,
+                "impuesto_interno": internos,
             })
 
         return duplicados
+
 
 
     

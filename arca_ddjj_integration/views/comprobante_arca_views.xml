@@ -49,6 +49,10 @@
                 <field name="importe_neto"/>
                 <field name="iva"/>
                 <field name="importe_total"/>
+                <field name="percepcion_iibb"/>
+                <field name="percepcion_iva"/>
+                <field name="impuesto_municipal"/>
+                <field name="impuesto_interno"/>
                 <field name="tipo_cambio"/>
                 <field name="codigo_autorizacion"/>
                 <field name="estado_coincidencia"
@@ -56,10 +60,10 @@
                     decoration-warning="estado_coincidencia == 'solo_arca'"
                     decoration-danger="estado_coincidencia == 'solo_odoo'"/>
                 <field name="incluir_en_ddjj"/>
-
             </list>
         </field>
     </record>
+
 
 
 
