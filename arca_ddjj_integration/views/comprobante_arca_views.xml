@@ -26,7 +26,7 @@
         <field name="binding_model_id" ref="model_comprobante_arca"/>
         <field name="binding_type">action</field>
         <field name="state">code</field>
-        <field name="code">action = env['comprobante.arca']._generar_libro_iva(context.get('active_ids'))</field>
+        <field name="code">action = env['comprobante.arca']._generar_libro_iva(env.context.get('active_ids'))</field>
     </record>
 
 
@@ -41,11 +41,8 @@
             <list string="Comprobantes Recibidos desde ARCA" editable="bottom">
                 <field name="fecha_emision"/>
                 <field name="tipo_comprobante"/>
-                <field name="clave_debug"/>
-                <field name="clave_comparacion"/>
-                <!-- <field name="letra" invisible="1"/>
-                <field name="punto_venta" invisible="1"/>
-                <field name="nro_comprobante"/> -->
+                <!-- <field name="clave_debug"/>
+                <field name="clave_comparacion"/> -->
                 <field name="razon_social_emisor"/>
                 <field name="cuit_emisor"/>
                 <field name="moneda_id"/>

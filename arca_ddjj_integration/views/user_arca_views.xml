@@ -6,13 +6,10 @@
         <field name="arch" type="xml">
             <form string="Configuración ARCA">
                 <group>
-                    <!-- <field name="company_id"/> -->
-                    <!-- <field name="nombre"/> -->
                     <field name="cuit"/>
                     <field name="cuit_representante"/>
                     <field name="email"/>
                     <field name="clave_fiscal"/>
-                    <!-- <field name="telefono"/> -->
                     <field name="api_key"/>
                     <field name="consultas_disponibles" readonly="1"/>
                     <field name="fecha_ultimo_reset" readonly="1"/>
