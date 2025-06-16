@@ -169,7 +169,7 @@ class WizardImportarComprobantes(models.TransientModel):
         def normalize_cuit(cuit):
             return cuit.replace("-", "").replace(" ", "").strip() if cuit else ""
         
-        
+
         tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
@@ -199,7 +199,7 @@ class WizardImportarComprobantes(models.TransientModel):
             move = move_model.search([
                 ('ref', 'ilike', numero),
                 ('move_type', 'in', ['in_invoice', 'in_refund']),
-            ], limit=10)
+            ])
 
             estado = 'solo_arca'
             for m in move:
