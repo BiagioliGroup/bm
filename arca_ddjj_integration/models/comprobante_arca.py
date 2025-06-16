@@ -34,10 +34,10 @@ class ComprobanteArca(models.Model):
     moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id)
     importe_neto = fields.Monetary(string="Importe Neto Gravado", currency_field="moneda_id")
     iva = fields.Monetary(string="IVA", currency_field="moneda_id")
-    percepcion_iibb = fields.Monetary(string="Percepción IIBB", currency_field="moneda_id")
-    percepcion_iva = fields.Monetary(string="Percepción IVA", currency_field="moneda_id")
-    impuesto_municipal = fields.Monetary(string="Imp. municipal (TEM)", currency_field="moneda_id")
-    impuesto_interno = fields.Monetary(string="Impuestos Internos", currency_field="moneda_id")
+    perc_iibb = fields.Monetary(string="Percepción IIBB", currency_field="moneda_id")
+    perc_iva = fields.Monetary(string="Percepción IVA", currency_field="moneda_id")
+    perc_tem = fields.Monetary(string="Imp. municipal (TEM)", currency_field="moneda_id")
+    imp_internos = fields.Monetary(string="Impuestos Internos", currency_field="moneda_id")
     importe_total = fields.Monetary(
         string='Importe Total', 
         currency_field='moneda_id'
