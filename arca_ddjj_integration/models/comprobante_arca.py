@@ -222,27 +222,36 @@ class WizardImportarComprobantes(models.TransientModel):
             iibb = percep_iva = tem = internos = 0
 
             for tasa, tipo in tasas_posibles:
-                estimado = round(importe_neto * tasa, 2)
-                if estimado <= otros + 0.01:
-                    if tipo == "perc_iibb":
-                        iibb += estimado
-                    elif tipo == "perc_iva":
-                        percep_iva += estimado
-                    elif tipo == "perc_tem":
-                        tem += estimado
-                    elif tipo == "imp_internos":
-                        internos += estimado
-                    elif tipo == "mixto":
-                        iibb += round(importe_neto * 0.2506921369, 2)
-                        percep_iva += round(importe_neto * 0.07713842, 2)
-                        estimado = round(importe_neto * 0.32783, 2)
+                if tipo == "mixto":
+                    estimado_iibb = round(importe_neto * 0.2506921369, 2)
+                    estimado_iva = round(importe_neto * 0.07713842, 2)
+                    total_estimado = round(estimado_iibb + estimado_iva, 2)
 
-                    otros -= estimado
-                    otros = round(otros, 2)
-                    if otros <= 0:
-                        break
+                    if total_estimado <= otros + 0.01:
+                        iibb += estimado_iibb
+                        percep_iva += estimado_iva
+                        otros -= total_estimado
+                        otros = round(otros, 2)
+                        break  # 🚨 importante: no seguir iterando
+                else:
+                    estimado = round(importe_neto * tasa, 2)
+                    if estimado <= otros + 0.01:
+                        if tipo == "perc_iibb":
+                            iibb += estimado
+                        elif tipo == "perc_iva":
+                            percep_iva += estimado
+                        elif tipo == "perc_tem":
+                            tem += estimado
+                        elif tipo == "imp_internos":
+                            internos += estimado
+
+                        otros -= estimado
+                        otros = round(otros, 2)
+                        if otros <= 0:
+                            break
 
             return iibb, percep_iva, tem, internos
+
 
 
 
