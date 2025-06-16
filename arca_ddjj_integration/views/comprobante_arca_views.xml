@@ -31,6 +31,8 @@
             <list string="Comprobantes Recibidos desde ARCA" editable="bottom">
                 <field name="fecha_emision"/>
                 <field name="tipo_comprobante"/>
+                <field name="clave_debug"/>
+                <field name="clave_comparacion"/>
                 <!-- <field name="letra" invisible="1"/>
                 <field name="punto_venta" invisible="1"/>
                 <field name="nro_comprobante"/> -->
