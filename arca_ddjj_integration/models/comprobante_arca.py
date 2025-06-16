@@ -76,56 +76,76 @@ class ComprobanteArca(models.Model):
         return res
     
     def _generar_libro_iva(self, ids):
-        if not ids:
-            raise UserError("Debe seleccionar al menos un comprobante para incluirlo en la DDJJ.")
-
-        comprobantes = self.browse(ids).filtered(lambda c: c.incluir_en_ddjj)
+        comprobantes = self.browse(ids).filtered(lambda r: r.incluir_en_ddjj)
 
         if not comprobantes:
-            raise UserError("Ninguno de los comprobantes seleccionados está marcado para incluir en la DDJJ.")
+            raise UserError("No hay comprobantes seleccionados con 'Incluir en DDJJ' activo.")
 
-        output = io.BytesIO()
-        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-        worksheet = workbook.add_worksheet("Libro IVA")
+        output = BytesIO()
+        workbook = xlsxwriter.Workbook(output)
+        sheet = workbook.add_worksheet("Libro IVA")
 
-        headers = [
-            'Fecha Emisión', 'CUIT Emisor', 'Razón Social',
-            'Tipo Comprobante', 'Punto Venta', 'Número',
-            'Importe Neto', 'IVA', 'Importe Total', 'CAE',
+        # Estilos
+        bold = workbook.add_format({'bold': True})
+        header_format = workbook.add_format({
+            'bold': True,
+            'bg_color': '#BDD7EE',
+            'border': 1,
+            'align': 'center'
+        })
+        merge_format = workbook.add_format({
+            'bold': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            'bg_color': '#F2F2F2',
+            'font_size': 14,
+        })
+        currency_format = workbook.add_format({'num_format': '$ #,##0.00'})
+
+        # Encabezado principal
+        sheet.merge_range('A1:P1', 'Febrero de 2025', merge_format)
+
+        # Columnas
+        columnas = [
+            'Fecha', 'Tipo', 'Numero', 'CUIT', 'Razón Social', 'Condición',
+            'Imp. Neto Gravado', 'IVA 21%', 'Neto 10,5%', 'IVA 10,5',
+            'Perc. IVA', 'Perc. TEM', 'Perc. IIBB', 'Imp internos', 'Exentos', 'Total'
         ]
-        for col, name in enumerate(headers):
-            worksheet.write(0, col, name)
 
-        for row, comp in enumerate(comprobantes, start=1):
-            worksheet.write(row, 0, comp.fecha_emision.strftime("%d/%m/%Y") if comp.fecha_emision else "")
-            worksheet.write(row, 1, comp.cuit_emisor or "")
-            worksheet.write(row, 2, comp.razon_social_emisor or "")
-            worksheet.write(row, 3, comp.letra or "")
-            worksheet.write(row, 4, comp.punto_venta or "")
-            worksheet.write(row, 5, comp.nro_comprobante or "")
-            worksheet.write(row, 6, comp.importe_neto)
-            worksheet.write(row, 7, comp.iva)
-            worksheet.write(row, 8, comp.importe_total)
-            worksheet.write(row, 9, comp.codigo_autorizacion or "")
+        for col_num, titulo in enumerate(columnas):
+            sheet.write(1, col_num, titulo, header_format)
+
+        # Ajuste de anchos
+        sheet.set_column(0, 0, 12)
+        sheet.set_column(1, 4, 20)
+        sheet.set_column(5, 5, 15)
+        sheet.set_column(6, 15, 14)
+
+        row = 2
+        for comp in comprobantes:
+            sheet.write(row, 0, comp.fecha_emision.strftime("%d/%m/%Y"))
+            sheet.write(row, 1, "FCA")
+            sheet.write(row, 2, f"{comp.punto_venta}-{comp.nro_comprobante}")
+            sheet.write(row, 3, comp.cuit_emisor)
+            sheet.write(row, 4, comp.razon_social_emisor)
+            sheet.write(row, 5, "Responsable Inscripto")
+            sheet.write_number(row, 6, comp.importe_neto or 0.0, currency_format)
+            sheet.write_number(row, 7, comp.iva or 0.0, currency_format)
+            # Las siguientes columnas las dejamos vacías o en 0
+            for i in range(8, 15):
+                sheet.write(row, i, "", currency_format)
+            sheet.write_number(row, 15, comp.importe_total or 0.0, currency_format)
+            row += 1
 
         workbook.close()
         output.seek(0)
-        excel_data = output.read()
-
-        attachment = self.env['ir.attachment'].create({
-            'name': 'Libro IVA.xlsx',
-            'type': 'binary',
-            'datas': base64.b64encode(excel_data),
-            'res_model': 'comprobante.arca',
-            'res_id': self.ids[0] if self else False,
-            'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        })
-
-        return {
-            "type": "ir.actions.act_url",
-            "url": f"/web/content/{attachment.id}?download=true",
-            "target": "self",
-        }
+        return request.make_response(
+            output.read(),
+            headers=[
+                ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+                ('Content-Disposition', 'attachment; filename=libro_iva_febrero_2025.xlsx')
+            ],
+        )
 
 
 
