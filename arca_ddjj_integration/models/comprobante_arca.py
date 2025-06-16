@@ -1,12 +1,19 @@
 import re
 from odoo import _, models, fields, api
-import json
 from odoo.tools import float_repr
 from odoo.exceptions import UserError
+from odoo.http import request
+from odoo.tools import format_datetime
+import json
 import requests
 import logging
 import requests
 from datetime import timedelta
+import base64
+import io
+import xlsxwriter
+
+
 
 _logger = logging.getLogger(__name__)
 
@@ -67,6 +74,58 @@ class ComprobanteArca(models.Model):
                 }
             )
         return res
+    
+    def _generar_libro_iva(self, ids):
+        if not ids:
+            raise UserError("Debe seleccionar al menos un comprobante para incluirlo en la DDJJ.")
+
+        comprobantes = self.browse(ids).filtered(lambda c: c.incluir_en_ddjj)
+
+        if not comprobantes:
+            raise UserError("Ninguno de los comprobantes seleccionados está marcado para incluir en la DDJJ.")
+
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        worksheet = workbook.add_worksheet("Libro IVA")
+
+        headers = [
+            'Fecha Emisión', 'CUIT Emisor', 'Razón Social',
+            'Tipo Comprobante', 'Punto Venta', 'Número',
+            'Importe Neto', 'IVA', 'Importe Total', 'CAE',
+        ]
+        for col, name in enumerate(headers):
+            worksheet.write(0, col, name)
+
+        for row, comp in enumerate(comprobantes, start=1):
+            worksheet.write(row, 0, comp.fecha_emision.strftime("%d/%m/%Y") if comp.fecha_emision else "")
+            worksheet.write(row, 1, comp.cuit_emisor or "")
+            worksheet.write(row, 2, comp.razon_social_emisor or "")
+            worksheet.write(row, 3, comp.letra or "")
+            worksheet.write(row, 4, comp.punto_venta or "")
+            worksheet.write(row, 5, comp.nro_comprobante or "")
+            worksheet.write(row, 6, comp.importe_neto)
+            worksheet.write(row, 7, comp.iva)
+            worksheet.write(row, 8, comp.importe_total)
+            worksheet.write(row, 9, comp.codigo_autorizacion or "")
+
+        workbook.close()
+        output.seek(0)
+        excel_data = output.read()
+
+        attachment = self.env['ir.attachment'].create({
+            'name': 'Libro IVA.xlsx',
+            'type': 'binary',
+            'datas': base64.b64encode(excel_data),
+            'res_model': 'comprobante.arca',
+            'res_id': self.ids[0] if self else False,
+            'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/web/content/{attachment.id}?download=true",
+            "target": "self",
+        }
 
 
 
