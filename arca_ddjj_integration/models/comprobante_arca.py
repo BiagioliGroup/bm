@@ -191,14 +191,16 @@ class WizardImportarComprobantes(models.TransientModel):
         def build_clave(cuit, punto_vta, numero):
             return f"{normalize_cuit(cuit)}-{str(punto_vta).zfill(5)}-{str(numero).zfill(8)}"
 
-        def calcular_impuestos(importe_neto, iva, total):
-            """Calcula percepciones/impuestos a partir de diferencia entre total y neto+iva"""
-            if not importe_neto:
-                return 0, 0, 0, 0  # IIBB, IVA, TEM, Internos
+        def calcular_impuestos(importe_neto, iva, total, moneda_str):
+            """Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva, solo si la moneda es ARS/PES"""
+            if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
+                return 0, 0, 0, 0
 
             otros = round(total - importe_neto - iva, 2)
-            tasa = round((otros / importe_neto), 5) if importe_neto else 0
+            if otros <= 0:
+                return 0, 0, 0, 0
 
+            tasa = round((otros / importe_neto), 5)
             iibb = percep_iva = tem = internos = 0
 
             if tasa in [0.015, 0.045, 0.04545, 0.01238]:
@@ -255,13 +257,14 @@ class WizardImportarComprobantes(models.TransientModel):
             existentes.add(clave)
             estado = 'coincide' if clave in claves_odoo else 'solo_arca'
             clave_debug = f"{{{clave}}} & {{{clave if clave in claves_odoo else 'NO_MATCH'}}}"
-            moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
+            moneda_raw = comp.get("Moneda", "PES")
+            moneda = self.env['res.currency'].search([('name', 'ilike', moneda_raw)], limit=1)
 
             # Calcular impuestos
             importe_neto = float(comp.get("Imp. Neto Gravado", 0))
             iva = float(comp.get("IVA", 0))
             total = float(comp.get("Imp. Total", 0))
-            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva, total)
+            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva, total, moneda_raw)
 
             comprobante_model.create({
                 "company_id": self.env.company.id,
