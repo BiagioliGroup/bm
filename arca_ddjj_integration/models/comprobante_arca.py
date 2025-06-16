@@ -221,14 +221,22 @@ class WizardImportarComprobantes(models.TransientModel):
             ]
 
             iibb = percep_iva = tem = internos = 0
-            tasas_usadas = set()
 
             for tasa, tipo in tasas_posibles:
-                if (tasa, tipo) in tasas_usadas:
-                    continue  # No aplicar la misma combinación más de una vez
-
                 estimado = round(importe_neto * tasa, 2)
-                if estimado <= otros + 0.01:
+
+                if tipo == "mixto":
+                    est_iibb = round(importe_neto * 0.2506921369, 2)
+                    est_iva = round(importe_neto * 0.07713842, 2)
+                    estimado = est_iibb + est_iva
+
+                    if estimado <= otros + 0.1:
+                        iibb += est_iibb
+                        percep_iva += est_iva
+                        otros -= estimado
+                        otros = round(otros, 2)
+
+                elif estimado <= otros + 0.1:
                     if tipo == "perc_iibb":
                         iibb += estimado
                     elif tipo == "perc_iva":
@@ -237,16 +245,13 @@ class WizardImportarComprobantes(models.TransientModel):
                         tem += estimado
                     elif tipo == "imp_internos":
                         internos += estimado
-                    elif tipo == "mixto":
-                        iibb += round(importe_neto * 0.2506921369, 2)
-                        percep_iva += round(importe_neto * 0.07713842, 2)
-                        estimado = round(importe_neto * 0.32783, 2)
 
                     otros -= estimado
                     otros = round(otros, 2)
-                    tasas_usadas.add((tasa, tipo))
-                    if otros <= 0:
-                        break
+
+                # Seguimos intentando hasta que el sobrante sea despreciable
+                if otros <= 0.5:
+                    break
 
 
             return iibb, percep_iva, tem, internos
