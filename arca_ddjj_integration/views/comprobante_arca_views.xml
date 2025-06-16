@@ -61,6 +61,7 @@
             <form string="Comprobante ARCA">
                 <group>
                     <field name="company_id"/>
+                    <field name="clave_debug"/>
                     <field name="fecha_emision"/>
                     <field name="tipo_comprobante"/>
                     <field name="nro_comprobante"/>

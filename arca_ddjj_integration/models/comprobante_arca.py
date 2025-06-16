@@ -40,6 +40,8 @@ class ComprobanteArca(models.Model):
         ('solo_odoo', 'Solo en Odoo'),
     ], string='Estado de coincidencia', default='solo_arca')
     incluir_en_ddjj = fields.Boolean(string='¿Incluir en DDJJ?', default=True)
+    clave_debug = fields.Char(string="Clave Debug", readonly=True)
+
     
     
 
@@ -209,6 +211,12 @@ class WizardImportarComprobantes(models.TransientModel):
                 continue
 
             existentes.add(clave)
+
+
+            partner_cuit = normalize_cuit(m.partner_id.vat)
+            ref_pto_vta, ref_nro = extraer_punto_venta_y_numero(m.ref)
+            clave_odoo = f"{partner_cuit}-{ref_pto_vta}-{ref_nro}" if ref_pto_vta and ref_nro else "N/A"
+            clave_debug = f"{{{clave}}} & {{{clave_odoo}}}"
             estado = 'coincide' if clave in claves_odoo else 'solo_arca'
 
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
@@ -229,6 +237,8 @@ class WizardImportarComprobantes(models.TransientModel):
                 "codigo_autorizacion": comp.get("Cód. Autorización"),
                 "moneda_id": moneda.id,
                 "estado_coincidencia": estado,
+                "clave_comparacion": clave,
+                "clave_debug": clave_debug,     
             })
 
         return duplicados
