@@ -213,9 +213,7 @@ class WizardImportarComprobantes(models.TransientModel):
             existentes.add(clave)
 
 
-            partner_cuit = normalize_cuit(m.partner_id.vat)
-            ref_pto_vta, ref_nro = extraer_punto_venta_y_numero(m.ref)
-            clave_odoo = f"{partner_cuit}-{ref_pto_vta}-{ref_nro}" if ref_pto_vta and ref_nro else "N/A"
+            clave_odoo = clave if clave in claves_odoo else "NO_MATCH"
             clave_debug = f"{{{clave}}} & {{{clave_odoo}}}"
             estado = 'coincide' if clave in claves_odoo else 'solo_arca'
 
