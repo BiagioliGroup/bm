@@ -43,10 +43,10 @@ class LibroIVAController(http.Controller):
             sheet.write_number(row, 7, comp.iva or 0, money_format)
             sheet.write(row, 8, "", text_format)  # Neto 10,5%
             sheet.write(row, 9, "", text_format)  # IVA 10,5%
-            sheet.write_number(row, 10, comp.percepcion_iva or 0, money_format)
-            sheet.write_number(row, 11, comp.impuesto_municipal or 0, money_format)
-            sheet.write_number(row, 12, comp.percepcion_iibb or 0, money_format)
-            sheet.write_number(row, 13, comp.impuesto_interno or 0, money_format)
+            sheet.write_number(row, 10, comp.perc_iva or 0, money_format)
+            sheet.write_number(row, 11, comp.imp_tem or 0, money_format)
+            sheet.write_number(row, 12, comp.perc_iibb or 0, money_format)
+            sheet.write_number(row, 13, comp.imp_internos or 0, money_format)
             sheet.write(row, 14, "", text_format)  # Exentos
             sheet.write_number(row, 15, comp.importe_total or 0, money_format)
             row += 1
