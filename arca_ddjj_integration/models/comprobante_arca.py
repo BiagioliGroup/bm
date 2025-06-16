@@ -194,7 +194,7 @@ class WizardImportarComprobantes(models.TransientModel):
         def calcular_impuestos(importe_neto, iva, total, moneda_str):
             """
             Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva,
-            solo si la moneda es ARS/PES. Agrupa por tipo según combinaciones posibles.
+            solo si la moneda es ARS/PES. Permite agrupar múltiples tasas al mismo tiempo.
             """
             if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
                 return 0, 0, 0, 0
@@ -203,14 +203,14 @@ class WizardImportarComprobantes(models.TransientModel):
             if otros <= 0:
                 return 0, 0, 0, 0
 
-            # Tasas posibles asociadas a su tipo
             tasas_posibles = [
-                (0.015, "perc_iibb"),
+                (0.2506921369, "perc_iibb"),  # tasa especial IIBB de MercadoLibre
+                (0.07713842, "perc_iva"),     # tasa especial percepción IVA ML
+                (0.03, "perc_iva"),
                 (0.045, "perc_iibb"),
                 (0.04545, "perc_iibb"),
+                (0.015, "perc_iibb"),
                 (0.01238, "perc_iibb"),
-                (0.03, "perc_iva"),
-                (0.32783, "mixto"),  # Combina IIBB + IVA
                 (0.011, "perc_tem"),
                 (0.13352, "imp_internos"),
                 (0.18545, "imp_internos"),
@@ -221,10 +221,11 @@ class WizardImportarComprobantes(models.TransientModel):
             ]
 
             iibb = percep_iva = tem = internos = 0
+            aplicado = []
 
             for tasa, tipo in tasas_posibles:
                 estimado = round(importe_neto * tasa, 2)
-                if estimado <= otros + 0.01:  # permitimos pequeño redondeo
+                if abs(otros - estimado) <= 1 or (estimado <= otros + 0.01):
                     if tipo == "perc_iibb":
                         iibb += estimado
                     elif tipo == "perc_iva":
@@ -233,13 +234,10 @@ class WizardImportarComprobantes(models.TransientModel):
                         tem += estimado
                     elif tipo == "imp_internos":
                         internos += estimado
-                    elif tipo == "mixto":
-                        iibb += round(importe_neto * 0.2506921369, 2)
-                        percep_iva += round(importe_neto * 0.07713842, 2)
-                        estimado = round(importe_neto * 0.32783, 2)
 
                     otros -= estimado
                     otros = round(otros, 2)
+                    aplicado.append((tasa, tipo))
                     if otros <= 0:
                         break
 
