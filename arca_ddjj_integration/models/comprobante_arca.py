@@ -1,3 +1,4 @@
+import re
 from odoo import _, models, fields, api
 import json
 from odoo.tools import float_repr
@@ -169,6 +170,9 @@ class WizardImportarComprobantes(models.TransientModel):
         def normalize_cuit(cuit):
             return cuit.replace("-", "").replace(" ", "").strip() if cuit else ""
         
+        def extraer_punto_venta_y_numero(ref):
+            match = re.search(r'(\d{5})[- ]?(\d{8})', ref or "")
+            return match.groups() if match else (None, None)
 
         tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
@@ -196,18 +200,20 @@ class WizardImportarComprobantes(models.TransientModel):
             existentes.add(clave)
 
             # Buscar coincidencia en account.move
-            move = move_model.search([
-                ('ref', 'ilike', numero),
+            estado = 'solo_arca'
+
+            moves = move_model.search([
                 ('move_type', 'in', ['in_invoice', 'in_refund']),
             ])
 
-            estado = 'solo_arca'
-            for m in move:
-                partner_cuit = normalize_cuit(m.partner_id.vat)
-                if partner_cuit == cuit_arca:
-                    estado = 'coincide'
-                    break
-
+            for m in moves:
+                ref_pto_vta, ref_nro = extraer_punto_venta_y_numero(m.ref)
+                if ref_pto_vta == punto_venta and ref_nro == numero:
+                    partner_cuit = normalize_cuit(m.partner_id.vat)
+                    if partner_cuit == cuit_arca:
+                        estado = 'coincide'
+                        break
+                    
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
 
             comprobante_model.create({
