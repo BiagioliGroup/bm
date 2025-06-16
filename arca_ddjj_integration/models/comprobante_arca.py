@@ -71,8 +71,8 @@ class WizardImportarComprobantes(models.TransientModel):
     _name = 'wizard.importar.comprobantes'
     _description = 'Importar Comprobantes desde ARCA'
 
-    fecha_desde = fields.Date(string="Desde", required=True)
-    fecha_hasta = fields.Date(string="Hasta", required=True)
+    fecha_desde = fields.Date(string="Desde")
+    fecha_hasta = fields.Date(string="Hasta")
     descarga_emitidos = fields.Boolean(string="Descargar Emitidos", default=False)
     descarga_recibidos = fields.Boolean(string="Descargar Recibidos", default=True)
     lote_id = fields.Many2one('arca.lote', string="Lote ya descargado")
@@ -165,22 +165,32 @@ class WizardImportarComprobantes(models.TransientModel):
     
 
     def _procesar_comprobantes(self, data):
+        import re
 
-        # 🔁 Normalizador de CUIT para evitar fallas por guiones o espacios
         def normalize_cuit(cuit):
             return cuit.replace("-", "").replace(" ", "").strip() if cuit else ""
-        
-        def extraer_punto_venta_y_numero(ref):
-            match = re.search(r'(\d{5})[- ]?(\d{8})', ref or "")
-            return match.groups() if match else (None, None)
+
+        def build_clave(cuit, punto_vta, numero):
+            return f"{normalize_cuit(cuit)}-{str(punto_vta).zfill(5)}-{str(numero).zfill(8)}"
 
         tipo_map = self.TIPO_MAP
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
 
+        # 🔎 Generamos las claves de account.move una sola vez
+        claves_odoo = {
+            build_clave(move.partner_id.vat, *re.search(r'(\d{5})[- ]?(\d{8})', move.ref or "").groups()):
+            move.id
+            for move in move_model.search([
+                ('move_type', 'in', ['in_invoice', 'in_refund']),
+                ('ref', '!=', False)
+            ])
+            if re.search(r'\d{5}[- ]?\d{8}', move.ref or "") and move.partner_id.vat
+        }
+
         existentes = set(
             comprobante_model.search([]).mapped(
-                lambda r: f"{r.cuit_emisor}-{r.punto_venta}-{r.nro_comprobante}"
+                lambda r: f"{normalize_cuit(r.cuit_emisor)}-{r.punto_venta}-{r.nro_comprobante}"
             )
         )
 
@@ -191,29 +201,16 @@ class WizardImportarComprobantes(models.TransientModel):
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
             numero = str(comp["Número Desde"]).zfill(8)
 
-            cuit_arca = normalize_cuit(comp['Nro. Doc. Receptor/Emisor'])
-            clave = f"{cuit_arca}-{punto_venta}-{numero}"
+            cuit_arca = comp['Nro. Doc. Receptor/Emisor']
+            clave = build_clave(cuit_arca, punto_venta, numero)
+
             if clave in existentes:
                 duplicados += 1
                 continue
 
             existentes.add(clave)
+            estado = 'coincide' if clave in claves_odoo else 'solo_arca'
 
-            # Buscar coincidencia en account.move
-            estado = 'solo_arca'
-
-            moves = move_model.search([
-                ('move_type', 'in', ['in_invoice', 'in_refund']),
-            ])
-
-            for m in moves:
-                ref_pto_vta, ref_nro = extraer_punto_venta_y_numero(m.ref)
-                if ref_pto_vta == punto_venta and ref_nro == numero:
-                    partner_cuit = normalize_cuit(m.partner_id.vat)
-                    if partner_cuit == cuit_arca:
-                        estado = 'coincide'
-                        break
-                    
             moneda = self.env['res.currency'].search([('name', '=', comp.get("Moneda", "PES"))], limit=1)
 
             comprobante_model.create({
@@ -224,7 +221,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 "nro_comprobante": numero,
                 "tipo_comprobante": f"FA-{letra} {punto_venta}-{numero}",
                 "razon_social_emisor": comp["Denominación Receptor/Emisor"],
-                "cuit_emisor": comp["Nro. Doc. Receptor/Emisor"],
+                "cuit_emisor": cuit_arca,
                 "iva": float(comp.get("IVA", 0)),
                 "importe_total": float(comp.get("Imp. Total", 0)),
                 "importe_neto": float(comp.get("Imp. Neto Gravado", 0)),
@@ -235,6 +232,7 @@ class WizardImportarComprobantes(models.TransientModel):
             })
 
         return duplicados
+
     
     def action_procesar_lote(self):
         self.ensure_one()
