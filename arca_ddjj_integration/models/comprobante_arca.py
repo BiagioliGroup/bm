@@ -40,7 +40,8 @@ class ComprobanteArca(models.Model):
         ('solo_odoo', 'Solo en Odoo'),
     ], string='Estado de coincidencia', default='solo_arca')
     incluir_en_ddjj = fields.Boolean(string='¿Incluir en DDJJ?', default=True)
-    clave_comparacion = fields.Char(string="Clave Comparación")clave_debug = fields.Char(string="Clave Debug", readonly=True)
+    clave_comparacion = fields.Char(string="Clave Comparación")
+    clave_debug = fields.Char(string="Clave Debug", readonly=True)
 
     
     
