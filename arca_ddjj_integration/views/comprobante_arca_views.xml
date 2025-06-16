@@ -62,6 +62,7 @@
                 <group>
                     <field name="company_id"/>
                     <field name="clave_debug"/>
+                    <field name="clave_comparacion"/>
                     <field name="fecha_emision"/>
                     <field name="tipo_comprobante"/>
                     <field name="nro_comprobante"/>
