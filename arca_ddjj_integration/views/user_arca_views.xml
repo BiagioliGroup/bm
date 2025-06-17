@@ -1,0 +1,60 @@
+<odoo>
+    <!-- 🧩 Vista de configuración ARCA -->
+    <record id="view_arca_settings_form" model="ir.ui.view">
+        <field name="name">arca.settings.form</field>
+        <field name="model">arca.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configuración ARCA">
+                <group>
+                    <field name="cuit"/>
+                    <field name="cuit_representante"/>
+                    <field name="email"/>
+                    <field name="clave_fiscal"/>
+                    <field name="api_key"/>
+                    <field name="consultas_disponibles" readonly="1"/>
+                    <field name="fecha_ultimo_reset" readonly="1"/>
+                </group>
+
+                <!-- ✅ Sección de advertencia si el registro no está creado -->
+                <group>
+                    <field name="show_warning_create" invisible="1"/>
+                    <div class="alert alert-warning" name="create_warning"
+                         groups="base.group_user">
+                        <field name="show_warning_create" widget="boolean" invisible="1"/>
+                        <span>⚠️ Guardá el formulario antes de crear el usuario en ARCA.</span>
+                        
+                    </div>
+                </group>
+
+                <group>
+                    <div class="oe_button_box" name="button_box_arca">
+                        <button type="object"
+                                name="action_create_user"
+                                string="Crear usuario"
+                                confirm="¿Estás seguro que querés registrar este mail en ARCA?"
+                                class="oe_stat_button"
+                                modifiers="{'invisible': [['show_warning_create', '=', True]]}">
+                            <i class="fa fa-user-plus" title="Crear usuario"/>
+                            <span>Crear usuario</span>
+                        </button>
+                        <button name="action_actualizar_consultas_disponibles" type="object" string="Actualizar consultas disponibles" class="btn-secondary"/>
+
+                    </div>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- 🎯 Acción para acceder al panel -->
+    <record id="action_arca_settings" model="ir.actions.act_window">
+        <field name="name">Panel Cliente ARCA</field>
+        <field name="res_model">arca.settings</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- 📂 Menú en Contabilidad → DDJJ ARCA -->
+    <menuitem id="menu_arca_settings"
+              name="Panel de cliente ARCA"
+              parent="menu_ddjj_root"
+              action="action_arca_settings"/>
+</odoo>
