@@ -13,7 +13,7 @@ class ArcaSettings(models.Model):
     _description = 'Configuración de conexión ARCA'
 
     company_id = fields.Many2one('res.company', string='Compañía', default=lambda self: self.env.company, required=True)
-    nombre = fields.Char(string='Nombre del Representado', required=True)
+    nombre = fields.Char(string='Nombre del Representado')
     cuit = fields.Char(string='CUIT del Representado', required=True)
     cuit_representante = fields.Char(string='CUIT del Representante')
     clave_fiscal = fields.Char(string='Clave fiscal')
