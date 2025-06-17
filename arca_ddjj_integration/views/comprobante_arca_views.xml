@@ -2,9 +2,6 @@
 
     <!-- Menú -->
     <menuitem id="menu_ddjj_root" name="Prep. DDJJ ARCA" parent="accountant.menu_accounting" sequence="90"/>
-    <menuitem id="menu_comprobantes_arca" name="Comprobantes Recibidos"
-              parent="menu_ddjj_root"
-              action="action_comprobante_arca" sequence="1"/>
 
     <record id="action_importar_comprobantes_global" model="ir.actions.server">
         <field name="name">Importar comprobantes ARCA</field>
@@ -80,6 +77,10 @@
         <field name="view_id" ref="view_comprobante_arca_tree"/>
         <field name="context">{}</field>
     </record>
+    
+    <menuitem id="menu_comprobantes_arca" name="Comprobantes Recibidos"
+              parent="menu_ddjj_root"
+              action="action_comprobante_arca" sequence="1"/>
 
     <record id="action_importar_comprobantes_button" model="ir.actions.server">
         <field name="name">Importar comprobantes ARCA</field>
