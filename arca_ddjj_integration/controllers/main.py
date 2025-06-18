@@ -29,7 +29,7 @@ class LibroIVAController(http.Controller):
         # Encabezado
         headers = [
             "Fecha", "Tipo", "Número", "CUIT", "Razón Social", "Condición",
-            "Imp. Neto Gravado", "IVA 21%", "Neto 10,5%", "IVA 10,5%", "Perc. IVA",
+            "Imp. Neto Gravado","IVA 27%", "IVA 21%", "Neto 10,5%", "IVA 10,5%", "Perc. IVA",
             "Perc. TEM", "Perc. IIBB", "Imp internos", "Exentos", "Total"
         ]
         sheet.write_row(0, 0, headers, header_format)
@@ -43,29 +43,31 @@ class LibroIVAController(http.Controller):
             sheet.write(row, 4, comp.razon_social_emisor or '', text_format)  # Razón Social
             sheet.write(row, 5, "Responsable Inscripto", text_format)      # Condición
             sheet.write_number(row, 6, comp.importe_neto or 0, money_format)  # Imp. Neto Gravado
-            sheet.write_number(row, 7, comp.iva_21 or 0, money_format)        # IVA 21%
-            sheet.write(row, 8, "", text_format)  # Neto 10.5% vacío
-            sheet.write_number(row, 9, comp.iva_105 or 0, money_format)         # IVA 10.5%
-            sheet.write_number(row, 10, comp.perc_iva or 0, money_format)       # Perc. IVA
-            sheet.write_number(row, 11, comp.perc_tem or 0, money_format)       # Perc. TEM
-            sheet.write_number(row, 12, comp.perc_iibb or 0, money_format)      # Perc. IIBB
-            sheet.write_number(row, 13, comp.imp_internos or 0, money_format)   # Imp internos
-            sheet.write(row, 14, "", text_format)                                # Exentos (vacío)
-            sheet.write_number(row, 15, comp.importe_total or 0, money_format)   # Total
+            sheet.write_number(row, 7, comp.iva_27 or 0, money_format)        # IVA 21%
+            sheet.write_number(row, 8, comp.iva_21 or 0, money_format)        # IVA 21%
+            sheet.write(row, 9, "", text_format)  # Neto 10.5% vacío
+            sheet.write_number(row, 10, comp.iva_105 or 0, money_format)         # IVA 10.5%
+            sheet.write_number(row, 11, comp.perc_iva or 0, money_format)       # Perc. IVA
+            sheet.write_number(row, 12, comp.perc_tem or 0, money_format)       # Perc. TEM
+            sheet.write_number(row, 13, comp.perc_iibb or 0, money_format)      # Perc. IIBB
+            sheet.write_number(row, 14, comp.imp_internos or 0, money_format)   # Imp internos
+            sheet.write(row, 15, "", text_format)                                # Exentos (vacío)
+            sheet.write_number(row, 16, comp.importe_total or 0, money_format)   # Total
             row += 1
 
         # Totales
         sheet.write(row, 5, "Totales", bold_label)
         sheet.write(row, 6, sum(c.importe_neto or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 7, sum(c.iva_21 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 8, "", text_format)
-        sheet.write(row, 9, sum(c.iva_105 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 10, sum(c.perc_iva or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 11, sum(c.perc_tem or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 12, sum(c.perc_iibb or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 13, sum(c.imp_internos or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 14, 0, bold_money)  # Exentos
-        sheet.write(row, 15, sum(c.importe_total or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 7, sum(c.iva_27 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 8, sum(c.iva_21 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 9, "", text_format)
+        sheet.write(row, 10, sum(c.iva_105 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 11, sum(c.perc_iva or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 12, sum(c.perc_tem or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 13, sum(c.perc_iibb or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 14, sum(c.imp_internos or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 15, 0, bold_money)  # Exentos
+        sheet.write(row, 16, sum(c.importe_total or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
 
         workbook.close()
         output.seek(0)
