@@ -49,7 +49,10 @@
                 <field name="cuit_emisor"/>
                 <field name="moneda_id"/>
                 <field name="importe_neto"/>
-                <field name="iva"/>
+                <field name="iva_total"/>
+                <field name="iva_105"/>
+                <field name="iva_21"/>
+                <field name="iva_27"/>
                 <field name="importe_total"/>
                 <field name="perc_iibb"/>
                 <field name="perc_iva"/>

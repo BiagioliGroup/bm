@@ -33,7 +33,10 @@ class ComprobanteArca(models.Model):
     nro_comprobante = fields.Char(string='Número de Comprobante')
     moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id)
     importe_neto = fields.Monetary(string="Importe Neto Gravado", currency_field="moneda_id")
-    iva = fields.Monetary(string="IVA", currency_field="moneda_id")
+    iva_total = fields.Monetary(string="IVA Total", currency_field="moneda_id")
+    iva_105 = fields.Monetary(string="IVA 10,5%", currency_field="moneda_id")
+    iva_21 = fields.Monetary(string="IVA 21%", currency_field="moneda_id")
+    iva_27 = fields.Monetary(string="IVA 27%", currency_field="moneda_id")
     perc_iibb = fields.Monetary(string="Percepción IIBB", currency_field="moneda_id")
     perc_iva = fields.Monetary(string="Percepción IVA", currency_field="moneda_id")
     perc_tem = fields.Monetary(string="Imp. municipal (TEM)", currency_field="moneda_id")
@@ -290,9 +293,23 @@ class WizardImportarComprobantes(models.TransientModel):
 
             # Calcular impuestos
             importe_neto = float(comp.get("Imp. Neto Gravado", 0))
-            iva = float(comp.get("IVA", 0))
+            iva_total = float(comp.get("IVA", 0))
+            iva_105 = iva_21 = iva_27 = 0.0
+            # Intentamos calcular distribución de IVA
+            if iva_total:
+                porc = round(iva_total / importe_neto, 4)  # ratio total IVA sobre neto
+                if abs(porc - 0.105) < 0.001:
+                    iva_105 = iva_total
+                elif abs(porc - 0.21) < 0.001:
+                    iva_21 = iva_total
+                elif abs(porc - 0.27) < 0.001:
+                    iva_27 = iva_total
+                else:
+                    # Descomposición múltiple si aplica
+                    # En este punto podrías añadir lógica futura como hiciste con percepciones
+                    iva_21 = iva_total  # fallback: todo a 21%
             total = float(comp.get("Imp. Total", 0))
-            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva, total, moneda_raw)
+            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva_total, total, moneda_raw)
             
 
             comprobante_model.create({
@@ -304,7 +321,10 @@ class WizardImportarComprobantes(models.TransientModel):
                 "tipo_comprobante": f"FA-{letra} {punto_venta}-{numero}",
                 "razon_social_emisor": comp["Denominación Receptor/Emisor"],
                 "cuit_emisor": cuit_arca,
-                "iva": iva,
+                "iva_total": iva_total,
+                "iva_105": iva_105,
+                "iva_21": iva_21,
+                "iva_27": iva_27,
                 "importe_total": total,
                 "importe_neto": importe_neto,
                 "tipo_cambio": float(comp.get("Tipo Cambio", 1.0)),
