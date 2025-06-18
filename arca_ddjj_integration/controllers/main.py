@@ -44,7 +44,7 @@ class LibroIVAController(http.Controller):
             sheet.write(row, 5, "Responsable Inscripto", text_format)      # Condición
             sheet.write_number(row, 6, comp.importe_neto or 0, money_format)  # Imp. Neto Gravado
             sheet.write_number(row, 7, comp.iva_21 or 0, money_format)        # IVA 21%
-            sheet.write_number(row, 8, comp.importe_neto_105 or 0, money_format)  # Neto 10.5%
+            sheet.write(row, 8, "", text_format)  # Neto 10.5% vacío
             sheet.write_number(row, 9, comp.iva_105 or 0, money_format)         # IVA 10.5%
             sheet.write_number(row, 10, comp.perc_iva or 0, money_format)       # Perc. IVA
             sheet.write_number(row, 11, comp.perc_tem or 0, money_format)       # Perc. TEM
@@ -58,7 +58,7 @@ class LibroIVAController(http.Controller):
         sheet.write(row, 5, "Totales", bold_label)
         sheet.write(row, 6, sum(c.importe_neto or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
         sheet.write(row, 7, sum(c.iva_21 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
-        sheet.write(row, 8, sum(c.importe_neto_105 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
+        sheet.write(row, 8, "", text_format)
         sheet.write(row, 9, sum(c.iva_105 or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
         sheet.write(row, 10, sum(c.perc_iva or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
         sheet.write(row, 11, sum(c.perc_tem or 0 for c in comprobantes if c.incluir_en_ddjj), bold_money)
