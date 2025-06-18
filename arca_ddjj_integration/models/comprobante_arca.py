@@ -193,8 +193,8 @@ class WizardImportarComprobantes(models.TransientModel):
 
         def calcular_impuestos(importe_neto, iva, total, moneda_str):
             """
-            Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva,
-            solo si la moneda es ARS/PES. Agrupa por tipo permitiendo múltiples percepciones acumuladas.
+            Calcula percepciones e impuestos ocultos cuando no están desglosados.
+            Se basa en aproximar tasas sobre el importe neto para encontrar coincidencias.
             """
             if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
                 return 0, 0, 0, 0
@@ -203,54 +203,71 @@ class WizardImportarComprobantes(models.TransientModel):
             if otros <= 0:
                 return 0, 0, 0, 0
 
-            tasas_posibles = [
-                (0.01238, "perc_iibb"),
-                (0.015, "perc_iibb"),
-                (0.045, "perc_iibb"),
-                (0.04545, "perc_iibb"),
-                (0.03, "perc_iva"),
-                (0.011, "perc_tem"),
-                (0.13352, "imp_internos"),
-                (0.18545, "imp_internos"),
-                (0.24017, "imp_internos"),
-                (0.2406, "imp_internos"),
-                (0.17959, "imp_internos"),
-                (0.14546, "imp_internos"),
-                (0.32783, "mixto"),  # Al final, porque representa combinación
-            ]
+            # Tasas conocidas por tipo (pueden haber múltiples de cada tipo)
+            tasas_posibles = {
+                "perc_iibb": [0.015, 0.025, 0.035, 0.055, 0.03],  # incluye casos especiales
+                "perc_iva": [0.03, 0.1655832, 0.015],  # según imagen
+                "perc_tem": [0.011, 0.015],
+            }
 
-            iibb = percep_iva = tem = internos = 0
+            # Resultado acumulado
+            resultado = {
+                "perc_iibb": 0,
+                "perc_iva": 0,
+                "perc_tem": 0,
+                "imp_internos": 0,  # Podés sumar más tasas si se presentan
+            }
 
-            for tasa, tipo in tasas_posibles:
-                if tipo == "mixto":
-                    estimado_iibb = round(importe_neto * 0.2506921369, 2)
-                    estimado_iva = round(importe_neto * 0.07713842, 2)
-                    total_estimado = round(estimado_iibb + estimado_iva, 2)
+            # Armamos combinaciones posibles de 1, 2 o 3 tasas
+            from itertools import product
 
-                    if total_estimado <= otros + 0.01:
-                        iibb += estimado_iibb
-                        percep_iva += estimado_iva
-                        otros -= total_estimado
-                        otros = round(otros, 2)
-                        break  # 🚨 importante: no seguir iterando
-                else:
+            combinaciones = []
+            for tasa_iibb in tasas_posibles["perc_iibb"]:
+                for tasa_iva in tasas_posibles["perc_iva"]:
+                    for tasa_tem in tasas_posibles["perc_tem"]:
+                        total_estimado = round(importe_neto * (tasa_iibb + tasa_iva + tasa_tem), 2)
+                        combinaciones.append((
+                            total_estimado,
+                            round(importe_neto * tasa_iibb, 2),
+                            round(importe_neto * tasa_iva, 2),
+                            round(importe_neto * tasa_tem, 2),
+                        ))
+
+            # Ordenamos por cercanía al valor "otros"
+            combinaciones.sort(key=lambda x: abs(x[0] - otros))
+
+            # Elegimos la mejor aproximación
+            mejor = combinaciones[0]
+            estimado_total, iibb, iva_perc, tem = mejor
+
+            # Rango de tolerancia de error
+            if abs(estimado_total - otros) <= 1.0:
+                resultado["perc_iibb"] += iibb
+                resultado["perc_iva"] += iva_perc
+                resultado["perc_tem"] += tem
+                otros -= estimado_total
+                otros = round(otros, 2)
+
+            # Si aún quedan centavos, intentamos rellenar con tasas individuales
+            for tipo, tasas in tasas_posibles.items():
+                for tasa in tasas:
                     estimado = round(importe_neto * tasa, 2)
                     if estimado <= otros + 0.01:
-                        if tipo == "perc_iibb":
-                            iibb += estimado
-                        elif tipo == "perc_iva":
-                            percep_iva += estimado
-                        elif tipo == "perc_tem":
-                            tem += estimado
-                        elif tipo == "imp_internos":
-                            internos += estimado
-
+                        resultado[tipo] += estimado
                         otros -= estimado
                         otros = round(otros, 2)
-                        if otros <= 0:
-                            break
+                    if otros <= 0:
+                        break
+                if otros <= 0:
+                    break
 
-            return iibb, percep_iva, tem, internos
+            return (
+                resultado["perc_iibb"],
+                resultado["perc_iva"],
+                resultado["perc_tem"],
+                resultado["imp_internos"]
+            )
+
 
 
 
@@ -300,6 +317,7 @@ class WizardImportarComprobantes(models.TransientModel):
             iva = float(comp.get("IVA", 0))
             total = float(comp.get("Imp. Total", 0))
             iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva, total, moneda_raw)
+            
 
             comprobante_model.create({
                 "company_id": self.env.company.id,
