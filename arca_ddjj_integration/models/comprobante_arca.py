@@ -192,10 +192,6 @@ class WizardImportarComprobantes(models.TransientModel):
             return f"{normalize_cuit(cuit)}-{str(punto_vta).zfill(5)}-{str(numero).zfill(8)}"
 
         def calcular_impuestos(importe_neto, iva, total, moneda_str):
-            """
-            Calcula percepciones e impuestos ocultos cuando no están desglosados.
-            Se basa en aproximar tasas sobre el importe neto para encontrar coincidencias.
-            """
             if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
                 return 0, 0, 0, 0
 
@@ -203,72 +199,52 @@ class WizardImportarComprobantes(models.TransientModel):
             if otros <= 0:
                 return 0, 0, 0, 0
 
-            # Tasas conocidas por tipo (pueden haber múltiples de cada tipo)
-            tasas_posibles = {
-                "perc_iibb": [0.015, 0.025, 0.035, 0.055, 0.29263865],  # incluye casos especial de Mercadolibre
-                "perc_iva": [0.03, 0.1655832],  # Saqué el 1,5 por que puede confundirse con el 1,5% de IIBB
-                "perc_tem": [0.011], # Saque el 1,5 por que puede confundirse con el 1,5% de IIBB
+            porcentaje_otro = round(otros / importe_neto, 6)
+            iibb = perc_iva = tem = internos = 0
+
+            # Fase 1: mono-impuesto exacto
+            mono_tasas = {
+                0.015: "perc_iibb",
+                0.025: "perc_iibb",
+                0.035: "perc_iibb",
+                0.055: "perc_iibb",
+                0.03: "perc_iva",
+                0.011: "perc_tem",
             }
 
-            # Resultado acumulado
-            resultado = {
-                "perc_iibb": 0,
-                "perc_iva": 0,
-                "perc_tem": 0,
-                "imp_internos": 0,  # Podés sumar más tasas si se presentan
-            }
-
-            # Armamos combinaciones posibles de 1, 2 o 3 tasas
-            from itertools import product
-
-            combinaciones = []
-            for tasa_iibb in tasas_posibles["perc_iibb"]:
-                for tasa_iva in tasas_posibles["perc_iva"]:
-                    for tasa_tem in tasas_posibles["perc_tem"]:
-                        total_estimado = round(importe_neto * (tasa_iibb + tasa_iva + tasa_tem), 2)
-                        combinaciones.append((
-                            total_estimado,
-                            round(importe_neto * tasa_iibb, 2),
-                            round(importe_neto * tasa_iva, 2),
-                            round(importe_neto * tasa_tem, 2),
-                        ))
-
-            # Ordenamos por cercanía al valor "otros"
-            combinaciones.sort(key=lambda x: abs(x[0] - otros))
-
-            # Elegimos la mejor aproximación
-            mejor = combinaciones[0]
-            estimado_total, iibb, iva_perc, tem = mejor
-
-            # Rango de tolerancia de error
-            if abs(estimado_total - otros) <= 1.0:
-                resultado["perc_iibb"] += iibb
-                resultado["perc_iva"] += iva_perc
-                resultado["perc_tem"] += tem
-                otros -= estimado_total
-                otros = round(otros, 2)
-
-            # Si aún quedan centavos, intentamos rellenar con tasas individuales
-            for tipo, tasas in tasas_posibles.items():
-                for tasa in tasas:
+            for tasa, tipo in mono_tasas.items():
+                if abs(porcentaje_otro - tasa) < 0.0005:
                     estimado = round(importe_neto * tasa, 2)
-                    if estimado <= otros + 0.01:
-                        resultado[tipo] += estimado
-                        otros -= estimado
-                        otros = round(otros, 2)
-                    if otros <= 0:
-                        break
-                if otros <= 0:
-                    break
+                    if tipo == "perc_iibb":
+                        iibb = estimado
+                    elif tipo == "perc_iva":
+                        perc_iva = estimado
+                    elif tipo == "perc_tem":
+                        tem = estimado
+                    return iibb, perc_iva, tem, internos
 
-            return (
-                resultado["perc_iibb"],
-                resultado["perc_iva"],
-                resultado["perc_tem"],
-                resultado["imp_internos"]
-            )
+            # Fase 2: combinaciones conocidas
+            combinaciones = {
+                0.045: [("perc_iibb", 0.03), ("perc_iva", 0.015)],
+                0.041: [("perc_iibb", 0.03), ("perc_tem", 0.011)],
+                0.056: [("perc_iibb", 0.03), ("perc_iva", 0.015), ("perc_tem", 0.011)],
+                0.4892218: [("perc_iibb", 0.30707), ("perc_iva", 0.1821518)],  # MercadoLibre real
+            }
 
+            for total_tasa, partes in combinaciones.items():
+                if abs(porcentaje_otro - total_tasa) < 0.0005:
+                    for tipo, tasa in partes:
+                        estimado = round(importe_neto * tasa, 2)
+                        if tipo == "perc_iibb":
+                            iibb += estimado
+                        elif tipo == "perc_iva":
+                            perc_iva += estimado
+                        elif tipo == "perc_tem":
+                            tem += estimado
+                    return iibb, perc_iva, tem, internos
 
+            # Fallback: nada detectado
+            return 0, 0, 0, 0
 
 
 
