@@ -33,7 +33,10 @@ class ComprobanteArca(models.Model):
     nro_comprobante = fields.Char(string='Número de Comprobante')
     moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id)
     importe_neto = fields.Monetary(string="Importe Neto Gravado", currency_field="moneda_id")
-    iva = fields.Monetary(string="IVA", currency_field="moneda_id")
+    iva_total = fields.Monetary(string="IVA Total", currency_field="moneda_id")
+    iva_105 = fields.Monetary(string="IVA 10,5%", currency_field="moneda_id")
+    iva_21 = fields.Monetary(string="IVA 21%", currency_field="moneda_id")
+    iva_27 = fields.Monetary(string="IVA 27%", currency_field="moneda_id")
     perc_iibb = fields.Monetary(string="Percepción IIBB", currency_field="moneda_id")
     perc_iva = fields.Monetary(string="Percepción IVA", currency_field="moneda_id")
     perc_tem = fields.Monetary(string="Imp. municipal (TEM)", currency_field="moneda_id")
@@ -192,10 +195,6 @@ class WizardImportarComprobantes(models.TransientModel):
             return f"{normalize_cuit(cuit)}-{str(punto_vta).zfill(5)}-{str(numero).zfill(8)}"
 
         def calcular_impuestos(importe_neto, iva, total, moneda_str):
-            """
-            Calcula percepciones/impuestos a partir de la diferencia entre total y neto+iva,
-            solo si la moneda es ARS/PES. Agrupa por tipo permitiendo múltiples percepciones acumuladas.
-            """
             if not importe_neto or moneda_str.upper() not in ["ARS", "PESOS", "PES"]:
                 return 0, 0, 0, 0
 
@@ -203,55 +202,52 @@ class WizardImportarComprobantes(models.TransientModel):
             if otros <= 0:
                 return 0, 0, 0, 0
 
-            tasas_posibles = [
-                (0.01238, "perc_iibb"),
-                (0.015, "perc_iibb"),
-                (0.045, "perc_iibb"),
-                (0.04545, "perc_iibb"),
-                (0.03, "perc_iva"),
-                (0.011, "perc_tem"),
-                (0.13352, "imp_internos"),
-                (0.18545, "imp_internos"),
-                (0.24017, "imp_internos"),
-                (0.2406, "imp_internos"),
-                (0.17959, "imp_internos"),
-                (0.14546, "imp_internos"),
-                (0.32783, "mixto"),  # Al final, porque representa combinación
-            ]
+            porcentaje_otro = round(otros / importe_neto, 6)
+            iibb = perc_iva = tem = internos = 0
 
-            iibb = percep_iva = tem = internos = 0
+            # Fase 1: mono-impuesto exacto
+            mono_tasas = {
+                0.015: "perc_iibb",
+                0.025: "perc_iibb",
+                0.035: "perc_iibb",
+                0.055: "perc_iibb",
+                0.03: "perc_iva",
+                0.011: "perc_tem",
+            }
 
-            for tasa, tipo in tasas_posibles:
-                if tipo == "mixto":
-                    estimado_iibb = round(importe_neto * 0.2506921369, 2)
-                    estimado_iva = round(importe_neto * 0.07713842, 2)
-                    total_estimado = round(estimado_iibb + estimado_iva, 2)
-
-                    if total_estimado <= otros + 0.01:
-                        iibb += estimado_iibb
-                        percep_iva += estimado_iva
-                        otros -= total_estimado
-                        otros = round(otros, 2)
-                        break  # 🚨 importante: no seguir iterando
-                else:
+            for tasa, tipo in mono_tasas.items():
+                if abs(porcentaje_otro - tasa) < 0.0005:
                     estimado = round(importe_neto * tasa, 2)
-                    if estimado <= otros + 0.01:
+                    if tipo == "perc_iibb":
+                        iibb = estimado
+                    elif tipo == "perc_iva":
+                        perc_iva = estimado
+                    elif tipo == "perc_tem":
+                        tem = estimado
+                    return iibb, perc_iva, tem, internos
+
+            # Fase 2: combinaciones conocidas
+            combinaciones = {
+                0.045: [("perc_iibb", 0.03), ("perc_iva", 0.015)],
+                0.041: [("perc_iibb", 0.03), ("perc_tem", 0.011)],
+                0.056: [("perc_iibb", 0.03), ("perc_iva", 0.015), ("perc_tem", 0.011)],
+                0.4892218: [("perc_iibb", 0.30707), ("perc_iva", 0.1821518)],  # MercadoLibre real
+            }
+
+            for total_tasa, partes in combinaciones.items():
+                if abs(porcentaje_otro - total_tasa) < 0.0005:
+                    for tipo, tasa in partes:
+                        estimado = round(importe_neto * tasa, 2)
                         if tipo == "perc_iibb":
                             iibb += estimado
                         elif tipo == "perc_iva":
-                            percep_iva += estimado
+                            perc_iva += estimado
                         elif tipo == "perc_tem":
                             tem += estimado
-                        elif tipo == "imp_internos":
-                            internos += estimado
+                    return iibb, perc_iva, tem, internos
 
-                        otros -= estimado
-                        otros = round(otros, 2)
-                        if otros <= 0:
-                            break
-
-            return iibb, percep_iva, tem, internos
-
+            # Fallback: nada detectado
+            return 0, 0, 0, 0
 
 
 
@@ -297,9 +293,24 @@ class WizardImportarComprobantes(models.TransientModel):
 
             # Calcular impuestos
             importe_neto = float(comp.get("Imp. Neto Gravado", 0))
-            iva = float(comp.get("IVA", 0))
+            iva_total = float(comp.get("IVA", 0))
+            iva_105 = iva_21 = iva_27 = 0.0
+            # Intentamos calcular distribución de IVA
+            if iva_total:
+                porc = round(iva_total / importe_neto, 4)  # ratio total IVA sobre neto
+                if abs(porc - 0.105) < 0.001:
+                    iva_105 = iva_total
+                elif abs(porc - 0.21) < 0.001:
+                    iva_21 = iva_total
+                elif abs(porc - 0.27) < 0.001:
+                    iva_27 = iva_total
+                else:
+                    # Descomposición múltiple si aplica
+                    # En este punto podrías añadir lógica futura como hiciste con percepciones
+                    iva_21 = iva_total  # fallback: todo a 21%
             total = float(comp.get("Imp. Total", 0))
-            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva, total, moneda_raw)
+            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva_total, total, moneda_raw)
+            
 
             comprobante_model.create({
                 "company_id": self.env.company.id,
@@ -310,7 +321,10 @@ class WizardImportarComprobantes(models.TransientModel):
                 "tipo_comprobante": f"FA-{letra} {punto_venta}-{numero}",
                 "razon_social_emisor": comp["Denominación Receptor/Emisor"],
                 "cuit_emisor": cuit_arca,
-                "iva": iva,
+                "iva_total": iva_total,
+                "iva_105": iva_105,
+                "iva_21": iva_21,
+                "iva_27": iva_27,
                 "importe_total": total,
                 "importe_neto": importe_neto,
                 "tipo_cambio": float(comp.get("Tipo Cambio", 1.0)),

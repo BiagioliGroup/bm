@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <form string="Configuración ARCA">
                 <group>
+                    <field name="nombre"/>
                     <field name="cuit"/>
                     <field name="cuit_representante"/>
                     <field name="email"/>
