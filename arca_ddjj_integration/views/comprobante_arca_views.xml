@@ -136,18 +136,16 @@
 
 
     <!-- 🔍 Vista de búsqueda (Search View) para comprobantes de ARCA -->
-    <!-- 🔍 Vista de búsqueda (Search View) para comprobantes de ARCA -->
     <record id="comprobante_arca_search" model="ir.ui.view">
         <field name="name">comprobante.arca.search</field>
         <field name="model">comprobante.arca</field>
         <field name="arch" type="xml">
             <search string="Buscar comprobantes ARCA">
-                <!-- Campos estándar -->
                 <field name="razon_social_emisor"/>
                 <field name="tipo_comprobante"/>
                 <field name="cuit_emisor"/>
                 <field name="fecha_emision"/>
-                <filter string="Sólo no conciliados" domain="[('estado_coincidencia', '=', 'solo_arca')]" />
+                <filter string="No conciliados" domain="[('estado_coincidencia','=','solo_arca')]"/>
             </search>
         </field>
     </record>
