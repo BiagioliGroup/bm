@@ -205,9 +205,9 @@ class WizardImportarComprobantes(models.TransientModel):
 
             # Tasas conocidas por tipo (pueden haber múltiples de cada tipo)
             tasas_posibles = {
-                "perc_iibb": [0.015, 0.025, 0.035, 0.055, 0.03],  # incluye casos especiales
-                "perc_iva": [0.03, 0.1655832, 0.015],  # según imagen
-                "perc_tem": [0.011, 0.015],
+                "perc_iibb": [0.015, 0.025, 0.035, 0.055, 0.29263865],  # incluye casos especial de Mercadolibre
+                "perc_iva": [0.03, 0.1655832],  # Saqué el 1,5 por que puede confundirse con el 1,5% de IIBB
+                "perc_tem": [0.011], # Saque el 1,5 por que puede confundirse con el 1,5% de IIBB
             }
 
             # Resultado acumulado
