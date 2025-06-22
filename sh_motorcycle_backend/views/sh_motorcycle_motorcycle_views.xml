@@ -154,16 +154,16 @@
         <field name="inherit_id" ref="sh_motorcycle_backend.sh_motorcycle_motorcycle_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <!-- <page string="Technical Data">
-                    <field name="technical_data_ids">
+              <page string="Technical Data">
+                    <!-- <field name="technical_data_ids">
                         <tree editable="bottom">
                             <field name="category_id"/>
                             <field name="attribute_id"/>
                             <field name="value_id"/>
                             <field name="note"/>
                         </tree>
-                    </field>
-                </page> -->
+                    </field> -->
+                </page> 
             </xpath>
         </field>
     </record>
