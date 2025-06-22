@@ -5,6 +5,38 @@ from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
 
 
+class MotorcycleTechnicalData(models.Model):
+    _name = 'motorcycle.technical.data'
+    _description = 'Technical Data for Motorcycles'
+    _order = 'motorcycle_id, category_id, attribute_id'
+
+    motorcycle_id = fields.Many2one(
+        'motorcycle.motorcycle', string='Motorcycle', required=True, ondelete='cascade'
+    )
+    category_id = fields.Many2one(
+        'product.category', string='Product Category', required=True
+    )
+    attribute_id = fields.Many2one(
+        'product.attribute', string='Attribute', required=True
+    )
+    value_id = fields.Many2one(
+        'product.attribute.value', string='Attribute Value', required=True
+    )
+
+    note = fields.Char(string='Extra Note')
+
+    _sql_constraints = [
+        ('uniq_entry',
+         'unique(motorcycle_id, category_id, attribute_id)',
+         'This attribute is already set for this motorcycle and category.'),
+    ]
+
+    @api.constrains('attribute_id', 'value_id')
+    def _check_value_belongs_to_attribute(self):
+        for record in self:
+            if record.value_id.attribute_id != record.attribute_id:
+                raise ValidationError("The selected value does not match the selected attribute.")
+
 class Motorcycle(models.Model):
     _name = "motorcycle.motorcycle"
     _description = "Motorcycle"
@@ -46,7 +78,7 @@ class Motorcycle(models.Model):
                                    'motorcycle_id', 'product_id',
                                    string='Productos Compatibles', copy=True)
     
-    oem_manual = fields.Binary(string="OEM Manual", attachment=True)
+    oem_manual = fields.Binary(string="OEM Manual", attachment=True)    
     user_manual = fields.Binary(string="User Manual", attachment=True)
     motorcycle_image = fields.Binary(string="Motorcycle Image", attachment=True)
 
@@ -111,35 +143,3 @@ class Motorcycle(models.Model):
 
 
 
-
-class MotorcycleTechnicalData(models.Model):
-    _name = 'motorcycle.technical.data'
-    _description = 'Technical Data for Motorcycles'
-    _order = 'motorcycle_id, category_id, attribute_id'
-
-    motorcycle_id = fields.Many2one(
-        'motorcycle.motorcycle', string='Motorcycle', required=True, ondelete='cascade'
-    )
-    category_id = fields.Many2one(
-        'product.category', string='Product Category', required=True
-    )
-    attribute_id = fields.Many2one(
-        'product.attribute', string='Attribute', required=True
-    )
-    value_id = fields.Many2one(
-        'product.attribute.value', string='Attribute Value', required=True
-    )
-
-    note = fields.Char(string='Extra Note')
-
-    _sql_constraints = [
-        ('uniq_entry',
-         'unique(motorcycle_id, category_id, attribute_id)',
-         'This attribute is already set for this motorcycle and category.'),
-    ]
-
-    @api.constrains('attribute_id', 'value_id')
-    def _check_value_belongs_to_attribute(self):
-        for record in self:
-            if record.value_id.attribute_id != record.attribute_id:
-                raise ValidationError("The selected value does not match the selected attribute.")
