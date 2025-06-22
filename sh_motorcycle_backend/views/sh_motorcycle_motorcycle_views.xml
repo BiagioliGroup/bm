@@ -153,7 +153,7 @@
         <field name="model">motorcycle.motorcycle</field>
         <field name="inherit_id" ref="sh_motorcycle_backend.sh_motorcycle_motorcycle_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook" position="before">
+            <xpath expr="//notebook" position="inside">
                 <page string="Technical Data">
                     <field name="technical_data_ids" context="{'default_motorcycle_id': id}">
                         <tree editable="bottom">
