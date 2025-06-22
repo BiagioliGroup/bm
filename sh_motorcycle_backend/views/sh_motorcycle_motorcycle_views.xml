@@ -155,7 +155,7 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="Technical Data">
-                    <field name="technical_data_ids" context="{'default_motorcycle_id': id}">
+                    <field name="technical_data_ids">
                         <tree editable="bottom">
                             <field name="category_id"/>
                             <field name="attribute_id"/>
@@ -164,16 +164,6 @@
                         </tree>
                     </field>
                 </page>
-              <page string="Technical Data">
-                    <!-- <field name="technical_data_ids">
-                        <tree editable="bottom">
-                            <field name="category_id"/>
-                            <field name="attribute_id"/>
-                            <field name="value_id"/>
-                            <field name="note"/>
-                        </tree>
-                    </field> -->
-                </page> 
             </xpath>
         </field>
     </record>
