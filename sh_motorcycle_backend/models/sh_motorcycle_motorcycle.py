@@ -60,6 +60,17 @@ class Motorcycle(models.Model):
         store=False
     )
 
+    # Agregado 21-06-2025 - para poder agregar datos técnicos a la moto
+    # Se relaciona con motorcycle.technical.data
+    # Se relaciona con product.category y product.attribute
+    # Se relaciona con product.attribute.value para poder agregar el valor del dato técnico
+    technical_data_ids = fields.One2many(
+            'motorcycle.technical.data',
+            'motorcycle_id',
+            string='Technical Data'
+        )
+    # Agregado 21-06-2025 - Fin
+
     def _compute_service_ids(self):
         for moto in self:
             moto.service_ids = self.env['motorcycle.service'].search([
@@ -97,3 +108,38 @@ class Motorcycle(models.Model):
                 'default_motorcycle_ids': [self.id],
             },
         }
+
+
+
+
+class MotorcycleTechnicalData(models.Model):
+    _name = 'motorcycle.technical.data'
+    _description = 'Technical Data for Motorcycles'
+    _order = 'motorcycle_id, category_id, attribute_id'
+
+    motorcycle_id = fields.Many2one(
+        'motorcycle.motorcycle', string='Motorcycle', required=True, ondelete='cascade'
+    )
+    category_id = fields.Many2one(
+        'product.category', string='Product Category', required=True
+    )
+    attribute_id = fields.Many2one(
+        'product.attribute', string='Attribute', required=True
+    )
+    value_id = fields.Many2one(
+        'product.attribute.value', string='Attribute Value', required=True
+    )
+
+    note = fields.Char(string='Extra Note')
+
+    _sql_constraints = [
+        ('uniq_entry',
+         'unique(motorcycle_id, category_id, attribute_id)',
+         'This attribute is already set for this motorcycle and category.'),
+    ]
+
+    @api.constrains('attribute_id', 'value_id')
+    def _check_value_belongs_to_attribute(self):
+        for record in self:
+            if record.value_id.attribute_id != record.attribute_id:
+                raise ValidationError("The selected value does not match the selected attribute.")
