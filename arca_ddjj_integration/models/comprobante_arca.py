@@ -338,6 +338,51 @@ class WizardImportarComprobantes(models.TransientModel):
                 "perc_tem": tem,
                 "imp_internos": internos,
             })
+            
+        # Paso final: buscar comprobantes que solo están en Odoo en el rango de fechas
+        fecha_desde = self.fecha_desde
+        fecha_hasta = self.fecha_hasta
+        moves_odoo = move_model.search([
+            ('move_type', 'in', ['in_invoice', 'in_refund']),
+            ('invoice_date', '>=', fecha_desde),
+            ('invoice_date', '<=', fecha_hasta),
+            ('name', '!=', False),
+            ('partner_id.vat', '!=', False),
+        ])
+
+        for move in moves_odoo:
+            match = re.search(r'(\d{5})[- ]?(\d{8})', move.name or "")
+            if not match:
+                continue
+
+            punto_venta, numero = match.groups()
+            clave = build_clave(move.partner_id.vat, punto_venta, numero)
+
+            if clave in existentes:
+                continue  # Ya fue creado con estado 'coincide' o 'solo_arca'
+
+            existentes.add(clave)
+            moneda = move.currency_id
+            comprobante_model.create({
+                "company_id": move.company_id.id,
+                "fecha_emision": move.invoice_date,
+                "letra": "?",  # No disponible
+                "punto_venta": punto_venta,
+                "nro_comprobante": numero,
+                "tipo_comprobante": move.move_type,
+                "razon_social_emisor": move.partner_id.name,
+                "cuit_emisor": move.partner_id.vat,
+                "iva_total": move.amount_tax,
+                "importe_total": move.amount_total,
+                "importe_neto": move.amount_untaxed,
+                "tipo_cambio": move.currency_rate or 1.0,
+                "codigo_autorizacion": "",  # No disponible
+                "moneda_id": moneda.id,
+                "estado_coincidencia": "solo_odoo",
+                "clave_comparacion": clave,
+                "clave_debug": f"{{NO_ARCA}} & {{{clave}}}",
+            })
+
 
         return duplicados
 
