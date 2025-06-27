@@ -369,7 +369,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 "letra": "?",  # No disponible
                 "punto_venta": punto_venta,
                 "nro_comprobante": numero,
-                "tipo_comprobante": move.move_type,
+                "tipo_comprobante": move.name,
                 "razon_social_emisor": move.partner_id.name,
                 "cuit_emisor": move.partner_id.vat,
                 "iva_total": move.amount_tax,
