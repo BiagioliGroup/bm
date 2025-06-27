@@ -419,7 +419,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 "letra": letra,
                 "punto_venta": punto_venta,
                 "nro_comprobante": numero,
-                "tipo_comprobante": f"FA-{letra} {punto_venta}-{numero}",
+                "tipo_comprobante": f"{letra} {punto_venta}-{numero}",
                 "razon_social_emisor": comp["Denominación Receptor/Emisor"],
                 "cuit_emisor": cuit_arca,
                 "iva_total": iva_total,
