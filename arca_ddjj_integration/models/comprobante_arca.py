@@ -437,6 +437,7 @@ class WizardImportarComprobantes(models.TransientModel):
             })
             
         # Paso final: buscar comprobantes que solo están en Odoo en el rango de fechas
+        
         fecha_desde = self.fecha_desde
         fecha_hasta = self.fecha_hasta
         moves_odoo = move_model.search([
@@ -460,10 +461,40 @@ class WizardImportarComprobantes(models.TransientModel):
 
             existentes.add(clave)
             moneda = move.currency_id
+ 
+            # Aqui adaptamos el tipo de comprobante desde ODOO
+            match = re.search(r'([A-Z]{2})-([A-Z]) (\d{5})-(\d{8})', move.name or '')
+            if match:
+                tipo = match.group(1)         # FA
+                letra = match.group(2)        # A
+                punto_venta = match.group(3)  # 00010
+                numero = match.group(4)       # 00000038
+            else:
+                tipo = move.name or ""
+                letra = ""
+                punto_venta = ""
+                numero = ""
+
+            TIPO_MAP = {
+            "FA-A": "FCA", "ND-A": "NDA", "NC-A": "NCA",
+            "FA-B": "FCB", "ND-B": "NDB", "NC-B": "NCB",
+            "FA-C": "FCC", "ND-C": "NDC", "NC-C": "NCC",
+            "FA-M": "FCM", "ND-M": "NDM", "NC-M": "NCM",
+            # Agregá más según necesites
+        }
+
+            def get_tipo_comprobante_code(move_name):
+                match = re.match(r"([A-Z]{2})-([A-Z])\s+\d{5}-\d+", move_name)
+                if match:
+                    tipo = match.group(1)  # ej: FA
+                    letra = match.group(2)  # ej: A
+                    return TIPO_MAP.get(f"{tipo}-{letra}", "DESCONOCIDO")
+                return "DESCONOCIDO"
+            
             comprobante_model.create({
                 "company_id": move.company_id.id,
                 "fecha_emision": move.invoice_date,
-                "letra": "?",  # No disponible
+                "letra": get_tipo_comprobante_code(move.name),  
                 "punto_venta": punto_venta,
                 "nro_comprobante": numero,
                 "tipo_comprobante": move.name,
