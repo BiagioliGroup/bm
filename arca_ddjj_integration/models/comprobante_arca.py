@@ -375,7 +375,7 @@ class WizardImportarComprobantes(models.TransientModel):
                 "iva_total": move.amount_tax,
                 "importe_total": move.amount_total,
                 "importe_neto": move.amount_untaxed,
-                "tipo_cambio": move.currency_rate or 1.0,
+                "tipo_cambio": float(comp.get("Tipo Cambio", 1.0)),
                 "codigo_autorizacion": "",  # No disponible
                 "moneda_id": moneda.id,
                 "estado_coincidencia": "solo_odoo",
