@@ -99,103 +99,104 @@ class WizardImportarComprobantes(models.TransientModel):
     lote_id = fields.Many2one('arca.lote', string="Lote ya descargado")
 
     TIPO_MAP = {
-        '001': 'FCA',
-        '002': 'NDA',
-        '003': 'NCA',
-        '004': 'REC-A',
-        '005': 'Nota Venta Contado A',
-        '006': 'FCB',
-        '007': 'NDB',
-        '008': 'NCB',
-        '009': 'REC-B',
-        '010': 'Nota Venta Contado B',
-        '011': 'FCC',
-        '012': 'NDC',
-        '013': 'NCC',
-        '015': 'REC-C',
-        '016': 'Nota Venta Contado C',
-        '017': 'LSP-A',
-        '018': 'LSP-B',
-        '019': 'FEXP',
-        '020': 'ND-EXT',
-        '021': 'NC-EXT',
-        '022': 'FEXP-SIMPLIFICADA',
-        '023': 'COMPRA-A-PESQUERO',
-        '024': 'CONSIG-A-PESQUERO',
-        '025': 'COMPRA-B-PESQUERO',
-        '026': 'CONSIG-B-PESQUERO',
-        '027': 'LUCI-A',
-        '028': 'LUCI-B',
-        '029': 'LUCI-C',
-        '030': 'COMPRA-USADOS',
-        '031': 'MANDATO',
-        '032': 'RECICLAJE',
-        '033': 'LIQ-GRANOS',
-        '034': 'COMP-A-RG1415',
-        '035': 'COMP-B-RG1415',
-        '036': 'COMP-C-RG1415',
-        '037': 'ND-RG1415',
-        '038': 'NC-RG1415',
-        '039': 'OTROS-A-RG1415',
-        '040': 'OTROS-B-RG1415',
-        '041': 'OTROS-C-RG1415',
-        '043': 'NC-LUCI-B',
-        '044': 'NC-LUCI-C',
-        '045': 'ND-LUCI-A',
-        '046': 'ND-LUCI-B',
-        '047': 'ND-LUCI-C',
-        '048': 'NC-LUCI-A',
-        '049': 'COMPRA-NR',
-        '050': 'REC-FCA-FCE',
-        '051': 'FCM',
-        '052': 'NDM',
-        '053': 'NCM',
-        '054': 'REC-M',
-        '055': 'Nota Venta Contado M',
-        '056': 'COMP-M-RG1415',
-        '057': 'OTROS-M-RG1415',
-        '058': 'CVyLP-M',
-        '059': 'LIQ-M',
-        '060': 'CVyLP-A',
-        '061': 'CVyLP-B',
-        '063': 'LIQ-A',
-        '064': 'LIQ-B',
-        '066': 'IMP-IMPORTACION',
-        '068': 'LIQ-C',
-        '070': 'REC-FCE',
-        '080': 'ZETA',
-        '081': 'TQ-FCA',
-        '082': 'TQ-FCB',
-        '083': 'TIQUE',
-        '088': 'REMITO-E',
-        '089': 'RESUMEN',
-        '090': 'OTROS-EXC-NC',
-        '091': 'REMITO-R',
-        '099': 'OTROS',
-        '110': 'TQ-NC',
-        '111': 'TQ-FCC',
-        '112': 'TQ-NCA',
-        '113': 'TQ-NCB',
-        '114': 'TQ-NCC',
-        '115': 'TQ-NDA',
-        '116': 'TQ-NDB',
-        '117': 'TQ-NDC',
-        '118': 'TQ-FCM',
-        '119': 'TQ-NCM',
-        '120': 'TQ-NDM',
-        '201': 'FCE-A',
-        '202': 'ND-FCE-A',
-        '203': 'NC-FCE-A',
-        '206': 'FCE-B',
-        '207': 'ND-FCE-B',
-        '208': 'NC-FCE-B',
-        '211': 'FCE-C',
-        '212': 'ND-FCE-C',
-        '213': 'NC-FCE-C',
-        '331': 'LIQ-SEC-GRANOS',
-        '332': 'CERT-E-GRANOS',
-        '995': 'REMITO-CARNICO-E',
-    }
+                '001': {'codigo': 'FCA', 'signo': 1},
+                '002': {'codigo': 'NDA', 'signo': 1},
+                '003': {'codigo': 'NCA', 'signo': -1},
+                '004': {'codigo': 'REC-A', 'signo': 1},
+                '005': {'codigo': 'Nota Venta Contado A', 'signo': 1},
+                '006': {'codigo': 'FCB', 'signo': 1},
+                '007': {'codigo': 'NDB', 'signo': 1},
+                '008': {'codigo': 'NCB', 'signo': -1},
+                '009': {'codigo': 'REC-B', 'signo': 1},
+                '010': {'codigo': 'Nota Venta Contado B', 'signo': 1},
+                '011': {'codigo': 'FCC', 'signo': 1},
+                '012': {'codigo': 'NDC', 'signo': 1},
+                '013': {'codigo': 'NCC', 'signo': -1},
+                '015': {'codigo': 'REC-C', 'signo': 1},
+                '016': {'codigo': 'Nota Venta Contado C', 'signo': 1},
+                '017': {'codigo': 'LSP-A', 'signo': 1},
+                '018': {'codigo': 'LSP-B', 'signo': 1},
+                '019': {'codigo': 'FEXP', 'signo': 1},
+                '020': {'codigo': 'ND-EXT', 'signo': 1},
+                '021': {'codigo': 'NC-EXT', 'signo': -1},
+                '022': {'codigo': 'FEXP-SIMPLIFICADA', 'signo': 1},
+                '023': {'codigo': 'COMPRA-A-PESQUERO', 'signo': 1},
+                '024': {'codigo': 'CONSIG-A-PESQUERO', 'signo': 1},
+                '025': {'codigo': 'COMPRA-B-PESQUERO', 'signo': 1},
+                '026': {'codigo': 'CONSIG-B-PESQUERO', 'signo': 1},
+                '027': {'codigo': 'LUCI-A', 'signo': 1},
+                '028': {'codigo': 'LUCI-B', 'signo': 1},
+                '029': {'codigo': 'LUCI-C', 'signo': 1},
+                '030': {'codigo': 'COMPRA-USADOS', 'signo': 1},
+                '031': {'codigo': 'MANDATO', 'signo': 1},
+                '032': {'codigo': 'RECICLAJE', 'signo': 1},
+                '033': {'codigo': 'LIQ-GRANOS', 'signo': 1},
+                '034': {'codigo': 'COMP-A-RG1415', 'signo': 1},
+                '035': {'codigo': 'COMP-B-RG1415', 'signo': 1},
+                '036': {'codigo': 'COMP-C-RG1415', 'signo': 1},
+                '037': {'codigo': 'ND-RG1415', 'signo': 1},
+                '038': {'codigo': 'NC-RG1415', 'signo': -1},
+                '039': {'codigo': 'OTROS-A-RG1415', 'signo': 1},
+                '040': {'codigo': 'OTROS-B-RG1415', 'signo': 1},
+                '041': {'codigo': 'OTROS-C-RG1415', 'signo': 1},
+                '043': {'codigo': 'NC-LUCI-B', 'signo': -1},
+                '044': {'codigo': 'NC-LUCI-C', 'signo': -1},
+                '045': {'codigo': 'ND-LUCI-A', 'signo': 1},
+                '046': {'codigo': 'ND-LUCI-B', 'signo': 1},
+                '047': {'codigo': 'ND-LUCI-C', 'signo': 1},
+                '048': {'codigo': 'NC-LUCI-A', 'signo': -1},
+                '049': {'codigo': 'COMPRA-NR', 'signo': 1},
+                '050': {'codigo': 'REC-FCA-FCE', 'signo': 1},
+                '051': {'codigo': 'FCM', 'signo': 1},
+                '052': {'codigo': 'NDM', 'signo': 1},
+                '053': {'codigo': 'NCM', 'signo': -1},
+                '054': {'codigo': 'REC-M', 'signo': 1},
+                '055': {'codigo': 'Nota Venta Contado M', 'signo': 1},
+                '056': {'codigo': 'COMP-M-RG1415', 'signo': 1},
+                '057': {'codigo': 'OTROS-M-RG1415', 'signo': 1},
+                '058': {'codigo': 'CVyLP-M', 'signo': 1},
+                '059': {'codigo': 'LIQ-M', 'signo': 1},
+                '060': {'codigo': 'CVyLP-A', 'signo': 1},
+                '061': {'codigo': 'CVyLP-B', 'signo': 1},
+                '063': {'codigo': 'LIQ-A', 'signo': 1},
+                '064': {'codigo': 'LIQ-B', 'signo': 1},
+                '066': {'codigo': 'IMP-IMPORTACION', 'signo': 1},
+                '068': {'codigo': 'LIQ-C', 'signo': 1},
+                '070': {'codigo': 'REC-FCE', 'signo': 1},
+                '080': {'codigo': 'ZETA', 'signo': 1},
+                '081': {'codigo': 'TQ-FCA', 'signo': 1},
+                '082': {'codigo': 'TQ-FCB', 'signo': 1},
+                '083': {'codigo': 'TIQUE', 'signo': 1},
+                '088': {'codigo': 'REMITO-E', 'signo': 1},
+                '089': {'codigo': 'RESUMEN', 'signo': 1},
+                '090': {'codigo': 'OTROS-EXC-NC', 'signo': -1},
+                '091': {'codigo': 'REMITO-R', 'signo': 1},
+                '099': {'codigo': 'OTROS', 'signo': 1},
+                '110': {'codigo': 'TQ-NC', 'signo': -1},
+                '111': {'codigo': 'TQ-FCC', 'signo': 1},
+                '112': {'codigo': 'TQ-NCA', 'signo': -1},
+                '113': {'codigo': 'TQ-NCB', 'signo': -1},
+                '114': {'codigo': 'TQ-NCC', 'signo': -1},
+                '115': {'codigo': 'TQ-NDA', 'signo': 1},
+                '116': {'codigo': 'TQ-NDB', 'signo': 1},
+                '117': {'codigo': 'TQ-NDC', 'signo': 1},
+                '118': {'codigo': 'TQ-FCM', 'signo': 1},
+                '119': {'codigo': 'TQ-NCM', 'signo': -1},
+                '120': {'codigo': 'TQ-NDM', 'signo': 1},
+                '201': {'codigo': 'FCE-A', 'signo': 1},
+                '202': {'codigo': 'ND-FCE-A', 'signo': 1},
+                '203': {'codigo': 'NC-FCE-A', 'signo': -1},
+                '206': {'codigo': 'FCE-B', 'signo': 1},
+                '207': {'codigo': 'ND-FCE-B', 'signo': 1},
+                '208': {'codigo': 'NC-FCE-B', 'signo': -1},
+                '211': {'codigo': 'FCE-C', 'signo': 1},
+                '212': {'codigo': 'ND-FCE-C', 'signo': 1},
+                '213': {'codigo': 'NC-FCE-C', 'signo': -1},
+                '331': {'codigo': 'LIQ-SEC-GRANOS', 'signo': 1},
+                '332': {'codigo': 'CERT-E-GRANOS', 'signo': 1},
+                '995': {'codigo': 'REMITO-CARNICO-E', 'signo': 1},
+            }
+
 
 
     def _buscar_lote_existente(self):
@@ -372,7 +373,10 @@ class WizardImportarComprobantes(models.TransientModel):
         duplicados = 0
         for comp in data.get("mis_comprobantes_recibidos", []):
             tipo_codigo = str(comp["Tipo"]).zfill(3)
-            letra = tipo_map.get(tipo_codigo, "X")
+            tipo_info = TIPO_MAP.get(tipo_codigo, {'codigo': '??', 'signo': 1})
+
+            letra = tipo_info['codigo']
+            signo = tipo_info['signo']
             punto_venta = str(comp["Punto de Venta"]).zfill(5)
             numero = str(comp["Número Desde"]).zfill(8)
             cuit_arca = comp['Nro. Doc. Receptor/Emisor']
@@ -388,10 +392,10 @@ class WizardImportarComprobantes(models.TransientModel):
             moneda_raw = comp.get("Moneda", "PES")
             moneda = self.env['res.currency'].search([('name', 'ilike', moneda_raw)], limit=1)
 
-            # Calcular impuestos
-            importe_neto = float(comp.get("Imp. Neto Gravado", 0))
-            iva_total = float(comp.get("IVA", 0))
-            iva_105 = iva_21 = iva_27 = 0.0
+            # Calcular impuestos y valores monetarios
+            importe_neto = signo * float(comp.get("Imp. Neto Gravado", 0))
+            iva_total = signo * float(comp.get("IVA", 0))
+            iva_105 = signo * iva_21 = iva_27 = 0.0
             # Intentamos calcular distribución de IVA
             if iva_total:
                 porc = round(iva_total / importe_neto, 4)  # ratio total IVA sobre neto
@@ -405,8 +409,8 @@ class WizardImportarComprobantes(models.TransientModel):
                     # Descomposición múltiple si aplica
                     # En este punto podrías añadir lógica futura como hiciste con percepciones
                     iva_21 = iva_total  # fallback: todo a 21%
-            total = float(comp.get("Imp. Total", 0))
-            iibb, percep_iva, tem, internos = calcular_impuestos(importe_neto, iva_total, total, moneda_raw)
+            total = signo * float(comp.get("Imp. Total", 0))
+            iibb, percep_iva, tem, internos = calcular_impuestos(signo * importe_neto, signo * iva_total, signo * total, signo * moneda_raw)
             
 
             comprobante_model.create({
