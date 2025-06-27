@@ -395,7 +395,7 @@ class WizardImportarComprobantes(models.TransientModel):
             # Calcular impuestos y valores monetarios
             importe_neto = signo * float(comp.get("Imp. Neto Gravado", 0))
             iva_total = signo * float(comp.get("IVA", 0))
-            iva_105 = signo * iva_21 = iva_27 = 0.0
+            iva_105 =  iva_21 = iva_27 = 0.0
             # Intentamos calcular distribución de IVA
             if iva_total:
                 porc = round(iva_total / importe_neto, 4)  # ratio total IVA sobre neto
