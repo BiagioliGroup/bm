@@ -373,7 +373,7 @@ class WizardImportarComprobantes(models.TransientModel):
         duplicados = 0
         for comp in data.get("mis_comprobantes_recibidos", []):
             tipo_codigo = str(comp["Tipo"]).zfill(3)
-            tipo_info = TIPO_MAP.get(tipo_codigo, {'codigo': '??', 'signo': 1})
+            tipo_info = self.TIPO_MAP.get(tipo_codigo, {'codigo': '??', 'signo': 1})
 
             letra = tipo_info['codigo']
             signo = tipo_info['signo']
