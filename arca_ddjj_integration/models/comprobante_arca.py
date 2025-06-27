@@ -253,6 +253,12 @@ class WizardImportarComprobantes(models.TransientModel):
 
 
         tipo_map = self.TIPO_MAP
+        # Si el usuario no completó fechas, las tomamos del lote seleccionado
+        if not self.fecha_desde and self.lote_id:
+            self.fecha_desde = self.lote_id.fecha_desde
+        if not self.fecha_hasta and self.lote_id:
+            self.fecha_hasta = self.lote_id.fecha_hasta
+            
         comprobante_model = self.env['comprobante.arca']
         move_model = self.env['account.move']
 
