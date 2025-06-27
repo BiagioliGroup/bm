@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Biagioli MercadoPago Patch',
-    'version': '1.0.0',
+    'version': '1.0 ',
     'depends': ['payment_mercado_pago'],
     'author': 'Sergio Biagioli',
     'category': 'Accounting/Payment Acquirers',
@@ -16,6 +16,8 @@
     'installable': True,
     'application': False,
     'auto_install': False,
+    'price' : 199.99,
+    'currency': 'USD',
     'license': 'GPL-3'
 }
 
