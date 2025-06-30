@@ -56,7 +56,7 @@
   <xpath expr="//header[@id='top']" position="inside">
     <t t-if="website and website.get_current_pricelist() and website.get_current_pricelist().name">
       <span class="badge bg-info mx-2">
-        <t t-esc="website.get_current_pricelist().name"/>
+        <t t-esc="website._get_current_pricelist().name"/>
       </span>
     </t>
   </xpath>
