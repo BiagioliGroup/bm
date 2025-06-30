@@ -54,7 +54,7 @@
 <!-- HEADER para mostrarle al usuario cual lista de precio le pertenece -->
 <template id="biagioli_show_user_pricelist_in_header" inherit_id="website.layout">
   <xpath expr="//header" position="inside">
-    <t t-if="request.website and request.website.get_config_parameter('biagioli_ecom_mayorista.show_user_pricelist_badge') == 'True'">
+    <t t-if="request.env['ir.config_parameter'].sudo().get_param('biagioli_ecom_mayorista.show_user_pricelist_badge') == 'True'">
       <div class="alert alert-info">
         Lista de precios: <t t-esc="request.website.get_current_pricelist().name"/>
       </div>

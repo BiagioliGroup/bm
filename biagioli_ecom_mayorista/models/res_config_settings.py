@@ -13,10 +13,8 @@ class ResConfigSettings(models.TransientModel):
     )
 
 
-    show_user_pricelist_badge = fields.Boolean(
-    string="Mostrar lista de precios en el header",
-    config_parameter="biagioli_ecom_mayorista.show_user_pricelist_badge"
-)
+    show_user_pricelist_badge = fields.Boolean(string="Mostrar badge con lista de precios")
+
     show_comparative_prices = fields.Boolean(
         string="Mostrar precios comparativos",
         config_parameter="biagioli_ecom_mayorista.show_comparative_prices"
