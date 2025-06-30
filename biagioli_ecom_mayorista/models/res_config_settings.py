@@ -5,10 +5,13 @@ class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
     pricelist_ids_show = fields.Many2many(
-        'product.pricelist',
-        string='Listas de precios visibles en tienda',
-        config_parameter='biagioli_ecom_mayorista.pricelist_ids_show'
+    'product.pricelist',
+    'res_config_settings_pricelist_ids_rel',  # nombre único para la tabla de relación
+    'config_id', 'pricelist_id',  # nombres de las columnas
+    string='Listas de precios visibles en tienda',
+    config_parameter='biagioli_ecom_mayorista.pricelist_ids_show'
     )
+
 
     show_user_pricelist_badge = fields.Boolean(
     string="Mostrar lista de precios en el header",
