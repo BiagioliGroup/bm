@@ -56,7 +56,8 @@
   <xpath expr="//header[@id='top']" position="inside">
     <t t-if="request.website.user_pricelist_name">
       <span class="badge bg-info mx-2">
-        <t t-esc="request.website.user_pricelist_name"/>
+        Lista de precio actual: MAYORISTA
+        <!-- <t t-esc="request.website.user_pricelist_name"/> -->
       </span>
     </t>
   </xpath>
