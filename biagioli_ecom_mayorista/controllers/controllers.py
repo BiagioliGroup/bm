@@ -1,4 +1,5 @@
 from odoo.http import request
+from odoo import http
 
 @http.route('/', type='http', auth="public", website=True)
 def homepage(**kwargs):
