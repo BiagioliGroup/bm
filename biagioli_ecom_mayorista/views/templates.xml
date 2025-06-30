@@ -1,0 +1,68 @@
+<odoo>
+  <!-- Grilla de productos: agregar precios comparativos -->
+  <template id="biagioli_product_grid_price_comparatives" inherit_id="website_sale.products_item">
+    <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
+      <t t-if="request.env.user.has_group('base.group_user')">
+        <div class="product-prices-comparative text-muted small">
+          <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
+          <t t-foreach="comparatives" t-as="entry">
+            <div>
+              <t t-if="entry.is_user_pricelist">
+                <strong><t t-esc="entry.name"/>:</strong>
+                <span><t t-esc="entry.price | float_to_currency(product.currency_id)"/></span>
+              </t>
+              <t t-if="not entry.is_user_pricelist">
+                <span class="text-decoration-line-through">
+                  <t t-esc="entry.name"/>: <t t-esc="entry.price | float_to_currency(product.currency_id)"/>
+                </span>
+              </t>
+            </div>
+          </t>
+        </div>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- Página individual de producto -->
+  <template id="biagioli_product_page_price_comparatives" inherit_id="website_sale.product">
+    <xpath expr="//div[@id='product_details']/h1" position="after">
+      <t t-if="request.env.user.has_group('base.group_user')">
+        <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
+        <div class="mt-2">
+          <ul class="list-unstyled small">
+            <t t-foreach="comparatives" t-as="entry">
+              <li>
+                <t t-if="entry.is_user_pricelist">
+                  <strong><t t-esc="entry.name"/>:</strong>
+                  <span><t t-esc="entry.price | float_to_currency(product.currency_id)"/></span>
+                  <span class="badge badge-success ml-1">Tu precio</span>
+                </t>
+                <t t-if="not entry.is_user_pricelist">
+                  <span class="text-decoration-line-through">
+                    <t t-esc="entry.name"/>: <t t-esc="entry.price | float_to_currency(product.currency_id)"/>
+                  </span>
+                </t>
+              </li>
+            </t>
+          </ul>
+        </div>
+      </t>
+    </xpath>
+  </template>
+
+
+<!-- HEADER para mostrarle al usuario cual lista de precio le pertenece -->
+  <template id="biagioli_show_user_pricelist_in_header" inherit_id="website.layout" name="Mostrar lista de precios en el header">
+    <xpath expr="//div[@id='top_menu']" position="inside">
+    <t t-if="request.env.user.has_group('base.group_user') and request.env['ir.config_parameter'].sudo().get_param('biagioli_ecom_mayorista.show_user_pricelist_badge') == 'True'">
+        <t t-set="pl" t-value="request.env.user.partner_id.property_product_pricelist"/>
+        <span class="badge bg-primary text-white ml-2">
+            Lista actual: <t t-esc="pl.name"/>
+        </span>
+    </t>
+    </xpath>
+  </template>
+
+
+
+</odoo>

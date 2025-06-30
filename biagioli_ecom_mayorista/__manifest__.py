@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Biagioli Ecom Module', 
+    'name': 'Biagioli Ecom mayorista', 
     'summary': "Short (1 phrase/line) summary of the module's purpose",
 
     'description': """
@@ -23,7 +23,8 @@ Long description of module's purpose
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/settings_view.xml',
+        'views/templates.xml',
     ],
     'installable': True,
     'application': False,
