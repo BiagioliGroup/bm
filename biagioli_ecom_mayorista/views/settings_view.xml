@@ -4,56 +4,40 @@
     <field name="model">res.config.settings</field>
     <field name="inherit_id" ref="website.res_config_settings_view_form"/>
     <field name="arch" type="xml">
-      <xpath expr="//div[@id='website_configurator']" position="after">
-        <div class="app_settings_block" data-string="E-commerce Mayorista" string="E-commerce Mayorista">
-          <h2>Opciones de visualización mayorista</h2>
 
-          <!-- Mostrar etiqueta de lista en el header -->
-          <div class="row mt16 o_setting_box">
-            <div class="col-12 col-lg-6">
-              <label for="show_user_pricelist_badge"/>
-              <field name="show_user_pricelist_badge"/>
-              <div class="text-muted">
-                Muestra una etiqueta con el nombre de la lista de precios actual del usuario logueado en el encabezado del sitio web.
-              </div>
+      <!-- Inserta dentro del app "website" -->
+      <xpath expr="//app[@name='website']" position="inside">
+        <block title="E-commerce Mayorista" id="biagioli_ecom_mayorista_settings_block">
+          <setting id="show_user_pricelist_badge_setting" string="Mostrar lista de precios en el header">
+            <field name="show_user_pricelist_badge"/>
+            <div class="text-muted">
+              Muestra una etiqueta con el nombre de la lista de precios actual del usuario logueado en el encabezado del sitio web.
             </div>
-          </div>
+          </setting>
 
-          <!-- Mostrar precios comparativos -->
-          <div class="row mt16 o_setting_box">
-            <div class="col-12 col-lg-6">
-              <label for="show_comparative_prices"/>
-              <field name="show_comparative_prices"/>
-              <div class="text-muted">
-                Muestra el precio público y, si corresponde, el precio de la lista asignada al usuario.
-              </div>
+          <setting id="show_comparative_prices_setting" string="Mostrar precios comparativos">
+            <field name="show_comparative_prices"/>
+            <div class="text-muted">
+              Muestra el precio público y, si corresponde, el precio de la lista asignada al usuario.
             </div>
-          </div>
+          </setting>
 
-          <!-- Mostrar cintas por proveedor -->
-          <div class="row mt16 o_setting_box">
-            <div class="col-12 col-lg-6">
-              <label for="show_ribbon_by_supplier"/>
-              <field name="show_ribbon_by_supplier"/>
-              <div class="text-muted">
-                Agrega una cinta (ribbon) con el nombre del proveedor o marca en la tarjeta del producto.
-              </div>
+          <setting id="show_ribbon_by_supplier_setting" string="Mostrar cintas por proveedor">
+            <field name="show_ribbon_by_supplier"/>
+            <div class="text-muted">
+              Agrega una cinta (ribbon) con el nombre del proveedor o marca en la tarjeta del producto.
             </div>
-          </div>
+          </setting>
 
-          <!-- Listas visibles en tienda -->
-          <div class="row mt16 o_setting_box">
-            <div class="col-12 col-lg-6">
-              <label for="pricelist_ids_show"/>
-              <field name="pricelist_ids_show" widget="many2many_tags"/>
-              <div class="text-muted">
-                Seleccioná qué listas de precios mostrar como referencia en tienda junto al precio público.
-              </div>
+          <setting id="pricelist_ids_show_setting" string="Listas de precios visibles en tienda">
+            <field name="pricelist_ids_show" widget="many2many_tags"/>
+            <div class="text-muted">
+              Seleccioná qué listas de precios mostrar como referencia en tienda junto al precio público.
             </div>
-          </div>
-
-        </div>
+          </setting>
+        </block>
       </xpath>
+
     </field>
   </record>
 </odoo>
