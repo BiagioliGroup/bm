@@ -53,11 +53,10 @@
 
 <!-- HEADER para mostrarle al usuario cual lista de precio le pertenece -->
 <template id="biagioli_show_user_pricelist_in_header" inherit_id="website.layout">
-  <xpath expr="//header[@id='top']" position="inside">
-    <t t-if="request.website.user_pricelist_name">
+  <xpath expr="//header[@id='top']//div[contains(@class, 'col-auto') and contains(@class, 'd-xl-flex') and contains(@class, 'align-items-center')]" position="inside">
+    <t t-if="request.website.get_current_pricelist() and request.website.get_current_pricelist().name">
       <span class="badge bg-info mx-2">
-        Lista de precio actual: MAYORISTA
-        <!-- <t t-esc="request.website.user_pricelist_name"/> -->
+        <t t-esc="request.website.get_current_pricelist().name"/>
       </span>
     </t>
   </xpath>
