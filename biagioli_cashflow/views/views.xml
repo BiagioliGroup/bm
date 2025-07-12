@@ -36,7 +36,11 @@
 
                 <!-- Medida: Monto total firmado -->
                 <field name="amount_total_signed" string="Monto Total" type="measure"/>
+
+                <!-- Campo requerido para valores monetarios -->
+                <field name="currency_id"/>
             </grid>
         </field>
     </record>
+
 </odoo>
