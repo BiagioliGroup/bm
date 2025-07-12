@@ -26,10 +26,8 @@
     </record>
 
     
-    <!-- ============================
-         ACCIÓN: Vista GRID
-         ============================ -->
-    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
+    
+    <!-- <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
         <field name="name">Cashflow Proyectado</field>
         <field name="res_model">cashflow.projection</field>
         <field name="view_mode">grid</field>
@@ -37,9 +35,6 @@
 
     
 
-    <!-- ============================
-         MENÚ
-         ============================ -->
     <menuitem id="menu_cashflow"
               name="Cashflow"
               parent="accountant.menu_accounting"
@@ -49,6 +44,6 @@
               name="Proyección de Flujo"
               parent="menu_cashflow"
               action="action_cashflow_projection_grid"
-              sequence="10"/>
+              sequence="10"/> -->
 
 </odoo>
