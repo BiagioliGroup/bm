@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Menú -->
-    <menuitem id="menu_cashflow_grid_invoices"
-          name="Cashflow"
-          parent="account.menu_board_journal_1"
-          action="action_cashflow_grid_invoices"
-          sequence="100"/>
+    <!-- Menú principal del módulo Cashflow -->
+    <menuitem id="menu_cashflow"
+            name="Cashflow"
+            parent="account.menu_finance"
+            sequence="100"/>
 
     <!-- Acción para la vista GRID de Cashflow -->    
     <record id="view_cashflow_grid_invoices" model="ir.ui.view">
