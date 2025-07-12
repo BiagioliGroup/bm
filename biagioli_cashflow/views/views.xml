@@ -12,11 +12,11 @@
         <field name="view_mode">grid</field>
     </record>
 
-    <menuitem id="menu_cashflow_projection_grid"
+    <!-- <menuitem id="menu_cashflow_projection_grid"
           name="Proyeccion de Flujo"
           parent="menu_cashflow"
           
-          sequence="10"/>
+          sequence="10"/> -->
 
 
 
