@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- ============================
-         ACCIÓN: Vista GRID
-         ============================ -->
-    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
-        <field name="name">Cashflow Proyectado</field>
-        <field name="res_model">cashflow.projection</field>
-        <field name="view_mode">grid</field>
-    </record>
 
     <!-- ============================
          VISTA GRID
@@ -34,6 +26,14 @@
     </record>
 
     
+    <!-- ============================
+         ACCIÓN: Vista GRID
+         ============================ -->
+    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
+        <field name="name">Cashflow Proyectado</field>
+        <field name="res_model">cashflow.projection</field>
+        <field name="view_mode">grid</field>
+    </record>
 
     
 
