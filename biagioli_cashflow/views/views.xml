@@ -2,10 +2,17 @@
 <odoo>
     <!-- Menú principal del módulo Cashflow -->
     <menuitem id="menu_cashflow"
-            name="Cashflow"
-            parent="accountant.menu_accounting"
-            action="action_cashflow_projection_grid"
-            sequence="120"/>
+          name="Cashflow"
+          parent="accountant.menu_accounting"
+          sequence="120"/>
+    
+
+    <menuitem id="menu_cashflow_projection_grid"
+          name="Proyección de Flujo"
+          parent="menu_cashflow"
+          action="action_cashflow_projection_grid"
+          sequence="10"/>
+
 
 
    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
