@@ -24,7 +24,7 @@
                 editable="bottom"
                 display_empty="1"
                 create_inline="0">
-                
+
                 <!-- Filas: Proveedor -->
                 <field name="partner_id" type="row"/>
 
@@ -34,11 +34,12 @@
                     <range name="month" string="Mes" span="month" step="day" default="1"/>
                 </field>
 
-                <!-- Medida: Monto total firmado -->
-                <field name="amount_total_signed" string="Monto Total" type="measure"/>
-
-                <!-- Campo requerido para valores monetarios -->
-                <field name="currency_id"/>
+                <!-- Medida: Monto total firmado (con moneda definida) -->
+                <field name="amount_total_signed"
+                    string="Monto Total"
+                    type="measure"
+                    widget="monetary"
+                    options="{'currency_field': 'currency_id'}"/>
             </grid>
         </field>
     </record>
