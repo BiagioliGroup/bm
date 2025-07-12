@@ -1,47 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Menú principal del módulo Cashflow -->
-   <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
+    <!-- Acción para abrir la vista GRID -->
+    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
         <field name="name">Cashflow Proyectado</field>
         <field name="res_model">cashflow.projection</field>
-        <field name="view_mode">grid</field>    
+        <field name="view_mode">grid,tree,form</field>
     </record>
-    
+
+    <!-- Menú padre -->
     <menuitem id="menu_cashflow"
-          name="Cashflow"
-          parent="accountant.menu_accounting"
-          sequence="120"/>
-    
+              name="Cashflow"
+              parent="accountant.menu_accounting"
+              sequence="120"/>
 
+    <!-- Submenú con acción -->
     <menuitem id="menu_cashflow_projection_grid"
-          name="Proyeccion de Flujo"
-          parent="menu_cashflow"
-          action="action_cashflow_projection_grid"
-          sequence="10"/>
+              name="Proyección de Flujo"
+              parent="menu_cashflow"
+              action="action_cashflow_projection_grid"
+              sequence="10"/>
 
-
-
-
-    <!-- Acción para la vista GRID de Cashflow -->    
+    <!-- Vista GRID -->
     <record id="view_cashflow_projection_grid" model="ir.ui.view">
         <field name="name">cashflow.projection.grid</field>
         <field name="model">cashflow.projection</field>
         <field name="arch" type="xml">
             <grid string="Cashflow Proyectado"
-                editable="bottom"
-                display_empty="1"
-                create_inline="1">
+                  editable="bottom"
+                  display_empty="1"
+                  create_inline="1">
 
                 <field name="partner_id" type="row"/>
-
                 <field name="date" type="col">
                     <range name="day" string="Día" span="day" step="day" default="1"/>
                     <range name="month" string="Mes" span="month" step="day"/>
                 </field>
-
-                <field name="amount" type="measure" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount" type="measure" widget="monetary"
+                       options="{'currency_field': 'currency_id'}"/>
             </grid>
         </field>
     </record>
-
 </odoo>
