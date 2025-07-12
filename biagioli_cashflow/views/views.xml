@@ -3,9 +3,9 @@
     <!-- Menú -->
     <menuitem id="menu_cashflow_grid_invoices"
           name="Cashflow"
-          parent="menu_cashflow"
+          parent="account.menu_board_journal_1"
           action="action_cashflow_grid_invoices"
-          sequence="10"/>
+          sequence="100"/>
 
     <!-- Acción para la vista GRID de Cashflow -->    
     <record id="view_cashflow_grid_invoices" model="ir.ui.view">
