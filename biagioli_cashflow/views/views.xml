@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Acción para abrir la vista GRID -->
-    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
-        <field name="name">Cashflow Proyectado</field>
-        <field name="res_model">cashflow.projection</field>
-        <field name="view_mode">grid</field>
-    </record>
-
-    <!-- Menú padre -->
-    <menuitem id="menu_cashflow"
-              name="Cashflow"
-              parent="accountant.menu_accounting"
-              sequence="120"/>
-
-    <!-- Submenú con acción -->
-    <menuitem id="menu_cashflow_projection_grid"
-              name="Proyección de Flujo"
-              parent="menu_cashflow"
-              action="action_cashflow_projection_grid"
-              sequence="10"/>
-
     <!-- Vista GRID -->
     <record id="view_cashflow_projection_grid" model="ir.ui.view">
         <field name="name">cashflow.projection.grid</field>
@@ -40,4 +20,24 @@
             </grid>
         </field>
     </record>
+    <!-- Acción para abrir la vista GRID -->
+    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
+        <field name="name">Cashflow Proyectado</field>
+        <field name="res_model">cashflow.projection</field>
+        <field name="view_mode">grid</field>
+    </record>
+
+    <!-- Menú padre -->
+    <menuitem id="menu_cashflow"
+              name="Cashflow"
+              parent="accountant.menu_accounting"
+              sequence="120"/>
+
+    <!-- Submenú con acción -->
+    <menuitem id="menu_cashflow_projection_grid"
+              name="Proyección de Flujo"
+              parent="menu_cashflow"
+              action="action_cashflow_projection_grid"
+              sequence="10"/>
+
 </odoo>
