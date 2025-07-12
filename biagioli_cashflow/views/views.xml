@@ -15,7 +15,7 @@
     <menuitem id="menu_cashflow_projection_grid"
           name="Proyeccion de Flujo"
           parent="menu_cashflow"
-          action="action_cashflow_projection_grid"
+          
           sequence="10"/>
 
 
