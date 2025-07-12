@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_cashflow_account_move,access_cashflow_account_move,account.model_account_move,account.group_account_user,1,1,0,0
-access_cashflow_account_move_admin,access_cashflow_account_move_admin,account.model_account_move,account.group_account_manager,1,1,1,1
+access_cashflow_projection_user,access_cashflow_projection_user,model_cashflow_projection,base.group_user,1,1,1,1
