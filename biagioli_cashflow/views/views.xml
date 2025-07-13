@@ -10,9 +10,12 @@
         <field name="model">cashflow.projection</field>
         <field name="arch" type="xml">
             <grid string="Cashflow Proyectado"
-                  editable="bottom"
-                  display_empty="1"
-                  create_inline="1">
+                create="true" edit="true" delete="true"
+                adjustment="object" adjust_name="mi_metodo_ajuste"
+                hide_line_total="false" hide_column_total="true"
+                barchart_total="true"
+                create_inline="true"
+                display_empty="true">
 
                 <field name="partner_id" type="row"/>
                 <field name="date" type="col">
@@ -45,5 +48,20 @@
               parent="menu_cashflow"
               action="action_cashflow_projection_grid"
               sequence="10"/> -->
+
+     
+    <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
+        <field name="name">Cashflow</field>
+        <field name="res_model">cashflow.projection</field>
+        <field name="view_mode">grid</field>
+        <field name="view_id" ref="biagioli_cashflow.view_cashflow_projection_grid"/>
+        <field name="context">{}</field>
+    </record>
+
+
+    <menuitem id="menu_cashflow_projection_grid"
+              name="Cashflow Proyectado"
+              parent="accountant.menu_accounting"
+              action="biagioli_cashflow.view_cashflow_projection_grid"/>
 
 </odoo>
