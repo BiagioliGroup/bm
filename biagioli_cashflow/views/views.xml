@@ -13,7 +13,8 @@
                   create_inline="true" display_empty="true">
                 <field name="partner_id" type="row"/>
                 <field name="date" type="col">
-                    <range name="day"   string="Día" span="day"   step="day" default="1"/>
+                    <range name="week"  string="Semana" span="week"  step="day" default="1"/>
+                    <range name="day"   string="Día" span="day"   step="day" />
                     <range name="month" string="Mes" span="month" step="day"/>
                 </field>
                 <field name="amount" type="measure"/>
