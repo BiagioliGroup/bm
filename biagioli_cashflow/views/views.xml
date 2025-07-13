@@ -54,7 +54,6 @@
         <field name="name">Cashflow</field>
         <field name="res_model">cashflow.projection</field>
         <field name="view_mode">grid</field>
-        <field name="view_id" ref="biagioli_cashflow.view_cashflow_projection_grid"/>
         <field name="context">{}</field>
     </record>
 
