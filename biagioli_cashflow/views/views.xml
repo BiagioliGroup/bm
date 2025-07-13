@@ -9,22 +9,17 @@
         <field name="model">cashflow.projection</field>
         <field name="arch" type="xml">
             <grid string="Cashflow Proyectado"
-                editable="bottom"
-                display_empty="1"
-                create_inline="1">
+                  create="true" edit="true" delete="true"
+                  create_inline="true" display_empty="true">
 
-                <!-- Agrupación de filas: primero por tipo, luego por cliente, luego por concepto -->
                 <field name="type" type="row"/>
                 <field name="partner_id" type="row"/>
-                <field name="name" type="row"/>
-
-                <!-- Columnas: Fecha -->
                 <field name="date" type="col">
-                    <range name="day" string="Día" span="day" step="day" default="1"/>
+                
+                    <range name="week"  string="Semana" span="week"  step="day" default="1"/>
+                    <range name="day"   string="Día" span="day"   step="day" />
                     <range name="month" string="Mes" span="month" step="day"/>
                 </field>
-
-                <!-- Medida: importe numérico puro -->
                 <field name="amount" type="measure"/>
             </grid>
         </field>
