@@ -62,6 +62,6 @@
     <menuitem id="menu_cashflow_projection_grid"
               name="Cashflow Proyectado"
               parent="accountant.menu_accounting"
-              action="biagioli_cashflow.view_cashflow_projection_grid"/>
+              action="biagioli_cashflow.action_cashflow_projection_grid"/>
 
 </odoo>
