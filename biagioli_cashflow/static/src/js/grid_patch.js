@@ -1,4 +1,3 @@
-/** biagioli_cashflow/static/src/js/grid_patch.js */
 odoo.define("biagioli_cashflow.grid_patch", function (require) {
   "use strict";
   const GridRenderer = require("web.GridRenderer");

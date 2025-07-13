@@ -15,9 +15,8 @@
                 <!-- 1. Agrupación por Diario/Rubro -->
                 <field name="diario" type="row"/>
                 <!-- 2. División Ingreso/Egreso -->
-                <field name="type" type="row"
-                    decoration-success="type == 'ingreso'"
-                    decoration-danger="type == 'egreso'"/>
+                <!-- remarcar con JS/CSS en lugar de decoration-* en XML -->
+                <field name="type" type="row"/>
                 <!-- 3. Cliente/Proveedor -->
                 <field name="partner_id" type="row"/>
 
