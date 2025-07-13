@@ -7,15 +7,13 @@ odoo.define("biagioli_cashflow.grid_patch", function (require) {
   patch(GridRenderer.prototype, "biagioli_cashflow.GridRenderer", {
     _renderRow(row, node, { extra }) {
       const $tr = this._super(...arguments);
-      // row.values holds grouping values in order
-      const isTypeGroup =
-        row.values.type !== undefined && row.values.name === undefined;
-      if (isTypeGroup) {
-        if (row.values.type[0] === "ingreso") {
-          $tr.addClass("o_cashflow_type_ingreso");
-        } else {
-          $tr.addClass("o_cashflow_type_egreso");
-        }
+      if (row.values.type && !row.values.partner_id) {
+        const type = row.values.type[0];
+        $tr.addClass(
+          type === "ingreso"
+            ? "o_cashflow_type_ingreso"
+            : "o_cashflow_type_egreso"
+        );
       }
       return $tr;
     },
