@@ -11,6 +11,7 @@
             <grid string="Cashflow Proyectado"
                   create="true" edit="true" delete="true"
                   create_inline="true" display_empty="true">
+                <field name="type" type="row"/>
                 <field name="partner_id" type="row"/>
                 <field name="date" type="col">
                     <range name="week"  string="Semana" span="week"  step="day" default="1"/>
