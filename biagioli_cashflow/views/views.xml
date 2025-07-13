@@ -24,6 +24,23 @@
                 </field>
                 <field name="amount" type="measure"/>
             </grid>
+
+            <grid string="Cashflow Proyectado proveedores"
+                  create="true" edit="true" delete="true"
+                  create_inline="true" display_empty="true">
+
+                <field name="diario" type="row"/>
+                <field name="type" type="row"/>
+                <field name="partner_id" type="row"/>
+                <field name="date" type="col">
+                
+
+                    <range name="week"  string="Semana" span="week"  step="day" default="1"/>
+                    <range name="day"   string="Día" span="day"   step="day" />
+                    <range name="month" string="Mes" span="month" step="day"/>
+                </field>
+                <field name="amount" type="measure"/>
+            </grid>
         </field>
     </record>
 
