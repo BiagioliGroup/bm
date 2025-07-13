@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Biagioli Cashflow',
+    'name': 'biagioli_cashflow',
     'summary': "Gestión de flujo de caja y visualización de facturas proyectadas en vista Grid",
     'description': """
     Herramienta para visualizar facturas de proveedores agrupadas por fecha de vencimiento,

@@ -4,7 +4,7 @@
     <!-- ============================
          VISTA GRID
          ============================ -->
-    <record id="biagioli_cashflow.view_cashflow_projection_grid" model="ir.ui.view">
+    <record id="view_cashflow_projection_grid" model="ir.ui.view">
         <field name="name">cashflow.projection.grid</field>
         <field name="model">cashflow.projection</field>
         <field name="arch" type="xml">
@@ -31,7 +31,7 @@
          ACCIÓN
          ============================ -->
     <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
-        <field name="name">Cashflow</field>
+        <field name="name">Cashflow Proyectado</field>
         <field name="res_model">cashflow.projection</field>
         <field name="view_mode">grid</field>
         <field name="view_id" ref="biagioli_cashflow.view_cashflow_projection_grid"/>
