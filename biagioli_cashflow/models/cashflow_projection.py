@@ -9,6 +9,7 @@ class CashflowProjection(models.Model):
     partner_id = fields.Many2one('res.partner', string="Contacto")
     date = fields.Date(string="Fecha")
     amount = fields.Float(string="Importe")
+    journal_id = fields.Many2one('account.journal', string="Diario")
     currency_id = fields.Many2one('res.currency', string="Moneda", default=lambda self: self.env.company.currency_id)
     type = fields.Selection([
         ('ingreso', 'Ingreso'),
