@@ -16,8 +16,7 @@
                     <range name="day"   string="Día" span="day"   step="day" default="1"/>
                     <range name="month" string="Mes" span="month" step="day"/>
                 </field>
-                <field name="amount" type="measure" widget="monetary"
-                       options="{'currency_field': 'currency_id'}"/>
+                <field name="amount" type="measure"/>
             </grid>
         </field>
     </record>
