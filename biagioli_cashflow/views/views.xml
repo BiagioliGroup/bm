@@ -10,15 +10,10 @@
         <field name="arch" type="xml">
             <grid string="Cashflow Proyectado"
                   create="true" edit="true" delete="true"
-                  adjustment="object" adjust_name="mi_metodo_ajuste"
-                  hide_line_total="false" hide_column_total="true"
-                  barchart_total="true"
-                  create_inline="true"
-                  display_empty="true">
-
+                  create_inline="true" display_empty="true">
                 <field name="partner_id" type="row"/>
                 <field name="date" type="col">
-                    <range name="day" string="Día" span="day" step="day" default="1"/>
+                    <range name="day"   string="Día" span="day"   step="day" default="1"/>
                     <range name="month" string="Mes" span="month" step="day"/>
                 </field>
                 <field name="amount" type="measure" widget="monetary"
@@ -33,17 +28,21 @@
     <record id="action_cashflow_projection_grid" model="ir.actions.act_window">
         <field name="name">Cashflow Proyectado</field>
         <field name="res_model">cashflow.projection</field>
-        <field name="view_mode">grid</field>
+        <field name="view_mode">grid,tree,form</field>
         <field name="view_id" ref="biagioli_cashflow.view_cashflow_projection_grid"/>
-        <field name="context">{}</field>
     </record>
 
     <!-- ============================
          MENÚ
          ============================ -->
+    <menuitem id="menu_cashflow_root"
+              name="Cashflow"
+              parent="accountant.menu_accounting"
+              sequence="120"/>
     <menuitem id="menu_cashflow_projection_grid"
               name="Cashflow Proyectado"
-              parent="accountant.menu_accounting"
+              parent="menu_cashflow_root"
               action="biagioli_cashflow.action_cashflow_projection_grid"
-              sequence="120"/>
+              sequence="10"/>
+
 </odoo>
