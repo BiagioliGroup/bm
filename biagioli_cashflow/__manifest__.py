@@ -22,6 +22,13 @@
         'views/views.xml',
     ],
 
+     'assets_backend': {
+        'web.assets_backend': [
+            'biagioli_cashflow/static/src/css/cashflow_grid.less',
+            'biagioli_cashflow/static/src/js/grid_patch.js',
+        ],
+    },
+    
     'installable': True,
     'application': False,
     'auto_install': False,

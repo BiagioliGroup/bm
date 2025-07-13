@@ -9,24 +9,29 @@
         <field name="model">cashflow.projection</field>
         <field name="arch" type="xml">
             <grid string="Cashflow Proyectado"
-                  create="true" edit="true" delete="true"
-                  create_inline="true" display_empty="true">
+                create="true" edit="true" delete="true"
+                create_inline="true" display_empty="true">
 
-                <field name="diario" type="row"/>
-                <field name="type" type="row"/>
+                <!-- 1. Agrupación de filas por Rubro/Categoría -->
+                <field name="diario" type="row" decoration-secondary="True"/>
+                <!-- 2. Agrupación principal: Ingreso/Egreso con estilos -->
+                <field name="type" type="row"
+                    decoration-success="type == 'ingreso'"
+                    decoration-danger="type == 'egreso'"/>
+                <!-- 3. Subagrupación por Cliente/Proveedor -->
                 <field name="partner_id" type="row"/>
-                <field name="date" type="col">
-                
 
+                <!-- Columnas: Fecha con rangos de semana, día y mes -->
+                <field name="date" type="col">
                     <range name="week"  string="Semana" span="week"  step="day" default="1"/>
-                    <range name="day"   string="Día" span="day"   step="day" />
-                    <range name="month" string="Mes" span="month" step="day"/>
+                    <range name="day"   string="Día"    span="day"   step="day"/>
+                    <range name="month" string="Mes"    span="month" step="day"/>
                 </field>
+                <!-- Medida: importe puro -->
                 <field name="amount" type="measure"/>
             </grid>
         </field>
     </record>
-
     <!-- ============================
          ACCIÓN
          ============================ -->
