@@ -1,2 +1,13 @@
 <odoo>
+  <record id="view_account_move_search_repair_orders" model="ir.ui.view">
+    <field name="name">account.move.search.repair.orders</field>
+    <field name="model">account.move</field>
+    <field name="arch" type="xml">
+        <!-- Un filtro explícito para activar la búsqueda -->
+        <filter string="Sólo con Orden de Reparación"
+                name="only_repair_orders"
+                domain="[('sale_order_ids.repair_order_ids','!=', False)]"/>
+      </search>
+    </field>
+  </record>
 </odoo>
