@@ -3,7 +3,15 @@
     <field name="name">account.move.search.repair.orders</field>
     <field name="model">account.move</field>
     <field name="arch" type="xml">
-      <search string="Facturas de Órdenes de Reparación">
+      <search string="Facturas de Órdenes de Rep">
+        <!-- Campo de búsqueda libre sobre el número de factura -->
+        <field name="name"
+               string="Factura"
+               filter_domain="[('sale_order_ids.repair_order_ids','!=', False)]"/>
+        <!-- Otros campos de búsqueda que quieras exponer -->
+        <field name="partner_id"      string="Cliente"/>
+        <field name="invoice_date"    string="Fecha de factura"/>
+        <field name="state"           string="Estado"/>
         <!-- Un filtro explícito para activar la búsqueda -->
         <filter string="Sólo con Orden de Reparación"
                 name="only_repair_orders"
