@@ -10,6 +10,8 @@ class SaleOrder(models.Model):
         store=True,
     )
 
+ 
+
     @api.depends('invoice_ids', 'invoice_ids.state')
     def _compute_sale_invoice_id(self):
         for order in self:
