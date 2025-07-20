@@ -3,6 +3,7 @@
     <field name="name">account.move.search.repair.orders</field>
     <field name="model">account.move</field>
     <field name="arch" type="xml">
+      <search string="Facturas de Órdenes de Reparación">
         <!-- Un filtro explícito para activar la búsqueda -->
         <filter string="Sólo con Orden de Reparación"
                 name="only_repair_orders"
