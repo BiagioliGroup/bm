@@ -1,19 +1,18 @@
 <odoo>
-  <record id="view_account_move_search_repair_orders" model="ir.ui.view">
-    <field name="name">account.move.search.repair.orders</field>
+  <record id="invoice_filter_inherit_only_repair" model="ir.ui.view">
+    <field name="name">account.invoice.select.repair.order</field>
     <field name="model">account.move</field>
+    <!-- heredamos la searchview que usa la acción de Facturas -->
+    <field name="inherit_id" ref="account.view_account_invoice_filter"/>
     <field name="arch" type="xml">
-      <search string="Facturas de Órdenes de Rep">
-        <!-- tu filtro nuevo -->
-        <filter name="only_repair_orders"
-                string="Sólo con Orden de Reparación"
-                domain="[('repair_order_ids','!=', False)]"/>
-        <!-- otros campos de búsqueda -->
-        <field name="name"         string="Factura"/>
-        <field name="partner_id"   string="Cliente"/>
-        <field name="invoice_date" string="Fecha"/>
-        <field name="state"        string="Estado"/>
-      </search>
+      <!-- insertamos tras el filtro de “Publicado” -->
+      <xpath expr="//filter[@name='posted']" position="after">
+        <filter
+          name="only_repair_orders"
+          string="Sólo con Orden de Reparación"
+          domain="[('repair_order_ids','!=', False)]"/>
+      </xpath>
     </field>
   </record>
 </odoo>
+ 
