@@ -52,29 +52,29 @@ class MeliApi( meli.RestClientApi ):
         return self.needlogin_state
 
     def json(self):
-
-        
-        # """Devuelve siempre un objeto Python (lista o dict). Si self.rjson es un JSON
-        # en texto,  lo parseamos automáticamente."""
-        # Si lo que tenemos es un string o bytes, tratamos de parsearlo
-        if isinstance(self.rjson, (str, bytes)):
+        # """
+        # Siempre devolvemos un dict o una lista.
+        # Si self.rjson es un str/bytes, lo parseamos con json.loads().
+        # """
+        raw = self.rjson
+        if isinstance(raw, (str, bytes)):
             try:
-                return json.loads(self.rjson)
-            except Exception:
-                # Si no es un JSON válido, devolvemos el raw
-                return self.rjson
-        # Si ya es lista o dict, lo devolvemos tal cual
-        return self.rjson
+                return json.loads(raw)
+            except ValueError:
+                # si no es JSON válido, lo devolvemos tal cual
+                return raw
+        return raw
     
     def call_get(self, resource=None, access_token=None, **params ):
         return {}
 
-    def get(self, path, params={}):
+    def get(self, path, params=None):
         """GET con retry automático tras refresh de token expirado."""
+        params = params or {}
         def _call(atok, full_path):
             return self.resource_get(resource=full_path, access_token=atok)
 
-        # Extrae token y parámetros
+        # Extraemos tokens y scroll_id de params
         atok = params.pop("access_token", "") or ""
         scroll_id = params.pop("scroll_id", None)
         query = urlencode(params)
@@ -83,17 +83,35 @@ class MeliApi( meli.RestClientApi ):
         full_path = f"{path}?{query}" if query else path
 
         try:
-            # Llamada principal
-            self.response = _call(atok, full_path)
-            self.rjson = self.response
-            # Si expiró token, refrescar y reintentar
+            # Llamada inicial
+            raw = _call(atok, full_path)
+            # Parseamos inmediatamente si vino como texto
+            if isinstance(raw, (str, bytes)):
+                try:
+                    self.rjson = json.loads(raw)
+                except ValueError:
+                    self.rjson = raw
+            else:
+                self.rjson = raw
+            self.response = raw
+
+            # Si expiró token, refrescamos y reintentamos
             if isinstance(self.rjson, dict) and self.rjson.get("message") in ("expired_token", "invalid_token"):
                 _logger.info("♻️ Token expirado en GET, refrescando…")
                 refresh = self.get_refresh_token()
                 if "access_token" in refresh:
                     atok = self.access_token
-                    self.response = _call(atok, full_path)
-                    self.rjson = self.response
+                    raw = _call(atok, full_path)
+                    # volvemos a parsear
+                    if isinstance(raw, (str, bytes)):
+                        try:
+                            self.rjson = json.loads(raw)
+                        except ValueError:
+                            self.rjson = raw
+                    else:
+                        self.rjson = raw
+                    self.response = raw
+
         except ApiException as e:
             self.rjson = {
                 "error": "get error",
@@ -103,11 +121,13 @@ class MeliApi( meli.RestClientApi ):
             }
         except Exception:
             pass
+
         return self
 
 
-    def post(self, path, body=None, params={}):
+    def post(self, path, body=None, params=None):
         """POST con retry automático tras refresh de token expirado."""
+        params = params or {}
         def _call(atok, full_path):
             return self.resource_post(resource=full_path, access_token=atok, body=body)
 
@@ -116,15 +136,31 @@ class MeliApi( meli.RestClientApi ):
         full_path = f"{path}?{query}" if query else path
 
         try:
-            self.response = _call(atok, full_path)
-            self.rjson = self.response
+            raw = _call(atok, full_path)
+            if isinstance(raw, (str, bytes)):
+                try:
+                    self.rjson = json.loads(raw)
+                except ValueError:
+                    self.rjson = raw
+            else:
+                self.rjson = raw
+            self.response = raw
+
             if isinstance(self.rjson, dict) and self.rjson.get("message") in ("expired_token", "invalid_token"):
                 _logger.info("♻️ Token expirado en POST, refrescando…")
                 refresh = self.get_refresh_token()
                 if "access_token" in refresh:
                     atok = self.access_token
-                    self.response = _call(atok, full_path)
-                    self.rjson = self.response
+                    raw = _call(atok, full_path)
+                    if isinstance(raw, (str, bytes)):
+                        try:
+                            self.rjson = json.loads(raw)
+                        except ValueError:
+                            self.rjson = raw
+                    else:
+                        self.rjson = raw
+                    self.response = raw
+
         except ApiException as e:
             self.rjson = {
                 "error": "post error",
@@ -134,11 +170,12 @@ class MeliApi( meli.RestClientApi ):
             }
         except Exception:
             pass
+
         return self
 
-
-    def put(self, path, body=None, params={}):
+    def put(self, path, body=None, params=None):
         """PUT con retry automático tras refresh de token expirado."""
+        params = params or {}
         def _call(atok, full_path):
             return self.resource_put(resource=full_path, access_token=atok, body=body)
 
@@ -147,15 +184,31 @@ class MeliApi( meli.RestClientApi ):
         full_path = f"{path}?{query}" if query else path
 
         try:
-            self.response = _call(atok, full_path)
-            self.rjson = self.response
+            raw = _call(atok, full_path)
+            if isinstance(raw, (str, bytes)):
+                try:
+                    self.rjson = json.loads(raw)
+                except ValueError:
+                    self.rjson = raw
+            else:
+                self.rjson = raw
+            self.response = raw
+
             if isinstance(self.rjson, dict) and self.rjson.get("message") in ("expired_token", "invalid_token"):
                 _logger.info("♻️ Token expirado en PUT, refrescando…")
                 refresh = self.get_refresh_token()
                 if "access_token" in refresh:
                     atok = self.access_token
-                    self.response = _call(atok, full_path)
-                    self.rjson = self.response
+                    raw = _call(atok, full_path)
+                    if isinstance(raw, (str, bytes)):
+                        try:
+                            self.rjson = json.loads(raw)
+                        except ValueError:
+                            self.rjson = raw
+                    else:
+                        self.rjson = raw
+                    self.response = raw
+
         except ApiException as e:
             self.rjson = {
                 "error": "put error",
@@ -165,23 +218,7 @@ class MeliApi( meli.RestClientApi ):
             }
         except Exception:
             pass
-        return self
 
-    def delete(self, path, params={}):
-        try:
-            atok = ("access_token" in params and params["access_token"]) or ""
-            #_logger.info("MeliApi.delete(%s,%s)  %s" % (path,str(atok),str(body)) )
-            self.response = self.resource_delete(resource=path, access_token=atok )
-            self.rjson = self.response
-        except ApiException as e:
-            self.rjson = {
-                "error": "%s" % e,
-                "status": e.status,
-                "cause": e.reason,
-                "message": e.body
-            }
-        except:
-            pass;
         return self
 
     def upload(self, path, files, params={}):
