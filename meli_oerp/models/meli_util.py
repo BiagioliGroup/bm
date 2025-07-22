@@ -58,76 +58,101 @@ class MeliApi( meli.RestClientApi ):
         return {}
 
     def get(self, path, params={}):
+        """GET con retry automático tras refresh de token expirado."""
+        def _call(atok, full_path):
+            return self.resource_get(resource=full_path, access_token=atok)
+
+        # Extrae token y parámetros
+        atok = params.pop("access_token", "") or ""
+        scroll_id = params.pop("scroll_id", None)
+        query = urlencode(params)
+        if scroll_id:
+            query = f"{query}&scroll_id={scroll_id}" if query else f"scroll_id={scroll_id}"
+        full_path = f"{path}?{query}" if query else path
+
         try:
-            atok = ("access_token" in params and params["access_token"]) or ""
-            if (atok=="PASIVA"):
-                atok = ""
-                del params["access_token"]
-            scroll_id = ("scroll_id" in params and params["scroll_id"]) or None
-            if atok:
-                del params["access_token"]
-            if scroll_id:
-                del params["scroll_id"]
-            if params:
-                path+="?"+urlencode(params)
-                if scroll_id:
-                    path+="&scroll_id="+scroll_id
-            #_logger.info("MeliApi.get(%s,%s)" % (path,str(atok)) )
-            self.response = self.resource_get(resource=path, access_token=atok)
-            #if params:
-            #   self.response = self.call_get( resource=path, access_token=atok, **params)
+            # Llamada principal
+            self.response = _call(atok, full_path)
             self.rjson = self.response
+            # Si expiró token, refrescar y reintentar
+            if isinstance(self.rjson, dict) and self.rjson.get("message") in ("expired_token", "invalid_token"):
+                _logger.info("♻️ Token expirado en GET, refrescando…")
+                refresh = self.get_refresh_token()
+                if "access_token" in refresh:
+                    atok = self.access_token
+                    self.response = _call(atok, full_path)
+                    self.rjson = self.response
         except ApiException as e:
             self.rjson = {
-                "error": "%s" % str("get error"),
+                "error": "get error",
                 "status": e.status,
                 "cause": e.reason,
-                "message": e.body
+                "message": e.body,
             }
-            pass;
-        except:
-            pass;
+        except Exception:
+            pass
         return self
+
 
     def post(self, path, body=None, params={}):
+        """POST con retry automático tras refresh de token expirado."""
+        def _call(atok, full_path):
+            return self.resource_post(resource=full_path, access_token=atok, body=body)
+
+        atok = params.pop("access_token", "") or ""
+        query = urlencode(params)
+        full_path = f"{path}?{query}" if query else path
+
         try:
-            atok = ("access_token" in params and params["access_token"]) or ""
-            #_logger.info("MeliApi.post(%s,%s)  %s" % (path,str(atok),str(body)) )
-            if atok:
-                del params["access_token"]
-            if params:
-                path+="?"+urlencode(params)
-            _logger.info("MeliApi.post(%s,%s)" % (path,str(atok)) )
-            self.response = self.resource_post(resource=path, access_token=atok, body=body )
+            self.response = _call(atok, full_path)
             self.rjson = self.response
+            if isinstance(self.rjson, dict) and self.rjson.get("message") in ("expired_token", "invalid_token"):
+                _logger.info("♻️ Token expirado en POST, refrescando…")
+                refresh = self.get_refresh_token()
+                if "access_token" in refresh:
+                    atok = self.access_token
+                    self.response = _call(atok, full_path)
+                    self.rjson = self.response
         except ApiException as e:
             self.rjson = {
-                "error": "%s" % str("post error"),
+                "error": "post error",
                 "status": e.status,
                 "cause": e.reason,
-                "message": e.body
+                "message": e.body,
             }
-            pass;
-        except:
-            pass;
+        except Exception:
+            pass
         return self
 
+
     def put(self, path, body=None, params={}):
+        """PUT con retry automático tras refresh de token expirado."""
+        def _call(atok, full_path):
+            return self.resource_put(resource=full_path, access_token=atok, body=body)
+
+        atok = params.pop("access_token", "") or ""
+        query = urlencode(params)
+        full_path = f"{path}?{query}" if query else path
+
         try:
-            atok = ("access_token" in params and params["access_token"]) or ""
-            #_logger.info("MeliApi.put(%s,%s)  %s" % (path,str(atok),str(body)) )
-            self.response = self.resource_put(resource=path, access_token=atok, body=body )
+            self.response = _call(atok, full_path)
             self.rjson = self.response
+            if isinstance(self.rjson, dict) and self.rjson.get("message") in ("expired_token", "invalid_token"):
+                _logger.info("♻️ Token expirado en PUT, refrescando…")
+                refresh = self.get_refresh_token()
+                if "access_token" in refresh:
+                    atok = self.access_token
+                    self.response = _call(atok, full_path)
+                    self.rjson = self.response
         except ApiException as e:
             self.rjson = {
-                "error": "%s" % str("put error"),
+                "error": "put error",
                 "status": e.status,
                 "cause": e.reason,
-                "message": e.body
+                "message": e.body,
             }
-            pass;
-        except:
-            pass;
+        except Exception:
+            pass
         return self
 
     def delete(self, path, params={}):
