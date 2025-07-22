@@ -51,9 +51,19 @@ class MeliApi( meli.RestClientApi ):
     def need_login(self):
         return self.needlogin_state
 
-    def json(self):
+     def json(self):
+        """Devuelve siempre un objeto Python (lista o dict). Si self.rjson es un JSON
+        en texto, lo parseamos automáticamente."""
+        # Si lo que tenemos es un string o bytes, tratamos de parsearlo
+        if isinstance(self.rjson, (str, bytes)):
+            try:
+                return json.loads(self.rjson)
+            except Exception:
+                # Si no es un JSON válido, devolvemos el raw
+                return self.rjson
+        # Si ya es lista o dict, lo devolvemos tal cual
         return self.rjson
-
+    
     def call_get(self, resource=None, access_token=None, **params ):
         return {}
 
