@@ -121,67 +121,70 @@ class res_company(models.Model):
 
 
     def _get_ML_sites(self, meli=False):
-        """
-        Devuelve el site_id de MercadoLibre según la configuración de la compañía.
-        Normaliza la respuesta de la API /sites en lista de diccionarios.
-        """
+        # to check api.mercadolibre.com/sites  > MLA
         company = self.env.user.company_id
-        # Obtener instancia Meli
+        # instancia del API
         if not meli:
             meli = self.env['meli.util'].get_new_instance(company)
 
-        # Intentar obtener lista de sitios desde la API
-        sites_data = []
-        try:
-            response = meli.get("/sites")
-            data = response.json()
-            if isinstance(data, dict) and "results" in data and isinstance(data["results"], list):
-                sites_data = data["results"]
-            elif isinstance(data, list):
-                sites_data = data
-            else:
-                _logger.warning("Unexpected /sites response format: %r", data)
-        except Exception as e:
-            _logger.error("Error fetching ML sites: %s", e)
-
-        # Definición de sitios por defecto (moneda -> site)
+        # mapeo base por moneda local
         ML_sites = {
-            "ARS": {"name": "Argentina",    "id": "MLA", "default_currency_id": "ARS"},
-            "MXN": {"name": "México",       "id": "MLM", "default_currency_id": "MXN"},
-            "COP": {"name": "Colombia",     "id": "MCO", "default_currency_id": "COP"},
-            "PEN": {"name": "Perú",         "id": "MPE", "default_currency_id": "PEN"},
-            "BOB": {"name": "Bolivia",      "id": "MBO", "default_currency_id": "BOB"},
-            "BRL": {"name": "Brasil",       "id": "MLB", "default_currency_id": "BRL"},
-            "CLP": {"name": "Chile",        "id": "MLC", "default_currency_id": "CLP"},
-            "CRC": {"name": "Costa Rica",   "id": "MCR", "default_currency_id": "CRC"},
-            "UYU": {"name": "Uruguay",      "id": "MLU", "default_currency_id": "UYU"},
-            "VES": {"name": "Venezuela",    "id": "MLV", "default_currency_id": "VES"},
-            "PAB": {"name": "Panamá",       "id": "MPA", "default_currency_id": "PAB"},
-            "USD": {"name": "Internacional","id": "MLA", "default_currency_id": "USD"},
+            "ARS": {"name": "Argentina", "id": "MLA", "default_currency_id": "ARS"},
+            "MXN": {"name": "México",    "id": "MLM", "default_currency_id": "MXN"},
+            "COP": {"name": "Colombia",  "id": "MCO", "default_currency_id": "COP"},
+            "PEN": {"name": "Perú",      "id": "MPE", "default_currency_id": "PEN"},
+            "BOB": {"name": "Bolivia",   "id": "MBO", "default_currency_id": "BOB"},
+            "BRL": {"name": "Brasil",    "id": "MLB", "default_currency_id": "BRL"},
+            "CLP": {"name": "Chile",     "id": "MLC", "default_currency_id": "CLP"},
+            "CRC": {"name": "Costa Rica","id": "MCR", "default_currency_id": "CRC"},
+            "UYU": {"name": "Uruguay",   "id": "MLU", "default_currency_id": "UYU"},
+            "VES": {"name": "Venezuela", "id": "MLV", "default_currency_id": "VES"},
+            "PAB": {"name": "Panamá",    "id": "MPA", "default_currency_id": "PAB"},
+            "USD": {"name": "Uruguay",   "id": "MLU", "default_currency_id": "UYU"},  # fallback
         }
-        # Incorporar datos de la API, si vienen bien
-        for site in sites_data:
-            if not isinstance(site, dict):
-                continue
-            curr = site.get("default_currency_id")
-            if curr and curr != "USD":
-                ML_sites[curr] = site
 
-        # Determinar según country_code o moneda preferida
-        country = company.country_id
-        code = country.code if country else False
-        mapping = {
-            'UY': 'UYU', 'VE': 'VES', 'MX': 'MXN', 'CL': 'CLP', 'CO': 'COP'
-        }
-        if code in mapping:
-            return ML_sites[mapping[code]]['id']
+        # Llamada a la API
+        resp = meli.get("/sites")
+        if resp:
+            data = resp.json() or []
+            # Normaliza si la respuesta viene en {'results': [...]} o directamente en [...]
+            if isinstance(data, dict) and "results" in data:
+                sites_list = data["results"]
+            elif isinstance(data, list):
+                sites_list = data
+            else:
+                sites_list = []
 
-        cur = company.mercadolibre_currency
-        if cur in ML_sites:
-            return ML_sites[cur]['id']
+            for site in sites_list:
+                if not isinstance(site, dict):
+                    continue
+                curr = site.get("default_currency_id")
+                if curr and curr != "USD":
+                    ML_sites[curr] = {
+                        "name": site.get("name", ML_sites.get(curr, {}).get("name")),
+                        "id":   site.get("id",   ML_sites.get(curr, {}).get("id")),
+                        "default_currency_id": curr,
+                    }
 
-        # Por defecto Argentina
-        return 'MLA'
+        # ahora la lógica por país/moneda (igual que antes)
+        country = company.country_id and company.country_id.code
+        if country == "UY":
+            return ML_sites["UYU"]["id"]
+        if country == "VE":
+            return ML_sites["VES"]["id"]
+        if country == "MX":
+            return ML_sites["MXN"]["id"]
+        if country == "CL":
+            return ML_sites["CLP"]["id"]
+        if country == "CO":
+            return ML_sites["COP"]["id"]
+
+        currency = company.mercadolibre_currency
+        if currency in ML_sites:
+            return ML_sites[currency]["id"]
+
+        return "MLA"
+
 
     def get_meli_state( self ):
         # recoger el estado y devolver True o False (meli)
