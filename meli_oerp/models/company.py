@@ -156,6 +156,7 @@ class res_company(models.Model):
                 sites_list = []
 
             for site in sites_list:
+                # Sólo procesar dicts, evitar strings u otros tipos
                 if not isinstance(site, dict):
                     continue
                 curr = site.get("default_currency_id")
