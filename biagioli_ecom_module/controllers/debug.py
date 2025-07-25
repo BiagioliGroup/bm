@@ -12,12 +12,10 @@ class WebsiteSaleDebug(WebsiteSale):
         # 1) Volcar los datos actuales de invoice/shipping, incluyendo state_id y phone
         try:
             inv = order_sudo.partner_invoice_id.read([
-                'id', 'street', 'city', 'zip', 'country_id',
-                'state_id', 'phone'
-            ])[0]
+    'id','name','email','street','city','zip','country_id','state_id','phone'
+])[0]
             shp = order_sudo.partner_shipping_id.read([
-                'id', 'street', 'city', 'zip', 'country_id',
-                'state_id', 'phone'
+                'id','name','email','street','city','zip','country_id','state_id','phone'
             ])[0]
         except Exception as e:
             _logger.error("🛠️  Error leyendo partner_invoice/shipping: %s", e)
