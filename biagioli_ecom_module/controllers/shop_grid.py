@@ -24,14 +24,7 @@ class BiagioliWebsiteSale(WebsiteSale):
         values['default_code'] = product.default_code
 
         # Cantidad on hand real (con sudo, pero no la mostrarás directamente)
-        real_qty = product.sudo().qty_available
-        values['qty_available'] = real_qty
-
-        # Cantidad para mostrar en el frontend (string separada)
-        if real_qty <= 0:
-            values['qty_display'] = False
-        
-        else:
-            values['qty_display'] = "En stock"
+        values['product'] = product
+        values['product_qty_display'] = "En stock" if product.sudo().qty_available > 0 else False
 
         return values
