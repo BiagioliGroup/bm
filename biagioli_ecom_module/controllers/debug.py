@@ -40,6 +40,13 @@ class WebsiteSaleDebug(WebsiteSale):
 
         # 4) Billing
         invoice_partner = order_sudo.partner_invoice_id
+        mandatory = self._get_mandatory_billing_address_fields(invoice_partner.country_id)
+            
+        data = invoice_partner.read(list(mandatory))[0]
+        _logger.info("🛠️  Mandatory billing fields: %s", mandatory)
+        _logger.info("🛠️  Billing partner raw data: %s", data)
+
+
         ok_bill = self._check_billing_address(invoice_partner)
         _logger.info("   Billing complete?  %s (partner %s)", ok_bill, invoice_partner.id)
         if not ok_bill and invoice_partner._can_be_edited_by_current_customer(order_sudo, 'billing'):
