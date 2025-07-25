@@ -20,11 +20,18 @@
       
       
 
-    <!-- 🏷️ Mostrar etiqueta “En stock” sobre la imagen -->
-    <template id="biagioli_products_stock_badge" inherit_id="website_sale.products_item" name="Badge de stock en grid">
-        <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
+     <!-- 🏷️ Badge «En stock» sobre la imagen -->
+    <template
+        id="biagioli_products_stock_badge"
+        inherit_id="website_sale.products_item"
+        name="Badge de stock en grid">
+        <xpath 
+        expr="//div[contains(@class,'oe_product_image')]" 
+        position="inside">
         <t t-if="product.qty_available &gt; 0">
-            <span class="badge bg-success position-absolute bottom-0 start-0 m-2">
+            <span 
+            class="badge bg-success position-absolute start-0 bottom-0 m-2" 
+            style="z-index:10;">
             En stock
             </span>
         </t>
