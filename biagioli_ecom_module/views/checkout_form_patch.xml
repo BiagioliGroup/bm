@@ -1,21 +1,19 @@
 <odoo>
 <template id="address_form_inherit"
           inherit_id="website_sale.address"
-          name="Añadir CUIT/VAT a facturación">
-  <xpath expr="//div[@id='div_state']" position="after">
-    <!-- Sólo mostrar cuando se esté editando la dirección de facturación -->
+          name="Añadir CUIT justo bajo Nombre completo">
+  <xpath expr="//div[@id='div_name']" position="after">
+    <!-- Sólo en facturación -->
     <t t-if="address_type == 'billing'">
-      <div id="div_vat" class="col-lg-6 mb-2">
-        <label for="o_vat" class="col-form-label fw-normal">CUIT</label>
+      <div id="div_vat" class="col-lg-12 mb-2">
+        <label for="o_vat" class="col-form-label fw-normal">CUIT / VAT</label>
         <input type="text"
                id="o_vat"
                name="vat"
                t-att-value="partner_sudo.vat or ''"
-               required="required"
                class="form-control"/>
       </div>
     </t>
   </xpath>
 </template>
-
 </odoo>
