@@ -10,7 +10,6 @@ _logger = logging.getLogger(__name__)
 
 
 class BiagioliWebsiteSale(WebsiteSale):
-    _sh_motorcycle_frontend_detail = {}
 
     def _prepare_product_values(self, product, category, search, **kwargs):
         """

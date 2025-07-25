@@ -24,6 +24,7 @@ Long description of module's purpose
     'data': [
         # 'security/ir.model.access.csv',
         'views/checkout_form_patch.xml',
+        'views/shop_grid.xml'
     ],
     'installable': True,
     'application': False,
