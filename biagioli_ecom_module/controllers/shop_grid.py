@@ -20,11 +20,18 @@ class BiagioliWebsiteSale(WebsiteSale):
         values = super(BiagioliWebsiteSale, self)._prepare_product_values(
             product, category, search, **kwargs)
 
-        # Añadimos el código interno del producto (default_code)
+        # Código interno
         values['default_code'] = product.default_code
 
-        # Añadimos la cantidad on hand
-        # values['qty_available'] = product.sudo().qty_available
+        # Cantidad on hand real (con sudo, pero no la mostrarás directamente)
+        real_qty = product.sudo().qty_available
+        values['qty_available'] = real_qty
 
+        # Cantidad para mostrar en el frontend (string separada)
+        if real_qty <= 0:
+            values['qty_display'] = False
+        
+        else:
+            values['qty_display'] = "En stock"
 
         return values
