@@ -16,7 +16,8 @@
       <t t-if="product.default_code">
         <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
       </t>
-
+      
+      
 
     <!-- 🏷️ Mostrar etiqueta “En stock” sobre la imagen -->
     <template id="biagioli_products_stock_badge" inherit_id="website_sale.products_item" name="Badge de stock en grid">
