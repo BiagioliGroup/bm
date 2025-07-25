@@ -23,4 +23,7 @@ class BiagioliWebsiteSale(WebsiteSale):
         # Añadimos el código interno del producto (default_code)
         values['default_code'] = product.default_code
 
+        # Añadimos la cantidad on hand
+        values['qty_available'] = product.qty_available
+
         return values
