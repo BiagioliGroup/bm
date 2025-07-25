@@ -248,30 +248,33 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
     @http.route()
     def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
-        # Ejecutamos primero la lógica de búsqueda y contexto
+        # 1) Clonamos request.params y eliminamos 'category'
+        params = dict(request.params)
+        params.pop('category', None)
+
+        # 2) Ejecutamos primero la lógica de búsqueda y contexto
         fuzzy, count, products = self._shop_lookup_products(
             attrib_set=None,
-            options=self._get_search_options(**request.params),  # ✅ aquí va solo esto
-            post=request.params,
+            options=self._get_search_options(**params),
+            post=params,
             search=search,
             website=request.website
         )
 
+        # 3) Contexto motero
         moto_context = self._sh_motorcycle_frontend_detail.copy()
         moto_context.update({
             'filter_order': getattr(request.website, 'sh_filter_order', False),
             'show_only_with_products': getattr(request.website, 'sh_show_only_with_products', False),
         })
-        
-        _logger.info("🔧 filter_order=%s, show_only_with_products=%s", 
-                 moto_context['filter_order'], moto_context['show_only_with_products'])
-
         request.update_context(**moto_context)
 
+        # 4) Llamamos al super (checkout/product) con los parámetros originales
         res = super(MotorCycleWebsiteSale, self).shop(
             page, category, search, min_price, max_price, ppg, **post
         )
 
+        # 5) Si es una render qcontext, inyectamos el contexto extra
         if hasattr(res, 'qcontext'):
             res.qcontext.update(moto_context)
 
