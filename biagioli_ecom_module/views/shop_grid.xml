@@ -26,7 +26,7 @@
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
       <t t-if="qty_display">
             <span class="badge bg-success position-absolute start-0 bottom-0 m-2" style="z-index:10;">
-                <t t-esc="product.qty_display"/>
+                <t t-esc="qty_display"/>
             </span>
         </t>
     </xpath>
