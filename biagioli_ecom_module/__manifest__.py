@@ -23,7 +23,7 @@ Long description of module's purpose
     ],
     'data': [
         # 'security/ir.model.access.csv',
-        'views/address_extension.xml',
+        'views/checkout_form_patch.xml',
     ],
     'installable': True,
     'application': False,

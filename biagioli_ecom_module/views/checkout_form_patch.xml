@@ -1,0 +1,19 @@
+<odoo>
+<template id="address_form_inherit" inherit_id="website_sale.address">
+  <xpath expr="//div[contains(@class,'o_address_form')]" position="inside">
+    <!-- Sólo para billing -->
+    <t t-if="address_type == 'billing'">
+      <div class="form-group">
+        <label for="vat">CUIT / VAT</label>
+        <input 
+          type="text" 
+          name="vat" 
+          t-att-value="partner.vat or ''" 
+          required="required"
+          class="form-control"/>
+      </div>
+    </t>
+  </xpath>
+</template>
+
+</odoo>
