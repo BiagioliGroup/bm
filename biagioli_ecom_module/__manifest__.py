@@ -22,7 +22,7 @@ Long description of module's purpose
         'website_sale',  # si estás usando website ribbons
     ],
     'data': [
-        'security/ir.model.access.csv',
+        # 'security/ir.model.access.csv',
         'views/disable_address_ajax.xml',
     ],
     'installable': True,
