@@ -1,19 +1,19 @@
 <odoo>
-<template id="address_form_inherit" inherit_id="website_sale.address">
-  <xpath expr="//div[contains(@class,'o_address_form')]" position="inside">
-    <!-- Sólo para billing -->
-    <t t-if="address_type == 'billing'">
-      <div class="form-group">
-        <label for="vat">CUIT / VAT</label>
-        <input 
-          type="text" 
-          name="vat" 
-          t-att-value="partner.vat or ''" 
-          required="required"
-          class="form-control"/>
-      </div>
-    </t>
-  </xpath>
-</template>
-
+  <template id="address_form_inherit"
+            inherit_id="website_sale.address"
+            name="Add VAT to Billing Address">
+    <xpath expr="//form[@action='/shop/address/submit']" position="inside">
+      <t t-if="address_type == 'billing'">
+        <div class="col-lg-6 mb-2">
+          <label for="o_vat" class="col-form-label fw-normal">CUIT / VAT</label>
+          <input type="text"
+                id="o_vat"
+                name="vat"
+                t-att-value="partner_sudo.vat or ''"
+                required="required"
+                class="form-control"/>
+        </div>
+      </t>
+    </xpath>
+  </template>
 </odoo>
