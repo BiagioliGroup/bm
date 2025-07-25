@@ -39,7 +39,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
         values['vehicles'] = vehicles
         values['sh_is_common_product'] = sh_is_common_product
 
-        values['default_code'] = product.default_code
+        
 
         return values
     
@@ -212,8 +212,8 @@ class MotorCycleWebsiteSale(WebsiteSale):
             'model': post.get('model', False),
             'year': post.get('year', False),
         }
-        _logger.info("[🔍 _get_search_options] post params: %s", post)
-        _logger.info("[🔍 _get_search_options] options built: %s", result)
+        # _logger.info("[🔍 _get_search_options] post params: %s", post)
+        # _logger.info("[🔍 _get_search_options] options built: %s", result)
         result.update(options_motorcycle)
         return result
 

@@ -1,60 +1,60 @@
-# -*- coding: utf-8 -*-
-from odoo import http
-from odoo.http import request
-from odoo.addons.website_sale.controllers.main import WebsiteSale
-import logging
+# # -*- coding: utf-8 -*-
+# from odoo import http
+# from odoo.http import request
+# from odoo.addons.website_sale.controllers.main import WebsiteSale
+# import logging
 
-_logger = logging.getLogger(__name__)
+# _logger = logging.getLogger(__name__)
 
-class WebsiteSaleDebug(WebsiteSale):
+# class WebsiteSaleDebug(WebsiteSale):
 
-    def _check_addresses(self, order_sudo):
-        # 1) Volcar los datos actuales de invoice/shipping, incluyendo state_id y phone
-        try:
-            inv = order_sudo.partner_invoice_id.read([
-    'id','name','email','street','city','zip','country_id','state_id','phone'
-])[0]
-            shp = order_sudo.partner_shipping_id.read([
-                'id','name','email','street','city','zip','country_id','state_id','phone'
-            ])[0]
-        except Exception as e:
-            _logger.error("🛠️  Error leyendo partner_invoice/shipping: %s", e)
-            inv, shp = {}, {}
+#     def _check_addresses(self, order_sudo):
+#         # 1) Volcar los datos actuales de invoice/shipping, incluyendo state_id y phone
+#         try:
+#             inv = order_sudo.partner_invoice_id.read([
+#     'id','name','email','street','city','zip','country_id','state_id','phone'
+# ])[0]
+#             shp = order_sudo.partner_shipping_id.read([
+#                 'id','name','email','street','city','zip','country_id','state_id','phone'
+#             ])[0]
+#         except Exception as e:
+#             _logger.error("🛠️  Error leyendo partner_invoice/shipping: %s", e)
+#             inv, shp = {}, {}
 
-        _logger.info("🛠️  CHECK ADDRESSES:\n    invoice=%s\n    shipping=%s", inv, shp)
+#         _logger.info("🛠️  CHECK ADDRESSES:\n    invoice=%s\n    shipping=%s", inv, shp)
 
-        # 2) Compruebo si es carrito anónimo
-        if order_sudo._is_anonymous_cart():
-            _logger.info("   ➡️  Carrito anónimo -> redirigir a /shop/address")
-            return request.redirect('/shop/address')
+#         # 2) Compruebo si es carrito anónimo
+#         if order_sudo._is_anonymous_cart():
+#             _logger.info("   ➡️  Carrito anónimo -> redirigir a /shop/address")
+#             return request.redirect('/shop/address')
 
-        # 3) Delivery
-        delivery_partner = order_sudo.partner_shipping_id
-        ok_ship = self._check_delivery_address(delivery_partner)
-        _logger.info("   Delivery complete? %s (partner %s)", ok_ship, delivery_partner.id)
-        if not ok_ship and delivery_partner._can_be_edited_by_current_customer(order_sudo, 'delivery'):
-            _logger.info("   ➡️  Delivery insuficiente, partner=%s", delivery_partner.id)
-            return request.redirect(
-                f'/shop/address?partner_id={delivery_partner.id}&address_type=delivery'
-            )
+#         # 3) Delivery
+#         delivery_partner = order_sudo.partner_shipping_id
+#         ok_ship = self._check_delivery_address(delivery_partner)
+#         _logger.info("   Delivery complete? %s (partner %s)", ok_ship, delivery_partner.id)
+#         if not ok_ship and delivery_partner._can_be_edited_by_current_customer(order_sudo, 'delivery'):
+#             _logger.info("   ➡️  Delivery insuficiente, partner=%s", delivery_partner.id)
+#             return request.redirect(
+#                 f'/shop/address?partner_id={delivery_partner.id}&address_type=delivery'
+#             )
 
-        # 4) Billing
-        invoice_partner = order_sudo.partner_invoice_id
-        mandatory = self._get_mandatory_billing_address_fields(invoice_partner.country_id)
-            
-        data = invoice_partner.read(list(mandatory))[0]
-        _logger.info("🛠️  Mandatory billing fields: %s", mandatory)
-        _logger.info("🛠️  Billing partner raw data: %s", data)
+#         # 4) Billing
+#         invoice_partner = order_sudo.partner_invoice_id
+#         mandatory = self._get_mandatory_billing_address_fields(invoice_partner.country_id)
+
+#         data = invoice_partner.read(list(mandatory))[0]
+#         _logger.info("🛠️  Mandatory billing fields: %s", mandatory)
+#         _logger.info("🛠️  Billing partner raw data: %s", data)
 
 
-        ok_bill = self._check_billing_address(invoice_partner)
-        _logger.info("   Billing complete?  %s (partner %s)", ok_bill, invoice_partner.id)
-        if not ok_bill and invoice_partner._can_be_edited_by_current_customer(order_sudo, 'billing'):
-            _logger.info("   ➡️  Billing insuficiente, partner=%s", invoice_partner.id)
-            return request.redirect(
-                f'/shop/address?partner_id={invoice_partner.id}&address_type=billing'
-            )
+#         ok_bill = self._check_billing_address(invoice_partner)
+#         _logger.info("   Billing complete?  %s (partner %s)", ok_bill, invoice_partner.id)
+#         if not ok_bill and invoice_partner._can_be_edited_by_current_customer(order_sudo, 'billing'):
+#             _logger.info("   ➡️  Billing insuficiente, partner=%s", invoice_partner.id)
+#             return request.redirect(
+#                 f'/shop/address?partner_id={invoice_partner.id}&address_type=billing'
+#             )
 
-        # 5) Si todo OK, no redirección
-        _logger.info("   ✅ Direcciones OK, continuamos checkout")
-        return None
+#         # 5) Si todo OK, no redirección
+#         _logger.info("   ✅ Direcciones OK, continuamos checkout")
+#         return None
