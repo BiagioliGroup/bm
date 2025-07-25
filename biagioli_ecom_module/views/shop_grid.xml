@@ -10,24 +10,30 @@
 
   
     <!-- 🏷️ Mostrar código de producto en grid -->
-  <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code + stock to product card">
-    <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
-      <!-- Código interno -->
-      <t t-if="product.default_code">
-        <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
-      </t>
-      
+    <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code + stock to product card">
+        <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
+            <!-- Código interno -->
+            <t t-if="product.default_code">
+            <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
+            </t>
+    </template>
       
 
-    <!-- 🏷️ Mostrar etiqueta “En stock” sobre la imagen -->
-    <template id="biagioli_products_stock_badge" inherit_id="website_sale.products_item" name="Badge de stock en grid">
+     <!-- 🏷️ Badge “En stock” sobre la imagen -->
+    <template
+        id="biagioli_products_stock_badge"
+        inherit_id="website_sale.products_item"
+        name="Badge de stock en grid"
+        active="True">
         <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
         <t t-if="product.qty_available &gt; 0">
-            <span class="badge bg-success position-absolute bottom-0 start-0 m-2">
+            <span
+            class="badge bg-success position-absolute bottom-0 start-0 m-2"
+            style="z-index: 10;">
             En stock
             </span>
         </t>
         </xpath>
     </template>
-  </template>
+  
 </odoo>
