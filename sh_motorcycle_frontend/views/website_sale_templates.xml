@@ -166,11 +166,4 @@
     </xpath>
   </template>
 
-  <!-- Override del checkout adress para remover el AJAX y pase "A pelo" -->
-   <template id="remove_ajax_submit" inherit_id="website_sale.checkout_address">
-    <xpath expr="//form[contains(@class,'checkout_autoformat')]" position="attributes">
-      <attribute name="class">o_wsale_address_fill</attribute>
-    </xpath>
-  </template>
-
 </odoo>
