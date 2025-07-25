@@ -1,6 +1,5 @@
 <odoo>
-  <template id="address_form_inherit" inherit_id="website_sale.address">
-    <!-- Aquí asumimos que justo después del ZIP quieres la provincia -->
+  <!-- <template id="address_form_inherit" inherit_id="website_sale.address">
     <xpath expr="//div[contains(@class,'o_address_field_zip')]" position="after">
       <div class="form-group o_address_field_state_id">
         <label class="col-sm-3 control-label" for="state_id">
@@ -27,5 +26,5 @@
         </div>
       </div>
     </xpath>
-  </template>
+  </template> -->
 </odoo>

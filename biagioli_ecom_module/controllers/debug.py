@@ -9,14 +9,21 @@ _logger = logging.getLogger(__name__)
 class WebsiteSaleDebug(WebsiteSale):
 
     def _check_addresses(self, order_sudo):
-        # 1) Volcar los datos actuales de invoice/shipping
+        # 1) Volcar los datos actuales de invoice/shipping, incluyendo state_id y phone
         try:
-            inv = order_sudo.partner_invoice_id.read(['id', 'street', 'city', 'zip', 'country_id'])[0]
-            shp = order_sudo.partner_shipping_id.read(['id', 'street', 'city', 'zip', 'country_id'])[0]
+            inv = order_sudo.partner_invoice_id.read([
+                'id', 'street', 'city', 'zip', 'country_id',
+                'state_id', 'phone'
+            ])[0]
+            shp = order_sudo.partner_shipping_id.read([
+                'id', 'street', 'city', 'zip', 'country_id',
+                'state_id', 'phone'
+            ])[0]
         except Exception as e:
             _logger.error("🛠️  Error leyendo partner_invoice/shipping: %s", e)
             inv, shp = {}, {}
-        _logger.info("🛠️  CHECK ADDRESSES: invoice=%s, shipping=%s", inv, shp)
+
+        _logger.info("🛠️  CHECK ADDRESSES:\n    invoice=%s\n    shipping=%s", inv, shp)
 
         # 2) Compruebo si es carrito anónimo
         if order_sudo._is_anonymous_cart():
