@@ -9,7 +9,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class MotorCycleWebsiteSale(WebsiteSale):
+class BiagioliWebsiteSale(WebsiteSale):
     _sh_motorcycle_frontend_detail = {}
 
     def _prepare_product_values(self, product, category, search, **kwargs):
@@ -18,7 +18,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
             en el GRID del SHOP
         """
         # Llamamos al método original para mantener el comportamiento estándar
-        values = super(MotorCycleWebsiteSale, self)._prepare_product_values(
+        values = super(BiagioliWebsiteSale, self)._prepare_product_values(
             product, category, search, **kwargs)
 
         # Añadimos el código interno del producto (default_code)
