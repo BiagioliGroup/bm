@@ -22,7 +22,6 @@
             'website_sale',  # si estás usando website ribbons
         ],
         'data': [
-            # 'security/ir.model.access.csv',
             'views/checkout_form_patch.xml',
             'views/shop_grid.xml'
         ],
