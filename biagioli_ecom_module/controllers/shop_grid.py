@@ -24,8 +24,7 @@ class BiagioliWebsiteSale(WebsiteSale):
         values['default_code'] = product.default_code
 
         # Añadimos la cantidad on hand
-        values['virtual_available'] = product.sudo().virtual_available
-
+        # values['qty_available'] = product.sudo().qty_available
 
 
         return values
