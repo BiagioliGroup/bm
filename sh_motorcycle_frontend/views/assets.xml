@@ -1,7 +1,10 @@
 <odoo>
-  <template id="assets_frontend" name="Variant Code Frontend Assets" inherit_id="website.assets_frontend">
+  <template id="assets_frontend" inherit_id="website.assets_frontend">
     <xpath expr="." position="inside">
-      <script type="text/javascript" src="/sh_motorcycle_frontend/static/src/js/variant_code_update.js"/>
+      <script
+        t-if="request.httprequest.path.startswith('/shop/product')"
+        type="text/javascript"
+        src="/sh_motorcycle_frontend/static/src/js/variant_code_update.js"/>
     </xpath>
   </template>
 </odoo>
