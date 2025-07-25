@@ -166,4 +166,11 @@
     </xpath>
   </template>
 
+  <template id="remove_ajax_submit" inherit_id="website_sale.address_form">
+    <xpath expr="//form[contains(@class,'checkout_autoformat')]" position="attributes">
+      <!-- aquí reemplazamos la clase por la original sin AJAX -->
+      <attribute name="class">o_wsale_address_fill</attribute>
+    </xpath>
+  </template>
+
 </odoo>
