@@ -23,7 +23,7 @@ Long description of module's purpose
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/disable_address_ajax.xml',
     ],
     'installable': True,
     'application': False,
