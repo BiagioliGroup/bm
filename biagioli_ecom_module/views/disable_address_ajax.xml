@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-  <template id="disable_address_ajax" inherit_id="website_sale.address">
-    <xpath expr="//form[contains(@class, 'checkout_autoformat')]" position="attributes">
-      <!-- Reemplazamos la clase completa para desactivar el AJAX -->
-      <attribute name="class">o_wsale_address_fill</attribute>
-    </xpath>
-  </template>
+
 </odoo>
