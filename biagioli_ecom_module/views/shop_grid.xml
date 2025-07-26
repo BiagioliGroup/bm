@@ -42,26 +42,33 @@
     </xpath>
   </template> -->
 
-<!-- 1) Quitamos overflow-hidden del contenedor para no recortar -->
+<!-- Seguimos quitando el overflow para no recortarlo -->
   <template id="debug_remove_overflow"
             inherit_id="website_sale.products_item"
             name="DEBUG: Allow overflow on product image">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="attributes">
-      <!-- reescribimos la clase sin overflow-hidden -->
       <attribute name="class">oe_product_image position-relative flex-grow-0</attribute>
     </xpath>
   </template>
 
-  <!-- 2) Insertamos el marcador DEBUG con posición absoluta -->
+  <!-- Marcador DEBUG en esquina inferior-derecha -->
   <template id="debug_stock_marker"
             inherit_id="website_sale.products_item"
-            name="DEBUG: Stock marker absolute">
+            name="DEBUG: Stock marker bottom-right">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
       <div
-        style="position:absolute; top:0; left:0; background: yellow; color: red;
-               padding: .2em .4em; font-size: .8em; z-index: 9999;">
+        style="position:absolute;
+               bottom:0;
+               right:0;
+               background: yellow;
+               color: red;
+               padding: .2em .4em;
+               font-size: .8em;
+               z-index: 9999;">
         DEBUG STOCK HERE
       </div>
     </xpath>
   </template>
+
+  
 </odoo>
