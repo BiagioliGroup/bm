@@ -31,6 +31,19 @@ class MotorcycleTechnicalData(models.Model):
          'Este atributo ya está definido para esta motocicleta y categoría.'),
     ]
 
+    @api.onchange('category_id')
+    def _onchange_category_id(self):
+        self.attribute_id = False
+        self.value_id = False
+        return {
+            'domain': {
+                # sólo atributos vinculados a la categoría elegida
+                'attribute_id': [('id', 'in', self.category_id.attribute_ids.ids)],
+                # y no permitir valores huérfanos
+                'value_id': [('attribute_id', '=', False)],
+            }
+        }
+
     @api.onchange('attribute_id')
     def _onchange_attribute_id(self):
         # Al cambiar atributo, limpiamos valor y limitamos los posibles
