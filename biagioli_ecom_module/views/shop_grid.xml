@@ -31,10 +31,13 @@
         </t>
     </xpath> -->
 
-    <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-          <span class="badge bg-success float-end mb-2" style="z-index:10;">
-            <t t-esc="product_qty_display"/>
-          </span>
+   <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
+      <t t-set="stock" t-value="product.sudo().qty_available"/>
+      <t t-if="stock > 0">
+        <span class="badge bg-success">
+          En stock
+        </span>
+      </t>
     </xpath>
   </template>   
 </odoo>
