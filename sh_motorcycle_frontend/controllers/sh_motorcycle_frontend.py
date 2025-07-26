@@ -277,29 +277,29 @@ class MotorCycleWebsiteSale(WebsiteSale):
         )
 
         # 5) Inyectamos todo en qcontext
+        has_stock_map = {}
         if hasattr(res, 'qcontext'):
-            # Primero, actualizamos el contexto motero
+            # Actualizamos qcontext motero
             res.qcontext.update(moto_context)
 
-            # Luego construimos el mapa de stock
+            # Construimos el mapa de stock
             public_products = res.qcontext.get('products') or request.env['product.template']
-            # Si no hay products en qcontext, evitamos errores
-            has_stock_map = {}
             if public_products:
-                # Leemos todas las variantes de esos templates
                 variants = request.env['product.product'].sudo().search([
                     ('product_tmpl_id', 'in', public_products.ids)
                 ]).read(['product_tmpl_id', 'qty_available'])
-                # Acumulamos qty por template
                 stock_agg = {}
                 for v in variants:
                     tid = v['product_tmpl_id'][0]
                     stock_agg[tid] = stock_agg.get(tid, 0) + v['qty_available']
-                # Generamos el boolean map
                 has_stock_map = {tid: (qty > 0) for tid, qty in stock_agg.items()}
 
-            # Finalmente inyectamos has_stock_map (incluso vacío) para que QWeb no tire KeyError
+            # Lo metemos también en res.qcontext
             res.qcontext['has_stock_map'] = has_stock_map
+
+        # 👉 Esto garantiza que en **cualquier** QWeb (no solo en products_item)
+        #    la variable exista (al menos como {})
+        request.update_context(has_stock_map=has_stock_map)
 
         return res
 
