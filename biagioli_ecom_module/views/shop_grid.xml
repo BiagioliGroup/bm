@@ -19,16 +19,17 @@
   <template
     id="biagioli_products_item_inherit"
     inherit_id="website_sale.products_item"
-    name="Badge de Stock en grid">
+    name="Mostrar código y stock en grid">
 
-    <!-- 1) Defino comb_info justo antes del <form> -->
+    <!-- 1) Defino comb_info antes de que empiece el <form> -->
     <xpath expr="//form" position="before">
       <t t-set="comb_info" t-value="product._get_combination_info()"/>
     </xpath>
 
-    <!-- 2) Pinto el badge “En stock” sobre la imagen -->
+    <!-- 2) Pinto el badge «En stock» sobre la imagen
+          sin mostrar la cantidad y sin KeyError -->
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-      <t t-if="comb_info['qty_available'] &gt; 0">
+      <t t-if="comb_info.get('qty_available', 0) &gt; 0">
         <span
           class="badge bg-success position-absolute start-0 bottom-0 m-2"
           style="z-index:10;">
