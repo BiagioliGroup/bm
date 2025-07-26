@@ -38,11 +38,13 @@ class BiagioliWebsiteSale(MotorCycleWebsiteSale):
                 if tmpl_id:
                     stock_map[tmpl_id] = stock_map.get(tmpl_id, 0) + line['qty_available']
 
-            # Asignamos el campo "has_stock"
-            for product in public_products:
-                product.has_stock = stock_map.get(product.id, 0) > 0
+            # Creamos un mapa {product.id: True/False}
+            has_stock_map = {pid: (qty > 0) for pid, qty in stock_map.items()}
 
-            return res
+            # Lo inyectamos al contexto
+            res.qcontext['has_stock_map'] = has_stock_map
+
+        return res
 
 
 

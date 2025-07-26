@@ -32,7 +32,7 @@
             inherit_id="website_sale.products_item"
             name="Add stock badge to product card">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-      <t t-if="product.has_stock">
+      <t t-if="has_stock_map.get(product.id)">
         <span
           class="badge bg-success position-absolute start-0 bottom-0 m-2"
           style="z-index:10;">
