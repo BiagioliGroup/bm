@@ -14,21 +14,30 @@
     </xpath>
   </template>
 
-    
-  <template id="biagioli_products_stock_badge"
-          inherit_id="website_sale.products_item"
-          name="Badge de stock en grid">
-  <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-    <!-- uso de combination_info en vez de product.qty_available -->
-    <t t-set="comb_info" t-value="product._get_combination_info()"/>
-    <t t-if="comb_info['qty_available'] &gt; 0">
-      <span class="badge bg-success position-absolute start-0 bottom-0 m-2" style="z-index:10;">
-        En stock: <t t-esc="comb_info['qty_available']"/>
-      </span>
-    </t>
-  </xpath>
-</template>
+  
 
+  <template
+    id="biagioli_products_item_inherit"
+    inherit_id="website_sale.products_item"
+    name="Badge de Stock en grid">
+
+    <!-- 1) Defino comb_info justo antes del <form> -->
+    <xpath expr="//form" position="before">
+      <t t-set="comb_info" t-value="product._get_combination_info()"/>
+    </xpath>
+
+    <!-- 2) Pinto el badge “En stock” sobre la imagen -->
+    <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
+      <t t-if="comb_info['qty_available'] &gt; 0">
+        <span
+          class="badge bg-success position-absolute start-0 bottom-0 m-2"
+          style="z-index:10;">
+          En stock
+        </span>
+      </t>
+    </xpath>
+
+  </template>
 
   
 
