@@ -18,37 +18,39 @@ class BiagioliWebsiteSale(MotorCycleWebsiteSale):
 
     """
 
-    @http.route()
-    def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
-        res = super().shop(page, category, search, min_price, max_price, ppg, **post)
+    @http.route([
+        '/shop',
+        '/shop/page/<int:page>'
+    ], type='http', auth="public", website=True)
+    def shop(self, page=0, category=None, search='', min_price=0.0,
+             max_price=0.0, ppg=False, **post):
 
-        if hasattr(res, 'qcontext') and 'products' in res.qcontext:
-            public_products = res.qcontext['products']
+        # 1) Llamamos al super para obtener el response original
+        res = super(BiagioliWebsiteSale, self).shop(
+            page, category, search, min_price, max_price, ppg, **post
+        )
 
-            # Buscamos las variantes por cada template
-            variants = request.env['product.product'].sudo().search([
-                ('product_tmpl_id', 'in', public_products.ids)
-            ])
-            variant_data = variants.read(['product_tmpl_id', 'qty_available'])
+        # 2) Si hay contexto de qweb, siempre creamos la key
+        if hasattr(res, 'qcontext'):
+            # inicializamos vacío
+            has_stock_map = {}
 
-            # Sumamos disponibilidad por template
-            stock_map = {}
-            for line in variant_data:
-                tmpl_id = line['product_tmpl_id'][0] if line['product_tmpl_id'] else None
-                if tmpl_id:
-                    stock_map[tmpl_id] = stock_map.get(tmpl_id, 0) + line['qty_available']
+            prods = res.qcontext.get('products') or []
+            if prods:
+                # calculamos el stock por template
+                variants = request.env['product.product'].sudo().search([
+                    ('product_tmpl_id','in', prods.ids)
+                ]).read(['product_tmpl_id','qty_available'])
+                stock_map = {}
+                for v in variants:
+                    tid = v['product_tmpl_id'][0]
+                    stock_map[tid] = stock_map.get(tid, 0) + v['qty_available']
+                has_stock_map = {tid: (qty>0) for tid, qty in stock_map.items()}
 
-            # Creamos un mapa {product.id: True/False}
-            has_stock_map = {pid: (qty > 0) for pid, qty in stock_map.items()}
-
-            # Lo inyectamos al contexto
+            # 3) Inyectamos SIEMPRE la variable en el qcontext
             res.qcontext['has_stock_map'] = has_stock_map
-        
-            _logger.info("[🟢 STOCK DEBUG] has_stock_map: %s", has_stock_map)
-            _logger.info("[🟢 PRODUCT IDS] %s", public_products.ids)
-        
-        return res
 
+        return res
 
 
     """ este metodo sirve para pagina de producto INDIVIDUAL """
