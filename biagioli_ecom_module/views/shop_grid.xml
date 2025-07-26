@@ -42,4 +42,14 @@
     </xpath>
   </template>
 
+  <template id="debug_stock_marker"
+          inherit_id="website_sale.products_item"
+          name="DEBUG: stock badge marker">
+  <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
+    <div style="outline: 2px dashed red; background: yellow; padding: .2em; font-size: .8em;">
+      DEBUG STOCK HERE
+    </div>
+  </xpath>
+</template>
+
 </odoo>
