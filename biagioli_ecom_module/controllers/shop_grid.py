@@ -10,7 +10,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class BiagioliWebsiteSale(WebsiteSale):
+class BiagioliWebsiteSale(MotorCycleWebsiteSale):
 
     """ Aqui es donde vamos a inyectar el stock de los productos en la pagina de shop y cualquier otro dato que queramos
 
