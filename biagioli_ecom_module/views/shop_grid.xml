@@ -28,7 +28,7 @@
 
 
   <!-- Inserta el badge «En stock» sobre la imagen -->
-  <template id="sh_motorcycle_product_stock_badge"
+  <!-- <template id="sh_motorcycle_product_stock_badge"
             inherit_id="website_sale.products_item"
             name="Add stock badge to product card">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
@@ -40,16 +40,28 @@
         </span>
       </t>
     </xpath>
+  </template> -->
+
+<!-- 1) Quitamos overflow-hidden del contenedor para no recortar -->
+  <template id="debug_remove_overflow"
+            inherit_id="website_sale.products_item"
+            name="DEBUG: Allow overflow on product image">
+    <xpath expr="//div[contains(@class,'oe_product_image')]" position="attributes">
+      <!-- reescribimos la clase sin overflow-hidden -->
+      <attribute name="class">oe_product_image position-relative flex-grow-0</attribute>
+    </xpath>
   </template>
 
+  <!-- 2) Insertamos el marcador DEBUG con posición absoluta -->
   <template id="debug_stock_marker"
-          inherit_id="website_sale.products_item"
-          name="DEBUG: stock badge marker">
-  <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-    <div style="outline: 2px dashed red; background: yellow; padding: .2em; font-size: .8em;">
-      DEBUG STOCK HERE
-    </div>
-  </xpath>
-</template>
-
+            inherit_id="website_sale.products_item"
+            name="DEBUG: Stock marker absolute">
+    <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
+      <div
+        style="position:absolute; top:0; left:0; background: yellow; color: red;
+               padding: .2em .4em; font-size: .8em; z-index: 9999;">
+        DEBUG STOCK HERE
+      </div>
+    </xpath>
+  </template>
 </odoo>
