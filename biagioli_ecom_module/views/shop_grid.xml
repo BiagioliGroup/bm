@@ -28,8 +28,11 @@
 
 
   <!-- Inserta el badge «En stock» sobre la imagen -->
+  <template id="sh_motorcycle_product_stock_badge"
+            inherit_id="website_sale.products_item"
+            name="Add stock badge to product card">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-       <t t-if="product.has_stock">
+      <t t-if="product.has_stock">
         <span
           class="badge bg-success position-absolute start-0 bottom-0 m-2"
           style="z-index:10;">
@@ -38,6 +41,5 @@
       </t>
     </xpath>
   </template>
-
 
 </odoo>
