@@ -10,21 +10,25 @@
         web_icon="sh_motorcycle_backend,static/src/img/menu_icon.png"
     />
 
-    <menuitem id="sh_motorcycle_menuitem_config" sequence="3" name="Configurations" parent="sh_motorcycle_menuitem_root" groups="sh_motorcycle_backend.group_sh_motorcycle_manager" />
+    <menuitem
+        id="sh_motorcycle_menuitem_config"
+        sequence="3"
+        name="Configurations"
+        parent="sh_motorcycle_menuitem_root"
+        groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
+    />
 
-    
     <!-- Form View -->
-    <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view"> 
-    
+    <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
             <form string="Vehicle">
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only" />
+                        <label for="name" class="oe_edit_only"/>
                         <h1>
-                            <field name="name" placeholder="Motorcycle Name" />
+                            <field name="name" placeholder="Motorcycle Name"/>
                         </h1>
                     </div>
                     <!-- Nueva Sección: Imagen -->
@@ -34,13 +38,13 @@
 
                     <group>
                         <group>
-                            <field name="mmodel_id" />
-                            <field name="year" />
-                            <field name="market" />
+                            <field name="mmodel_id"/>
+                            <field name="year"/>
+                            <field name="market"/>
                         </group>
                         <group>
-                            <field name="type_id" />
-                            <field name="make_id" />
+                            <field name="type_id"/>
+                            <field name="make_id"/>
                             <field name="company_id" invisible="1"/>
                         </group>
                     </group>
@@ -61,27 +65,26 @@
                             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">
                                 <field name="service_ids" mode="kanban,tree,form" context="{}">
                                     <list>
-                                        <field name="name" />
-                                        <field name="description" />
+                                        <field name="name"/>
+                                        <field name="description"/>
                                     </list>
                                 </field>
                             </div>
                         </page>
-
                     </notebook>
 
-                    <group string='Equivalent products'>
+                    <group string="Equivalent products">
                         <field name="product_ids">
                             <list editable="bottom">
-                                <field name="default_code" />
-                                <field name="name" />
-                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant" />
-                                <field name="lst_price" />
+                                <field name="default_code"/>
+                                <field name="name"/>
+                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant"/>
+                                <field name="lst_price"/>
                             </list>
                         </field>
                     </group>
                 </sheet>
-            </form> 
+            </form>
         </field>
     </record>
 
@@ -91,17 +94,16 @@
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
             <list>
-                <field name="name" />
-                <field name="type_id" />
-                <field name="make_id" />
-                <field name="mmodel_id" />
-                <field name="year" />
-                <field name="market" />
-                <field name="motorcycle_image" filename='motorcycle image' widget="image" options="{'size': [180, 180   ]}"/> 
+                <field name="name"/>
+                <field name="type_id"/>
+                <field name="make_id"/>
+                <field name="mmodel_id"/>
+                <field name="year"/>
+                <field name="market"/>
+                <field name="motorcycle_image" filename="motorcycle image" widget="image" options="{'size': [180, 180]}"/>
             </list>
         </field>
     </record>
-
 
     <!-- Search View -->
     <record id="sh_motorcycle_motorcycle_search" model="ir.ui.view">
@@ -109,21 +111,21 @@
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
             <search string="Auto Parts">
-                <field name="name" string="Auto Parts" filter_domain="['|','|','|',('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]" />
-                <field name="type_id" />
-                <field name="make_id" />
-                <field name="mmodel_id" />
-                <field name="year" />
-                <field name="market" />
+                <field name="name" string="Auto Parts" filter_domain="['|','|','|',('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]"/>
+                <field name="type_id"/>
+                <field name="make_id"/>
+                <field name="mmodel_id"/>
+                <field name="year"/>
+                <field name="market"/>
                 <field name="oem_manual"/> <!-- Permite buscar por manual OEM -->
                 <field name="user_manual"/> <!-- Permite buscar por manual de usuario -->
 
                 <group expand="0" string="Group By">
-                    <filter name="group_make_id" string="Make" domain="[]" context="{'group_by':'make_id'}" />
-                    <filter name="group_type_id" string="Type" domain="[]" context="{'group_by':'type_id'}" />
-                    <filter name="group_mmodel_id" string="Model" domain="[]" context="{'group_by':'mmodel_id'}" />
-                    <filter name="group_year" string="Year" domain="[]" context="{'group_by':'year'}" />
-                    <filter name="group_market" string="Market" domain="[]" context="{'group_by':'market'}" />
+                    <filter name="group_make_id" string="Make" domain="[]" context="{'group_by':'make_id'}"/>
+                    <filter name="group_type_id" string="Type" domain="[]" context="{'group_by':'type_id'}"/>
+                    <filter name="group_mmodel_id" string="Model" domain="[]" context="{'group_by':'mmodel_id'}"/>
+                    <filter name="group_year" string="Year" domain="[]" context="{'group_by':'year'}"/>
+                    <filter name="group_market" string="Market" domain="[]" context="{'group_by':'market'}"/>
                 </group>
             </search>
         </field>
@@ -146,14 +148,12 @@
         groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
 
-
-
     <!-- Technical Data Tree View -->
     <record id="view_motorcycle_technical_data_tree" model="ir.ui.view">
         <field name="name">motorcycle.technical.data.tree</field>
         <field name="model">motorcycle.technical.data</field>
         <field name="arch" type="xml">
-            <list string="Technical Specs">
+            <list string="Technical Specs" editable="bottom">
                 <field name="motorcycle_id"/>
                 <field name="category_id"/>
                 <field name="attribute_id"/>
@@ -188,12 +188,14 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_motorcycle_technical_data"
-              name="Technical Data"
-              parent="sh_motorcycle_menuitem_config"
-              action="action_motorcycle_technical_data"
-              sequence="5"
-              groups="sh_motorcycle_backend.group_sh_motorcycle_manager"/>
+    <menuitem
+        id="menu_motorcycle_technical_data"
+        name="Technical Data"
+        parent="sh_motorcycle_menuitem_config"
+        action="action_motorcycle_technical_data"
+        sequence="5"
+        groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
+    />
 
     <!--  Agregado 21-06-2025 . Comienzo -->
     <!-- Form Extension: Motorcycle - Add Technical Data -->
@@ -204,14 +206,16 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="Technical Data">
-                    <field name="technical_data_ids">
-                        <tree editable="bottom">
-                            <field name="category_id"/>
-                            <field name="attribute_id"/>
-                            <field name="value_id"/>
-                            <field name="note"/>
-                        </tree>
-                    </field>
+                    <group>
+                        <field name="technical_data_ids">
+                            <tree string="Technical Specs" editable="bottom">
+                                <field name="category_id"/>
+                                <field name="attribute_id"/>
+                                <field name="value_id"/>
+                                <field name="note"/>
+                            </tree>
+                        </field>
+                    </group>
                 </page>
             </xpath>
         </field>
