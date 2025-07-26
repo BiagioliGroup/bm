@@ -19,8 +19,10 @@
         # any module necessary for this one to work correctly
         'depends': [
             'product',
-            'website_sale',  # si estás usando website ribbons
+            'website_sale',
+            'sh_motorcycle_frontend', 
         ],
+
         'data': [
             'views/checkout_form_patch.xml',
             'views/shop_grid.xml'

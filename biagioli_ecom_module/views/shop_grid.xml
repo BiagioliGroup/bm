@@ -27,10 +27,11 @@
   </template>
 
    <!-- Añade el atributo data-product-id a cada tarjeta de producto -->
-  <template id="biagioli_add_data_product_id"
-            inherit_id="website_sale.products"
-            name="Add data-product-id on each product">
-    <xpath expr="//section[@id='o_wsale_products_grid']//div[contains(@class,'oe_product')]" position="attributes">
+   <template
+    id="biagioli_add_data_product_id"
+    inherit_id="website_sale.products"
+    name="Add data-product-id on each product">
+    <xpath expr="//div[contains(@class,'oe_product')]" position="attributes">
       <attribute name="t-att-data-product-id" t-value="td_product['product'].id"/>
     </xpath>
   </template>
