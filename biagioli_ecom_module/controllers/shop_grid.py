@@ -43,7 +43,10 @@ class BiagioliWebsiteSale(MotorCycleWebsiteSale):
 
             # Lo inyectamos al contexto
             res.qcontext['has_stock_map'] = has_stock_map
-
+        
+            _logger.info("[🟢 STOCK DEBUG] has_stock_map: %s", has_stock_map)
+            _logger.info("[🟢 PRODUCT IDS] %s", public_products.ids)
+        
         return res
 
 
