@@ -1,7 +1,9 @@
 <odoo>
 
- <!-- 🏷️ Mostrar código de variante en vista de producto -->
-  <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
+  <!-- 🏷️ Mostrar código de variante en vista de producto -->
+  <template id="sh_motorcycle_product_view_inherit"
+            inherit_id="website_sale.product"
+            name="Show default_code before product title">
     <xpath expr="//div[@id='product_details']/h1" position="before">
       <t t-if="product_variant and product_variant.default_code">
         <div id="variant_default_code" class="text-muted small mb-2">
@@ -11,35 +13,58 @@
     </xpath>
   </template>
 
-
-
-<!-- 🏷️ Mostrar código de producto en grid -->
-  <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
+  <!-- 🏷️ Mostrar código de producto en grid -->
+  <template id="sh_motorcycle_products_item_inherit"
+            inherit_id="website_sale.products_item"
+            name="Add default_code to product card (grid and list)">
     <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
       <t t-if="product.default_code">
-        <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
+        <small class="text-muted d-block">
+          Código: <t t-esc="product.default_code"/>
+        </small>
       </t>
     </xpath>
+  </template>
 
-
-    <!-- Inserta el badge «En stock» sobre la imagen -->
-    <!-- <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-        <t t-if="product_qty_display">
-          <span class="badge bg-success float-end mb-2" style="z-index:10;">
-            <t t-esc="product_qty_display"/>
-          </span>
-        </t>
-    </xpath> -->
-
-   <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-      <t t-set="stock" t-value="products_qty_map.get(product.id, 0)"/>
-        <t t-if="stock &gt; 0">
-          <span class="badge bg-success">
-            En stock
-          </span>
-        </t>
+  <!-- Añade el atributo data-product-id a cada tarjeta de producto -->
+  <template id="biagioli_add_data_product_id"
+            inherit_id="website_sale.products"
+            name="Add data-product-id on each product">
+    <xpath expr="//div[@data-name='product_block_name']" position="attributes">
+      <attribute name="t-att-data-product-id" t-value="td_product['product'].id"/>
     </xpath>
+  </template>
 
+  <!-- Inyecta el script que pinta los badges "En stock" -->
+  <template id="biagioli_inject_stock_badges"
+            inherit_id="website_sale.products"
+            name="Inject stock badge script">
+    <xpath expr="//div[@id='products_grid']" position="after">
+      <script type="text/javascript" t-ignore="True">
+        odoo.define('biagioli.stock_badge', ['web.ajax', 'underscore'], function(ajax, _) {
+          'use strict';
+          var rpc = ajax.jsonRpc;
+          var $products = $('.oe_product');
+          var ids = _.map($products, function(el){
+            return parseInt($(el).data('product-id'), 10);
+          });
+          if (!ids.length) { return; }
+          rpc('/biagioli/stock_map', 'call', {product_ids: ids})
+            .then(function(qty_map){
+              $products.each(function(){
+                var $card = $(this),
+                    id    = parseInt($card.data('product-id'), 10);
+                if (qty_map[id] > 0) {
+                  $card.find('.oe_product_image')
+                       .append(
+                         '<span class="badge bg-success position-absolute start-0 bottom-0 m-2">En stock</span>'
+                       );
+                }
+              });
+            });
+        });
+      </script>
+    </xpath>
+  </template>
 
-  </template>   
 </odoo>

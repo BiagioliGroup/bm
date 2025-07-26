@@ -14,15 +14,13 @@ class BiagioliWebsiteSale(WebsiteSale):
     """ Este método se ejecuta cuando se carga el grid de productos y ODOO lo brinda justo antes de renderizar el QWeb. 
     Para que el QWeb pueda acceder a los valores que le pasamos, debemos devolverlos en el diccionario `values`"""
 
-    def _get_additional_shop_values(self, values):
-        # Log para comprobar que entró al hook
-        products = values.get('products') or request.env['product.template']
-        _logger.warning("🚨 Sergio DEBUG: _get_additional_shop_values called for products %s", products.ids)
+    # def _get_additional_shop_values(self, values):
+    #     # Log para comprobar que entró al hook
+    #     products = values.get('products') or request.env['product.template']
 
-        qty_data = products.sudo().read(['id', 'qty_available'])
-        qty_map = {d['id']: d['qty_available'] for d in qty_data}
-        _logger.warning("🚨 Sergio DEBUG: built qty_map with %s entries", len(qty_map))
-        return {'products_qty_map': qty_map}
+    #     qty_data = products.sudo().read(['id', 'qty_available'])
+    #     qty_map = {d['id']: d['qty_available'] for d in qty_data}
+    #     return {'products_qty_map': qty_map}
 
 
 
