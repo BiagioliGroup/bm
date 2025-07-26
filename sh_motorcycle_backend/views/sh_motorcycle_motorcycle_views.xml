@@ -5,7 +5,7 @@
     <menuitem
         id="sh_motorcycle_menuitem_root"
         sequence="1"
-        name="Repuestos"
+        name="Datos de Motos"
         groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager"
         web_icon="sh_motorcycle_backend,static/src/img/menu_icon.png"
     />
