@@ -247,12 +247,14 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
 
     @http.route()
-    def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
-        # 1) Clonamos request.params y eliminamos 'category'
+    def shop(self, page=0, category=None, search='', min_price=0.0,
+             max_price=0.0, ppg=False, **post):
+
+        # 1) Clonamos params y quitamos category
         params = dict(request.params)
         params.pop('category', None)
 
-        # 2) Ejecutamos primero la lógica de búsqueda y contexto
+        # 2) Búsqueda motera
         fuzzy, count, products = self._shop_lookup_products(
             attrib_set=None,
             options=self._get_search_options(**params),
@@ -269,14 +271,35 @@ class MotorCycleWebsiteSale(WebsiteSale):
         })
         request.update_context(**moto_context)
 
-        # 4) Llamamos al super (checkout/product) con los parámetros originales
+        # 4) Llamada original al shop
         res = super(MotorCycleWebsiteSale, self).shop(
             page, category, search, min_price, max_price, ppg, **post
         )
 
-        # 5) Si es una render qcontext, inyectamos el contexto extra
+        # 5) Inyectamos todo en qcontext
         if hasattr(res, 'qcontext'):
+            # Primero, actualizamos el contexto motero
             res.qcontext.update(moto_context)
+
+            # Luego construimos el mapa de stock
+            public_products = res.qcontext.get('products') or request.env['product.template']
+            # Si no hay products en qcontext, evitamos errores
+            has_stock_map = {}
+            if public_products:
+                # Leemos todas las variantes de esos templates
+                variants = request.env['product.product'].sudo().search([
+                    ('product_tmpl_id', 'in', public_products.ids)
+                ]).read(['product_tmpl_id', 'qty_available'])
+                # Acumulamos qty por template
+                stock_agg = {}
+                for v in variants:
+                    tid = v['product_tmpl_id'][0]
+                    stock_agg[tid] = stock_agg.get(tid, 0) + v['qty_available']
+                # Generamos el boolean map
+                has_stock_map = {tid: (qty > 0) for tid, qty in stock_agg.items()}
+
+            # Finalmente inyectamos has_stock_map (incluso vacío) para que QWeb no tire KeyError
+            res.qcontext['has_stock_map'] = has_stock_map
 
         return res
 
