@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Sergio Biagioli Code
 
-from odoo.addons.sh_motorcycle_frontend.controllers.main import MotorCycleWebsiteSale
+from odoo.addons.sh_motorcycle_frontend.controllers.sh_motorcycle_frontend import MotorCycleWebsiteSale
 from odoo.http import request
 from odoo import http
 
