@@ -42,33 +42,29 @@
     </xpath>
   </template> -->
 
-<!-- Seguimos quitando el overflow para no recortarlo -->
-  <template id="debug_remove_overflow"
+  <!-- 1) Quitamos overflow-hidden del contenedor para que el badge no se recorte -->
+  <template id="remove_overflow_from_product_image"
             inherit_id="website_sale.products_item"
-            name="DEBUG: Allow overflow on product image">
+            name="Allow overflow on product image">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="attributes">
       <attribute name="class">oe_product_image position-relative flex-grow-0</attribute>
     </xpath>
   </template>
 
-  <!-- Marcador DEBUG en esquina inferior-derecha -->
-  <template id="debug_stock_marker"
+  <!-- 2) Insertamos el badge “En stock” en la esquina inferior derecha -->
+  <template id="stock_badge_on_products_item"
             inherit_id="website_sale.products_item"
-            name="DEBUG: Stock marker bottom-right">
+            name="Show 'En stock' badge on product cards">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-      <div
-        style="position:absolute;
-               bottom:0;
-               right:0;
-               background: yellow;
-               color: red;
-               padding: .2em .4em;
-               font-size: .8em;
-               z-index: 9999;">
-        DEBUG STOCK HERE
-      </div>
+      <t t-if="has_stock_map.get(product.id)">
+        <span
+          class="badge bg-success position-absolute end-0 bottom-0 m-2"
+          style="z-index:10;">
+          En stock
+        </span>
+      </t>
     </xpath>
   </template>
 
-  
+
 </odoo>
