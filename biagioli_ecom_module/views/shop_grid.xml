@@ -23,13 +23,12 @@
 
 
     <!-- Inserta el badge «En stock» sobre la imagen -->
-    <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-        <t t-if="product_qty_display">
-            <span class="badge bg-success">
-                <t t-esc="product_qty_display"/>
-            </span>
-        </t>
-
+    <xpath expr="//div[@id='product_details']" position="inside">
+      <t t-if="product_qty_display">
+        <span class="badge bg-success float-end mb-2" style="z-index:10;">
+          <t t-esc="product_qty_display"/>
+        </span>
+      </t>x
     </xpath>
   </template>   
 </odoo>

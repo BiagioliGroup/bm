@@ -13,18 +13,14 @@ class BiagioliWebsiteSale(WebsiteSale):
 
     def _prepare_product_values(self, product, category, search, **kwargs):
         """
-            Metodo de Sergio Biagioli para obtener ciertos atributos que quiero mostrar 
-            en el GRID del SHOP
+            Metodo de Sergio Biagioli para mostrar atributos extra en la vista de producto (/shop/product)
         """
-        # Llamamos al método original para mantener el comportamiento estándar
         values = super(BiagioliWebsiteSale, self)._prepare_product_values(
             product, category, search, **kwargs)
 
-        # Código interno
         values['default_code'] = product.default_code
 
-        # Cantidad on hand real (con sudo, pero no la mostrarás directamente)
-        values['product'] = product
-        values['product_qty_display'] = "En stock" if product.sudo().qty_available > 0 else False
+        qty = product.sudo().qty_available
+        values['product_qty_display'] = "En stock" if qty > 0 else False
 
         return values
