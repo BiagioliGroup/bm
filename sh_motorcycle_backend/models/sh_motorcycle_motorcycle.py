@@ -7,132 +7,137 @@ from odoo.exceptions import ValidationError
 
 class MotorcycleTechnicalData(models.Model):
     _name = 'motorcycle.technical.data'
-    _description = 'Technical Data for Motorcycles'
+    _description = 'Datos Técnicos de la Motocicleta'
     _order = 'motorcycle_id, category_id, attribute_id'
 
     motorcycle_id = fields.Many2one(
-        'motorcycle.motorcycle', string='Motorcycle', required=True, ondelete='cascade'
+        'motorcycle.motorcycle', string='Motocicleta', required=True, ondelete='cascade'
     )
     category_id = fields.Many2one(
-        'product.category', string='Product Category', required=True
+        'product.category', string='Categoría de Producto', required=True
     )
     attribute_id = fields.Many2one(
-        'product.attribute', string='Attribute', required=True
+        'product.attribute', string='Atributo', required=True
     )
     value_id = fields.Many2one(
-        'product.attribute.value', string='Attribute Value', required=True
+        'product.attribute.value', string='Valor de Atributo', required=True
     )
 
-    note = fields.Char(string='Extra Note')
+    note = fields.Char(string='Nota Adicional')
 
     _sql_constraints = [
         ('uniq_entry',
          'unique(motorcycle_id, category_id, attribute_id)',
-         'This attribute is already set for this motorcycle and category.'),
+         'Este atributo ya está definido para esta motocicleta y categoría.'),
     ]
 
     @api.constrains('attribute_id', 'value_id')
     def _check_value_belongs_to_attribute(self):
         for record in self:
             if record.value_id.attribute_id != record.attribute_id:
-                raise ValidationError("The selected value does not match the selected attribute.")
+                raise ValidationError(
+                    _('El valor seleccionado no coincide con el atributo.')
+                )
+
 
 class Motorcycle(models.Model):
     _name = "motorcycle.motorcycle"
-    _description = "Motorcycle"
+    _description = "Motocicleta"
     _order = "id desc"
 
     name = fields.Char(compute="_compute_complete_name", store=True)
-    type_id = fields.Many2one(comodel_name="motorcycle.type",
-                          string="Type",
-                          related="mmodel_id.type_id",
-                          store=True
-                          )
-    make_id = fields.Many2one(comodel_name="motorcycle.make",
-                              string="Make",
-                              related="mmodel_id.make_id",
-                              store=True
-                              )
-    mmodel_id = fields.Many2one("motorcycle.mmodel", string="Model", required=True)
-    year = fields.Integer(string="Year", required=True, index=True)
+    type_id = fields.Many2one(
+        comodel_name="motorcycle.type",
+        string="Tipo",
+        related="mmodel_id.type_id",
+        store=True
+    )
+    make_id = fields.Many2one(
+        comodel_name="motorcycle.make",
+        string="Marca",
+        related="mmodel_id.make_id",
+        store=True
+    )
+    mmodel_id = fields.Many2one(
+        "motorcycle.mmodel", string="Modelo", required=True
+    )
+    year = fields.Integer(string="Año", required=True, index=True)
     market = fields.Selection([
-        ('EUR', 'Europe'),
-        ('USA', 'USA'),
+        ('EUR', 'Europa'),
+        ('USA', 'EEUU'),
         ('ARG', 'Argentina'),
         ('AUS', 'Australia'),
-        ('USA-CAN', 'USA & Canada'),
+        ('USA-CAN', 'EEUU y Canadá'),
         ('EURO5+', 'Euro 5+'),
-        ('CANADA', 'Canada'),
-        ('JP', 'Japan'),
+        ('CANADA', 'Canadá'),
+        ('JP', 'Japón'),
         ('CH', 'China'),
-    ], string="Market", required=True, default="USA")
+    ], string="Mercado", required=True, default="USA")
 
-    
     company_id = fields.Many2one(
         'res.company',
-        string='Company',
-        default=lambda self: self.env.user.company_id.id)
-    
-    product_ids = fields.Many2many('product.product',
-                                   'product_product_motorcycle_motorcycle_rel',
-                                   'motorcycle_id', 'product_id',
-                                   string='Productos Compatibles', copy=True)
-    
-    oem_manual = fields.Binary(string="OEM Manual", attachment=True)    
-    user_manual = fields.Binary(string="User Manual", attachment=True)
-    motorcycle_image = fields.Binary(string="Motorcycle Image", attachment=True)
+        string='Compañía',
+        default=lambda self: self.env.user.company_id.id
+    )
+
+    product_ids = fields.Many2many(
+        'product.product',
+        'product_product_motorcycle_motorcycle_rel',
+        'motorcycle_id', 'product_id',
+        string='Productos Compatibles', copy=True
+    )
+
+    oem_manual = fields.Binary(string="Manual OEM", attachment=True)
+    user_manual = fields.Binary(string="Manual de Usuario", attachment=True)
+    motorcycle_image = fields.Binary(string="Imagen de Motocicleta", attachment=True)
 
     service_ids = fields.Many2many(
         'motorcycle.service',
-        'motorcycle_service_rel',  # nombre de la tabla relacional
-        'motorcycle_id',           # campo local en la tabla relacional
-        'service_id',              # campo remoto
+        'motorcycle_service_rel',
+        'motorcycle_id',
+        'service_id',
         string='Servicios asignados',
         compute='_compute_service_ids',
         store=False
     )
 
-    # Agregado 21-06-2025 - para poder agregar datos técnicos a la moto
-    # Se relaciona con motorcycle.technical.data
-    # Se relaciona con product.category y product.attribute
-    # Se relaciona con product.attribute.value para poder agregar el valor del dato técnico
     technical_data_ids = fields.One2many(
-            'motorcycle.technical.data',
-            'motorcycle_id',
-            string='Technical Data'
-        )
-    # Agregado 21-06-2025 - Fin
+        'motorcycle.technical.data',
+        'motorcycle_id',
+        string='Datos Técnicos'
+    )
 
     def _compute_service_ids(self):
         for moto in self:
             moto.service_ids = self.env['motorcycle.service'].search([
                 ('motorcycle_ids', 'in', moto.id)
             ])
-    
 
     @api.depends("type_id", "make_id", "mmodel_id", "year")
     def _compute_complete_name(self):
         for record in self:
-            market = record.market if record.market else ""
-            record.name = f"{record.make_id.name} {record.mmodel_id.name} {str(record.year)} {market}"
-            #asdsa
-            # name_parts = [record.type_id.name, record.make_id.name, record.mmodel_id.name, str(record.year)]
-            # record.name = " - ".join(filter(None, name_parts))
-    
-    
+            parts = [
+                record.make_id.name or '',
+                record.mmodel_id.name or '',
+                str(record.year),
+                record.market or ''
+            ]
+            record.name = " ".join(filter(None, parts))
+
     @api.constrains("year")
     def _check_year(self):
         current_year = fields.Date.today().year
         for record in self:
             if record.year < 1900 or record.year > current_year:
-                raise ValidationError(_("The year must be between 1900 and %s.") % current_year)
-            
-    
+                raise ValidationError(
+                    _('El año debe estar entre 1900 y %s.') % current_year
+                )
+
     def action_create_service(self):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Nuevo Servicio',
+            'name': _('Nuevo Servicio'),
             'res_model': 'motorcycle.service',
             'view_mode': 'form',
             'target': 'current',
@@ -140,6 +145,3 @@ class Motorcycle(models.Model):
                 'default_motorcycle_ids': [self.id],
             },
         }
-
-
-
