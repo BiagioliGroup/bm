@@ -6,7 +6,7 @@
         id="sh_motorcycle_menuitem_root"
         sequence="1"
         name="Auto Parts"
-        groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager" 
+        groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager"
         web_icon="sh_motorcycle_backend,static/src/img/menu_icon.png"
     />
 
@@ -78,7 +78,8 @@
                             <list editable="bottom">
                                 <field name="default_code"/>
                                 <field name="name"/>
-                                <field name="product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant"/>
+                                <field name="product_template_attribute_value_ids" widget="many2many_tags"
+                                       groups="product.group_product_variant"/>
                                 <field name="lst_price"/>
                             </list>
                         </field>
@@ -100,7 +101,8 @@
                 <field name="mmodel_id"/>
                 <field name="year"/>
                 <field name="market"/>
-                <field name="motorcycle_image" filename="motorcycle image" widget="image" options="{'size': [180, 180]}"/>
+                <field name="motorcycle_image" filename="motorcycle image" widget="image"
+                       options="{'size': [180, 180]}"/>
             </list>
         </field>
     </record>
@@ -111,7 +113,8 @@
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
             <search string="Auto Parts">
-                <field name="name" string="Auto Parts" filter_domain="['|','|','|',('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]"/>
+                <field name="name" string="Auto Parts"
+                       filter_domain="['|','|','|',('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]"/>
                 <field name="type_id"/>
                 <field name="make_id"/>
                 <field name="mmodel_id"/>
@@ -119,7 +122,6 @@
                 <field name="market"/>
                 <field name="oem_manual"/> <!-- Permite buscar por manual OEM -->
                 <field name="user_manual"/> <!-- Permite buscar por manual de usuario -->
-
                 <group expand="0" string="Group By">
                     <filter name="group_make_id" string="Make" domain="[]" context="{'group_by':'make_id'}"/>
                     <filter name="group_type_id" string="Type" domain="[]" context="{'group_by':'type_id'}"/>
@@ -197,8 +199,7 @@
         groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
 
-    <!--  Agregado 21-06-2025 . Comienzo -->
-    <!-- Form Extension: Motorcycle - Add Technical Data -->
+    <!-- Agregado 21-06-2025: Herencia para Technical Data -->
     <record id="sh_motorcycle_motorcycle_form_inherit_technical_data" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle.form.technical.data</field>
         <field name="model">motorcycle.motorcycle</field>
@@ -206,19 +207,13 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="Technical Data">
-                    <group>
-                        <field name="technical_data_ids">
-                            <tree string="Technical Specs" editable="bottom">
-                                <field name="category_id"/>
-                                <field name="attribute_id"/>
-                                <field name="value_id"/>
-                                <field name="note"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <field name="technical_data_ids"
+                           widget="one2many_list"
+                           views="[(ref('sh_motorcycle_backend.view_motorcycle_technical_data_tree'), 'tree'),
+                                   (ref('sh_motorcycle_backend.view_motorcycle_technical_data_form'), 'form')]"/>
                 </page>
             </xpath>
         </field>
     </record>
-    <!-- Agregado 21-06-2025 Fin -->
+    <!-- Fin herencia Technical Data -->
 </odoo>
