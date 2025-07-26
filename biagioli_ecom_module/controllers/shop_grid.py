@@ -15,17 +15,13 @@ class BiagioliWebsiteSale(WebsiteSale):
     Para que el QWeb pueda acceder a los valores que le pasamos, debemos devolverlos en el diccionario `values`"""
 
     def _get_additional_shop_values(self, values):
-
-        # values['products'] es el recordset que usa el grid
+        # Log para comprobar que entró al hook
         products = values.get('products') or request.env['product.template']
+        _logger.warning("🚨 Sergio DEBUG: _get_additional_shop_values called for products %s", products.ids)
 
-        # Leemos UNA SÓLA VEZ todos los qty_available
         qty_data = products.sudo().read(['id', 'qty_available'])
-
-        # Convertimos a un mapa { product_id: qty }
         qty_map = {d['id']: d['qty_available'] for d in qty_data}
-        
-        # Lo devolvemos para que acabe en el context del QWeb
+        _logger.warning("🚨 Sergio DEBUG: built qty_map with %s entries", len(qty_map))
         return {'products_qty_map': qty_map}
 
 
