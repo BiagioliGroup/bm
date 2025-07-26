@@ -4,6 +4,8 @@
 from odoo.addons.sh_motorcycle_frontend.controllers.sh_motorcycle_frontend import MotorCycleWebsiteSale
 from odoo.http import request
 from odoo import http
+import logging
+
 
 _logger = logging.getLogger(__name__)
 
