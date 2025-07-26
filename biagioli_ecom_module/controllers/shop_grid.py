@@ -1,26 +1,46 @@
 # -*- coding: utf-8 -*-
 # Sergio Biagioli Code
 
+from odoo.addons.sh_motorcycle_frontend.controllers.main import MotorCycleWebsiteSale
 from odoo.http import request
 from odoo import http
-from odoo.addons.website_sale.controllers.main import WebsiteSale
-import logging
 
 _logger = logging.getLogger(__name__)
 
 
 class BiagioliWebsiteSale(WebsiteSale):
 
-    """ Este método se ejecuta cuando se carga el grid de productos y ODOO lo brinda justo antes de renderizar el QWeb. 
-    Para que el QWeb pueda acceder a los valores que le pasamos, debemos devolverlos en el diccionario `values`"""
+    """ Aqui es donde vamos a inyectar el stock de los productos en la pagina de shop y cualquier otro dato que queramos
 
-    # def _get_additional_shop_values(self, values):
-    #     # Log para comprobar que entró al hook
-    #     products = values.get('products') or request.env['product.template']
+        Gran Dato: DEPENDEMOS DE sh_motorcycle_frontend.controllers.main.MotorCycleWebsiteSale.
 
-    #     qty_data = products.sudo().read(['id', 'qty_available'])
-    #     qty_map = {d['id']: d['qty_available'] for d in qty_data}
-    #     return {'products_qty_map': qty_map}
+    """
+
+    @http.route()
+    def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
+        res = super().shop(page, category, search, min_price, max_price, ppg, **post)
+
+        if hasattr(res, 'qcontext') and 'products' in res.qcontext:
+            public_products = res.qcontext['products']
+
+            # Calculamos el stock básico sin acceder a qty_available directamente
+            product_stocks = request.env['product.product'].sudo().read_group(
+                [('product_tmpl_id', 'in', public_products.ids)],
+                ['product_tmpl_id', 'qty_available'],
+                ['product_tmpl_id']
+            )
+
+            # Mapeamos por template ID
+            stock_map = {
+                group['product_tmpl_id'][0]: group['qty_available']
+                for group in product_stocks
+            }
+
+            # Inyectamos un nuevo atributo a cada product.template
+            for product in public_products:
+                product.has_stock = stock_map.get(product.id, 0) > 0
+
+        return res
 
 
 

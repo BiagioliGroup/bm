@@ -17,11 +17,7 @@
         'version': '0.1',
 
         # any module necessary for this one to work correctly
-        'depends': [
-            'product',
-            'website_sale',
-            'sh_motorcycle_frontend', 
-        ],
+        'depends': ['sh_motorcycle_frontend', 'website_sale'],
 
         'data': [
             'views/checkout_form_patch.xml',
