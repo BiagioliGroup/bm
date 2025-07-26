@@ -3,24 +3,24 @@
     <record id="sh_motorcycle_product_normal_form" model="ir.ui.view">
         <field name="name">sh.motorcycle.product.normal.form</field>
         <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page name="motorcycle" string="Vehicles">
+                <page name="motorcycle" string="Vehículos">
                     <group>
                         <field name="sh_is_common_product"/>
                     </group>
                     <field name="motorcycle_ids">
                         <list editable="bottom">
-                            <field name="make_id" />
-                            <field name="mmodel_id" />
-                            <field name="year" />
+                            <field name="make_id"/>
+                            <field name="mmodel_id"/>
+                            <field name="year"/>
                         </list>
                         <form>
                             <group>
-                                <field name="make_id" />
-                                <field name="mmodel_id" />
-                                <field name="year" />
+                                <field name="make_id"/>
+                                <field name="mmodel_id"/>
+                                <field name="year"/>
                             </group>
                         </form>
                     </field>
@@ -29,4 +29,3 @@
         </field>
     </record>
 </odoo>
-
