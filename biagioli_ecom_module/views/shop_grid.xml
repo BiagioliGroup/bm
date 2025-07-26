@@ -32,12 +32,14 @@
     </xpath> -->
 
    <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
-      <t t-set="stock" t-value="product.sudo().qty_available"/>
-      <t t-if="stock > 0">
-        <span class="badge bg-success">
-          En stock
-        </span>
-      </t>
+      <t t-set="stock" t-value="products_qty_map.get(product.id, 0)"/>
+        <t t-if="stock &gt; 0">
+          <span class="badge bg-success">
+            En stock
+          </span>
+        </t>
     </xpath>
+
+
   </template>   
 </odoo>
