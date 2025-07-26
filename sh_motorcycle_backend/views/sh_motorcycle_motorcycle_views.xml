@@ -159,7 +159,8 @@
                 <field name="motorcycle_id"/>
                 <field name="category_id"/>
                 <field name="attribute_id"/>
-                <field name="value_id"/>
+                <field name="value_id"
+                    domain="[('attribute_id','=',attribute_id)]"/>
                 <field name="note"/>
             </list>
         </field>
@@ -172,10 +173,11 @@
         <field name="arch" type="xml">
             <form string="Especificación Técnica">
                 <group>
-                    <field name="motorcycle_id"/>
+                    <field name="motorcycle_id" invisible="1"/>
                     <field name="category_id"/>
                     <field name="attribute_id"/>
-                    <field name="value_id" domain="[('attribute_id','=',attribute_id)]"/>
+                    <field name="value_id"
+                        domain="[('attribute_id','=',attribute_id)]"/>
                     <field name="note"/>
                 </group>
             </form>
