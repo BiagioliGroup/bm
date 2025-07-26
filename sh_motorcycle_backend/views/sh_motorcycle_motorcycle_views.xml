@@ -175,7 +175,7 @@
                     <field name="motorcycle_id"/>
                     <field name="category_id"/>
                     <field name="attribute_id"/>
-                    <field name="value_id"/>
+                    <field name="value_id" domain="[('attribute_id','=',attribute_id)]"/>
                     <field name="note"/>
                 </group>
             </form>
