@@ -25,24 +25,24 @@ class BiagioliWebsiteSale(MotorCycleWebsiteSale):
         if hasattr(res, 'qcontext') and 'products' in res.qcontext:
             public_products = res.qcontext['products']
 
-            # Calculamos el stock básico sin acceder a qty_available directamente
-            product_stocks = request.env['product.product'].sudo().read_group(
-                [('product_tmpl_id', 'in', public_products.ids)],
-                ['product_tmpl_id', 'qty_available'],
-                ['product_tmpl_id']
-            )
+            # Buscamos las variantes por cada template
+            variants = request.env['product.product'].sudo().search([
+                ('product_tmpl_id', 'in', public_products.ids)
+            ])
+            variant_data = variants.read(['product_tmpl_id', 'qty_available'])
 
-            # Mapeamos por template ID
-            stock_map = {
-                group['product_tmpl_id'][0]: group['qty_available']
-                for group in product_stocks
-            }
+            # Sumamos disponibilidad por template
+            stock_map = {}
+            for line in variant_data:
+                tmpl_id = line['product_tmpl_id'][0] if line['product_tmpl_id'] else None
+                if tmpl_id:
+                    stock_map[tmpl_id] = stock_map.get(tmpl_id, 0) + line['qty_available']
 
-            # Inyectamos un nuevo atributo a cada product.template
+            # Asignamos el campo "has_stock"
             for product in public_products:
                 product.has_stock = stock_map.get(product.id, 0) > 0
 
-        return res
+            return res
 
 
 
