@@ -17,7 +17,7 @@
       </xpath>
     </field>
   </record>
-</odoo>
+
 
   <!-- Menú para gestionar unidades de atributo -->
   <record id="action_product_attribute_unit" model="ir.actions.act_window">
