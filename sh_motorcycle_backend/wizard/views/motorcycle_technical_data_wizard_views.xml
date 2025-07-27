@@ -22,26 +22,29 @@
 
   <!-- ACCIÓN SERVER PARA VISTA EN “ACCIONES” DEL TREE DE technical.data -->
   <record id="action_server_motorcycle_technical_data_wizard" model="ir.actions.server">
-    <field name="name">Cargar Datos Técnicos en lote</field>
-    <!-- Aparece en el tree de motorcycle.technical.data -->
-    <field name="model_id" ref="sh_motorcycle_backend.model_motorcycle_technical_data"/>
-    <field name="binding_model_id" ref="sh_motorcycle_backend.model_motorcycle_technical_data"/>
-    <field name="binding_type">action</field>
-    <field name="binding_view_types">list</field>
-    <field name="state">code</field>
-    <field name="code">
-      action = {
-        'type': 'ir.actions.act_window',
-        'res_model': 'motorcycle.technical.data.wizard',
-        'view_mode': 'form',
-        'view_id': env.ref('sh_motorcycle_backend.view_motorcycle_technical_data_wizard_form').id,
-        'target': 'new',
-        'context': {
-          'default_motorcycle_ids': env.context.get('active_ids', []),
-        },
-      }
-    </field>
+  <field name="name">Cargar Datos Técnicos en lote</field>
+  <!-- binding sobre datos técnicos -->
+  <field name="binding_model_id" ref="sh_motorcycle_backend.model_motorcycle_technical_data"/>
+  <field name="binding_type">action</field>
+  <field name="binding_view_types">list</field>
+  <field name="state">code</field>
+  <field name="code"><![CDATA[
+  action = {
+      'type': 'ir.actions.act_window',
+      'res_model': 'motorcycle.technical.data.wizard',
+      'view_mode': 'form',
+      'view_id': env.ref('sh_motorcycle_backend.view_motorcycle_technical_data_wizard_form').id,
+      'target': 'new',
+      'context': dict(
+          default_motorcycle_ids=env['motorcycle.technical.data']
+              .browse(env.context.get('active_ids', []))
+              .mapped('motorcycle_id')
+              .ids,
+      ),
+  }
+  ]]></field>
   </record>
+
 
   <!-- ACCIÓN ACT_WINDOW PARA MENÚ -->
   <record id="action_wizard_motorcycle_technical_data" model="ir.actions.act_window">
