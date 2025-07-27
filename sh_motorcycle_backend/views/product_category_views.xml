@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_product_category_form_inherit_webshop" model="ir.ui.view">
+    <field name="name">product.category.form.inherit.webshop</field>
+    <field name="model">product.category</field>
+    <field name="inherit_id" ref="product.product_category_form_view"/>
+    <field name="arch" type="xml">
+      <!-- Después del grupo principal con parent_id -->
+      <xpath expr="//group[@name='first']" position="after">
+        <group string="Web y Clasificación" col="2">
+          <field name="show_in_website"/>
+          <field name="depth" readonly="1"/>
+        </group>
+        <group string="Atributos Técnicos" colspan="2">
+          <field name="attribute_ids" widget="many2many_tags"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>

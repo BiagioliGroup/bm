@@ -3,7 +3,18 @@ from odoo import models, fields
 
 class ProductCategory(models.Model):
     _inherit = 'product.category'
-    # Relación N-N con product.attribute, usando la misma tabla relacional
+
+    show_in_website = fields.Boolean(
+        string='Mostrar en Web',
+        default=True,
+        help="Si está marcado, aparecerá esta categoría en el sitio web."
+    )
+    depth = fields.Integer(
+        string='Profundidad',
+        compute='_compute_depth',
+        store=True,
+        readonly=True
+    )
     attribute_ids = fields.Many2many(
         'product.attribute',
         'product_attribute_category_rel',
@@ -11,6 +22,11 @@ class ProductCategory(models.Model):
         'attribute_id',
         string='Atributos Técnicos'
     )
+
+    @api.depends('parent_id', 'parent_id.depth')
+    def _compute_depth(self):
+        for cat in self:
+            cat.depth = (cat.parent_id.depth + 1) if cat.parent_id else 0
 
 class ProductAttribute(models.Model):
     _inherit = 'product.attribute'
