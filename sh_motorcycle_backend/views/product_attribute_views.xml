@@ -26,8 +26,9 @@
     <field name="view_mode">tree,form</field>
   </record>
   <menuitem id="menu_product_attribute_unit"
-            name="Unidades de Atributo"
-            parent="product.product_configuration_menu"
-            action="action_product_attribute_unit"
-            sequence="5"/>
+          name="Unidades de Atributo"
+          parent="sale.menu_product_attribute_action"
+          action="action_product_attribute_unit"
+          sequence="5"
+          groups="your_module.group_sh_motorcycle_manager"/>
 </odoo>
