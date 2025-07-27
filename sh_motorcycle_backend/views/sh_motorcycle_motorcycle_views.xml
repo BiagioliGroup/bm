@@ -156,7 +156,7 @@
         <field name="model">motorcycle.technical.data</field>
         <field name="arch" type="xml">
             <list string="Especificaciones Técnicas" editable="bottom">
-                <field name="motorcycle_id" invisible="1"/>
+                <field name="motorcycle_id"/>
                 <field name="category_id"/>
                 <field name="attribute_id"
                     domain="[('categ_ids','=', category_id)]"/>
