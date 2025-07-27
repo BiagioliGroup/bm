@@ -161,7 +161,9 @@
                 <field name="attribute_id"
                     domain="[('categ_ids','=', category_id)]"/>
                 <field name="value_id"
-                    domain="[('attribute_id','=', attribute_id)]"/>
+                       domain="[('attribute_id','=',attribute_id)]"
+                       context="{'default_attribute_id': attribute_id}"
+                />
 
                 <field name="note"/>
             </list>
@@ -180,7 +182,9 @@
                     <field name="attribute_id"
                         domain="[('categ_ids','=', category_id)]"/>
                     <field name="value_id"
-                        domain="[('attribute_id','=', attribute_id)]"/>
+                       domain="[('attribute_id','=',attribute_id)]"
+                       context="{'default_attribute_id': attribute_id}"
+                />
                     <field name="note"/>
                 </group>
             </form>
