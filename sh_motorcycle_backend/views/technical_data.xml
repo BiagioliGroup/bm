@@ -47,15 +47,17 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <!-- Menu -->
+    <!-- Menu Item Principal -->
     <menuitem
         id="menu_motorcycle_technical_data"
         name="Datos Técnicos"
-        parent="sh_motorcycle_menuitem_config"
+        parent="sh_motorcycle_menuitem_root"
         action="action_motorcycle_technical_data"
-        sequence="5"
+        sequence="3"        
         groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
+
+    
 
     <!-- Agregado 21-06-2025: Herencia para Datos Técnicos -->
     <record id="sh_motorcycle_motorcycle_form_inherit_technical_data" model="ir.ui.view">
