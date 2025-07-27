@@ -49,10 +49,10 @@ class ProductAttribute(models.Model):
     unit_id = fields.Many2one(
         'uom.uom',
         string='Unidad de Medida',
-        help="Unidad en la que se miden los valores de este atributo.",
+        help="Unidad en la que se miden los valores de este atributo."
         # opcional: filtra solo la categoría de unidades que quieras, 
         # p.ej. LENGTH, WEIGHT, etc., según tu configuración de UoM
-        domain="[('category_id','=', 'Unit')]"
+       
     )
 
     @api.model
