@@ -91,3 +91,19 @@ class ProductAttributeValue(models.Model):
             if value.attribute_id.unit_id:
                 text = f"{text} {value.attribute_id.unit_id.name}"
             value.display_name = text
+
+    @api.model
+    def name_get(self):
+        """Añadir la unidad definida en el atributo padre al final del valor."""
+        # Llamamos al name_get original para respetar traducciones, customizaciones, etc.
+        res = super().name_get()
+        # Recorremos la tupla (id, nombre)
+        out = []
+        for rec_id, name in res:
+            rec = self.browse(rec_id)
+            # Si el atributo padre tiene unidad, la añadimos
+            if rec.attribute_id.unit_id:
+                # unit_id.name suele ser "Milímetros (mm)" o similar
+                name = f"{name} {rec.attribute_id.unit_id.name}"
+            out.append((rec_id, name))
+        return out
