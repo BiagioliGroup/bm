@@ -70,10 +70,27 @@ class ProductAttribute(models.Model):
         return out
 
 
-class ProductAttributeUnit(models.Model):
-    _name = 'product.attribute.unit'
-    _description = 'Unidad de Medida para Atributos'
-    _order = 'name'
+""" Agregamos este método para que los valores de atributos muestren la unidad si está definida.
+   Esto es útil para que los usuarios vean la unidad al seleccionar un valor de atributo."""
 
-    name = fields.Char(string='Nombre de Unidad', required=True)
-    code = fields.Char(string='Código (p.ej. mm, cm, in)', required=True)
+class ProductAttributeValue(models.Model):
+    _inherit = 'product.attribute.value'
+
+    @api.model
+    def name_get(self):
+        """Si el atributo tiene unidad, la agregamos al nombre del valor."""
+        # llama al name_get original para mantener posibles traducciones u otras lógicas
+        res = super(ProductAttributeValue, self).name_get()
+        out = []
+        for val_id, name in res:
+            val = self.browse(val_id)
+            unit = False
+            if val.attribute_id.unit_id:
+                # Si usas uom.uom, val.attribute_id.unit_id.name incluye tanto “Milímetros (mm)”
+                # Si quieres sólo el código, podrías usar val.attribute_id.unit_id.uom_type.code, 
+                # o almacenar el código en otro campo.
+                unit = val.attribute_id.unit_id.name
+            if unit:
+                name = f"{name} {unit}"
+            out.append((val_id, name))
+        return out
