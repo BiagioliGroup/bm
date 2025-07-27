@@ -37,6 +37,14 @@ class ProductCategory(models.Model):
 
 class ProductAttribute(models.Model):
     _inherit = 'product.attribute'
+    # Relación inversa para poder hacer domain desde attribute
+    categ_ids = fields.Many2many(
+        'product.category',
+        'product_attribute_category_rel',
+        'attribute_id',
+        'category_id',
+        string='Categorías Técnicas'
+    )
 
     unit_id = fields.Many2one(
         'product.attribute.unit',
@@ -54,7 +62,6 @@ class ProductAttribute(models.Model):
                 name = f"{name} ({attr.unit_id.code})"
             res.append((attr.id, name))
         return res
-
 
 
 class ProductAttributeUnit(models.Model):
