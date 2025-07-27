@@ -34,14 +34,33 @@ class ProductCategory(models.Model):
                 parent = parent.parent_id
             cat.depth = level
 
-            
+
 class ProductAttribute(models.Model):
     _inherit = 'product.attribute'
-    # Relación inversa para poder hacer domain desde attribute
-    categ_ids = fields.Many2many(
-        'product.category',
-        'product_attribute_category_rel',
-        'attribute_id',
-        'category_id',
-        string='Categorías Técnicas'
+
+    unit_id = fields.Many2one(
+        'product.attribute.unit',
+        string='Unidad de Medida',
+        help='Unidad en la que se miden los valores de este atributo.'
     )
+
+    @api.model
+    def name_get(self):
+        """Mostrar la unidad entre paréntesis si está definida."""
+        res = []
+        for attr in self:
+            name = attr.name or ''
+            if attr.unit_id:
+                name = f"{name} ({attr.unit_id.code})"
+            res.append((attr.id, name))
+        return res
+
+
+
+class ProductAttributeUnit(models.Model):
+    _name = 'product.attribute.unit'
+    _description = 'Unidad de Medida para Atributos'
+    _order = 'name'
+
+    name = fields.Char(string='Nombre de Unidad', required=True)
+    code = fields.Char(string='Código (p.ej. mm, cm, in)', required=True)

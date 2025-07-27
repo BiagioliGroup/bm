@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_attribute_form_inherit_unit" model="ir.ui.view">
+    <field name="name">product.attribute.form.inherit.unit</field>
+    <field name="model">product.attribute</field>
+    <field name="inherit_id" ref="product.product_attribute_view_form"/>
+    <field name="arch" type="xml">
+      <!-- Inserta la unidad justo después del campo name -->
+      <xpath expr="//field[@name='name']" position="after">
+        <field name="unit"/>
+      </xpath>
+      <!-- Añade un bloque para mostrar también las categorías técnicas -->
+      <xpath expr="//sheet" position="inside">
+        <group string="Categorías Técnicas" colspan="2">
+          <field name="categ_ids" widget="many2many_tags"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>
+
+  <!-- Menú para gestionar unidades de atributo -->
+  <record id="action_product_attribute_unit" model="ir.actions.act_window">
+    <field name="name">Unidades de Atributo</field>
+    <field name="res_model">product.attribute.unit</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+  <menuitem id="menu_product_attribute_unit"
+            name="Unidades de Atributo"
+            parent="product.product_configuration_menu"
+            action="action_product_attribute_unit"
+            sequence="5"/>
+</odoo>
