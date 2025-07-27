@@ -47,21 +47,27 @@ class ProductAttribute(models.Model):
     )
 
     unit_id = fields.Many2one(
-        'product.attribute.unit',
+        'uom.uom',
         string='Unidad de Medida',
-        help='Unidad en la que se miden los valores de este atributo.'
+        help="Unidad en la que se miden los valores de este atributo.",
+        # opcional: filtra solo la categoría de unidades que quieras, 
+        # p.ej. LENGTH, WEIGHT, etc., según tu configuración de UoM
+        domain="[('category_id','=', 'Unit')]"
     )
 
     @api.model
     def name_get(self):
-        """Mostrar la unidad entre paréntesis si está definida."""
-        res = []
-        for attr in self:
-            name = attr.name or ''
-            if attr.unit_id:
-                name = f"{name} ({attr.unit_id.code})"
-            res.append((attr.id, name))
-        return res
+        """Añade la unidad entre paréntesis tras el nombre si está definida."""
+        res = super().name_get()
+        # res es [(id, name), ...]
+        out = []
+        for rec_id, name in res:
+            rec = self.browse(rec_id)
+            if rec.unit_id:
+                # rec.unit_id.name suele ser "Milímetros (mm)" o similar
+                name = f"{name} ({rec.unit_id.name})"
+            out.append((rec_id, name))
+        return out
 
 
 class ProductAttributeUnit(models.Model):

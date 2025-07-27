@@ -19,16 +19,5 @@
   </record>
 
 
-  <!-- Menú para gestionar unidades de atributo -->
-  <record id="action_product_attribute_unit" model="ir.actions.act_window">
-    <field name="name">Unidades de Atributo</field>
-    <field name="res_model">product.attribute.unit</field>
-    <field name="view_mode">tree,form</field>
-  </record>
-  <menuitem id="menu_product_attribute_unit"
-          name="Unidades de Atributo"
-          parent="sale.menu_product_attribute_action"
-          action="action_product_attribute_unit"
-          sequence="5"
-          groups="sh_motorcycle_backend.group_sh_motorcycle_manager"/>
+  
 </odoo>
