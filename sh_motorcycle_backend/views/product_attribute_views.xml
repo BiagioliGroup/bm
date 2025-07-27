@@ -24,18 +24,29 @@
       el campo value_ids tenga un contexto que incluya sólo el default_attribute_id
       y no el show_attribute=False.
    -->
+  <!-- HEREDAMOS LA VISTA TREE de product.template.attribute.line -->
   <record id="sh_moto_inherit_ptal_tree_uom" model="ir.ui.view">
-      <field name="name">sh.motorcycle.backend.ptal.tree.uom</field>
-      <field name="model">product.template.attribute.line</field>
-      <!-- Heredamos la vista tree de la pestaña Atributos & Variantes -->
-      <field name="inherit_id" ref="product.product_template_attribute_view_tree"/>
-      <field name="arch" type="xml">
-        <!-- Localizamos el many2many_tags de value_ids -->
-        <xpath expr="//field[@name='value_ids']" position="attributes">
-          <!-- Forzamos show_attribute=True para que use tu compute_display_name -->
-          <attribute name="context">{'default_attribute_id': attribute_id, 'show_attribute': True}</attribute>
-        </xpath>
-      </field>
-    </record>
+    <field name="name">sh.motorcycle.backend.ptal.tree.uom</field>
+    <field name="model">product.template.attribute.line</field>
+    <field name="inherit_id" ref="product.product_template_attribute_line_view_tree"/>
+    <field name="arch" type="xml">
+      <!-- Forzamos show_attribute=True para que use tu compute_display_name -->
+      <xpath expr="//field[@name='value_ids']" position="attributes">
+        <attribute name="context">{'default_attribute_id': attribute_id, 'show_attribute': True}</attribute>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- HEREDAMOS LA VISTA FORM de product.template.attribute.line -->
+  <record id="sh_moto_inherit_ptal_form_uom" model="ir.ui.view">
+    <field name="name">sh.motorcycle.backend.ptal.form.uom</field>
+    <field name="model">product.template.attribute.line</field>
+    <field name="inherit_id" ref="product.product_template_attribute_line_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='value_ids']" position="attributes">
+        <attribute name="context">{'default_attribute_id': attribute_id, 'show_attribute': True}</attribute>
+      </xpath>
+    </field>
+  </record>
   
 </odoo>
