@@ -1,0 +1,1 @@
+from . import motorcycle_technical_data_wizard
