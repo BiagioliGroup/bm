@@ -1,2 +1,2 @@
 
-from . model import model
+from . import models
