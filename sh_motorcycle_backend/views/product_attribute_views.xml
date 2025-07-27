@@ -30,5 +30,5 @@
           parent="sale.menu_product_attribute_action"
           action="action_product_attribute_unit"
           sequence="5"
-          groups="your_module.group_sh_motorcycle_manager"/>
+          groups="sh_motorcycle_backend.group_sh_motorcycle_manager"/>
 </odoo>
