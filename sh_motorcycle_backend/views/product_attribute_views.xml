@@ -7,7 +7,7 @@
     <field name="arch" type="xml">
       <!-- Inserta la unidad justo después del campo name -->
       <xpath expr="//field[@name='name']" position="after">
-        <field name="unit"/>
+        <field name="unit_id"/>
       </xpath>
       <!-- Añade un bloque para mostrar también las categorías técnicas -->
       <xpath expr="//sheet" position="inside">
