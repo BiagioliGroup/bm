@@ -76,21 +76,19 @@ class ProductAttribute(models.Model):
 class ProductAttributeValue(models.Model):
     _inherit = 'product.attribute.value'
 
-    @api.model
-    def name_get(self):
-        """Si el atributo tiene unidad, la agregamos al nombre del valor."""
-        # llama al name_get original para mantener posibles traducciones u otras lógicas
-        res = super(ProductAttributeValue, self).name_get()
-        out = []
-        for val_id, name in res:
-            val = self.browse(val_id)
-            unit = False
-            if val.attribute_id.unit_id:
-                # Si usas uom.uom, val.attribute_id.unit_id.name incluye tanto “Milímetros (mm)”
-                # Si quieres sólo el código, podrías usar val.attribute_id.unit_id.uom_type.code, 
-                # o almacenar el código en otro campo.
-                unit = val.attribute_id.unit_id.name
-            if unit:
-                name = f"{name} {unit}"
-            out.append((val_id, name))
-        return out
+    @api.depends('attribute_id', 'name')
+    @api.depends_context('show_attribute')
+    def _compute_display_name(self):
+        """Incluimos la unidad al final del valor si existe."""
+        # Si no queremos mostrar atributo (context.show_attribute=False), delegamos
+        if not self.env.context.get('show_attribute', True):
+            return super()._compute_display_name()
+        for value in self:
+            # Primero formamos "[Atributo]: [Valor]"
+            base = f"{value.attribute_id.name}: {value.name}"
+            # Luego, si su atributo padre tiene unidad, la añadimos
+            uom = value.attribute_id.unit_id
+            if uom:
+                # uom.name suele ser "Milímetros (mm)" o similar
+                base = f"{base} {uom.name}"
+            value.display_name = base
