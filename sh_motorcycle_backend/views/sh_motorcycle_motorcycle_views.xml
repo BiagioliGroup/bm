@@ -112,16 +112,16 @@
         <field name="name">sh.motorcycle.motorcycle.search</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
-            <search string="Repuestos">
-                <field name="name" string="Repuestos"
+            <search string="Motocicletas">
+                <field name="name" string="Motocicletas"
                        filter_domain="['|','|','|',('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]"/>
                 <field name="type_id" string="Tipo"/>
                 <field name="make_id" string="Marca"/>
                 <field name="mmodel_id" string="Modelo"/>
                 <field name="year" string="Año"/>
                 <field name="market" string="Mercado"/>
-                <field name="oem_manual"/> <!-- Permite buscar por manual OEM -->
-                <field name="user_manual"/> <!-- Permite buscar por manual de usuario -->
+                <!-- <field name="oem_manual"/>  -->
+                <!-- <field name="user_manual"/>  -->
                 <group expand="0" string="Agrupar por">
                     <filter name="group_make_id" string="Marca" domain="[]" context="{'group_by':'make_id'}"/>
                     <filter name="group_type_id" string="Tipo" domain="[]" context="{'group_by':'type_id'}"/>
@@ -135,7 +135,7 @@
 
     <!-- MenuAction -->
     <record id="sh_motorcycle_motorcycle_action" model="ir.actions.act_window">
-        <field name="name">Motocicleta</field>
+        <field name="name">Motocicletas</field>
         <field name="res_model">motorcycle.motorcycle</field>
         <field name="view_mode">list,form</field>
     </record>
@@ -144,85 +144,10 @@
     <menuitem
         id="sh_motorcycle_menuitem_sub"
         sequence="1"
-        name="Motocicleta"
+        name="Motocicletas"
         parent="sh_motorcycle_menuitem_root"
         action="sh_motorcycle_motorcycle_action"
         groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
 
-    <!-- Technical Data Tree View -->
-    <record id="view_motorcycle_technical_data_tree" model="ir.ui.view">
-        <field name="name">motorcycle.technical.data.tree</field>
-        <field name="model">motorcycle.technical.data</field>
-        <field name="arch" type="xml">
-            <list string="Especificaciones Técnicas" editable="bottom">
-                <field name="motorcycle_id"/>
-                <field name="category_id"/>
-                <field name="attribute_id"
-                    domain="[('categ_ids','=', category_id)]"/>
-                <field name="value_id"
-                       domain="[('attribute_id','=',attribute_id)]"
-                       context="{'default_attribute_id': attribute_id}"
-                />
-
-                <field name="note"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Technical Data Form View -->
-    <record id="view_motorcycle_technical_data_form" model="ir.ui.view">
-        <field name="name">motorcycle.technical.data.form</field>
-        <field name="model">motorcycle.technical.data</field>
-        <field name="arch" type="xml">
-            <form string="Especificación Técnica">
-                <group>
-                    <field name="motorcycle_id" invisible="1"/>
-                    <field name="category_id"/>
-                    <field name="attribute_id"
-                        domain="[('categ_ids','=', category_id)]"/>
-                    <field name="value_id"
-                       domain="[('attribute_id','=',attribute_id)]"
-                       context="{'default_attribute_id': attribute_id}"
-                />
-                    <field name="note"/>
-                </group>
-            </form>
-        </field>
-    </record>
-
-    <!-- Action -->
-    <record id="action_motorcycle_technical_data" model="ir.actions.act_window">
-        <field name="name">Datos Técnicos de la Motocicleta</field>
-        <field name="res_model">motorcycle.technical.data</field>
-        <field name="view_mode">list,form</field>
-    </record>
-
-    <!-- Menu -->
-    <menuitem
-        id="menu_motorcycle_technical_data"
-        name="Datos Técnicos"
-        parent="sh_motorcycle_menuitem_config"
-        action="action_motorcycle_technical_data"
-        sequence="5"
-        groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
-    />
-
-    <!-- Agregado 21-06-2025: Herencia para Datos Técnicos -->
-    <record id="sh_motorcycle_motorcycle_form_inherit_technical_data" model="ir.ui.view">
-        <field name="name">sh.motorcycle.motorcycle.form.technical.data</field>
-        <field name="model">motorcycle.motorcycle</field>
-        <field name="inherit_id" ref="sh_motorcycle_backend.sh_motorcycle_motorcycle_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//notebook" position="inside">
-                <page string="Datos Técnicos">
-                    <field name="technical_data_ids"
-                           widget="one2many_list"
-                           views="[(ref('sh_motorcycle_backend.view_motorcycle_technical_data_tree'), 'tree'),
-                                   (ref('sh_motorcycle_backend.view_motorcycle_technical_data_form'), 'form')]"/>
-                </page>
-            </xpath>
-        </field>
-    </record>
-    <!-- Fin herencia Datos Técnicos -->
 </odoo>
