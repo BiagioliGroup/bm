@@ -1,0 +1,41 @@
+<!-- views/motorcycle_technical_data_wizard_views.xml -->
+<odoo>
+
+  <record model="ir.ui.view" id="view_motorcycle_technical_data_wizard_form">
+    <field name="name">motorcycle.technical.data.wizard.form</field>
+    <field name="model">motorcycle.technical.data.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Cargar Datos Técnicos en lote">
+        <group>
+          <field name="motorcycle_ids" widget="many2many_tags"/>
+          <field name="category_id"/>
+          <field name="attribute_id"/>
+          <field name="value_id"/>
+          <field name="note"/>
+        </group>
+        <footer>
+          <button string="Aplicar" type="object" name="action_apply" class="btn-primary"/>
+          <button string="Cancelar" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <!-- Acción global para abrirlo desde el menú "Datos Técnicos" -->
+  <record model="ir.actions.act_window" id="action_motorcycle_technical_data_wizard">
+    <field name="name">Cargar Datos Técnicos (lote)</field>
+    <field name="res_model">motorcycle.technical.data.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="view_motorcycle_technical_data_wizard_form"/>
+    <field name="target">new</field>
+  </record>
+
+  <!-- Botón en el menú Datos Técnicos -->
+  <menuitem id="menu_motorcycle_technical_data_wizard"
+            parent="menu_motorcycle_technical_data"
+            name="Cargar en lote"
+            action="action_motorcycle_technical_data_wizard"
+            sequence="1"
+            groups="sh_motorcycle_backend.group_sh_motorcycle_manager"/>
+
+</odoo>
