@@ -108,3 +108,24 @@ class ProductAttributeValue(models.Model):
                 display = f"{display} {unit.name}"
             result.append((record_id, display))
         return result
+
+class ProductTemplateAttributeLine(models.Model):
+    _inherit = 'product.template.attribute.line'
+
+    @api.onchange('attribute_id')
+    def _onchange_attribute_id(self):
+        """Al cambiar el atributo en la línea del template, 
+        borramos la lista de valores para que no se seleccione todo por defecto."""
+        super(ProductTemplateAttributeLine, self)._onchange_attribute_id()
+        # Limpiamos los valores preseleccionados
+        self.value_ids = False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Al crear en lote (por CSV, API o UI), también evitamos 
+        que se guarden con todos los valores cargados."""
+        lines = super(ProductTemplateAttributeLine, self).create(vals_list)
+        # Para cada línea recién creada, borramos la relación M2M
+        for line in lines:
+            line.value_ids = False
+        return lines
