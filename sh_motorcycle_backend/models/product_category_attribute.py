@@ -112,13 +112,18 @@ class ProductAttributeValue(models.Model):
 class ProductTemplateAttributeLine(models.Model):
     _inherit = 'product.template.attribute.line'
 
-    
+    @api.onchange('attribute_id')
+    def _onchange_attribute_id(self):
+        # Cuando cambie el atributo, limpiamos la selección de valores
+        super()._onchange_attribute_id()
+        self.value_ids = False
+
     @api.model_create_multi
     def create(self, vals_list):
-        # Si vienen sin value_ids en vals, forzamos a vacío en lugar de autopoblar todos.
+        # Evitamos que al crear en lote se autopopulen todos los valores
         for vals in vals_list:
+            # Si no vienen explícitamente value_ids, los marcamos vacíos
             if 'value_ids' not in vals:
-                # asignamos explícitamente la lista vacía de valores
                 vals['value_ids'] = [(6, 0, [])]
-        lines = super().create(vals_list)
-        return lines
+        # Llamamos al create original
+        return super().create(vals_list)
