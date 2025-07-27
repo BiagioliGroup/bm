@@ -159,9 +159,10 @@
                 <field name="motorcycle_id" invisible="1"/>
                 <field name="category_id"/>
                 <field name="attribute_id"
-                    domain="[('id','in', category_id and category_id[0] and category_id[0].attribute_ids)]"/>
+                    domain="[('categ_ids','=', category_id)]"/>
                 <field name="value_id"
-                    domain="[('attribute_id','=',attribute_id)]"/>
+                    domain="[('attribute_id','=', attribute_id)]"/>
+
                 <field name="note"/>
             </list>
         </field>
@@ -177,9 +178,9 @@
                     <field name="motorcycle_id" invisible="1"/>
                     <field name="category_id"/>
                     <field name="attribute_id"
-                        domain="[('id','in', category_id and category_id[0] and category_id[0].attribute_ids)]"/>
+                        domain="[('categ_ids','=', category_id)]"/>
                     <field name="value_id"
-                        domain="[('attribute_id','=',attribute_id)]"/>
+                        domain="[('attribute_id','=', attribute_id)]"/>
                     <field name="note"/>
                 </group>
             </form>

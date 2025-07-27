@@ -37,16 +37,15 @@ class MotorcycleTechnicalData(models.Model):
         self.value_id = False
         return {
             'domain': {
-                # sólo atributos vinculados a la categoría elegida
-                'attribute_id': [('id', 'in', self.category_id.attribute_ids.ids)],
-                # y no permitir valores huérfanos
+                # Solo atributos que tengan esta categoría
+                'attribute_id': [('categ_ids', '=', self.category_id.id)],
+                # Y por defecto, ningún valor hasta elegir atributo
                 'value_id': [('attribute_id', '=', False)],
             }
         }
 
     @api.onchange('attribute_id')
     def _onchange_attribute_id(self):
-        # Al cambiar atributo, limpiamos valor y limitamos los posibles
         self.value_id = False
         return {
             'domain': {
