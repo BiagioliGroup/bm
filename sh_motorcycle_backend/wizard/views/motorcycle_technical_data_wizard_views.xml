@@ -1,7 +1,6 @@
-<!-- views/motorcycle_technical_data_wizard_views.xml -->
 <odoo>
-
-  <record model="ir.ui.view" id="view_motorcycle_technical_data_wizard_form">
+  <!-- FORMULARIO DEL WIZARD -->
+  <record id="view_motorcycle_technical_data_wizard_form" model="ir.ui.view">
     <field name="name">motorcycle.technical.data.wizard.form</field>
     <field name="model">motorcycle.technical.data.wizard</field>
     <field name="arch" type="xml">
@@ -15,14 +14,36 @@
         </group>
         <footer>
           <button string="Aplicar" type="object" name="action_apply" class="btn-primary"/>
-          <button string="Cancelar" class="btn-secondary" special="cancel"/>
+          <button string="Cancelar" special="cancel" class="btn-secondary"/>
         </footer>
       </form>
     </field>
   </record>
 
-  <!-- Acción global para abrirlo desde el menú "Datos Técnicos" -->
-  <record model="ir.actions.act_window" id="action_motorcycle_technical_data_wizard">
+  <!-- ACCIÓN SERVER PARA VISTA EN “ACCIONES” DEL TREE DE technical.data -->
+  <record id="action_server_motorcycle_technical_data_wizard" model="ir.actions.server">
+    <field name="name">Cargar Datos Técnicos en lote</field>
+    <!-- Aparece en el tree de motorcycle.technical.data -->
+    <field name="binding_model_id" ref="sh_motorcycle_backend.model_motorcycle_technical_data"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list</field>
+    <field name="state">code</field>
+    <field name="code">
+      action = {
+        'type': 'ir.actions.act_window',
+        'res_model': 'motorcycle.technical.data.wizard',
+        'view_mode': 'form',
+        'view_id': env.ref('sh_motorcycle_backend.view_motorcycle_technical_data_wizard_form').id,
+        'target': 'new',
+        'context': {
+          'default_motorcycle_ids': env.context.get('active_ids', []),
+        },
+      }
+    </field>
+  </record>
+
+  <!-- ACCIÓN ACT_WINDOW PARA MENÚ -->
+  <record id="action_wizard_motorcycle_technical_data" model="ir.actions.act_window">
     <field name="name">Cargar Datos Técnicos (lote)</field>
     <field name="res_model">motorcycle.technical.data.wizard</field>
     <field name="view_mode">form</field>
@@ -30,12 +51,13 @@
     <field name="target">new</field>
   </record>
 
-  <!-- Botón en el menú Datos Técnicos -->
-  <menuitem id="menu_motorcycle_technical_data_wizard"
-            parent="menu_motorcycle_technical_data"
-            name="Cargar en lote"
-            action="action_motorcycle_technical_data_wizard"
-            sequence="1"
-            groups="sh_motorcycle_backend.group_sh_motorcycle_manager"/>
-
+  <!-- ITEM DE MENÚ BAJO “Datos Técnicos” -->
+  <menuitem
+    id="menu_motorcycle_technical_data_wizard"
+    name="Cargar en lote"
+    parent="menu_motorcycle_technical_data"
+    action="action_wizard_motorcycle_technical_data"
+    sequence="1"
+    groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
+  />
 </odoo>
