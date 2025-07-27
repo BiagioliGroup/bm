@@ -94,16 +94,17 @@ class ProductAttributeValue(models.Model):
 
     @api.model
     def name_get(self):
-        """Añadir la unidad definida en el atributo padre al final del valor."""
-        # Llamamos al name_get original para respetar traducciones, customizaciones, etc.
-        res = super().name_get()
-        # Recorremos la tupla (id, nombre)
-        out = []
-        for rec_id, name in res:
-            rec = self.browse(rec_id)
-            # Si el atributo padre tiene unidad, la añadimos
-            if rec.attribute_id.unit_id:
-                # unit_id.name suele ser "Milímetros (mm)" o similar
-                name = f"{name} {rec.attribute_id.unit_id.name}"
-            out.append((rec_id, name))
-        return out
+        """Añade siempre la unidad a la derecha del valor."""
+        # Primero traemos la lista original de tu padre, para mantener lógicas de contextos, traducciones, etc.
+        original = super(ProductAttributeValue, self).name_get()
+        result = []
+        for record_id, display in original:
+            rec = self.browse(record_id)
+            # Determinamos la unidad, si existe
+            unit = rec.attribute_id.unit_id
+            if unit:
+                # Si el name_get base ya tiene ": ", asumo que es "Atributo: Valor"
+                # así que sólo añadimos la unidad al final.
+                display = f"{display} {unit.name}"
+            result.append((record_id, display))
+        return result

@@ -20,10 +20,10 @@
 
 
 
-      <!-- Modifica la vista de árbol de product.template.attribute.line para que
+  <!-- Modifica la vista de árbol de product.template.attribute.line para que
       el campo value_ids tenga un contexto que incluya sólo el default_attribute_id
       y no el show_attribute=False.
-   -->
+  -->
   <!-- HEREDAMOS LA VISTA TREE de product.template.attribute.line -->
   <record id="sh_moto_inherit_ptal_tree_uom" model="ir.ui.view">
     <field name="name">sh.motorcycle.backend.ptal.tree.uom</field>
