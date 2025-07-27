@@ -76,19 +76,19 @@ class ProductAttribute(models.Model):
 class ProductAttributeValue(models.Model):
     _inherit = 'product.attribute.value'
 
-    @api.depends('attribute_id', 'name')
-    @api.depends_context('show_attribute')
-    def _compute_display_name(self):
-        """Incluimos la unidad al final del valor si existe."""
-        # Si no queremos mostrar atributo (context.show_attribute=False), delegamos
-        if not self.env.context.get('show_attribute', True):
-            return super()._compute_display_name()
-        for value in self:
-            # Primero formamos "[Atributo]: [Valor]"
-            base = f"{value.attribute_id.name}: {value.name}"
-            # Luego, si su atributo padre tiene unidad, la añadimos
-            uom = value.attribute_id.unit_id
-            if uom:
-                # uom.name suele ser "Milímetros (mm)" o similar
-                base = f"{base} {uom.name}"
-            value.display_name = base
+    @api.model
+    def name_get(self):
+        """
+        Añade la unidad asociada al atributo padre (si existe)
+        al nombre del valor, para que aparezca en los 'pills'.
+        """
+        result = []
+        # Llamamos al name_get original para respetar traducciones, etc.
+        for value_id, name in super().name_get():
+            value = self.browse(value_id)
+            unit = value.attribute_id.unit_id
+            if unit:
+                # unit.name suele ser algo como "Milímetros (mm)"
+                name = f"{name} {unit.name}"
+            result.append((value_id, name))
+        return result
