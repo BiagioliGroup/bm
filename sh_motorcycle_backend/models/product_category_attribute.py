@@ -79,17 +79,15 @@ class ProductAttributeValue(models.Model):
     @api.depends('attribute_id', 'name', 'attribute_id.unit_id')
     @api.depends_context('show_attribute')
     def _compute_display_name(self):
-        """Incluimos la unidad al final del valor si existe."""
-        # Si el contexto pide no mostrar el atributo, delegamos en la implementación base
+        # Si no queremos mostrar la etiqueta “Atributo:”,
+        # delegamos a la impl original
         if not self.env.context.get('show_attribute', True):
             return super(ProductAttributeValue, self)._compute_display_name()
 
         for value in self:
-            # Construimos la parte base: "Atributo: Valor"
+            # 1) “Atributo: Valor”
             text = f"{value.attribute_id.name}: {value.name}"
-            # Si el atributo padre tiene unidad, la añadimos
-            unit = value.attribute_id.unit_id
-            if unit:
-                # unit.name suele ser algo como "Milímetros (mm)"
-                text = f" {unit.name}"
+            # 2) Si tiene unidad, la añadimos al final
+            if value.attribute_id.unit_id:
+                text = f"{text} {value.attribute_id.unit_id.name}"
             value.display_name = text
