@@ -58,7 +58,7 @@
                         context="{'group_by':'value_id'}"/>
                 <group expand="0" string="Agrupar por">
                     <filter string="Moto"     context="{'group_by':'motorcycle_id'}"/>
-                    <filter string="Categoría"context="{'group_by':'category_id'}"/>
+                    <filter string="Categoría" context="{'group_by':'category_id'}"/>
                     <filter string="Atributo" context="{'group_by':'attribute_id'}"/>
                     <filter string="Valor"    context="{'group_by':'value_id'}"/>
                 </group>
