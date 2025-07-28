@@ -24,28 +24,22 @@ class MotorcycleTechnicalDataWizard(models.TransientModel):
         help="Selecciona las motocicletas a las que se aplicará este dato."
     )
 
-    @api.onchange('category_id', 'attribute_id')
-    def _onchange_category_attribute(self):
-        """Actualizar dominio de motorcycle_ids: excluir aquellas motos
-        que ya tengan un dato técnico con la misma categoría+atributo."""
-        if not (self.category_id and self.attribute_id):
-            # si falta algo, no forzamos nada
-            return {'domain': {'motorcycle_ids': []}}
-        # buscar todas las motos que ya tengan un record técnico para esta cat+attr
+    @api.depends('category_id', 'attribute_id')
+    def _compute_used_motos(self):
+        """Recupera las motos que YA tienen un registro técnico con cat+attr dados."""
         Technical = self.env['motorcycle.technical.data']
-        used = Technical.search([
-            ('category_id', '=', self.category_id.id),
-            ('attribute_id', '=', self.attribute_id.id),
-        ]).mapped('motorcycle_id.id')
-        # domain: id not in used
-        return {
-            'domain': {
-                'motorcycle_ids': [('id', 'not in', used or [0])]
-            }
-        }
+        for wiz in self:
+            if wiz.category_id and wiz.attribute_id:
+                used = Technical.search([
+                    ('category_id', '=', wiz.category_id.id),
+                    ('attribute_id', '=', wiz.attribute_id.id),
+                ]).mapped('motorcycle_id.id')
+            else:
+                used = []
+            wiz.used_moto_ids = [(6, 0, used)]
 
     def action_apply(self):
-        """Al pulsar 'Aplicar', crea un registro técnico por cada moto seleccionada."""
+        """Crea un dato técnico por cada moto nueva."""
         Technical = self.env['motorcycle.technical.data']
         for moto in self.motorcycle_ids:
             Technical.create({

@@ -10,7 +10,11 @@
           <field name="attribute_id"/>
           <field name="value_id"/>
           <field name="note"/>
-          <field name="motorcycle_ids" widget="many2many_tags"/>
+           <field name="motorcycle_ids"
+                 widget="many2many_tags"
+                 domain="[('id','not in', used_moto_ids)]"
+                 help="Sólo aparecen motos que no tengan aún este dato técnico."
+          />
         </group>
         <footer>
           <button string="Aplicar" type="object" name="action_apply" class="btn-primary"/>
