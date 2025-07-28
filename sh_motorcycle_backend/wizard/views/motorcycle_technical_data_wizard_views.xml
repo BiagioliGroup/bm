@@ -6,7 +6,7 @@
     <field name="arch" type="xml">
       <form string="Cargar Datos Técnicos en lote">
         <group>
-          <field name="category_id"/>
+          <field name="category_id" options="{'no_create': True}"/>
           <field name="attribute_id"/>
           <field name="value_id"/>
           <field name="note"/>
