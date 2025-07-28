@@ -61,13 +61,5 @@
     <field name="target">new</field>
   </record>
 
-  <!-- ITEM DE MENÚ BAJO “Datos Técnicos” -->
-  <menuitem
-    id="menu_motorcycle_technical_data_wizard"
-    name="Cargar en lote"
-    parent="menu_motorcycle_technical_data"
-    action="action_wizard_motorcycle_technical_data"
-    sequence="1"
-    groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
-  />
+
 </odoo>
