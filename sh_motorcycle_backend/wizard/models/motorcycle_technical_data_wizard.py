@@ -24,6 +24,12 @@ class MotorcycleTechnicalDataWizard(models.TransientModel):
         help="Selecciona las motocicletas a las que se aplicará este dato."
     )
 
+    used_moto_ids  = fields.Many2many(
+        'motorcycle.motorcycle', string='Motos ya usadas',
+        compute='_compute_used_motos'
+    )
+
+
     @api.depends('category_id', 'attribute_id')
     def _compute_used_motos(self):
         """Recupera las motos que YA tienen un registro técnico con cat+attr dados."""
