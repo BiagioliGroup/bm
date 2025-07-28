@@ -40,30 +40,27 @@
         </field>
     </record>
 
+    <!-- SEARCH VIEW -->
     <record id="view_motorcycle_technical_data_search" model="ir.ui.view">
         <field name="name">motorcycle.technical.data.search</field>
         <field name="model">motorcycle.technical.data</field>
         <field name="arch" type="xml">
             <search string="Buscar Especificaciones Técnicas">
-                <!-- Búsqueda por motocicleta -->
                 <field name="motorcycle_id" string="Motocicleta"/>
-                <!-- Filtros rápidos por categoría, atributo y valor -->
-                <filter name="by_category" string="Categoría" 
-                        domain="[]" context="{'group_by':'category_id'}"/>
-                <filter name="by_attribute" string="Atributo" 
-                        domain="[]" context="{'group_by':'attribute_id'}"/>
-                <filter name="by_value" string="Valor" 
-                        domain="[]" context="{'group_by':'value_id'}"/>
-                <!-- Campos desplegables para búsquedas exactas -->
-                <field name="category_id" string="Categoría"/>
-                <field name="attribute_id" string="Atributo"/>
-                <field name="value_id" string="Valor"/>
-                <!-- Posibilidad de agrupar resultados -->
+                <field name="category_id"   string="Categoría"/>
+                <field name="attribute_id"  string="Atributo"/>
+                <field name="value_id"      string="Valor"/>
+                <filter name="by_category"  string="Por Categoría"
+                        context="{'group_by':'category_id'}"/>
+                <filter name="by_attribute" string="Por Atributo"
+                        context="{'group_by':'attribute_id'}"/>
+                <filter name="by_value"     string="Por Valor"
+                        context="{'group_by':'value_id'}"/>
                 <group expand="0" string="Agrupar por">
-                    <filter string="Moto" context="{'group_by':'motorcycle_id'}"/>
-                    <filter string="Categoría" context="{'group_by':'category_id'}"/>
+                    <filter string="Moto"     context="{'group_by':'motorcycle_id'}"/>
+                    <filter string="Categoría"context="{'group_by':'category_id'}"/>
                     <filter string="Atributo" context="{'group_by':'attribute_id'}"/>
-                    <filter string="Valor" context="{'group_by':'value_id'}"/>
+                    <filter string="Valor"    context="{'group_by':'value_id'}"/>
                 </group>
             </search>
         </field>
@@ -74,6 +71,14 @@
         <field name="name">Datos Técnicos de la Motocicleta</field>
         <field name="res_model">motorcycle.technical.data</field>
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_motorcycle_technical_data_tree"/>
+        <field name="search_view_id" ref="view_motorcycle_technical_data_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Selecciona una especificación o crea una nueva.
+            </p>
+        </field>
+    </record>
     </record>
 
     <!-- Menu Item Principal -->
