@@ -1,5 +1,6 @@
 <odoo>
   <!-- FORMULARIO DEL WIZARD -->
+  <!-- form del wizard -->
   <record id="view_motorcycle_technical_data_wizard_form" model="ir.ui.view">
     <field name="name">motorcycle.technical.data.wizard.form</field>
     <field name="model">motorcycle.technical.data.wizard</field>
@@ -7,18 +8,24 @@
       <form string="Cargar Datos Técnicos en lote">
         <group>
           <field name="category_id" options="{'no_create': True}"/>
-          <field name="attribute_id"/>
-          <field name="value_id"/>
+          <field name="attribute_id" options="{'no_create': True}"/>
+          <field name="value_id"     options="{'no_create': True}"/>
           <field name="note"/>
-           <field name="motorcycle_ids"
+          <!-- Aquí referenciamos used_moto_ids en el domain -->
+          <field name="motorcycle_ids"
                  widget="many2many_tags"
                  domain="[('id','not in', used_moto_ids)]"
                  help="Sólo aparecen motos que no tengan aún este dato técnico."
           />
         </group>
         <footer>
-          <button string="Aplicar" type="object" name="action_apply" class="btn-primary"/>
-          <button string="Cancelar" special="cancel" class="btn-secondary"/>
+          <button string="Aplicar"
+                  type="object"
+                  name="action_apply"
+                  class="btn-primary"/>
+          <button string="Cancelar"
+                  special="cancel"
+                  class="btn-secondary"/>
         </footer>
       </form>
     </field>
