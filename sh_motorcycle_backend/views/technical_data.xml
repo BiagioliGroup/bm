@@ -38,31 +38,24 @@
     </field>
   </record>
 
-   <!-- SEARCH VIEW -->
+  <!-- SEARCH VIEW - CORREGIDA siguiendo el patrón de Odoo v18 -->
   <record id="view_motorcycle_technical_data_search" model="ir.ui.view">
     <field name="name">motorcycle.technical.data.search</field>
     <field name="model">motorcycle.technical.data</field>
-    <!-- Muy importante: indicar que esto es una vista de búsqueda -->
-    <field name="type">search</field>
     <field name="arch" type="xml">
       <search string="Buscar Especificaciones Técnicas">
-        <!-- Búsqueda directa por campos -->
+        <!-- Campos de búsqueda -->
         <field name="motorcycle_id" string="Motocicleta"/>
-        <field name="category_id"   string="Categoría"/>
-        <field name="attribute_id"  string="Atributo"/>
-        <field name="value_id"      string="Valor"/>
-
-        <!-- Filtros rápidos para agrupar -->
-        <filter name="by_category"  string="Por Categoría"  context="{'group_by':'category_id'}"/>
-        <filter name="by_attribute" string="Por Atributo"   context="{'group_by':'attribute_id'}"/>
-        <filter name="by_value"     string="Por Valor"       context="{'group_by':'value_id'}"/>
-
-        <!-- Grupo de filtros “Agrupar por” -->
+        <field name="category_id" string="Categoría"/>
+        <field name="attribute_id" string="Atributo"/>
+        <field name="value_id" string="Valor"/>
+        
+        <!-- Grupo para filtros de agrupación -->
         <group expand="0" string="Agrupar por">
-          <filter string="Moto"      context="{'group_by':'motorcycle_id'}"/>
-          <filter string="Categoría" context="{'group_by':'category_id'}"/>
-          <filter string="Atributo"  context="{'group_by':'attribute_id'}"/>
-          <filter string="Valor"     context="{'group_by':'value_id'}"/>
+          <filter name="group_motorcycle_id" string="Motocicleta" domain="[]" context="{'group_by':'motorcycle_id'}"/>
+          <filter name="group_category_id" string="Categoría" domain="[]" context="{'group_by':'category_id'}"/>
+          <filter name="group_attribute_id" string="Atributo" domain="[]" context="{'group_by':'attribute_id'}"/>
+          <filter name="group_value_id" string="Valor" domain="[]" context="{'group_by':'value_id'}"/>
         </group>
       </search>
     </field>
@@ -99,12 +92,14 @@
     <field name="arch" type="xml">
       <xpath expr="//notebook" position="inside">
         <page string="Datos Técnicos">
-          <field name="technical_data_ids"
-                 widget="one2many_list"
-                 views="[
-                   (ref('sh_motorcycle_backend.view_motorcycle_technical_data_tree'), 'tree'),
-                   (ref('sh_motorcycle_backend.view_motorcycle_technical_data_form'), 'form')
-                 ]"/>
+          <field name="technical_data_ids">
+            <list editable="bottom">
+              <field name="category_id"/>
+              <field name="attribute_id" domain="[('categ_ids','=', category_id)]"/>
+              <field name="value_id" domain="[('attribute_id','=', attribute_id)]"/>
+              <field name="note"/>
+            </list>
+          </field>
         </page>
       </xpath>
     </field>
