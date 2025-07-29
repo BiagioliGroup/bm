@@ -110,4 +110,41 @@
               parent="menu_dux_import" 
               action="action_dux_import_wizard" 
               sequence="10"/>
+    
+    <menuitem id="menu_dux_journal_mapper" 
+              name="Mapeo de Diarios"
+              parent="menu_dux_configuration" 
+              action="action_dux_journal_mapper" 
+              sequence="20"/>
+
+
+    <!-- Vistas para mapeo de diarios -->
+    <record id="view_dux_journal_mapper_tree" model="ir.ui.view">
+        <field name="name">dux.journal.mapper.tree</field>
+        <field name="model">dux.journal.mapper</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="operation_type"/>
+                <field name="dux_type"/>
+                <field name="journal_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="action_dux_journal_mapper" model="ir.actions.act_window">
+        <field name="name">Mapeo de Diarios</field>
+        <field name="res_model">dux.journal.mapper</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar mapeo de diarios Dux → Odoo
+            </p>
+            <p>
+                Define cómo mapear los tipos de comprobante de Dux Software 
+                a los diarios contables de Odoo.
+            </p>
+        </field>
+    </record>
 </odoo>

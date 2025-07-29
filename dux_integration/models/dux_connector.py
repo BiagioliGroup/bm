@@ -154,6 +154,24 @@ class DuxConnector(models.Model):
         params = {'limit': limit, 'offset': offset}
         return self._make_request('/WSERP/rest/services/listaprecioventa', params=params)
     
+    def get_pagos(self, fecha_desde=None, fecha_hasta=None, limit=100, offset=0):
+        """Obtiene pagos desde Dux"""
+        params = {'limit': limit, 'offset': offset}
+        if fecha_desde:
+            params['fechaDesde'] = fecha_desde
+        if fecha_hasta:
+            params['fechaHasta'] = fecha_hasta
+        return self._make_request('/WSERP/rest/services/pagos', params=params)
+    
+    def get_cobros(self, fecha_desde=None, fecha_hasta=None, limit=100, offset=0):
+        """Obtiene cobros desde Dux"""
+        params = {'limit': limit, 'offset': offset}
+        if fecha_desde:
+            params['fechaDesde'] = fecha_desde
+        if fecha_hasta:
+            params['fechaHasta'] = fecha_hasta
+        return self._make_request('/WSERP/rest/services/cobros', params=params)
+    
     @api.model
     def get_default_connector(self):
         """Obtiene el conector por defecto"""
@@ -161,5 +179,3 @@ class DuxConnector(models.Model):
         if not connector:
             raise UserError(_('No hay conexiones activas configuradas con Dux Software'))
         return connector
-    
-    

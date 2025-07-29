@@ -22,6 +22,8 @@ class DuxImportWizard(models.TransientModel):
     import_productos = fields.Boolean('Importar Productos', default=True)
     import_ventas = fields.Boolean('Importar Ventas', default=False)
     import_compras = fields.Boolean('Importar Compras', default=False)
+    import_pagos = fields.Boolean('Importar Pagos', default=False)
+    import_cobros = fields.Boolean('Importar Cobros', default=False)
     import_stock = fields.Boolean('Actualizar Stock', default=False)
     
     # Opciones de importación
@@ -49,43 +51,344 @@ class DuxImportWizard(models.TransientModel):
     total_updated = fields.Integer('Total Actualizados', readonly=True)
     total_errors = fields.Integer('Total Errores', readonly=True)
 
+    # Líneas de importación
+    line_ids = fields.One2many('dux.import.line', 'wizard_id', 'Líneas de Importación')
+    
+    # Estado de proceso
+    current_step = fields.Selection([
+        ('config', 'Configuración'),
+        ('preview', 'Vista Previa'),
+        ('import', 'Importación')
+    ], default='config')
+    
     def action_import(self):
-        """Ejecuta la importación"""
+        """Paso 1: Cargar datos en tabla intermedia"""
         self.ensure_one()
         
         try:
             self.state = 'running'
             self._clear_logs()
+            self._clear_lines()
             
             # Verificar conexión
             self.connector_id.test_connection()
             
-            # Ejecutar importaciones seleccionadas
+            # Cargar datos en tabla intermedia
             if self.import_clientes:
-                self._import_clientes()
+                self._load_clientes_preview()
             
             if self.import_productos:
-                self._import_productos()
+                self._load_productos_preview()
                 
             if self.import_ventas:
-                self._import_ventas()
+                self._load_ventas_preview()
                 
             if self.import_compras:
-                self._import_compras()
-                
-            if self.import_stock:
-                self._update_stock()
+                self._load_compras_preview()
             
+            if self.import_pagos:
+                self._load_pagos_preview()
+            
+            if self.import_cobros:
+                self._load_cobros_preview()
+            
+            self.current_step = 'preview'
             self.state = 'done'
-            self._log('info', 'Importación completada exitosamente')
+            self._log('info', 'Datos cargados en vista previa')
             
-            return self._show_results()
+            return self._show_preview()
             
         except Exception as e:
             self.state = 'error'
-            self._log('error', f'Error general: {str(e)}')
-            _logger.error(f"Error en importación Dux: {str(e)}")
-            raise UserError(f"Error en importación: {str(e)}")
+            self._log('error', f'Error cargando datos: {str(e)}')
+            raise UserError(f"Error: {str(e)}")
+
+    def action_validate_all(self):
+        """Valida todas las líneas"""
+        self.line_ids.action_validate()
+        self._log('info', f'Validadas {len(self.line_ids)} líneas')
+    
+    def action_import_validated(self):
+        """Importa solo líneas validadas"""
+        validated_lines = self.line_ids.filtered(lambda l: l.state == 'validated')
+        if not validated_lines:
+            raise UserError('No hay líneas validadas para importar')
+        
+        validated_lines.action_import()
+        self.current_step = 'import'
+        
+        imported = len(validated_lines.filtered(lambda l: l.state == 'imported'))
+        self._log('info', f'Importadas {imported} líneas exitosamente')
+    
+    def _load_ventas_preview(self):
+        """Carga ventas en vista previa"""
+        self._log('info', 'Cargando ventas...')
+        
+        offset = 0
+        
+        while True:
+            try:
+                response = self.connector_id.get_ventas(
+                    fecha_desde=self.fecha_desde,
+                    fecha_hasta=self.fecha_hasta,
+                    limit=self.batch_size,
+                    offset=offset
+                )
+                
+                ventas = response.get('data', []) if isinstance(response, dict) else response
+                if not ventas:
+                    break
+                
+                for venta in ventas:
+                    self._create_venta_line(venta)
+                    self.total_processed += 1
+                
+                offset += self.batch_size
+                if len(ventas) < self.batch_size:
+                    break
+                    
+            except Exception as e:
+                self._log('error', f'Error cargando ventas: {str(e)}')
+                break
+    
+    def _create_venta_line(self, dux_venta):
+        """Crea línea de venta en tabla intermedia"""
+        try:
+            # Mapear tipo de comprobante
+            tipo_comp = dux_venta.get('tipoComprobante', '')
+            journal_suggested = self._map_dux_type_to_journal(tipo_comp, 'venta')
+            
+            line_vals = {
+                'wizard_id': self.id,
+                'tipo': 'venta',
+                'dux_id': str(dux_venta.get('id', '')),
+                'dux_numero': dux_venta.get('numero', ''),
+                'dux_tipo_comprobante': tipo_comp,
+                'partner_name': dux_venta.get('cliente', {}).get('razonSocial', ''),
+                'partner_vat': dux_venta.get('cliente', {}).get('cuit', ''),
+                'date': self._parse_dux_date(dux_venta.get('fecha')),
+                'amount_total': float(dux_venta.get('total', 0)),
+                'journal_suggested': journal_suggested,
+                'dux_data': str(dux_venta),
+                'state': 'draft'
+            }
+            
+            self.env['dux.import.line'].create(line_vals)
+            
+        except Exception as e:
+            self._log('error', f'Error creando línea venta {dux_venta.get("id")}: {str(e)}')
+    
+    def _load_compras_preview(self):
+        """Carga compras en vista previa"""
+        self._log('info', 'Cargando compras...')
+        
+        offset = 0
+        while True:
+            try:
+                response = self.connector_id.get_compras(
+                    fecha_desde=self.fecha_desde,
+                    fecha_hasta=self.fecha_hasta,
+                    limit=self.batch_size,
+                    offset=offset
+                )
+                
+                compras = response.get('data', []) if isinstance(response, dict) else response
+                if not compras:
+                    break
+                
+                for compra in compras:
+                    self._create_compra_line(compra)
+                    self.total_processed += 1
+                
+                offset += self.batch_size
+                if len(compras) < self.batch_size:
+                    break
+                    
+            except Exception as e:
+                self._log('error', f'Error cargando compras: {str(e)}')
+                break
+    
+    def _create_compra_line(self, dux_compra):
+        """Crea línea de compra en tabla intermedia"""
+        try:
+            tipo_comp = dux_compra.get('tipoComprobante', '')
+            journal_suggested = self._map_dux_type_to_journal(tipo_comp, 'compra')
+            
+            line_vals = {
+                'wizard_id': self.id,
+                'tipo': 'compra',
+                'dux_id': str(dux_compra.get('id', '')),
+                'dux_numero': dux_compra.get('numero', ''),
+                'dux_tipo_comprobante': tipo_comp,
+                'partner_name': dux_compra.get('proveedor', {}).get('razonSocial', ''),
+                'partner_vat': dux_compra.get('proveedor', {}).get('cuit', ''),
+                'date': self._parse_dux_date(dux_compra.get('fecha')),
+                'amount_total': float(dux_compra.get('total', 0)),
+                'journal_suggested': journal_suggested,
+                'dux_data': str(dux_compra),
+                'state': 'draft'
+            }
+            
+            self.env['dux.import.line'].create(line_vals)
+            
+        except Exception as e:
+            self._log('error', f'Error creando línea compra {dux_compra.get("id")}: {str(e)}')
+    
+    def _load_pagos_preview(self):
+        """Carga pagos en vista previa"""
+        self._log('info', 'Cargando pagos...')
+        
+        offset = 0
+        while True:
+            try:
+                response = self.connector_id.get_pagos(
+                    fecha_desde=self.fecha_desde,
+                    fecha_hasta=self.fecha_hasta,
+                    limit=self.batch_size,
+                    offset=offset
+                )
+                
+                pagos = response.get('data', []) if isinstance(response, dict) else response
+                if not pagos:
+                    break
+                
+                for pago in pagos:
+                    self._create_pago_line(pago)
+                    self.total_processed += 1
+                
+                offset += self.batch_size
+                if len(pagos) < self.batch_size:
+                    break
+                    
+            except Exception as e:
+                self._log('error', f'Error cargando pagos: {str(e)}')
+                break
+    
+    def _create_pago_line(self, dux_pago):
+        """Crea línea de pago en tabla intermedia"""
+        try:
+            line_vals = {
+                'wizard_id': self.id,
+                'tipo': 'pago',
+                'dux_id': str(dux_pago.get('id', '')),
+                'dux_numero': dux_pago.get('numero', ''),
+                'dux_tipo_comprobante': 'Pago',
+                'partner_name': dux_pago.get('proveedor', {}).get('razonSocial', ''),
+                'partner_vat': dux_pago.get('proveedor', {}).get('cuit', ''),
+                'date': self._parse_dux_date(dux_pago.get('fecha')),
+                'amount_total': float(dux_pago.get('importe', 0)),
+                'journal_suggested': 'Banco',
+                'dux_data': str(dux_pago),
+                'state': 'draft'
+            }
+            
+            self.env['dux.import.line'].create(line_vals)
+            
+        except Exception as e:
+            self._log('error', f'Error creando línea pago {dux_pago.get("id")}: {str(e)}')
+    
+    def _load_cobros_preview(self):
+        """Carga cobros en vista previa"""
+        self._log('info', 'Cargando cobros...')
+        
+        offset = 0
+        while True:
+            try:
+                response = self.connector_id.get_cobros(
+                    fecha_desde=self.fecha_desde,
+                    fecha_hasta=self.fecha_hasta,
+                    limit=self.batch_size,
+                    offset=offset
+                )
+                
+                cobros = response.get('data', []) if isinstance(response, dict) else response
+                if not cobros:
+                    break
+                
+                for cobro in cobros:
+                    self._create_cobro_line(cobro)
+                    self.total_processed += 1
+                
+                offset += self.batch_size
+                if len(cobros) < self.batch_size:
+                    break
+                    
+            except Exception as e:
+                self._log('error', f'Error cargando cobros: {str(e)}')
+                break
+    
+    def _create_cobro_line(self, dux_cobro):
+        """Crea línea de cobro en tabla intermedia"""
+        try:
+            line_vals = {
+                'wizard_id': self.id,
+                'tipo': 'cobro',
+                'dux_id': str(dux_cobro.get('id', '')),
+                'dux_numero': dux_cobro.get('numero', ''),
+                'dux_tipo_comprobante': 'Cobro',
+                'partner_name': dux_cobro.get('cliente', {}).get('razonSocial', ''),
+                'partner_vat': dux_cobro.get('cliente', {}).get('cuit', ''),
+                'date': self._parse_dux_date(dux_cobro.get('fecha')),
+                'amount_total': float(dux_cobro.get('importe', 0)),
+                'journal_suggested': 'Banco',
+                'dux_data': str(dux_cobro),
+                'state': 'draft'
+            }
+            
+            self.env['dux.import.line'].create(line_vals)
+            
+        except Exception as e:
+            self._log('error', f'Error creando línea cobro {dux_cobro.get("id")}: {str(e)}')
+    
+    def _map_dux_type_to_journal(self, dux_type, operation_type):
+        """Mapea tipo Dux a nombre de diario sugerido"""
+        mapping = {
+            'venta': {
+                'Comprobante de Venta': 'Comprobante de Venta',
+                'Factura': 'Facturas de Ventas',
+                'Factura de Crédito Electronica MiPymes': 'Facturas de Ventas'
+            },
+            'compra': {
+                'Comprobante de Compra': 'Comprobantes de Compra',
+                'Factura': 'Facturas de Proveedores FISCAL'
+            }
+        }
+        
+        return mapping.get(operation_type, {}).get(dux_type, 'Sin mapear')
+    
+    def _parse_dux_date(self, date_str):
+        """Convierte fecha de Dux a date"""
+        if not date_str:
+            return fields.Date.today()
+        
+        try:
+            from datetime import datetime
+            # Probar formatos comunes
+            for fmt in ['%Y-%m-%d', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S']:
+                try:
+                    dt = datetime.strptime(str(date_str).split(' ')[0], fmt)
+                    return dt.date()
+                except ValueError:
+                    continue
+            return fields.Date.today()
+        except:
+            return fields.Date.today()
+    
+    def _clear_lines(self):
+        """Limpia líneas anteriores"""
+        self.line_ids.unlink()
+    
+    def _show_preview(self):
+        """Muestra vista previa de datos"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Vista Previa Importación',
+            'res_model': 'dux.import.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'show_preview': True}
+        }
 
     def _import_clientes(self):
         """Importa clientes desde Dux"""

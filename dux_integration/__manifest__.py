@@ -28,6 +28,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/import_views.xml',
+        'views/import_wizard_views.xml',
     ],
     'external_dependencies': {
         'python': ['requests', 'python-dateutil'],
