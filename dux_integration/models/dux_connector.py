@@ -37,10 +37,9 @@ class DuxConnector(models.Model):
     def _get_headers(self):
         """Obtiene headers para requests a la API de Dux"""
         return {
-            'Authorization': f'Bearer {self.api_key}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'User-Agent': 'Odoo-Dux-Integration/1.0'
+            'accept': 'application/json',
+            'authorization': self.api_key,  # Sin "Bearer", solo el token directo
+            'Content-Type': 'application/json'
         }
     
     def test_connection(self):
