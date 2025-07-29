@@ -135,13 +135,30 @@ class DuxImportWizard(models.TransientModel):
                     offset=offset
                 )
                 
-                ventas = response.get('data', []) if isinstance(response, dict) else response
+                # DEBUG: Logear la respuesta completa
+                self._log('info', f'Respuesta API ventas: {str(response)[:500]}...')
+                
+                # Manejar diferentes estructuras de respuesta
+                if isinstance(response, dict):
+                    ventas = response.get('data', response.get('results', response.get('items', [])))
+                elif isinstance(response, list):
+                    ventas = response
+                else:
+                    ventas = []
+                
+                self._log('info', f'Ventas encontradas: {len(ventas)}')
+                
                 if not ventas:
                     break
                 
-                for venta in ventas:
-                    self._create_venta_line(venta)
-                    self.total_processed += 1
+                for i, venta in enumerate(ventas):
+                    try:
+                        self._log('info', f'Procesando venta {i+1}: {str(venta)[:200]}...')
+                        self._create_venta_line(venta)
+                        self.total_processed += 1
+                    except Exception as e:
+                        self.total_errors += 1
+                        self._log('error', f'Error procesando venta {i+1}: {str(e)}')
                 
                 offset += self.batch_size
                 if len(ventas) < self.batch_size:
