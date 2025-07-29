@@ -161,3 +161,5 @@ class DuxConnector(models.Model):
         if not connector:
             raise UserError(_('No hay conexiones activas configuradas con Dux Software'))
         return connector
+    
+    
