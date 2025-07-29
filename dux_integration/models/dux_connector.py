@@ -19,6 +19,8 @@ class DuxConnector(models.Model):
                           help='URL base de la API de Dux Software')
     api_key = fields.Char('API Key', required=True,
                          help='Clave de API proporcionada por Dux')
+    id_empresa = fields.Char('ID Empresa', required=True,
+                            help='ID de empresa en Dux Software')
     company_id = fields.Many2one('res.company', 'Empresa', 
                                default=lambda self: self.env.company)
     active = fields.Boolean('Activo', default=True)
@@ -46,7 +48,8 @@ class DuxConnector(models.Model):
         try:
             # Probar con un endpoint simple de empresas
             url = f"{self.base_url}/WSERP/rest/services/empresas"
-            response = requests.get(url, headers=self._get_headers(), timeout=30)
+            params = {'idEmpresa': self.id_empresa}
+            response = requests.get(url, headers=self._get_headers(), params=params, timeout=30)
             
             if response.status_code == 200:
                 self.connection_status = 'connected'
@@ -74,14 +77,19 @@ class DuxConnector(models.Model):
             url = f"{self.base_url}{endpoint}"
             headers = self._get_headers()
             
+            # Agregar idEmpresa a todos los params
+            if params is None:
+                params = {}
+            params['idEmpresa'] = self.id_empresa
+            
             if method == 'GET':
                 response = requests.get(url, headers=headers, params=params, timeout=30)
             elif method == 'POST':
-                response = requests.post(url, headers=headers, json=data, timeout=30)
+                response = requests.post(url, headers=headers, json=data, params=params, timeout=30)
             elif method == 'PUT':
-                response = requests.put(url, headers=headers, json=data, timeout=30)
+                response = requests.put(url, headers=headers, json=data, params=params, timeout=30)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=headers, timeout=30)
+                response = requests.delete(url, headers=headers, params=params, timeout=30)
             
             response.raise_for_status()
             return response.json() if response.content else {}
