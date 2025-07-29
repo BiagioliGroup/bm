@@ -18,9 +18,9 @@ class DuxImportWizard(models.TransientModel):
     ], string='Modo', default='test', required=True)
     
     # Selección de datos a importar
-    import_clientes = fields.Boolean('Importar Clientes', default=True)
-    import_productos = fields.Boolean('Importar Productos', default=True)
-    import_ventas = fields.Boolean('Importar Ventas', default=False)
+    import_clientes = fields.Boolean('Importar Clientes', default=False)
+    import_productos = fields.Boolean('Importar Productos', default=False)
+    import_ventas = fields.Boolean('Importar Ventas', default=True)
     import_compras = fields.Boolean('Importar Compras', default=False)
     import_pagos = fields.Boolean('Importar Pagos', default=False)
     import_cobros = fields.Boolean('Importar Cobros', default=False)
@@ -33,8 +33,8 @@ class DuxImportWizard(models.TransientModel):
                                    help='Si está marcado, actualiza registros existentes')
     
     # Filtros de fecha para ventas/compras
-    fecha_desde = fields.Date('Fecha Desde')
-    fecha_hasta = fields.Date('Fecha Hasta')
+    fecha_desde = fields.Date('Fecha Desde', default="2022-06-01")
+    fecha_hasta = fields.Date('Fecha Hasta', default="2022-06-30")
     
     # Resultados
     log_ids = fields.One2many('dux.import.log', 'wizard_id', 'Logs')
