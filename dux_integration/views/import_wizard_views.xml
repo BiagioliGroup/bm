@@ -9,13 +9,13 @@
                 <header>
                     <button name="action_import" string="1. Cargar Datos" 
                             type="object" class="btn-primary"
-                            attrs="{'invisible': [('current_step', '!=', 'config')]}"/>
+                            invisible="current_step != 'config'"/>
                     <button name="action_validate_all" string="2. Validar Todo" 
                             type="object" class="btn-info"
-                            attrs="{'invisible': [('current_step', '!=', 'preview')]}"/>
+                            invisible="current_step != 'preview'"/>
                     <button name="action_import_validated" string="3. Importar" 
                             type="object" class="btn-success"
-                            attrs="{'invisible': [('current_step', '!=', 'preview')]}"/>
+                            invisible="current_step != 'preview'"/>
                     <field name="current_step" widget="statusbar" statusbar_visible="config,preview,import"/>
                 </header>
                 
