@@ -22,6 +22,8 @@ class DuxConnector(models.Model):
                          help='Clave de API proporcionada por Dux')
     id_empresa = fields.Char('ID Empresa', required=True,
                             help='ID de empresa en Dux Software')
+    id_sucursal = fields.Char('ID Sucursal', required=True,
+                             help='ID de sucursal en Dux Software')
     company_id = fields.Many2one('res.company', 'Empresa', 
                                default=lambda self: self.env.company)
     active = fields.Boolean('Activo', default=True)
@@ -81,6 +83,7 @@ class DuxConnector(models.Model):
             if params is None:
                 params = {}
             params['idEmpresa'] = self.id_empresa
+            params['idSucursal'] = self.id_sucursal
             
             # Delay para evitar rate limiting
             time.sleep(1)

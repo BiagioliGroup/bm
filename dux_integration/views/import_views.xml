@@ -40,6 +40,7 @@
                             <field name="base_url"/>
                             <field name="api_key" password="True"/>
                             <field name="id_empresa"/>
+                            <field name="id_sucursal"/>
                             <field name="company_id"/>
                         </group>
                         
