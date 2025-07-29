@@ -18,23 +18,23 @@ class DuxImportWizard(models.TransientModel):
     ], string='Modo', default='test', required=True)
     
     # Selección de datos a importar
-    import_clientes = fields.Boolean('Importar Clientes', default=False)
-    import_productos = fields.Boolean('Importar Productos', default=False)
-    import_ventas = fields.Boolean('Importar Ventas', default=True)
+    import_clientes = fields.Boolean('Importar Clientes', default=True)
+    import_productos = fields.Boolean('Importar Productos', default=True)
+    import_ventas = fields.Boolean('Importar Ventas', default=False)
     import_compras = fields.Boolean('Importar Compras', default=False)
     import_pagos = fields.Boolean('Importar Pagos', default=False)
     import_cobros = fields.Boolean('Importar Cobros', default=False)
     import_stock = fields.Boolean('Actualizar Stock', default=False)
     
     # Opciones de importación
-    batch_size = fields.Integer('Tamaño de Lote', default=50, 
+    batch_size = fields.Integer('Tamaño de Lote', default=100, 
                                help='Cantidad de registros a procesar por lote')
     update_existing = fields.Boolean('Actualizar Existentes', default=True,
                                    help='Si está marcado, actualiza registros existentes')
     
     # Filtros de fecha para ventas/compras
-    fecha_desde = fields.Date('Fecha Desde', default="2023-06-01")
-    fecha_hasta = fields.Date('Fecha Hasta', default="2023-06-30")
+    fecha_desde = fields.Date('Fecha Desde')
+    fecha_hasta = fields.Date('Fecha Hasta')
     
     # Resultados
     log_ids = fields.One2many('dux.import.log', 'wizard_id', 'Logs')
@@ -179,8 +179,9 @@ class DuxImportWizard(models.TransientModel):
             # Buscar partner
             partner = self._find_partner(cliente_cuit, cliente_nombre, dux_venta.get('apellido_razon_soc', ''))
             
-            # Procesar detalles de líneas
+            # Procesar detalles de líneas y cobros
             detalle_lineas = self._process_detail_lines(dux_venta.get('detalles_json', ''))
+            detalle_cobros = self._process_detail_cobros(dux_venta.get('detalles_cobro', []))
             
             # Crear en tabla PERMANENTE
             import_record = self.env['dux.import.record'].create({
@@ -194,6 +195,7 @@ class DuxImportWizard(models.TransientModel):
                 'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
                 'amount_total': float(dux_venta.get('total', 0)),
                 'detalle_lineas': detalle_lineas,
+                'detalle_cobros': detalle_cobros,
                 'state': 'imported'
             })
             
@@ -290,7 +292,36 @@ class DuxImportWizard(models.TransientModel):
             return "\n".join(lineas)
             
         except Exception as e:
-            return f"Error procesando detalles: {str(e)}"
+    def _process_detail_cobros(self, detalles_cobro):
+        """Procesa detalles de cobro y retorna formato estructurado"""
+        if not detalles_cobro:
+            return ""
+        
+        try:
+            lineas = []
+            
+            for cobro in detalles_cobro:
+                punto_venta = cobro.get('numero_punto_de_venta', '')
+                comprobante = cobro.get('numero_comprobante', '')
+                personal = cobro.get('personal', '')
+                caja = cobro.get('caja', '')
+                
+                # Procesar movimientos de cobro
+                movimientos = cobro.get('detalles_mov_cobro', [])
+                for mov in movimientos:
+                    tipo_valor = mov.get('tipo_de_valor', '')
+                    referencia = mov.get('referencia', '')
+                    monto = mov.get('monto', 0)
+                    
+                    linea = f"PV:{punto_venta} - Comp:{comprobante} - {personal} - {caja} - {tipo_valor} - ${monto}"
+                    if referencia:
+                        linea += f" - Ref: {referencia}"
+                    lineas.append(linea)
+            
+            return "\n".join(lineas)
+            
+        except Exception as e:
+            return f"Error procesando cobros: {str(e)}"
     
     def _load_compras_preview(self):
         """Carga compras en vista previa"""
@@ -477,7 +508,14 @@ class DuxImportWizard(models.TransientModel):
         
         try:
             from datetime import datetime
-            # Probar formatos comunes
+            # Manejar formato específico de Dux "Jun 1, 2023 3:00:00 AM"
+            if 'AM' in str(date_str) or 'PM' in str(date_str):
+                date_part = str(date_str).split(' ')[:3]  # "Jun 1, 2023"
+                date_clean = ' '.join(date_part)
+                dt = datetime.strptime(date_clean, '%b %d, %Y')
+                return dt.date()
+            
+            # Otros formatos
             for fmt in ['%Y-%m-%d', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S']:
                 try:
                     dt = datetime.strptime(str(date_str).split(' ')[0], fmt)

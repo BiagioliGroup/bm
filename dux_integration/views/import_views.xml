@@ -208,6 +208,9 @@
                     <group string="Detalle Líneas Pedido" invisible="not detalle_lineas">
                         <field name="detalle_lineas" widget="text"/>
                     </group>
+                    <group string="Detalle Cobros" invisible="not detalle_cobros">
+                        <field name="detalle_cobros" widget="text"/>
+                    </group>
                     <group string="Notas/Errores" invisible="not (notes or error_msg)">
                         <field name="notes"/>
                         <field name="error_msg"/>

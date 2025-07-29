@@ -46,6 +46,7 @@ class DuxImportRecord(models.Model):
     notes = fields.Text('Notas')
     error_msg = fields.Text('Mensaje Error')
     detalle_lineas = fields.Text('Detalle Líneas Pedido')
+    detalle_cobros = fields.Text('Detalle Cobros')
     
     display_name = fields.Char('Nombre', compute='_compute_display_name', store=True)
     
@@ -107,6 +108,10 @@ class DuxImportRecord(models.Model):
         """Crea líneas de factura desde datos Dux"""
         lines = []
         detalles_json = dux_data.get('detalles_json', '[]')
+        tipo_comp = dux_data.get('tipo_comp', '')
+        
+        # Bypass para comprobantes sin IVA
+        sin_iva = tipo_comp in ['COMPROBANTE_VENTA', 'COMPROBANTE_COMPRA']
         
         try:
             import json
@@ -129,6 +134,11 @@ class DuxImportRecord(models.Model):
                 line_name = f"{cod_item} - {item_desc}"
                 if comentarios:
                     line_name += f" - {comentarios}"
+                
+                # Ajustar precio si es comprobante sin IVA
+                if sin_iva and porc_iva > 0:
+                    precio_uni = precio_uni * (1 + (porc_iva / 100))
+                    porc_iva = 0  # Quitar IVA
                 
                 # Configurar impuesto
                 tax_ids = []
