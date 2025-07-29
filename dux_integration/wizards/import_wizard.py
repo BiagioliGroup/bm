@@ -59,7 +59,7 @@ class DuxImportWizard(models.TransientModel):
         ('config', 'Configuración'),
         ('preview', 'Vista Previa'),
         ('import', 'Importación')
-    ], default='config')
+    ], default='config', required=True)
     
     def action_import(self):
         """Paso 1: Cargar datos en tabla intermedia"""
