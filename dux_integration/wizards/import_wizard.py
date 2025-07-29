@@ -15,19 +15,19 @@ class DuxImportWizard(models.TransientModel):
     import_mode = fields.Selection([
         ('test', 'Modo Prueba (solo validar)'),
         ('import', 'Importar Datos')
-    ], string='Modo', default='test', required=True)
+    ], string='Modo', default='import', required=True)
     
     # Selección de datos a importar
-    import_clientes = fields.Boolean('Importar Clientes', default=True)
-    import_productos = fields.Boolean('Importar Productos', default=True)
-    import_ventas = fields.Boolean('Importar Ventas', default=False)
+    import_clientes = fields.Boolean('Importar Clientes', default=False)
+    import_productos = fields.Boolean('Importar Productos', default=False)
+    import_ventas = fields.Boolean('Importar Ventas', default=True)
     import_compras = fields.Boolean('Importar Compras', default=False)
     import_pagos = fields.Boolean('Importar Pagos', default=False)
     import_cobros = fields.Boolean('Importar Cobros', default=False)
     import_stock = fields.Boolean('Actualizar Stock', default=False)
     
     # Opciones de importación
-    batch_size = fields.Integer('Tamaño de Lote', default=100, 
+    batch_size = fields.Integer('Tamaño de Lote', default=50, 
                                help='Cantidad de registros a procesar por lote')
     update_existing = fields.Boolean('Actualizar Existentes', default=True,
                                    help='Si está marcado, actualiza registros existentes')
