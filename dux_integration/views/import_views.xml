@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista lista de conectores Dux -->
+    <record id="view_dux_connector_tree" model="ir.ui.view">
+        <field name="name">dux.connector.tree</field>
+        <field name="model">dux.connector</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="base_url"/>
+                <field name="connection_status" decoration-success="connection_status=='connected'" 
+                       decoration-danger="connection_status=='error'"/>
+                <field name="last_sync"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vista formulario de conector Dux -->
+    <record id="view_dux_connector_form" model="ir.ui.view">
+        <field name="name">dux.connector.form</field>
+        <field name="model">dux.connector</field>
+        <field name="arch" type="xml">
+            <form string="Conexión Dux Software">
+                <header>
+                    <button name="test_connection" string="Probar Conexión" 
+                            type="object" class="btn-primary"/>
+                    <field name="connection_status" widget="statusbar"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre de la conexión..."/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Configuración de API">
+                            <field name="base_url"/>
+                            <field name="api_key" password="True"/>
+                            <field name="company_id"/>
+                        </group>
+                        
+                        <group string="Estado">
+                            <field name="active"/>
+                            <field name="last_sync" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <div class="alert alert-info" role="alert" style="margin-top: 20px;">
+                        <strong>Configuración de API:</strong><br/>
+                        • URL Base: Normalmente https://api.duxsoftware.com.ar<br/>
+                        • API Key: Se obtiene desde la configuración de Dux Software<br/>
+                        • Probar la conexión antes de usar en importaciones
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Acción para conectores -->
+    <record id="action_dux_connector" model="ir.actions.act_window">
+        <field name="name">Conexiones Dux</field>
+        <field name="res_model">dux.connector</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva conexión con Dux Software
+            </p>
+            <p>
+                Configure las credenciales de API para conectarse con Dux Software
+                y realizar importaciones de datos.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Menú principal -->
+    <menuitem id="menu_dux_integration_root" 
+              name="Dux Integration" 
+              sequence="100"/>
+    
+    <menuitem id="menu_dux_configuration" 
+              name="Configuración"
+              parent="menu_dux_integration_root" 
+              sequence="10"/>
+    
+    <menuitem id="menu_dux_connectors" 
+              name="Conexiones Dux"
+              parent="menu_dux_configuration" 
+              action="action_dux_connector" 
+              sequence="10"/>
+    
+    <menuitem id="menu_dux_import" 
+              name="Importación"
+              parent="menu_dux_integration_root" 
+              sequence="20"/>
+    
+    <menuitem id="menu_dux_import_wizard" 
+              name="Importar Datos"
+              parent="menu_dux_import" 
+              action="action_dux_import_wizard" 
+              sequence="10"/>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dux_connector_user,dux.connector.user,model_dux_connector,base.group_user,1,1,1,1
+access_dux_connector_manager,dux.connector.manager,model_dux_connector,base.group_system,1,1,1,1
+access_dux_data_mapper_user,dux.data.mapper.user,model_dux_data_mapper,base.group_user,1,0,0,0
+access_dux_data_mapper_manager,dux.data.mapper.manager,model_dux_data_mapper,base.group_system,1,1,1,1
+access_dux_import_wizard_user,dux.import.wizard.user,model_dux_import_wizard,base.group_user,1,1,1,1
+access_dux_import_log_user,dux.import.log.user,model_dux_import_log,base.group_user,1,1,1,1
