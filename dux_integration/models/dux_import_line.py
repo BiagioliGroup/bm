@@ -146,6 +146,12 @@ class DuxImportLine(models.TransientModel):
     
     def _create_account_move(self):
         """Crea un account.move"""
+        # Extraer ID sucursal de los datos JSON
+        dux_data = eval(self.dux_data) if self.dux_data else {}
+        sucursal_info = ""
+        if dux_data.get('sucursal'):
+            sucursal_info = f"\nSucursal: {dux_data['sucursal']}"
+        
         move_vals = {
             'move_type': self.move_type,
             'partner_id': self.partner_id.id,
@@ -153,7 +159,7 @@ class DuxImportLine(models.TransientModel):
             'date': self.date,
             'journal_id': self.journal_id.id,
             'ref': f'Dux-{self.dux_numero}',
-            'narration': f'Importado desde Dux ID: {self.dux_id}',
+            'narration': f'Importado desde Dux ID: {self.dux_id}{sucursal_info}',
             'invoice_line_ids': [(0, 0, {
                 'name': f'Importación Dux {self.dux_numero}',
                 'quantity': 1,
@@ -169,6 +175,12 @@ class DuxImportLine(models.TransientModel):
         payment_type = 'inbound' if self.tipo == 'cobro' else 'outbound'
         partner_type = 'customer' if self.tipo == 'cobro' else 'supplier'
         
+        # Extraer sucursal
+        dux_data = eval(self.dux_data) if self.dux_data else {}
+        sucursal_info = ""
+        if dux_data.get('sucursal'):
+            sucursal_info = f" - Sucursal: {dux_data['sucursal']}"
+        
         payment_vals = {
             'payment_type': payment_type,
             'partner_type': partner_type,
@@ -176,7 +188,7 @@ class DuxImportLine(models.TransientModel):
             'amount': self.amount_total,
             'date': self.date,
             'journal_id': self.journal_id.id,
-            'ref': f'Dux-{self.dux_numero}',
+            'ref': f'Dux-{self.dux_numero}{sucursal_info}',
         }
         
         return self.env['account.payment'].create(payment_vals)
