@@ -45,6 +45,7 @@ class DuxImportRecord(models.Model):
     # Información adicional
     notes = fields.Text('Notas')
     error_msg = fields.Text('Mensaje Error')
+    detalle_lineas = fields.Text('Detalle Líneas Pedido')
     
     display_name = fields.Char('Nombre', compute='_compute_display_name', store=True)
     

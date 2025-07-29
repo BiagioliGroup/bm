@@ -27,14 +27,14 @@ class DuxImportWizard(models.TransientModel):
     import_stock = fields.Boolean('Actualizar Stock', default=False)
     
     # Opciones de importación
-    batch_size = fields.Integer('Tamaño de Lote', default=100, 
+    batch_size = fields.Integer('Tamaño de Lote', default=50, 
                                help='Cantidad de registros a procesar por lote')
     update_existing = fields.Boolean('Actualizar Existentes', default=True,
                                    help='Si está marcado, actualiza registros existentes')
     
     # Filtros de fecha para ventas/compras
-    fecha_desde = fields.Date('Fecha Desde', default="2022-06-01")
-    fecha_hasta = fields.Date('Fecha Hasta', default="2022-06-30")
+    fecha_desde = fields.Date('Fecha Desde', default="01-06-2023")
+    fecha_hasta = fields.Date('Fecha Hasta', default="30-06-2023")
     
     # Resultados
     log_ids = fields.One2many('dux.import.log', 'wizard_id', 'Logs')
@@ -174,7 +174,13 @@ class DuxImportWizard(models.TransientModel):
             # Extraer datos del cliente
             cliente_nombre = f"{dux_venta.get('apellido_razon_soc', '')} {dux_venta.get('nombre', '')}".strip()
             cliente_cuit = dux_venta.get('cuit', '')
-            numero_doc = f"{dux_venta.get('nro_pto_vta', '')}-{dux_venta.get('nro_comp', '')}"
+            numero_doc = self._format_dux_number(dux_venta.get('nro_pto_vta', ''), dux_venta.get('nro_comp', ''))
+            
+            # Buscar partner
+            partner = self._find_partner(cliente_cuit, cliente_nombre, dux_venta.get('apellido_razon_soc', ''))
+            
+            # Procesar detalles de líneas
+            detalle_lineas = self._process_detail_lines(dux_venta.get('detalles_json', ''))
             
             # Crear en tabla PERMANENTE
             import_record = self.env['dux.import.record'].create({
@@ -184,8 +190,10 @@ class DuxImportWizard(models.TransientModel):
                 'dux_tipo_comprobante': dux_venta.get('tipo_comp', ''),
                 'dux_data_json': str(dux_venta),
                 'tipo': 'venta',
+                'partner_id': partner.id if partner else False,
                 'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
                 'amount_total': float(dux_venta.get('total', 0)),
+                'detalle_lineas': detalle_lineas,
                 'state': 'imported'
             })
             
@@ -201,6 +209,7 @@ class DuxImportWizard(models.TransientModel):
                 'dux_tipo_comprobante': tipo_comp,
                 'partner_name': cliente_nombre,
                 'partner_vat': cliente_cuit,
+                'partner_id': partner.id if partner else False,
                 'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
                 'amount_total': float(dux_venta.get('total', 0)),
                 'journal_suggested': journal_suggested,
@@ -212,6 +221,76 @@ class DuxImportWizard(models.TransientModel):
             
         except Exception as e:
             self._log('error', f'Error creando línea venta {dux_venta.get("id")}: {str(e)}')
+
+    def _format_dux_number(self, nro_pto_vta, nro_comp):
+        """Formatea número Dux como 00010-00000045"""
+        try:
+            pto_vta = str(nro_pto_vta).zfill(5)
+            comp = str(nro_comp).zfill(8)
+            return f"{pto_vta}-{comp}"
+        except:
+            return f"{nro_pto_vta}-{nro_comp}"
+    
+    def _find_partner(self, cuit, nombre_completo, apellido_razon_soc):
+        """Busca partner con prioridad: 1º CUIT, 2º nombre completo, 3º apellido+CUIT, 4º apellido"""
+        partner = False
+        
+        # 1º: Por CUIT
+        if cuit:
+            partner = self.env['res.partner'].search([('vat', '=', cuit)], limit=1)
+            if partner:
+                return partner
+        
+        # 2º: Por coincidencia parcial nombre completo
+        if nombre_completo:
+            partner = self.env['res.partner'].search([
+                ('name', 'ilike', nombre_completo)
+            ], limit=1)
+            if partner:
+                return partner
+        
+        # 3º: Por apellido + CUIT
+        if apellido_razon_soc and cuit:
+            partner = self.env['res.partner'].search([
+                ('name', 'ilike', apellido_razon_soc),
+                ('vat', '=', cuit)
+            ], limit=1)
+            if partner:
+                return partner
+        
+        # 4º: Por apellido solamente
+        if apellido_razon_soc:
+            partner = self.env['res.partner'].search([
+                ('name', 'ilike', apellido_razon_soc)
+            ], limit=1)
+            if partner:
+                return partner
+        
+        return False
+    
+    def _process_detail_lines(self, detalles_json):
+        """Procesa detalles JSON y retorna formato [cod_item] - [item] - [cantidad] - [precio_uni]"""
+        if not detalles_json:
+            return ""
+        
+        try:
+            import json
+            detalles = json.loads(detalles_json)
+            lineas = []
+            
+            for detalle in detalles:
+                cod_item = detalle.get('cod_item', '')
+                item = detalle.get('item', '')
+                cantidad = detalle.get('ctd', 0)
+                precio_uni = detalle.get('precio_uni', 0)
+                
+                linea = f"[{cod_item}] - [{item}] - [cantidad: {cantidad}] - [{precio_uni}]"
+                lineas.append(linea)
+            
+            return "\n".join(lineas)
+            
+        except Exception as e:
+            return f"Error procesando detalles: {str(e)}"
     
     def _load_compras_preview(self):
         """Carga compras en vista previa"""
