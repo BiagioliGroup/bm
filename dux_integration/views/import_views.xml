@@ -147,4 +147,90 @@
               parent="menu_dux_import" 
               action="action_dux_import_wizard" 
               sequence="10"/>
+    
+    <menuitem id="menu_dux_import_records" 
+              name="Registros Importados"
+              parent="menu_dux_import" 
+              action="action_dux_import_records" 
+              sequence="20"/>
+    
+    <!-- Vistas para registros importados -->
+    <record id="view_dux_import_record_tree" model="ir.ui.view">
+        <field name="name">dux.import.record.tree</field>
+        <field name="model">dux.import.record</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state=='processed'" 
+                  decoration-danger="state=='error'"
+                  decoration-info="state=='imported'">
+                <field name="import_date"/>
+                <field name="tipo"/>
+                <field name="dux_numero"/>
+                <field name="dux_tipo_comprobante"/>
+                <field name="partner_id"/>
+                <field name="amount_total"/>
+                <field name="state"/>
+                <field name="move_id"/>
+                <field name="payment_id"/>
+                <button name="action_process_record" string="Procesar" type="object" 
+                        icon="fa-play" invisible="state != 'imported'"/>
+                <button name="action_view_document" string="Ver Doc" type="object" 
+                        icon="fa-external-link" invisible="not (move_id or payment_id)"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="view_dux_import_record_form" model="ir.ui.view">
+        <field name="name">dux.import.record.form</field>
+        <field name="model">dux.import.record</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_process_record" string="Procesar" type="object" 
+                            class="btn-primary" invisible="state != 'imported'"/>
+                    <button name="action_view_document" string="Ver Documento" type="object" 
+                            class="btn-secondary" invisible="not (move_id or payment_id)"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="import_date"/>
+                            <field name="tipo"/>
+                            <field name="dux_numero"/>
+                            <field name="dux_tipo_comprobante"/>
+                            <field name="amount_total"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="journal_id"/>
+                            <field name="date"/>
+                            <field name="move_id" readonly="1"/>
+                            <field name="payment_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Datos Originales Dux">
+                        <field name="dux_data_json" widget="text"/>
+                    </group>
+                    <group string="Notas/Errores" invisible="not (notes or error_msg)">
+                        <field name="notes"/>
+                        <field name="error_msg"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_dux_import_records" model="ir.actions.act_window">
+        <field name="name">Registros Importados</field>
+        <field name="res_model">dux.import.record</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay registros importados
+            </p>
+            <p>
+                Los datos importados desde Dux aparecerán aquí para ser procesados.
+            </p>
+        </field>
+    </record>
 </odoo>

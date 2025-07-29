@@ -15,26 +15,26 @@ class DuxImportWizard(models.TransientModel):
     import_mode = fields.Selection([
         ('test', 'Modo Prueba (solo validar)'),
         ('import', 'Importar Datos')
-    ], string='Modo', default='import', required=True)
+    ], string='Modo', default='test', required=True)
     
     # Selección de datos a importar
-    import_clientes = fields.Boolean('Importar Clientes', default=False)
-    import_productos = fields.Boolean('Importar Productos', default=False)
-    import_ventas = fields.Boolean('Importar Ventas', default=True)
+    import_clientes = fields.Boolean('Importar Clientes', default=True)
+    import_productos = fields.Boolean('Importar Productos', default=True)
+    import_ventas = fields.Boolean('Importar Ventas', default=False)
     import_compras = fields.Boolean('Importar Compras', default=False)
     import_pagos = fields.Boolean('Importar Pagos', default=False)
     import_cobros = fields.Boolean('Importar Cobros', default=False)
     import_stock = fields.Boolean('Actualizar Stock', default=False)
     
     # Opciones de importación
-    batch_size = fields.Integer('Tamaño de Lote', default=50, 
+    batch_size = fields.Integer('Tamaño de Lote', default=100, 
                                help='Cantidad de registros a procesar por lote')
     update_existing = fields.Boolean('Actualizar Existentes', default=True,
                                    help='Si está marcado, actualiza registros existentes')
     
     # Filtros de fecha para ventas/compras
-    fecha_desde = fields.Date('Fecha Desde', default="01/01/2022") 
-    fecha_hasta = fields.Date('Fecha Hasta', default="31/12/2022",)
+    fecha_desde = fields.Date('Fecha Desde')
+    fecha_hasta = fields.Date('Fecha Hasta')
     
     # Resultados
     log_ids = fields.One2many('dux.import.log', 'wizard_id', 'Logs')
@@ -169,9 +169,22 @@ class DuxImportWizard(models.TransientModel):
                 break
     
     def _create_venta_line(self, dux_venta):
-        """Crea línea de venta en tabla intermedia"""
+        """Crea línea de venta en tabla intermedia Y permanente"""
         try:
-            # Mapear tipo de comprobante
+            # Crear en tabla PERMANENTE
+            import_record = self.env['dux.import.record'].create({
+                'connector_id': self.connector_id.id,
+                'dux_id': str(dux_venta.get('id', '')),
+                'dux_numero': dux_venta.get('numero', ''),
+                'dux_tipo_comprobante': dux_venta.get('tipoComprobante', ''),
+                'dux_data_json': str(dux_venta),
+                'tipo': 'venta',
+                'date': self._parse_dux_date(dux_venta.get('fecha')),
+                'amount_total': float(dux_venta.get('total', 0)),
+                'state': 'imported'
+            })
+            
+            # Crear en tabla temporal para vista previa
             tipo_comp = dux_venta.get('tipoComprobante', '')
             journal_suggested = self._map_dux_type_to_journal(tipo_comp, 'venta')
             
