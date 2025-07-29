@@ -81,7 +81,6 @@
         <field name="res_model">dux.import.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="view_id" ref="view_dux_import_wizard_form"/>
     </record>
     
     <!-- Menú principal -->
