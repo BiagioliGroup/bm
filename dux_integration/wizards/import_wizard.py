@@ -33,8 +33,8 @@ class DuxImportWizard(models.TransientModel):
                                    help='Si está marcado, actualiza registros existentes')
     
     # Filtros de fecha para ventas/compras
-    fecha_desde = fields.Date('Fecha Desde')
-    fecha_hasta = fields.Date('Fecha Hasta')
+    fecha_desde = fields.Date('Fecha Desde', default="01/01/2022") 
+    fecha_hasta = fields.Date('Fecha Hasta', default="31/12/2022",)
     
     # Resultados
     log_ids = fields.One2many('dux.import.log', 'wizard_id', 'Logs')
