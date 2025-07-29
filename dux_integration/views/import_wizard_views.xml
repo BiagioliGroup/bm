@@ -45,15 +45,15 @@
                     </group>
                     
                     <group string="Filtros de Fecha" 
-                           attrs="{'invisible': [('import_ventas', '=', False), ('import_compras', '=', False), ('import_pagos', '=', False), ('import_cobros', '=', False)]}">>
+                           invisible="not (import_ventas or import_compras or import_pagos or import_cobros)">
                         <group>
                             <field name="fecha_desde"/>
                             <field name="fecha_hasta"/>
                         </group>
                     </group>
                     
-                    <!-- Estadísticas (solo visible después de ejecutar) -->
-                    <group string="Resultados" attrs="{'invisible': [('state', '=', 'draft')]}">
+                    <!-- Estadísticas -->
+                    <group string="Resultados" invisible="state == 'draft'">
                         <group>
                             <field name="total_processed" readonly="1"/>
                             <field name="total_created" readonly="1"/>
@@ -65,7 +65,7 @@
                     </group>
                     
                     <!-- Vista previa de datos -->
-                    <notebook attrs="{'invisible': [('current_step', '=', 'config')]}">
+                    <notebook invisible="current_step == 'config'">
                         <page string="Datos a Importar">
                             <field name="line_ids">
                                 <list editable="bottom">
@@ -82,9 +82,9 @@
                                     <field name="journal_id"/>
                                     <field name="date"/>
                                     <field name="amount_total"/>
-                                    <field name="error_msg" attrs="{'invisible': [('error_msg', '=', False)]}"/>
+                                    <field name="error_msg" invisible="not error_msg"/>
                                     <button name="action_validate" string="Validar" type="object" 
-                                            icon="fa-check" attrs="{'invisible': [('state', '=', 'validated')]}"/>
+                                            icon="fa-check" invisible="state == 'validated'"/>
                                 </list>
                             </field>
                         </page>
@@ -101,8 +101,8 @@
                         </page>
                     </notebook>
                     
-                    <!-- Logs anteriores (solo cuando no hay preview) -->
-                    <notebook attrs="{'invisible': [('current_step', '!=', 'config')]}">
+                    <!-- Logs cuando está en config -->
+                    <notebook invisible="current_step != 'config'">
                         <page string="Logs de Proceso">
                             <field name="log_ids" readonly="1">
                                 <list decoration-danger="level=='error'" 
