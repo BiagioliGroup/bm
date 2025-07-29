@@ -171,32 +171,37 @@ class DuxImportWizard(models.TransientModel):
     def _create_venta_line(self, dux_venta):
         """Crea línea de venta en tabla intermedia Y permanente"""
         try:
+            # Extraer datos del cliente
+            cliente_nombre = f"{dux_venta.get('apellido_razon_soc', '')} {dux_venta.get('nombre', '')}".strip()
+            cliente_cuit = dux_venta.get('cuit', '')
+            numero_doc = f"{dux_venta.get('nro_pto_vta', '')}-{dux_venta.get('nro_comp', '')}"
+            
             # Crear en tabla PERMANENTE
             import_record = self.env['dux.import.record'].create({
                 'connector_id': self.connector_id.id,
                 'dux_id': str(dux_venta.get('id', '')),
-                'dux_numero': dux_venta.get('numero', ''),
-                'dux_tipo_comprobante': dux_venta.get('tipoComprobante', ''),
+                'dux_numero': numero_doc,
+                'dux_tipo_comprobante': dux_venta.get('tipo_comp', ''),
                 'dux_data_json': str(dux_venta),
                 'tipo': 'venta',
-                'date': self._parse_dux_date(dux_venta.get('fecha')),
+                'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
                 'amount_total': float(dux_venta.get('total', 0)),
                 'state': 'imported'
             })
             
             # Crear en tabla temporal para vista previa
-            tipo_comp = dux_venta.get('tipoComprobante', '')
+            tipo_comp = dux_venta.get('tipo_comp', '')
             journal_suggested = self._map_dux_type_to_journal(tipo_comp, 'venta')
             
             line_vals = {
                 'wizard_id': self.id,
                 'tipo': 'venta',
                 'dux_id': str(dux_venta.get('id', '')),
-                'dux_numero': dux_venta.get('numero', ''),
+                'dux_numero': numero_doc,
                 'dux_tipo_comprobante': tipo_comp,
-                'partner_name': dux_venta.get('cliente', {}).get('razonSocial', ''),
-                'partner_vat': dux_venta.get('cliente', {}).get('cuit', ''),
-                'date': self._parse_dux_date(dux_venta.get('fecha')),
+                'partner_name': cliente_nombre,
+                'partner_vat': cliente_cuit,
+                'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
                 'amount_total': float(dux_venta.get('total', 0)),
                 'journal_suggested': journal_suggested,
                 'dux_data': str(dux_venta),
@@ -374,13 +379,13 @@ class DuxImportWizard(models.TransientModel):
         """Mapea tipo Dux a nombre de diario sugerido"""
         mapping = {
             'venta': {
-                'Comprobante de Venta': 'Comprobante de Venta',
-                'Factura': 'Facturas de Ventas',
-                'Factura de Crédito Electronica MiPymes': 'Facturas de Ventas'
+                'COMPROBANTE_VENTA': 'Comprobante de Venta',
+                'FACTURA': 'Facturas de Ventas',
+                'FACTURA_CREDITO_ELECTRONICA_MIPYMES': 'Facturas de Ventas'
             },
             'compra': {
-                'Comprobante de Compra': 'Comprobantes de Compra',
-                'Factura': 'Facturas de Proveedores FISCAL'
+                'COMPROBANTE_COMPRA': 'Comprobantes de Compra',
+                'FACTURA': 'Facturas de Proveedores FISCAL'
             }
         }
         
