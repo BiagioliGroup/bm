@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import json
+import time
 import logging
 from datetime import datetime, timedelta
 from odoo import models, fields, api, _
@@ -71,7 +72,7 @@ class DuxConnector(models.Model):
             raise UserError(f"Error de conexión: {str(e)}")
     
     def _make_request(self, endpoint, method='GET', data=None, params=None):
-        """Realiza request a la API de Dux con manejo de errores"""
+        """Realiza request a la API de Dux con manejo de errores y rate limiting"""
         try:
             url = f"{self.base_url}{endpoint}"
             headers = self._get_headers()
@@ -81,6 +82,9 @@ class DuxConnector(models.Model):
                 params = {}
             params['idEmpresa'] = self.id_empresa
             
+            # Delay para evitar rate limiting
+            time.sleep(1)
+            
             if method == 'GET':
                 response = requests.get(url, headers=headers, params=params, timeout=30)
             elif method == 'POST':
@@ -89,6 +93,16 @@ class DuxConnector(models.Model):
                 response = requests.put(url, headers=headers, json=data, params=params, timeout=30)
             elif method == 'DELETE':
                 response = requests.delete(url, headers=headers, params=params, timeout=30)
+            
+            # Manejo específico de rate limiting
+            if response.status_code == 429:
+                _logger.warning("Rate limit alcanzado, esperando 10 segundos...")
+                time.sleep(10)
+                # Reintentar una vez
+                if method == 'GET':
+                    response = requests.get(url, headers=headers, params=params, timeout=30)
+                elif method == 'POST':
+                    response = requests.post(url, headers=headers, json=data, params=params, timeout=30)
             
             response.raise_for_status()
             return response.json() if response.content else {}
