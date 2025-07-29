@@ -100,24 +100,6 @@
               action="action_dux_connector" 
               sequence="10"/>
     
-    <menuitem id="menu_dux_import" 
-              name="Importación"
-              parent="menu_dux_integration_root" 
-              sequence="20"/>
-    
-    <menuitem id="menu_dux_import_wizard" 
-              name="Importar Datos"
-              parent="menu_dux_import" 
-              action="action_dux_import_wizard" 
-              sequence="10"/>
-    
-    <menuitem id="menu_dux_journal_mapper" 
-              name="Mapeo de Diarios"
-              parent="menu_dux_configuration" 
-              action="action_dux_journal_mapper" 
-              sequence="20"/>
-
-
     <!-- Vistas para mapeo de diarios -->
     <record id="view_dux_journal_mapper_tree" model="ir.ui.view">
         <field name="name">dux.journal.mapper.tree</field>
@@ -147,4 +129,21 @@
             </p>
         </field>
     </record>
+    
+    <menuitem id="menu_dux_journal_mapper" 
+              name="Mapeo de Diarios"
+              parent="menu_dux_configuration" 
+              action="action_dux_journal_mapper" 
+              sequence="20"/>
+    
+    <menuitem id="menu_dux_import" 
+              name="Importación"
+              parent="menu_dux_integration_root" 
+              sequence="20"/>
+    
+    <menuitem id="menu_dux_import_wizard" 
+              name="Importar Datos"
+              parent="menu_dux_import" 
+              action="action_dux_import_wizard" 
+              sequence="10"/>
 </odoo>
