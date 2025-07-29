@@ -5,14 +5,14 @@
         <field name="name">dux.connector.tree</field>
         <field name="model">dux.connector</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="base_url"/>
                 <field name="connection_status" decoration-success="connection_status=='connected'" 
                        decoration-danger="connection_status=='error'"/>
                 <field name="last_sync"/>
                 <field name="active"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -63,7 +63,7 @@
     <record id="action_dux_connector" model="ir.actions.act_window">
         <field name="name">Conexiones Dux</field>
         <field name="res_model">dux.connector</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Crear una nueva conexión con Dux Software

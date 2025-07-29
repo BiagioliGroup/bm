@@ -63,13 +63,13 @@
                     <notebook attrs="{'invisible': [('state', '=', 'draft')]}">
                         <page string="Logs de Proceso">
                             <field name="log_ids" readonly="1">
-                                <tree decoration-danger="level=='error'" 
+                                <list decoration-danger="level=='error'" 
                                       decoration-warning="level=='warning'"
                                       decoration-info="level=='info'">
                                     <field name="timestamp"/>
                                     <field name="level"/>
                                     <field name="message"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -92,13 +92,13 @@
         <field name="name">dux.import.log.tree</field>
         <field name="model">dux.import.log</field>
         <field name="arch" type="xml">
-            <tree decoration-danger="level=='error'" 
+            <list decoration-danger="level=='error'" 
                   decoration-warning="level=='warning'"
                   decoration-info="level=='info'">
                 <field name="timestamp"/>
                 <field name="level"/>
                 <field name="message"/>
-            </tree>
+            </list>
         </field>
     </record>
     
