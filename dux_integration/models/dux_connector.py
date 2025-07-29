@@ -15,7 +15,7 @@ class DuxConnector(models.Model):
 
     name = fields.Char('Nombre', required=True, default='Conexión Dux')
     base_url = fields.Char('URL Base API', required=True, 
-                          default='https://api.duxsoftware.com.ar',
+                          default='https://erp.duxsoftware.com.ar',
                           help='URL base de la API de Dux Software')
     api_key = fields.Char('API Key', required=True,
                          help='Clave de API proporcionada por Dux')
@@ -44,7 +44,8 @@ class DuxConnector(models.Model):
     def test_connection(self):
         """Prueba la conexión con la API de Dux"""
         try:
-            url = f"{self.base_url}/auth/verify"
+            # Probar con un endpoint simple de empresas
+            url = f"{self.base_url}/WSERP/rest/services/empresas"
             response = requests.get(url, headers=self._get_headers(), timeout=30)
             
             if response.status_code == 200:
@@ -99,36 +100,52 @@ class DuxConnector(models.Model):
     
     def get_clientes(self, limit=100, offset=0):
         """Obtiene clientes desde Dux"""
+        # Nota: No hay endpoint específico de clientes, usar empresas
         params = {'limit': limit, 'offset': offset}
-        return self._make_request('/clientes', params=params)
+        return self._make_request('/WSERP/rest/services/empresas', params=params)
     
     def get_productos(self, limit=100, offset=0):
         """Obtiene productos desde Dux"""
         params = {'limit': limit, 'offset': offset}
-        return self._make_request('/productos', params=params)
+        return self._make_request('/WSERP/rest/services/items', params=params)
     
     def get_ventas(self, fecha_desde=None, fecha_hasta=None, limit=100, offset=0):
         """Obtiene ventas desde Dux"""
         params = {'limit': limit, 'offset': offset}
         if fecha_desde:
-            params['fecha_desde'] = fecha_desde
+            params['fechaDesde'] = fecha_desde
         if fecha_hasta:
-            params['fecha_hasta'] = fecha_hasta
-        return self._make_request('/ventas', params=params)
+            params['fechaHasta'] = fecha_hasta
+        return self._make_request('/WSERP/rest/services/facturas', params=params)
     
     def get_compras(self, fecha_desde=None, fecha_hasta=None, limit=100, offset=0):
         """Obtiene compras desde Dux"""
         params = {'limit': limit, 'offset': offset}
         if fecha_desde:
-            params['fecha_desde'] = fecha_desde
+            params['fechaDesde'] = fecha_desde
         if fecha_hasta:
-            params['fecha_hasta'] = fecha_hasta
-        return self._make_request('/compras', params=params)
+            params['fechaHasta'] = fecha_hasta
+        return self._make_request('/WSERP/rest/services/compras', params=params)
     
     def get_stock(self, limit=100, offset=0):
         """Obtiene stock desde Dux"""
         params = {'limit': limit, 'offset': offset}
-        return self._make_request('/stock', params=params)
+        return self._make_request('/WSERP/rest/services/deposito', params=params)
+    
+    def get_sucursales(self, limit=100, offset=0):
+        """Obtiene sucursales desde Dux"""
+        params = {'limit': limit, 'offset': offset}
+        return self._make_request('/WSERP/rest/services/sucursales', params=params)
+    
+    def get_localidades(self, limit=100, offset=0):
+        """Obtiene localidades desde Dux"""
+        params = {'limit': limit, 'offset': offset}
+        return self._make_request('/WSERP/rest/services/localidades', params=params)
+    
+    def get_lista_precios(self, limit=100, offset=0):
+        """Obtiene listas de precios desde Dux"""
+        params = {'limit': limit, 'offset': offset}
+        return self._make_request('/WSERP/rest/services/listaprecioventa', params=params)
     
     @api.model
     def get_default_connector(self):
