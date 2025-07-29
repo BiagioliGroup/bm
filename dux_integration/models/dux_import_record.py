@@ -87,6 +87,9 @@ class DuxImportRecord(models.Model):
         dux_data = eval(self.dux_data_json) if self.dux_data_json else {}
         sucursal_info = f"\nSucursal: {dux_data.get('sucursal', '')}" if dux_data.get('sucursal') else ""
         
+        # Procesar líneas de factura
+        invoice_lines = self._create_invoice_lines(dux_data)
+        
         move_vals = {
             'move_type': move_type,
             'partner_id': self.partner_id.id,
@@ -95,15 +98,79 @@ class DuxImportRecord(models.Model):
             'journal_id': self.journal_id.id,
             'ref': f'Dux-{self.dux_numero}',
             'narration': f'Importado desde Dux ID: {self.dux_id}{sucursal_info}',
-            'invoice_line_ids': [(0, 0, {
+            'invoice_line_ids': invoice_lines
+        }
+        
+        return self.env['account.move'].create(move_vals)
+    
+    def _create_invoice_lines(self, dux_data):
+        """Crea líneas de factura desde datos Dux"""
+        lines = []
+        detalles_json = dux_data.get('detalles_json', '[]')
+        
+        try:
+            import json
+            detalles = json.loads(detalles_json)
+            
+            for detalle in detalles:
+                cod_item = detalle.get('cod_item', '')
+                item_desc = detalle.get('item', '')
+                comentarios = detalle.get('comentarios', '')
+                cantidad = float(detalle.get('ctd', 1))
+                precio_uni = float(detalle.get('precio_uni', 0))
+                porc_iva = float(detalle.get('porc_iva', 0))
+                
+                # Buscar producto por código
+                product = self.env['product.product'].search([
+                    ('default_code', '=', cod_item)
+                ], limit=1)
+                
+                # Nombre de línea
+                line_name = f"{cod_item} - {item_desc}"
+                if comentarios:
+                    line_name += f" - {comentarios}"
+                
+                # Configurar impuesto
+                tax_ids = []
+                if porc_iva > 0:
+                    tax = self.env['account.tax'].search([
+                        ('name', 'ilike', f'IVA {int(porc_iva)}%'),
+                        ('type_tax_use', '=', 'sale' if self.tipo == 'venta' else 'purchase')
+                    ], limit=1)
+                    if tax:
+                        tax_ids = [(6, 0, [tax.id])]
+                
+                line_vals = {
+                    'product_id': product.id if product else False,
+                    'name': line_name,
+                    'quantity': round(cantidad, 2),
+                    'price_unit': precio_uni,
+                    'tax_ids': tax_ids,
+                    'account_id': self._get_line_account(product).id,
+                }
+                
+                lines.append((0, 0, line_vals))
+                
+        except Exception as e:
+            # Línea simple si falla el procesamiento
+            lines.append((0, 0, {
                 'name': f'Importación Dux {self.dux_numero}',
                 'quantity': 1,
                 'price_unit': self.amount_total,
                 'account_id': self._get_default_account().id,
-            })]
-        }
+            }))
         
-        return self.env['account.move'].create(move_vals)
+        return lines
+    
+    def _get_line_account(self, product):
+        """Obtiene cuenta contable para línea"""
+        if product:
+            if self.tipo == 'venta':
+                return product.property_account_income_id or product.categ_id.property_account_income_categ_id
+            else:
+                return product.property_account_expense_id or product.categ_id.property_account_expense_categ_id
+        
+        return self._get_default_account()
     
     def _create_payment(self):
         """Crea account.payment desde registro importado"""
