@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista formulario del wizard de importación -->
-    <record id="view_dux_import_wizard_form" model="ir.ui.view">
-        <field name="name">dux.import.wizard.form</field>
+    <!-- Vista formulario del wizard de importación actualizada -->
+    <record id="view_dux_import_wizard_form_updated" model="ir.ui.view">
+        <field name="name">dux.import.wizard.form.updated</field>
         <field name="model">dux.import.wizard</field>
         <field name="arch" type="xml">
             <form string="Importación Dux Software">
                 <header>
-                    <button name="action_import" string="1. Cargar Datos" 
+                    <button name="action_import" string="Ejecutar" 
                             type="object" class="btn-primary"
-                            invisible="current_step != 'config'"/>
-                    <button name="action_validate_all" string="2. Validar Todo" 
-                            type="object" class="btn-info"
-                            invisible="current_step != 'preview'"/>
-                    <button name="action_import_validated" string="3. Importar" 
-                            type="object" class="btn-success"
-                            invisible="current_step != 'preview'"/>
-                    <field name="current_step" widget="statusbar" statusbar_visible="config,preview,import"/>
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,running,done"/>
                 </header>
                 
                 <sheet>
@@ -28,12 +22,12 @@
                     
                     <group>
                         <group string="Configuración General">
-                            <field name="import_mode"/>
+                            <field name="import_mode" widget="radio"/>
                             <field name="batch_size"/>
                             <field name="update_existing"/>
                         </group>
                         
-                        <group string="Datos a Importar">
+                        <group string="Datos a Importar" invisible="import_mode == 'process_batches'">
                             <field name="import_clientes"/>
                             <field name="import_productos"/>
                             <field name="import_ventas"/>
@@ -45,11 +39,17 @@
                     </group>
                     
                     <group string="Filtros de Fecha" 
-                        invisible="not (import_ventas or import_compras or import_pagos or import_cobros)">
+                        invisible="not (import_ventas or import_compras or import_pagos or import_cobros) or import_mode == 'process_batches'">
                         <group>
                             <field name="fecha_desde"/>
                             <field name="fecha_hasta"/>
                         </group>
+                    </group>
+                    
+                    <!-- Selección de lotes existentes -->
+                    <group string="Lotes a Procesar" invisible="import_mode != 'process_batches'">
+                        <field name="available_batch_ids" widget="many2many_tags" 
+                               domain="[('state', '=', 'raw')]"/>
                     </group>
                     
                     <!-- Estadísticas -->
@@ -64,45 +64,22 @@
                         </group>
                     </group>
                     
-                    <!-- Vista previa de datos -->
-                    <notebook invisible="current_step == 'config'">
-                        <page string="Datos a Importar">
-                            <field name="line_ids">
-                                <list editable="bottom">
-                                    <field name="state" decoration-success="state=='validated'" 
-                                        decoration-danger="state=='error'" 
-                                        decoration-info="state=='draft'"/>
-                                    <field name="tipo"/>
-                                    <field name="dux_numero"/>
-                                    <field name="dux_tipo_comprobante"/>
-                                    <field name="partner_name"/>
-                                    <field name="partner_vat"/>
-                                    <field name="partner_id"/>
-                                    <field name="journal_suggested"/>
-                                    <field name="journal_id"/>
-                                    <field name="date"/>
-                                    <field name="amount_total"/>
-                                    <field name="error_msg" invisible="not error_msg"/>
-                                    <button name="action_validate" string="Validar" type="object" 
-                                            icon="fa-check" invisible="state == 'validated'"/>
-                                </list>
-                            </field>
-                        </page>
-                        <page string="Logs de Proceso">
-                            <field name="log_ids" readonly="1">
-                                <list decoration-danger="level=='error'" 
-                                    decoration-warning="level=='warning'"
-                                    decoration-info="level=='info'">
-                                    <field name="timestamp"/>
-                                    <field name="level"/>
-                                    <field name="message"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
+                    <!-- Lotes creados -->
+                    <group string="Lotes Creados" invisible="not created_batch_ids">
+                        <field name="created_batch_ids" readonly="1">
+                            <list>
+                                <field name="batch_name"/>
+                                <field name="data_type"/>
+                                <field name="total_records"/>
+                                <field name="state"/>
+                                <button name="action_process_batch" string="Procesar" type="object" 
+                                        icon="fa-play" invisible="state != 'raw'"/>
+                            </list>
+                        </field>
+                    </group>
                     
-                    <!-- Logs cuando está en config -->
-                    <notebook invisible="current_step != 'config'">
+                    <!-- Logs de proceso -->
+                    <notebook>
                         <page string="Logs de Proceso">
                             <field name="log_ids" readonly="1">
                                 <list decoration-danger="level=='error'" 

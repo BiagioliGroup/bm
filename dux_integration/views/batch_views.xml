@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista lista de lotes -->
+    <record id="view_dux_import_batch_tree" model="ir.ui.view">
+        <field name="name">dux.import.batch.tree</field>
+        <field name="model">dux.import.batch</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state=='processed'" 
+                  decoration-danger="state=='error'"
+                  decoration-warning="state=='processing'"
+                  decoration-info="state=='raw'">
+                <field name="create_date"/>
+                <field name="batch_name"/>
+                <field name="data_type"/>
+                <field name="connector_id"/>
+                <field name="fecha_desde"/>
+                <field name="fecha_hasta"/>
+                <field name="total_records"/>
+                <field name="processed_count"/>
+                <field name="error_count"/>
+                <field name="state"/>
+                <button name="action_process_batch" string="Procesar" type="object" 
+                        icon="fa-play" invisible="state != 'raw'"/>
+                <button name="action_view_import_records" string="Ver Registros" type="object" 
+                        icon="fa-list" invisible="processed_count == 0"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Vista formulario de lote -->
+    <record id="view_dux_import_batch_form" model="ir.ui.view">
+        <field name="name">dux.import.batch.form</field>
+        <field name="model">dux.import.batch</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_process_batch" string="Procesar Lote" type="object" 
+                            class="btn-primary" invisible="state != 'raw'"/>
+                    <button name="action_view_import_records" string="Ver Registros" type="object" 
+                            class="btn-secondary" invisible="processed_count == 0"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="batch_name"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Información del Lote">
+                            <field name="create_date" readonly="1"/>
+                            <field name="data_type"/>
+                            <field name="connector_id"/>
+                            <field name="batch_size"/>
+                        </group>
+                        
+                        <group string="Filtros Aplicados">
+                            <field name="fecha_desde"/>
+                            <field name="fecha_hasta"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Estadísticas">
+                        <group>
+                            <field name="total_records" readonly="1"/>
+                            <field name="processed_count" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="error_count" readonly="1"/>
+                            <field name="processing_notes" readonly="1" invisible="not processing_notes"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Registros Importados" invisible="not import_record_ids">
+                        <field name="import_record_ids" readonly="1">
+                            <list limit="10">
+                                <field name="tipo"/>
+                                <field name="dux_numero"/>
+                                <field name="partner_id"/>
+                                <field name="amount_total"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Datos JSON Crudos" invisible="not raw_data_json">
+                            <group>
+                                <field name="raw_data_json" widget="text" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Acción para lotes -->
+    <record id="action_dux_import_batch" model="ir.actions.act_window">
+        <field name="name">Lotes de Importación</field>
+        <field name="res_model">dux.import.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay lotes de importación
+            </p>
+            <p>
+                Los lotes de datos JSON aparecerán aquí para ser procesados.
+                Use el asistente de importación para crear nuevos lotes.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Filtros para lotes -->
+    <record id="view_dux_import_batch_search" model="ir.ui.view">
+        <field name="name">dux.import.batch.search</field>
+        <field name="model">dux.import.batch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="batch_name"/>
+                <field name="data_type"/>
+                <field name="connector_id"/>
+                <separator/>
+                <filter name="raw" string="Datos Crudos" domain="[('state', '=', 'raw')]"/>
+                <filter name="processed" string="Procesados" domain="[('state', '=', 'processed')]"/>
+                <filter name="error" string="Con Errores" domain="[('state', '=', 'error')]"/>
+                <separator/>
+                <filter name="ventas" string="Ventas" domain="[('data_type', '=', 'ventas')]"/>
+                <filter name="compras" string="Compras" domain="[('data_type', '=', 'compras')]"/>
+                <filter name="pagos" string="Pagos" domain="[('data_type', '=', 'pagos')]"/>
+                <filter name="cobros" string="Cobros" domain="[('data_type', '=', 'cobros')]"/>
+                <separator/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_data_type" string="Tipo de Datos" context="{'group_by': 'data_type'}"/>
+                    <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                    <filter name="group_connector" string="Conexión" context="{'group_by': 'connector_id'}"/>
+                    <filter name="group_date" string="Fecha Creación" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

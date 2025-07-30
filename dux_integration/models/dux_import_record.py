@@ -12,6 +12,9 @@ class DuxImportRecord(models.Model):
     connector_id = fields.Many2one('dux.connector', 'Conexión Dux')
     import_batch = fields.Char('Lote Importación', default=lambda self: self._generate_batch())
     
+    # NUEVO: Relación con lote de datos JSON
+    batch_id = fields.Many2one('dux.import.batch', 'Lote JSON', ondelete='cascade', index=True)
+    
     # Datos originales de Dux
     dux_id = fields.Char('ID Dux', required=True, index=True)
     dux_numero = fields.Char('Número Dux')

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -13,14 +14,15 @@ class DuxImportWizard(models.TransientModel):
     connector_id = fields.Many2one('dux.connector', 'Conexión Dux', required=True,
                                   default=lambda self: self.env['dux.connector'].get_default_connector())
     import_mode = fields.Selection([
-        ('test', 'Modo Prueba (solo validar)'),
-        ('import', 'Importar Datos')
-    ], string='Modo', default='test', required=True)
+        ('fetch_only', 'Solo Obtener Datos (Crear Lotes)'),
+        ('process_batches', 'Procesar Lotes Existentes'),
+        ('fetch_and_process', 'Obtener y Procesar Inmediatamente')
+    ], string='Modo', default='fetch_only', required=True)
     
     # Selección de datos a importar
-    import_clientes = fields.Boolean('Importar Clientes', default=True)
-    import_productos = fields.Boolean('Importar Productos', default=True)
-    import_ventas = fields.Boolean('Importar Ventas', default=False)
+    import_clientes = fields.Boolean('Importar Clientes', default=False)
+    import_productos = fields.Boolean('Importar Productos', default=False)
+    import_ventas = fields.Boolean('Importar Ventas', default=True)
     import_compras = fields.Boolean('Importar Compras', default=False)
     import_pagos = fields.Boolean('Importar Pagos', default=False)
     import_cobros = fields.Boolean('Importar Cobros', default=False)
@@ -36,6 +38,10 @@ class DuxImportWizard(models.TransientModel):
     fecha_desde = fields.Date('Fecha Desde')
     fecha_hasta = fields.Date('Fecha Hasta')
     
+    # Lotes existentes para procesar
+    available_batch_ids = fields.Many2many('dux.import.batch', string='Lotes Disponibles',
+                                          domain=[('state', '=', 'raw')])
+    
     # Resultados
     log_ids = fields.One2many('dux.import.log', 'wizard_id', 'Logs')
     state = fields.Selection([
@@ -50,80 +56,104 @@ class DuxImportWizard(models.TransientModel):
     total_created = fields.Integer('Total Creados', readonly=True)
     total_updated = fields.Integer('Total Actualizados', readonly=True)
     total_errors = fields.Integer('Total Errores', readonly=True)
-
-    # Líneas de importación
-    line_ids = fields.One2many('dux.import.line', 'wizard_id', 'Líneas de Importación')
     
-    # Estado de proceso
-    current_step = fields.Selection([
-        ('config', 'Configuración'),
-        ('preview', 'Vista Previa'),
-        ('import', 'Importación')
-    ], default='config', required=True)
+    # Lotes creados en esta sesión
+    created_batch_ids = fields.Many2many('dux.import.batch', 'wizard_batch_created_rel',
+                                        string='Lotes Creados', readonly=True)
+    
+    @api.onchange('import_mode')
+    def _onchange_import_mode(self):
+        """Actualizar dominio de lotes disponibles según modo"""
+        if self.import_mode == 'process_batches':
+            return {
+                'domain': {
+                    'available_batch_ids': [('state', '=', 'raw')]
+                }
+            }
     
     def action_import(self):
-        """Paso 1: Cargar datos en tabla intermedia"""
+        """Ejecuta importación según modo seleccionado"""
         self.ensure_one()
         
         try:
             self.state = 'running'
             self._clear_logs()
-            self._clear_lines()
             
             # Verificar conexión
             self.connector_id.test_connection()
             
-            # Cargar datos en tabla intermedia
-            if self.import_clientes:
-                self._load_clientes_preview()
-            
-            if self.import_productos:
-                self._load_productos_preview()
-                
-            if self.import_ventas:
-                self._load_ventas_preview()
-                
-            if self.import_compras:
-                self._load_compras_preview()
-            
-            if self.import_pagos:
-                self._load_pagos_preview()
-            
-            if self.import_cobros:
-                self._load_cobros_preview()
-            
-            self.current_step = 'preview'
-            self.state = 'done'
-            self._log('info', 'Datos cargados en vista previa')
-            
-            return self._show_preview()
+            if self.import_mode == 'fetch_only':
+                return self._fetch_data_to_batches()
+            elif self.import_mode == 'process_batches':
+                return self._process_existing_batches()
+            elif self.import_mode == 'fetch_and_process':
+                self._fetch_data_to_batches()
+                return self._process_created_batches()
             
         except Exception as e:
             self.state = 'error'
-            self._log('error', f'Error cargando datos: {str(e)}')
+            self._log('error', f'Error en importación: {str(e)}')
             raise UserError(f"Error: {str(e)}")
-
-    def action_validate_all(self):
-        """Valida todas las líneas"""
-        self.line_ids.action_validate()
-        self._log('info', f'Validadas {len(self.line_ids)} líneas')
     
-    def action_import_validated(self):
-        """Importa solo líneas validadas"""
-        validated_lines = self.line_ids.filtered(lambda l: l.state == 'validated')
-        if not validated_lines:
-            raise UserError('No hay líneas validadas para importar')
+    def _fetch_data_to_batches(self):
+        """Obtiene datos de Dux y los guarda en lotes JSON"""
+        self._log('info', 'Iniciando obtención de datos desde Dux...')
         
-        validated_lines.action_import()
-        self.current_step = 'import'
+        created_batches = self.env['dux.import.batch']
         
-        imported = len(validated_lines.filtered(lambda l: l.state == 'imported'))
-        self._log('info', f'Importadas {imported} líneas exitosamente')
+        try:
+            # Obtener ventas
+            if self.import_ventas:
+                batch = self._fetch_ventas_to_batch()
+                if batch:
+                    created_batches |= batch
+            
+            # Obtener compras
+            if self.import_compras:
+                batch = self._fetch_compras_to_batch()
+                if batch:
+                    created_batches |= batch
+            
+            # Obtener pagos
+            if self.import_pagos:
+                batch = self._fetch_pagos_to_batch()
+                if batch:
+                    created_batches |= batch
+            
+            # Obtener cobros
+            if self.import_cobros:
+                batch = self._fetch_cobros_to_batch()
+                if batch:
+                    created_batches |= batch
+            
+            # Obtener clientes (sin filtro de fechas)
+            if self.import_clientes:
+                batch = self._fetch_clientes_to_batch()
+                if batch:
+                    created_batches |= batch
+            
+            # Obtener productos (sin filtro de fechas)
+            if self.import_productos:
+                batch = self._fetch_productos_to_batch()
+                if batch:
+                    created_batches |= batch
+            
+            self.created_batch_ids = [(6, 0, created_batches.ids)]
+            self.state = 'done'
+            self._log('info', f'Datos obtenidos exitosamente. {len(created_batches)} lotes creados.')
+            
+            return self._show_batch_results(created_batches)
+            
+        except Exception as e:
+            self.state = 'error'
+            self._log('error', f'Error obteniendo datos: {str(e)}')
+            raise
     
-    def _load_ventas_preview(self):
-        """Carga ventas en vista previa"""
-        self._log('info', 'Cargando ventas...')
+    def _fetch_ventas_to_batch(self):
+        """Obtiene ventas y crea lote JSON"""
+        self._log('info', 'Obteniendo ventas desde Dux...')
         
+        all_ventas = []
         offset = 0
         
         while True:
@@ -135,9 +165,6 @@ class DuxImportWizard(models.TransientModel):
                     offset=offset
                 )
                 
-                # DEBUG: Logear la respuesta completa
-                self._log('info', f'Respuesta API ventas: {str(response)[:500]}...')
-                
                 # Manejar diferentes estructuras de respuesta
                 if isinstance(response, dict):
                     ventas = response.get('data', response.get('results', response.get('items', [])))
@@ -146,190 +173,52 @@ class DuxImportWizard(models.TransientModel):
                 else:
                     ventas = []
                 
-                self._log('info', f'Ventas encontradas: {len(ventas)}')
-                
                 if not ventas:
                     break
                 
-                for i, venta in enumerate(ventas):
-                    try:
-                        self._log('info', f'Procesando venta {i+1}: {str(venta)[:200]}...')
-                        self._create_venta_line(venta)
-                        self.total_processed += 1
-                    except Exception as e:
-                        self.total_errors += 1
-                        self._log('error', f'Error procesando venta {i+1}: {str(e)}')
-                
+                all_ventas.extend(ventas)
                 offset += self.batch_size
+                
+                self._log('info', f'Obtenidas {len(ventas)} ventas (offset: {offset})')
+                
+                # Evitar bucle infinito
                 if len(ventas) < self.batch_size:
                     break
                     
             except Exception as e:
-                self._log('error', f'Error cargando ventas: {str(e)}')
+                self._log('error', f'Error obteniendo ventas (offset {offset}): {str(e)}')
                 break
-    
-    def _create_venta_line(self, dux_venta):
-        """Crea línea de venta en tabla intermedia Y permanente"""
-        try:
-            # Extraer datos del cliente
-            cliente_nombre = f"{dux_venta.get('apellido_razon_soc', '')} {dux_venta.get('nombre', '')}".strip()
-            cliente_cuit = dux_venta.get('cuit', '')
-            numero_doc = self._format_dux_number(dux_venta.get('nro_pto_vta', ''), dux_venta.get('nro_comp', ''))
+        
+        if all_ventas:
+            # Crear lote
+            batch_name = self.env['dux.import.batch'].generate_batch_name(
+                'ventas', self.fecha_desde, self.fecha_hasta
+            )
             
-            # Buscar partner
-            partner = self._find_partner(cliente_cuit, cliente_nombre, dux_venta.get('apellido_razon_soc', ''))
-            
-            # Procesar detalles de líneas y cobros
-            detalle_lineas = self._process_detail_lines(dux_venta.get('detalles_json', ''))
-            detalle_cobros = self._process_detail_cobros(dux_venta.get('detalles_cobro', []))
-            
-            # Crear en tabla PERMANENTE
-            import_record = self.env['dux.import.record'].create({
+            batch = self.env['dux.import.batch'].create({
+                'batch_name': batch_name,
                 'connector_id': self.connector_id.id,
-                'dux_id': str(dux_venta.get('id', '')),
-                'dux_numero': numero_doc,
-                'dux_tipo_comprobante': dux_venta.get('tipo_comp', ''),
-                'dux_data_json': str(dux_venta),
-                'tipo': 'venta',
-                'partner_id': partner.id if partner else False,
-                'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
-                'amount_total': float(dux_venta.get('total', 0)),
-                'detalle_lineas': detalle_lineas,
-                'detalle_cobros': detalle_cobros,
-                'state': 'imported'
+                'data_type': 'ventas',
+                'fecha_desde': self.fecha_desde,
+                'fecha_hasta': self.fecha_hasta,
+                'batch_size': self.batch_size,
+                'raw_data_json': json.dumps(all_ventas),
+                'state': 'raw'
             })
             
-            # Crear en tabla temporal para vista previa
-            tipo_comp = dux_venta.get('tipo_comp', '')
-            journal_suggested = self._map_dux_type_to_journal(tipo_comp, 'venta')
-            
-            line_vals = {
-                'wizard_id': self.id,
-                'tipo': 'venta',
-                'dux_id': str(dux_venta.get('id', '')),
-                'dux_numero': numero_doc,
-                'dux_tipo_comprobante': tipo_comp,
-                'partner_name': cliente_nombre,
-                'partner_vat': cliente_cuit,
-                'partner_id': partner.id if partner else False,
-                'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
-                'amount_total': float(dux_venta.get('total', 0)),
-                'journal_suggested': journal_suggested,
-                'dux_data': str(dux_venta),
-                'state': 'draft'
-            }
-            
-            self.env['dux.import.line'].create(line_vals)
-            
-        except Exception as e:
-            self._log('error', f'Error creando línea venta {dux_venta.get("id")}: {str(e)}')
-
-    def _format_dux_number(self, nro_pto_vta, nro_comp):
-        """Formatea número Dux como 00010-00000045"""
-        try:
-            pto_vta = str(nro_pto_vta).zfill(5)
-            comp = str(nro_comp).zfill(8)
-            return f"{pto_vta}-{comp}"
-        except:
-            return f"{nro_pto_vta}-{nro_comp}"
+            self._log('info', f'Lote de ventas creado: {batch.batch_name} ({len(all_ventas)} registros)')
+            return batch
+        else:
+            self._log('warning', 'No se encontraron ventas en el rango especificado')
+            return None
     
-    def _find_partner(self, cuit, nombre_completo, apellido_razon_soc):
-        """Busca partner con prioridad: 1º CUIT, 2º nombre completo, 3º apellido+CUIT, 4º apellido"""
-        partner = False
+    def _fetch_compras_to_batch(self):
+        """Obtiene compras y crea lote JSON"""
+        self._log('info', 'Obteniendo compras desde Dux...')
         
-        # 1º: Por CUIT
-        if cuit:
-            partner = self.env['res.partner'].search([('vat', '=', cuit)], limit=1)
-            if partner:
-                return partner
-        
-        # 2º: Por coincidencia parcial nombre completo
-        if nombre_completo:
-            partner = self.env['res.partner'].search([
-                ('name', 'ilike', nombre_completo)
-            ], limit=1)
-            if partner:
-                return partner
-        
-        # 3º: Por apellido + CUIT
-        if apellido_razon_soc and cuit:
-            partner = self.env['res.partner'].search([
-                ('name', 'ilike', apellido_razon_soc),
-                ('vat', '=', cuit)
-            ], limit=1)
-            if partner:
-                return partner
-        
-        # 4º: Por apellido solamente
-        if apellido_razon_soc:
-            partner = self.env['res.partner'].search([
-                ('name', 'ilike', apellido_razon_soc)
-            ], limit=1)
-            if partner:
-                return partner
-        
-        return False
-    
-    def _process_detail_lines(self, detalles_json):
-        """Procesa detalles JSON y retorna formato [cod_item] - [item] - [cantidad] - [precio_uni]"""
-        if not detalles_json:
-            return ""
-        
-        try:
-            import json
-            detalles = json.loads(detalles_json)
-            lineas = []
-            
-            for detalle in detalles:
-                cod_item = detalle.get('cod_item', '')
-                item = detalle.get('item', '')
-                cantidad = detalle.get('ctd', 0)
-                precio_uni = detalle.get('precio_uni', 0)
-                
-                linea = f"[{cod_item}] - [{item}] - [cantidad: {cantidad}] - [{precio_uni}]"
-                lineas.append(linea)
-            
-            return "\n".join(lineas)
-            
-        except Exception as e:
-            return f"Error procesando detalles: {str(e)}"
-            
-    def _process_detail_cobros(self, detalles_cobro):
-        """Procesa detalles de cobro y retorna formato estructurado"""
-        if not detalles_cobro:
-            return ""
-        
-        try:
-            lineas = []
-            
-            for cobro in detalles_cobro:
-                punto_venta = cobro.get('numero_punto_de_venta', '')
-                comprobante = cobro.get('numero_comprobante', '')
-                personal = cobro.get('personal', '')
-                caja = cobro.get('caja', '')
-                
-                # Procesar movimientos de cobro
-                movimientos = cobro.get('detalles_mov_cobro', [])
-                for mov in movimientos:
-                    tipo_valor = mov.get('tipo_de_valor', '')
-                    referencia = mov.get('referencia', '')
-                    monto = mov.get('monto', 0)
-                    
-                    linea = f"PV:{punto_venta} - Comp:{comprobante} - {personal} - {caja} - {tipo_valor} - ${monto}"
-                    if referencia:
-                        linea += f" - Ref: {referencia}"
-                    lineas.append(linea)
-            
-            return "\n".join(lineas)
-            
-        except Exception as e:
-            return f"Error procesando cobros: {str(e)}"
-    
-    def _load_compras_preview(self):
-        """Carga compras en vista previa"""
-        self._log('info', 'Cargando compras...')
-        
+        all_compras = []
         offset = 0
+        
         while True:
             try:
                 response = self.connector_id.get_compras(
@@ -343,49 +232,45 @@ class DuxImportWizard(models.TransientModel):
                 if not compras:
                     break
                 
-                for compra in compras:
-                    self._create_compra_line(compra)
-                    self.total_processed += 1
-                
+                all_compras.extend(compras)
                 offset += self.batch_size
+                
                 if len(compras) < self.batch_size:
                     break
                     
             except Exception as e:
-                self._log('error', f'Error cargando compras: {str(e)}')
+                self._log('error', f'Error obteniendo compras (offset {offset}): {str(e)}')
                 break
-    
-    def _create_compra_line(self, dux_compra):
-        """Crea línea de compra en tabla intermedia"""
-        try:
-            tipo_comp = dux_compra.get('tipoComprobante', '')
-            journal_suggested = self._map_dux_type_to_journal(tipo_comp, 'compra')
-            
-            line_vals = {
-                'wizard_id': self.id,
-                'tipo': 'compra',
-                'dux_id': str(dux_compra.get('id', '')),
-                'dux_numero': dux_compra.get('numero', ''),
-                'dux_tipo_comprobante': tipo_comp,
-                'partner_name': dux_compra.get('proveedor', {}).get('razonSocial', ''),
-                'partner_vat': dux_compra.get('proveedor', {}).get('cuit', ''),
-                'date': self._parse_dux_date(dux_compra.get('fecha')),
-                'amount_total': float(dux_compra.get('total', 0)),
-                'journal_suggested': journal_suggested,
-                'dux_data': str(dux_compra),
-                'state': 'draft'
-            }
-            
-            self.env['dux.import.line'].create(line_vals)
-            
-        except Exception as e:
-            self._log('error', f'Error creando línea compra {dux_compra.get("id")}: {str(e)}')
-    
-    def _load_pagos_preview(self):
-        """Carga pagos en vista previa"""
-        self._log('info', 'Cargando pagos...')
         
+        if all_compras:
+            batch_name = self.env['dux.import.batch'].generate_batch_name(
+                'compras', self.fecha_desde, self.fecha_hasta
+            )
+            
+            batch = self.env['dux.import.batch'].create({
+                'batch_name': batch_name,
+                'connector_id': self.connector_id.id,
+                'data_type': 'compras',
+                'fecha_desde': self.fecha_desde,
+                'fecha_hasta': self.fecha_hasta,
+                'batch_size': self.batch_size,
+                'raw_data_json': json.dumps(all_compras),
+                'state': 'raw'
+            })
+            
+            self._log('info', f'Lote de compras creado: {batch.batch_name} ({len(all_compras)} registros)')
+            return batch
+        else:
+            self._log('warning', 'No se encontraron compras en el rango especificado')
+            return None
+    
+    def _fetch_pagos_to_batch(self):
+        """Obtiene pagos y crea lote JSON"""
+        self._log('info', 'Obteniendo pagos desde Dux...')
+        
+        all_pagos = []
         offset = 0
+        
         while True:
             try:
                 response = self.connector_id.get_pagos(
@@ -399,46 +284,45 @@ class DuxImportWizard(models.TransientModel):
                 if not pagos:
                     break
                 
-                for pago in pagos:
-                    self._create_pago_line(pago)
-                    self.total_processed += 1
-                
+                all_pagos.extend(pagos)
                 offset += self.batch_size
+                
                 if len(pagos) < self.batch_size:
                     break
                     
             except Exception as e:
-                self._log('error', f'Error cargando pagos: {str(e)}')
+                self._log('error', f'Error obteniendo pagos (offset {offset}): {str(e)}')
                 break
-    
-    def _create_pago_line(self, dux_pago):
-        """Crea línea de pago en tabla intermedia"""
-        try:
-            line_vals = {
-                'wizard_id': self.id,
-                'tipo': 'pago',
-                'dux_id': str(dux_pago.get('id', '')),
-                'dux_numero': dux_pago.get('numero', ''),
-                'dux_tipo_comprobante': 'Pago',
-                'partner_name': dux_pago.get('proveedor', {}).get('razonSocial', ''),
-                'partner_vat': dux_pago.get('proveedor', {}).get('cuit', ''),
-                'date': self._parse_dux_date(dux_pago.get('fecha')),
-                'amount_total': float(dux_pago.get('importe', 0)),
-                'journal_suggested': 'Banco',
-                'dux_data': str(dux_pago),
-                'state': 'draft'
-            }
-            
-            self.env['dux.import.line'].create(line_vals)
-            
-        except Exception as e:
-            self._log('error', f'Error creando línea pago {dux_pago.get("id")}: {str(e)}')
-    
-    def _load_cobros_preview(self):
-        """Carga cobros en vista previa"""
-        self._log('info', 'Cargando cobros...')
         
+        if all_pagos:
+            batch_name = self.env['dux.import.batch'].generate_batch_name(
+                'pagos', self.fecha_desde, self.fecha_hasta
+            )
+            
+            batch = self.env['dux.import.batch'].create({
+                'batch_name': batch_name,
+                'connector_id': self.connector_id.id,
+                'data_type': 'pagos',
+                'fecha_desde': self.fecha_desde,
+                'fecha_hasta': self.fecha_hasta,
+                'batch_size': self.batch_size,
+                'raw_data_json': json.dumps(all_pagos),
+                'state': 'raw'
+            })
+            
+            self._log('info', f'Lote de pagos creado: {batch.batch_name} ({len(all_pagos)} registros)')
+            return batch
+        else:
+            self._log('warning', 'No se encontraron pagos en el rango especificado')
+            return None
+    
+    def _fetch_cobros_to_batch(self):
+        """Obtiene cobros y crea lote JSON"""
+        self._log('info', 'Obteniendo cobros desde Dux...')
+        
+        all_cobros = []
         offset = 0
+        
         while True:
             try:
                 response = self.connector_id.get_cobros(
@@ -452,129 +336,59 @@ class DuxImportWizard(models.TransientModel):
                 if not cobros:
                     break
                 
-                for cobro in cobros:
-                    self._create_cobro_line(cobro)
-                    self.total_processed += 1
-                
+                all_cobros.extend(cobros)
                 offset += self.batch_size
+                
                 if len(cobros) < self.batch_size:
                     break
                     
             except Exception as e:
-                self._log('error', f'Error cargando cobros: {str(e)}')
+                self._log('error', f'Error obteniendo cobros (offset {offset}): {str(e)}')
                 break
-    
-    def _create_cobro_line(self, dux_cobro):
-        """Crea línea de cobro en tabla intermedia"""
-        try:
-            line_vals = {
-                'wizard_id': self.id,
-                'tipo': 'cobro',
-                'dux_id': str(dux_cobro.get('id', '')),
-                'dux_numero': dux_cobro.get('numero', ''),
-                'dux_tipo_comprobante': 'Cobro',
-                'partner_name': dux_cobro.get('cliente', {}).get('razonSocial', ''),
-                'partner_vat': dux_cobro.get('cliente', {}).get('cuit', ''),
-                'date': self._parse_dux_date(dux_cobro.get('fecha')),
-                'amount_total': float(dux_cobro.get('importe', 0)),
-                'journal_suggested': 'Banco',
-                'dux_data': str(dux_cobro),
-                'state': 'draft'
-            }
-            
-            self.env['dux.import.line'].create(line_vals)
-            
-        except Exception as e:
-            self._log('error', f'Error creando línea cobro {dux_cobro.get("id")}: {str(e)}')
-    
-    def _map_dux_type_to_journal(self, dux_type, operation_type):
-        """Mapea tipo Dux a nombre de diario sugerido"""
-        mapping = {
-            'venta': {
-                'COMPROBANTE_VENTA': 'Comprobante de Venta',
-                'FACTURA': 'Facturas de Ventas',
-                'FACTURA_CREDITO_ELECTRONICA_MIPYMES': 'Facturas de Ventas'
-            },
-            'compra': {
-                'COMPROBANTE_COMPRA': 'Comprobantes de Compra',
-                'FACTURA': 'Facturas de Proveedores FISCAL'
-            }
-        }
         
-        return mapping.get(operation_type, {}).get(dux_type, 'Sin mapear')
-    
-    def _parse_dux_date(self, date_str):
-        """Convierte fecha de Dux a date"""
-        if not date_str:
-            return fields.Date.today()
-        
-        try:
-            from datetime import datetime
-            # Manejar formato específico de Dux "Jun 1, 2023 3:00:00 AM"
-            if 'AM' in str(date_str) or 'PM' in str(date_str):
-                date_part = str(date_str).split(' ')[:3]  # "Jun 1, 2023"
-                date_clean = ' '.join(date_part)
-                dt = datetime.strptime(date_clean, '%b %d, %Y')
-                return dt.date()
+        if all_cobros:
+            batch_name = self.env['dux.import.batch'].generate_batch_name(
+                'cobros', self.fecha_desde, self.fecha_hasta
+            )
             
-            # Otros formatos
-            for fmt in ['%Y-%m-%d', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S']:
-                try:
-                    dt = datetime.strptime(str(date_str).split(' ')[0], fmt)
-                    return dt.date()
-                except ValueError:
-                    continue
-            return fields.Date.today()
-        except:
-            return fields.Date.today()
+            batch = self.env['dux.import.batch'].create({
+                'batch_name': batch_name,
+                'connector_id': self.connector_id.id,
+                'data_type': 'cobros',
+                'fecha_desde': self.fecha_desde,
+                'fecha_hasta': self.fecha_hasta,
+                'batch_size': self.batch_size,
+                'raw_data_json': json.dumps(all_cobros),
+                'state': 'raw'
+            })
+            
+            self._log('info', f'Lote de cobros creado: {batch.batch_name} ({len(all_cobros)} registros)')
+            return batch
+        else:
+            self._log('warning', 'No se encontraron cobros en el rango especificado')
+            return None
     
-    def _clear_lines(self):
-        """Limpia líneas anteriores"""
-        self.line_ids.unlink()
-    
-    def _show_preview(self):
-        """Muestra vista previa de datos"""
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Vista Previa Importación',
-            'res_model': 'dux.import.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {'show_preview': True}
-        }
-
-    def _import_clientes(self):
-        """Importa clientes desde Dux"""
-        self._log('info', 'Iniciando importación de clientes...')
+    def _fetch_clientes_to_batch(self):
+        """Obtiene clientes y crea lote JSON"""
+        self._log('info', 'Obteniendo clientes desde Dux...')
         
+        all_clientes = []
         offset = 0
-        mapper = self.env['dux.data.mapper']
         
         while True:
             try:
-                # Obtener lote de clientes
                 response = self.connector_id.get_clientes(
-                    limit=self.batch_size, 
+                    limit=self.batch_size,
                     offset=offset
                 )
                 
-                clientes = response.get('data', [])
+                clientes = response.get('data', []) if isinstance(response, dict) else response
                 if not clientes:
                     break
                 
-                for cliente in clientes:
-                    try:
-                        self._process_cliente(cliente, mapper)
-                        self.total_processed += 1
-                        
-                    except Exception as e:
-                        self.total_errors += 1
-                        self._log('error', f'Error procesando cliente {cliente.get("id")}: {str(e)}')
-                
+                all_clientes.extend(clientes)
                 offset += self.batch_size
                 
-                # Evitar bucle infinito
                 if len(clientes) < self.batch_size:
                     break
                     
@@ -582,39 +396,30 @@ class DuxImportWizard(models.TransientModel):
                 self._log('error', f'Error obteniendo clientes (offset {offset}): {str(e)}')
                 break
         
-        self._log('info', f'Clientes procesados: {self.total_processed}')
-
-    def _process_cliente(self, dux_cliente, mapper):
-        """Procesa un cliente individual"""
-        # Mapear datos
-        partner_data = mapper.map_cliente_to_partner(dux_cliente)
+        if all_clientes:
+            batch_name = self.env['dux.import.batch'].generate_batch_name('clientes')
+            
+            batch = self.env['dux.import.batch'].create({
+                'batch_name': batch_name,
+                'connector_id': self.connector_id.id,
+                'data_type': 'clientes',
+                'batch_size': self.batch_size,
+                'raw_data_json': json.dumps(all_clientes),
+                'state': 'raw'
+            })
+            
+            self._log('info', f'Lote de clientes creado: {batch.batch_name} ({len(all_clientes)} registros)')
+            return batch
+        else:
+            self._log('warning', 'No se encontraron clientes')
+            return None
+    
+    def _fetch_productos_to_batch(self):
+        """Obtiene productos y crea lote JSON"""
+        self._log('info', 'Obteniendo productos desde Dux...')
         
-        if self.import_mode == 'test':
-            self._log('info', f'[TEST] Cliente: {partner_data.get("name")} - {partner_data.get("vat")}')
-            return
-        
-        # Buscar cliente existente
-        existing = None
-        if dux_cliente.get('cuit'):
-            existing = self.env['res.partner'].search([
-                ('vat', '=', dux_cliente['cuit'])
-            ], limit=1)
-        
-        if existing and self.update_existing:
-            existing.write(partner_data)
-            self.total_updated += 1
-            self._log('info', f'Cliente actualizado: {partner_data["name"]}')
-        elif not existing:
-            partner = self.env['res.partner'].create(partner_data)
-            self.total_created += 1
-            self._log('info', f'Cliente creado: {partner.name}')
-
-    def _import_productos(self):
-        """Importa productos desde Dux"""
-        self._log('info', 'Iniciando importación de productos...')
-        
+        all_productos = []
         offset = 0
-        mapper = self.env['dux.data.mapper']
         
         while True:
             try:
@@ -623,19 +428,11 @@ class DuxImportWizard(models.TransientModel):
                     offset=offset
                 )
                 
-                productos = response.get('data', [])
+                productos = response.get('data', []) if isinstance(response, dict) else response
                 if not productos:
                     break
                 
-                for producto in productos:
-                    try:
-                        self._process_producto(producto, mapper)
-                        self.total_processed += 1
-                        
-                    except Exception as e:
-                        self.total_errors += 1
-                        self._log('error', f'Error procesando producto {producto.get("id")}: {str(e)}')
-                
+                all_productos.extend(productos)
                 offset += self.batch_size
                 
                 if len(productos) < self.batch_size:
@@ -644,190 +441,89 @@ class DuxImportWizard(models.TransientModel):
             except Exception as e:
                 self._log('error', f'Error obteniendo productos (offset {offset}): {str(e)}')
                 break
-
-    def _process_producto(self, dux_producto, mapper):
-        """Procesa un producto individual"""
-        product_data = mapper.map_producto_to_product(dux_producto)
         
-        if self.import_mode == 'test':
-            self._log('info', f'[TEST] Producto: {product_data.get("name")} - {product_data.get("default_code")}')
-            return
-        
-        # Buscar producto existente por código
-        existing = None
-        if dux_producto.get('codigo'):
-            existing = self.env['product.product'].search([
-                ('default_code', '=', dux_producto['codigo'])
-            ], limit=1)
-        
-        if existing and self.update_existing:
-            existing.write(product_data)
-            self.total_updated += 1
-            self._log('info', f'Producto actualizado: {product_data["name"]}')
-        elif not existing:
-            product = self.env['product.product'].create(product_data)
-            self.total_created += 1
-            self._log('info', f'Producto creado: {product.name}')
-
-    def _import_ventas(self):
-        """Importa ventas desde Dux"""
-        self._log('info', 'Iniciando importación de ventas...')
-        
-        offset = 0
-        mapper = self.env['dux.data.mapper']
-        
-        while True:
-            try:
-                response = self.connector_id.get_ventas(
-                    fecha_desde=self.fecha_desde,
-                    fecha_hasta=self.fecha_hasta,
-                    limit=self.batch_size,
-                    offset=offset
-                )
-                
-                ventas = response.get('data', [])
-                if not ventas:
-                    break
-                
-                for venta in ventas:
-                    try:
-                        self._process_venta(venta, mapper)
-                        self.total_processed += 1
-                        
-                    except Exception as e:
-                        self.total_errors += 1
-                        self._log('error', f'Error procesando venta {venta.get("numero")}: {str(e)}')
-                
-                offset += self.batch_size
-                
-                if len(ventas) < self.batch_size:
-                    break
-                    
-            except Exception as e:
-                self._log('error', f'Error obteniendo ventas (offset {offset}): {str(e)}')
-                break
-
-    def _process_venta(self, dux_venta, mapper):
-        """Procesa una venta individual"""
-        if self.import_mode == 'test':
-            self._log('info', f'[TEST] Venta: {dux_venta.get("numero")} - {dux_venta.get("fecha")}')
-            return
-        
-        sale_data = mapper.map_venta_to_sale_order(dux_venta)
-        sale_order = self.env['sale.order'].create(sale_data)
-        self.total_created += 1
-        self._log('info', f'Venta creada: {sale_order.name}')
-
-    def _import_compras(self):
-        """Importa compras desde Dux"""
-        self._log('info', 'Iniciando importación de compras...')
-        
-        offset = 0
-        mapper = self.env['dux.data.mapper']
-        
-        while True:
-            try:
-                response = self.connector_id.get_compras(
-                    fecha_desde=self.fecha_desde,
-                    fecha_hasta=self.fecha_hasta,
-                    limit=self.batch_size,
-                    offset=offset
-                )
-                
-                compras = response.get('data', [])
-                if not compras:
-                    break
-                
-                for compra in compras:
-                    try:
-                        self._process_compra(compra, mapper)
-                        self.total_processed += 1
-                        
-                    except Exception as e:
-                        self.total_errors += 1
-                        self._log('error', f'Error procesando compra {compra.get("numero")}: {str(e)}')
-                
-                offset += self.batch_size
-                
-                if len(compras) < self.batch_size:
-                    break
-                    
-            except Exception as e:
-                self._log('error', f'Error obteniendo compras (offset {offset}): {str(e)}')
-                break
-
-    def _process_compra(self, dux_compra, mapper):
-        """Procesa una compra individual"""
-        if self.import_mode == 'test':
-            self._log('info', f'[TEST] Compra: {dux_compra.get("numero")} - {dux_compra.get("fecha")}')
-            return
-        
-        # Buscar proveedor
-        proveedor = mapper._find_partner_by_dux_id(dux_compra.get('proveedor_id'))
-        if not proveedor:
-            self._log('warning', f'Proveedor no encontrado para compra {dux_compra.get("numero")}')
-            return
-        
-        purchase_data = {
-            'partner_id': proveedor.id,
-            'date_order': mapper._parse_date(dux_compra.get('fecha')),
-            'partner_ref': dux_compra.get('numero'),
-            'notes': f"Importado desde Dux - ID: {dux_compra.get('id')}",
-        }
-        
-        # Crear orden de compra
-        purchase_order = self.env['purchase.order'].create(purchase_data)
-        self.total_created += 1
-        self._log('info', f'Compra creada: {purchase_order.name}')
-
-    def _update_stock(self):
-        """Actualiza stock desde Dux"""
-        self._log('info', 'Iniciando actualización de stock...')
-        
-        if self.import_mode == 'test':
-            self._log('info', '[TEST] Actualización de stock simulada')
-            return
-        
-        try:
-            response = self.connector_id.get_stock()
-            stock_data = response.get('data', [])
+        if all_productos:
+            batch_name = self.env['dux.import.batch'].generate_batch_name('productos')
             
-            for item in stock_data:
-                try:
-                    product = self.env['product.product'].search([
-                        ('default_code', '=', item.get('codigo_producto'))
-                    ], limit=1)
-                    
-                    if product:
-                        # Actualizar stock usando inventario
-                        inventory = self.env['stock.quant'].search([
-                            ('product_id', '=', product.id),
-                            ('location_id.usage', '=', 'internal')
-                        ], limit=1)
-                        
-                        new_qty = float(item.get('cantidad', 0))
-                        if inventory:
-                            inventory.quantity = new_qty
-                        else:
-                            # Crear nuevo registro de stock
-                            self.env['stock.quant'].create({
-                                'product_id': product.id,
-                                'location_id': self.env.ref('stock.stock_location_stock').id,
-                                'quantity': new_qty,
-                            })
-                        
-                        self.total_updated += 1
-                        self._log('info', f'Stock actualizado para {product.name}: {new_qty}')
-                    else:
-                        self._log('warning', f'Producto no encontrado: {item.get("codigo_producto")}')
-                        
-                except Exception as e:
-                    self.total_errors += 1
-                    self._log('error', f'Error actualizando stock {item.get("codigo_producto")}: {str(e)}')
-                    
-        except Exception as e:
-            self._log('error', f'Error obteniendo datos de stock: {str(e)}')
-
+            batch = self.env['dux.import.batch'].create({
+                'batch_name': batch_name,
+                'connector_id': self.connector_id.id,
+                'data_type': 'productos',
+                'batch_size': self.batch_size,
+                'raw_data_json': json.dumps(all_productos),
+                'state': 'raw'
+            })
+            
+            self._log('info', f'Lote de productos creado: {batch.batch_name} ({len(all_productos)} registros)')
+            return batch
+        else:
+            self._log('warning', 'No se encontraron productos')
+            return None
+    
+    def _process_existing_batches(self):
+        """Procesa lotes existentes seleccionados"""
+        if not self.available_batch_ids:
+            raise UserError('Debe seleccionar al menos un lote para procesar')
+        
+        self._log('info', f'Procesando {len(self.available_batch_ids)} lotes seleccionados...')
+        
+        for batch in self.available_batch_ids:
+            try:
+                batch.action_process_batch()
+                self.total_processed += batch.processed_count
+                self.total_errors += batch.error_count
+                self._log('info', f'Lote procesado: {batch.batch_name}')
+            except Exception as e:
+                self.total_errors += 1
+                self._log('error', f'Error procesando lote {batch.batch_name}: {str(e)}')
+        
+        self.state = 'done'
+        return self._show_processing_results()
+    
+    def _process_created_batches(self):
+        """Procesa lotes creados en esta sesión"""
+        if not self.created_batch_ids:
+            self._log('warning', 'No hay lotes creados para procesar')
+            return self._show_processing_results()
+        
+        self._log('info', f'Procesando {len(self.created_batch_ids)} lotes creados...')
+        
+        for batch in self.created_batch_ids:
+            try:
+                batch.action_process_batch()
+                self.total_processed += batch.processed_count
+                self.total_errors += batch.error_count
+                self._log('info', f'Lote procesado: {batch.batch_name}')
+            except Exception as e:
+                self.total_errors += 1
+                self._log('error', f'Error procesando lote {batch.batch_name}: {str(e)}')
+        
+        self.state = 'done'
+        return self._show_processing_results()
+    
+    def _show_batch_results(self, batches):
+        """Muestra resultados de lotes creados"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Lotes Creados',
+            'res_model': 'dux.import.batch',
+            'view_mode': 'tree,form',
+            'domain': [('id', 'in', batches.ids)],
+            'context': {'default_connector_id': self.connector_id.id}
+        }
+    
+    def _show_processing_results(self):
+        """Muestra resultados del procesamiento"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Resultados de Importación',
+            'res_model': 'dux.import.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'show_results': True}
+        }
+    
     def _log(self, level, message):
         """Registra un log de la importación"""
         self.env['dux.import.log'].create({
@@ -852,18 +548,6 @@ class DuxImportWizard(models.TransientModel):
         self.total_created = 0
         self.total_updated = 0
         self.total_errors = 0
-
-    def _show_results(self):
-        """Muestra los resultados de la importación"""
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Resultados de Importación',
-            'res_model': 'dux.import.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {'show_results': True}
-        }
 
     def action_view_logs(self):
         """Abre la vista de logs"""

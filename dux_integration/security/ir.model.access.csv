@@ -8,3 +8,5 @@ access_dux_import_log_user,dux.import.log.user,model_dux_import_log,base.group_u
 access_dux_import_line_user,dux.import.line.user,model_dux_import_line,base.group_user,1,1,1,1
 access_dux_journal_mapper_user,dux.journal.mapper.user,model_dux_journal_mapper,base.group_user,1,1,1,1
 access_dux_import_record_user,dux.import.record.user,model_dux_import_record,base.group_user,1,1,1,1
+access_dux_import_batch_user,dux.import.batch.user,model_dux_import_batch,base.group_user,1,1,1,1
+access_dux_import_batch_manager,dux.import.batch.manager,model_dux_import_batch,base.group_system,1,1,1,1
