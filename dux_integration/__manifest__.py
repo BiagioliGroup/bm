@@ -7,17 +7,15 @@
         
         Características:
         * Conexión segura con API de Dux
-        * Sistema de lotes para evitar rate limiting
         * Mapeo automático de datos
-        * Importación por lotes con gestión intermedia
+        * Importación por lotes
         * Logs detallados del proceso
         * Validación de integridad de datos
-        * Procesamiento en dos fases: obtención y procesamiento
     """,
     'author': 'Tu Empresa',
     'website': 'https://www.tuempresa.com',
     'category': 'Technical',
-    'version': '1.1.0',
+    'version': '1.0.0',
     'depends': [
         'base',
         'contacts',
@@ -36,7 +34,6 @@
     'external_dependencies': {
         'python': ['requests', 'python-dateutil'],
     },
-    
     'installable': True,
     'application': False,
     'auto_install': False,
