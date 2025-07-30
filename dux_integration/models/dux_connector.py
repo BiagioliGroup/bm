@@ -136,11 +136,31 @@ class DuxConnector(models.Model):
     def get_ventas(self, fecha_desde=None, fecha_hasta=None, limit=100, offset=0):
         """Obtiene ventas desde Dux"""
         params = {'limit': limit, 'offset': offset}
+        
+        # Formatear fechas si se proporcionan
         if fecha_desde:
-            params['fechaDesde'] = fecha_desde
+            if isinstance(fecha_desde, str):
+                params['fechaDesde'] = fecha_desde
+            else:
+                params['fechaDesde'] = fecha_desde.strftime('%Y-%m-%d')
+        
         if fecha_hasta:
-            params['fechaHasta'] = fecha_hasta
-        return self._make_request('/WSERP/rest/services/facturas', params=params)
+            if isinstance(fecha_hasta, str):
+                params['fechaHasta'] = fecha_hasta  
+            else:
+                params['fechaHasta'] = fecha_hasta.strftime('%Y-%m-%d')
+        
+        # Log de parámetros enviados
+        import logging
+        _logger = logging.getLogger(__name__)
+        _logger.info(f"DUX API - get_ventas params: {params}")
+        
+        response = self._make_request('/WSERP/rest/services/facturas', params=params)
+        
+        # Log de respuesta recibida
+        _logger.info(f"DUX API - get_ventas response type: {type(response)}, content: {str(response)[:200]}...")
+        
+        return response
     
     def get_compras(self, fecha_desde=None, fecha_hasta=None, limit=100, offset=0):
         """Obtiene compras desde Dux"""
