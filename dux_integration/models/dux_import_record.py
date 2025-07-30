@@ -88,7 +88,22 @@ class DuxImportRecord(models.Model):
         """Crea account.move desde registro importado"""
         move_type = 'out_invoice' if self.tipo == 'venta' else 'in_invoice'
         
-        dux_data = eval(self.dux_data_json) if self.dux_data_json else {}
+        # Manejo seguro de datos JSON
+        try:
+            if self.dux_data_json:
+                # Limpiar JSON de valores problemáticos antes de procesarlo
+                dux_data_clean = self.dux_data_json.replace('null', '""')
+                dux_data_clean = dux_data_clean.replace('None', '""')
+                dux_data = eval(dux_data_clean)
+            else:
+                dux_data = {}
+        except Exception as e:
+            # Si falla el parsing, usar datos básicos
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error parseando JSON en record {self.id}: {str(e)}")
+            dux_data = {'sucursal': 'Error parsing JSON'}
+        
         sucursal_info = f"\nSucursal: {dux_data.get('sucursal', '')}" if dux_data.get('sucursal') else ""
         
         # Procesar líneas de factura
@@ -212,7 +227,20 @@ class DuxImportRecord(models.Model):
         payment_type = 'inbound' if self.tipo == 'cobro' else 'outbound'
         partner_type = 'customer' if self.tipo == 'cobro' else 'supplier'
         
-        dux_data = eval(self.dux_data_json) if self.dux_data_json else {}
+        # Manejo seguro de datos JSON
+        try:
+            if self.dux_data_json:
+                dux_data_clean = self.dux_data_json.replace('null', '""')
+                dux_data_clean = dux_data_clean.replace('None', '""')
+                dux_data = eval(dux_data_clean)
+            else:
+                dux_data = {}
+        except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error parseando JSON en payment record {self.id}: {str(e)}")
+            dux_data = {}
+        
         sucursal_info = f" - Sucursal: {dux_data.get('sucursal', '')}" if dux_data.get('sucursal') else ""
         
         payment_vals = {
