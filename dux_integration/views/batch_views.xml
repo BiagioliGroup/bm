@@ -96,22 +96,6 @@
         </field>
     </record>
     
-    <!-- Acción para lotes -->
-    <record id="action_dux_import_batch" model="ir.actions.act_window">
-        <field name="name">Lotes de Importación</field>
-        <field name="res_model">dux.import.batch</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No hay lotes de importación
-            </p>
-            <p>
-                Los lotes de datos JSON aparecerán aquí para ser procesados.
-                Use el asistente de importación para crear nuevos lotes.
-            </p>
-        </field>
-    </record>
-    
     <!-- Filtros para lotes -->
     <record id="view_dux_import_batch_search" model="ir.ui.view">
         <field name="name">dux.import.batch.search</field>

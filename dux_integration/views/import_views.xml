@@ -82,7 +82,138 @@
         <field name="name">Importar desde Dux</field>
         <field name="res_model">dux.import.wizard</field>
         <field name="view_mode">form</field>
+        <field name="view_id" ref="view_dux_import_wizard_form_updated"/>
         <field name="target">new</field>
+    </record>
+    
+    <!-- Vista formulario del wizard de importación actualizada -->
+    <record id="view_dux_import_wizard_form_updated" model="ir.ui.view">
+        <field name="name">dux.import.wizard.form.updated</field>
+        <field name="model">dux.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importación Dux Software">
+                <header>
+                    <button name="action_import" string="Ejecutar" 
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,running,done"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="connector_id" placeholder="Seleccionar conexión Dux..."/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Configuración General">
+                            <field name="import_mode" widget="radio"/>
+                            <field name="batch_size"/>
+                            <field name="update_existing"/>
+                        </group>
+                        
+                        <group string="Datos a Importar" invisible="import_mode == 'process_batches'">
+                            <field name="import_clientes"/>
+                            <field name="import_productos"/>
+                            <field name="import_ventas"/>
+                            <field name="import_compras"/>
+                            <field name="import_pagos"/>
+                            <field name="import_cobros"/>
+                            <field name="import_stock"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Filtros de Fecha" 
+                        invisible="not (import_ventas or import_compras or import_pagos or import_cobros) or import_mode == 'process_batches'">
+                        <group>
+                            <field name="fecha_desde"/>
+                            <field name="fecha_hasta"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Selección de lotes existentes -->
+                    <group string="Lotes a Procesar" invisible="import_mode != 'process_batches'">
+                        <field name="available_batch_ids" widget="many2many_tags" 
+                               domain="[('state', '=', 'raw')]"/>
+                    </group>
+                    
+                    <!-- Estadísticas -->
+                    <group string="Resultados" invisible="state == 'draft'">
+                        <group>
+                            <field name="total_processed" readonly="1"/>
+                            <field name="total_created" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="total_updated" readonly="1"/>
+                            <field name="total_errors" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Lotes creados -->
+                    <group string="Lotes Creados" invisible="not created_batch_ids">
+                        <field name="created_batch_ids" readonly="1">
+                            <list>
+                                <field name="batch_name"/>
+                                <field name="data_type"/>
+                                <field name="total_records"/>
+                                <field name="state"/>
+                                <button name="action_process_batch" string="Procesar" type="object" 
+                                        icon="fa-play" invisible="state != 'raw'"/>
+                            </list>
+                        </field>
+                    </group>
+                    
+                    <!-- Logs de proceso -->
+                    <notebook>
+                        <page string="Logs de Proceso">
+                            <field name="log_ids" readonly="1">
+                                <list decoration-danger="level=='error'" 
+                                    decoration-warning="level=='warning'"
+                                    decoration-info="level=='info'">
+                                    <field name="timestamp"/>
+                                    <field name="level"/>
+                                    <field name="message"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vista de logs -->
+    <record id="view_dux_import_log_tree" model="ir.ui.view">
+        <field name="name">dux.import.log.tree</field>
+        <field name="model">dux.import.log</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="level=='error'" 
+                decoration-warning="level=='warning'"
+                decoration-info="level=='info'">
+                <field name="timestamp"/>
+                <field name="level"/>
+                <field name="message"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="view_dux_import_log_form" model="ir.ui.view">
+        <field name="name">dux.import.log.form</field>
+        <field name="model">dux.import.log</field>
+        <field name="arch" type="xml">
+            <form string="Log de Importación">
+                <sheet>
+                    <group>
+                        <field name="timestamp"/>
+                        <field name="level"/>
+                    </group>
+                    <group>
+                        <field name="message" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
     </record>
     
     <!-- Menú principal -->
@@ -147,6 +278,22 @@
               parent="menu_dux_import" 
               action="action_dux_import_wizard" 
               sequence="10"/>
+    
+    <!-- Acción para lotes de importación (movida desde batch_views.xml) -->
+    <record id="action_dux_import_batch" model="ir.actions.act_window">
+        <field name="name">Lotes de Importación</field>
+        <field name="res_model">dux.import.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay lotes de importación
+            </p>
+            <p>
+                Los lotes de datos JSON aparecerán aquí para ser procesados.
+                Use el asistente de importación para crear nuevos lotes.
+            </p>
+        </field>
+    </record>
     
     <!-- Acción para lotes de importación -->
     <menuitem id="menu_dux_import_batches" 
