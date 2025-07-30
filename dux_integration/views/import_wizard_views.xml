@@ -45,7 +45,7 @@
                     </group>
                     
                     <group string="Filtros de Fecha" 
-                           invisible="not (import_ventas or import_compras or import_pagos or import_cobros)">
+                        invisible="not (import_ventas or import_compras or import_pagos or import_cobros)">
                         <group>
                             <field name="fecha_desde"/>
                             <field name="fecha_hasta"/>
@@ -70,8 +70,8 @@
                             <field name="line_ids">
                                 <list editable="bottom">
                                     <field name="state" decoration-success="state=='validated'" 
-                                           decoration-danger="state=='error'" 
-                                           decoration-info="state=='draft'"/>
+                                        decoration-danger="state=='error'" 
+                                        decoration-info="state=='draft'"/>
                                     <field name="tipo"/>
                                     <field name="dux_numero"/>
                                     <field name="dux_tipo_comprobante"/>
@@ -91,8 +91,8 @@
                         <page string="Logs de Proceso">
                             <field name="log_ids" readonly="1">
                                 <list decoration-danger="level=='error'" 
-                                      decoration-warning="level=='warning'"
-                                      decoration-info="level=='info'">
+                                    decoration-warning="level=='warning'"
+                                    decoration-info="level=='info'">
                                     <field name="timestamp"/>
                                     <field name="level"/>
                                     <field name="message"/>
@@ -106,8 +106,8 @@
                         <page string="Logs de Proceso">
                             <field name="log_ids" readonly="1">
                                 <list decoration-danger="level=='error'" 
-                                      decoration-warning="level=='warning'"
-                                      decoration-info="level=='info'">
+                                    decoration-warning="level=='warning'"
+                                    decoration-info="level=='info'">
                                     <field name="timestamp"/>
                                     <field name="level"/>
                                     <field name="message"/>
@@ -126,8 +126,8 @@
         <field name="model">dux.import.log</field>
         <field name="arch" type="xml">
             <list decoration-danger="level=='error'" 
-                  decoration-warning="level=='warning'"
-                  decoration-info="level=='info'">
+                decoration-warning="level=='warning'"
+                decoration-info="level=='info'">
                 <field name="timestamp"/>
                 <field name="level"/>
                 <field name="message"/>

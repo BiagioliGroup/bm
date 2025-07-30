@@ -292,6 +292,8 @@ class DuxImportWizard(models.TransientModel):
             return "\n".join(lineas)
             
         except Exception as e:
+            return f"Error procesando detalles: {str(e)}"
+            
     def _process_detail_cobros(self, detalles_cobro):
         """Procesa detalles de cobro y retorna formato estructurado"""
         if not detalles_cobro:
