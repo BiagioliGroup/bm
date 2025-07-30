@@ -283,4 +283,5 @@ class DuxImportRecord(models.Model):
                 'res_id': self.payment_id.id,
                 'view_mode': 'form',
                 'target': 'current',
+                
             }
