@@ -210,7 +210,7 @@
         <field name="name">dux.import.record.tree</field>
         <field name="model">dux.import.record</field>
         <field name="arch" type="xml">
-            <tree decoration-success="state=='processed'" 
+            <list decoration-success="state=='processed'" 
                   decoration-danger="state=='error'"
                   decoration-info="state=='imported'">
                 <field name="import_date"/>
@@ -227,7 +227,7 @@
                         icon="fa-play" invisible="state != 'imported'"/>
                 <button name="action_view_document" string="Ver Doc" type="object" 
                         icon="fa-external-link" invisible="not (move_id or payment_id)"/>
-            </tree>
+            </list>
         </field>
     </record>
     
