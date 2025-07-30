@@ -220,31 +220,50 @@ class DuxJournalMapper(models.Model):
     journal_id = fields.Many2one('account.journal', 'Diario Odoo', required=True)
     active = fields.Boolean('Activo', default=True)
     
+    @api.model
     def get_journal_for_dux_type(self, dux_type, operation_type):
         """Obtiene el diario correspondiente"""
-        mapper = self.search([
-            ('dux_type', '=', dux_type),
-            ('operation_type', '=', operation_type),
-            ('active', '=', True)
-        ], limit=1)
-        
-        if mapper:
-            return mapper.journal_id
-        
-        # Mapeo por defecto si no existe configuración
-        return self._get_default_journal(operation_type)
+        try:
+            mapper = self.search([
+                ('dux_type', '=', dux_type),
+                ('operation_type', '=', operation_type),
+                ('active', '=', True)
+            ], limit=1)
+            
+            if mapper:
+                return mapper.journal_id
+            
+            # Mapeo por defecto si no existe configuración
+            return self._get_default_journal(operation_type)
+            
+        except Exception as e:
+            # Log del error y devolver diario por defecto
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error obteniendo journal para {dux_type}/{operation_type}: {str(e)}")
+            return self._get_default_journal(operation_type)
     
+    @api.model
     def _get_default_journal(self, operation_type):
         """Obtiene diario por defecto según operación"""
-        if operation_type == 'venta':
-            return self.env['account.journal'].search([
-                ('type', '=', 'sale')
-            ], limit=1)
-        elif operation_type == 'compra':
-            return self.env['account.journal'].search([
-                ('type', '=', 'purchase')
-            ], limit=1)
-        else:
-            return self.env['account.journal'].search([
-                ('type', '=', 'bank')
-            ], limit=1)
+        try:
+            if operation_type == 'venta':
+                journal = self.env['account.journal'].search([
+                    ('type', '=', 'sale')
+                ], limit=1)
+            elif operation_type == 'compra':
+                journal = self.env['account.journal'].search([
+                    ('type', '=', 'purchase')
+                ], limit=1)
+            else:
+                journal = self.env['account.journal'].search([
+                    ('type', '=', 'bank')
+                ], limit=1)
+            
+            return journal if journal else False
+            
+        except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error obteniendo diario por defecto para {operation_type}: {str(e)}")
+            return False

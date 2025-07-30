@@ -118,15 +118,31 @@ class DuxImportRecord(models.Model):
         
         try:
             import json
-            detalles = json.loads(detalles_json)
+            
+            # Manejo seguro de JSON con valores null
+            if not detalles_json or detalles_json in ['null', 'None', None]:
+                detalles_json = '[]'
+            
+            # Limpiar JSON de valores problemáticos
+            if isinstance(detalles_json, str):
+                # Reemplazar null con valor por defecto
+                detalles_json_clean = detalles_json.replace('null', '""')
+                detalles_json_clean = detalles_json_clean.replace('None', '""')
+                detalles = json.loads(detalles_json_clean)
+            else:
+                detalles = detalles_json if isinstance(detalles_json, list) else []
             
             for detalle in detalles:
-                cod_item = detalle.get('cod_item', '')
-                item_desc = detalle.get('item', '')
-                comentarios = detalle.get('comentarios', '')
-                cantidad = float(detalle.get('ctd', 1))
-                precio_uni = float(detalle.get('precio_uni', 0))
-                porc_iva = float(detalle.get('porc_iva', 0))
+                if not isinstance(detalle, dict):
+                    continue
+                    
+                # Extraer datos con valores por defecto seguros
+                cod_item = detalle.get('cod_item') or ''
+                item_desc = detalle.get('item') or ''
+                comentarios = detalle.get('comentarios') or ''
+                cantidad = float(detalle.get('ctd') or 1)
+                precio_uni = float(detalle.get('precio_uni') or 0)
+                porc_iva = float(detalle.get('porc_iva') or 0)
                 
                 # Buscar producto por código
                 product = self.env['product.product'].search([
@@ -165,9 +181,15 @@ class DuxImportRecord(models.Model):
                 lines.append((0, 0, line_vals))
                 
         except Exception as e:
+            # Log del error y crear línea simple como fallback
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error procesando líneas de factura: {str(e)}")
+            _logger.error(f"Datos problemáticos: {str(detalles_json)[:200]}...")
+            
             # Línea simple si falla el procesamiento
             lines.append((0, 0, {
-                'name': f'Importación Dux {self.dux_numero}',
+                'name': f'Importación Dux {self.dux_numero} (Error en detalles)',
                 'quantity': 1,
                 'price_unit': self.amount_total,
                 'account_id': self._get_default_account().id,
