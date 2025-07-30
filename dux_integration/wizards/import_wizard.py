@@ -28,8 +28,8 @@ class DuxImportWizard(models.TransientModel):
     import_stock = fields.Boolean('Actualizar Stock', default=False)
     
     # Opciones de importación
-    batch_size = fields.Integer('Tamaño de Lote', default=100, 
-                               help='Cantidad de registros a procesar por lote')
+    batch_size = fields.Integer('Tamaño de Lote', default=50, 
+                               help='Cantidad de registros a procesar por lote (máximo 50 para API Dux)')
     update_existing = fields.Boolean('Actualizar Existentes', default=True,
                                    help='Si está marcado, actualiza registros existentes')
     
@@ -59,6 +59,15 @@ class DuxImportWizard(models.TransientModel):
     # Lotes creados en esta sesión
     created_batch_ids = fields.Many2many('dux.import.batch', 'wizard_batch_created_rel',
                                         string='Lotes Creados', readonly=True)
+    
+    @api.constrains('batch_size')
+    def _check_batch_size(self):
+        """Valida que el tamaño de lote no exceda el límite de la API Dux"""
+        for record in self:
+            if record.batch_size > 50:
+                raise UserError('El tamaño de lote no puede ser mayor a 50 (limitación de API Dux)')
+            if record.batch_size < 1:
+                raise UserError('El tamaño de lote debe ser mayor a 0')
     
     @api.onchange('import_mode')
     def _onchange_import_mode(self):
@@ -190,13 +199,8 @@ class DuxImportWizard(models.TransientModel):
         all_ventas = []
         offset = 0
         
-        # Log de parámetros de búsqueda
-        self._log('info', f'Parámetros: fecha_desde={self.fecha_desde}, fecha_hasta={self.fecha_hasta}, batch_size={self.batch_size}')
-        
         while True:
             try:
-                self._log('info', f'Llamando API con offset={offset}')
-                
                 response = self.connector_id.get_ventas(
                     fecha_desde=self.fecha_desde,
                     fecha_hasta=self.fecha_hasta,
@@ -204,45 +208,29 @@ class DuxImportWizard(models.TransientModel):
                     offset=offset
                 )
                 
-                # DEBUG: Logear la respuesta completa
-                self._log('info', f'Respuesta API (tipo: {type(response)}): {str(response)[:500]}...')
-                
                 # Manejar diferentes estructuras de respuesta
                 if isinstance(response, dict):
                     ventas = response.get('data', response.get('results', response.get('items', [])))
-                    # Log adicional de la estructura
-                    self._log('info', f'Keys en respuesta dict: {list(response.keys()) if response else "None"}')
                 elif isinstance(response, list):
                     ventas = response
                 else:
                     ventas = []
-                    self._log('warning', f'Tipo de respuesta inesperado: {type(response)}')
-                
-                self._log('info', f'Ventas extraídas (tipo: {type(ventas)}): {len(ventas) if isinstance(ventas, list) else "No es lista"}')
                 
                 if not ventas:
-                    self._log('info', 'Sin más ventas, finalizando bucle')
                     break
-                
-                # Si hay ventas, loguear la primera como muestra
-                if ventas and isinstance(ventas, list) and len(ventas) > 0:
-                    self._log('info', f'Muestra de primera venta: {str(ventas[0])[:200]}...')
                 
                 all_ventas.extend(ventas)
                 offset += self.batch_size
                 
-                self._log('info', f'Acumuladas {len(all_ventas)} ventas total')
+                self._log('info', f'Obtenidas {len(ventas)} ventas (offset: {offset})')
                 
                 # Evitar bucle infinito
                 if len(ventas) < self.batch_size:
-                    self._log('info', f'Menos ventas que batch_size ({len(ventas)} < {self.batch_size}), finalizando')
                     break
                     
             except Exception as e:
-                self._log('error', f'Error en llamada API (offset {offset}): {str(e)}')
+                self._log('error', f'Error obteniendo ventas (offset {offset}): {str(e)}')
                 break
-        
-        self._log('info', f'Total ventas obtenidas: {len(all_ventas)}')
         
         if all_ventas:
             # Crear lote
