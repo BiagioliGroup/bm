@@ -156,36 +156,66 @@ class DuxImportBatch(models.Model):
     
     def _process_venta_record(self, dux_venta):
         """Procesa registro de venta hacia dux.import.record"""
-        # Extraer datos del cliente
-        cliente_nombre = f"{dux_venta.get('apellido_razon_soc', '')} {dux_venta.get('nombre', '')}".strip()
-        cliente_cuit = dux_venta.get('cuit', '')
-        numero_doc = self._format_dux_number(dux_venta.get('nro_pto_vta', ''), dux_venta.get('nro_comp', ''))
-        
-        # Buscar partner
-        partner = self._find_partner(cliente_cuit, cliente_nombre, dux_venta.get('apellido_razon_soc', ''))
-        
-        # Procesar detalles
-        detalle_lineas = self._process_detail_lines(dux_venta.get('detalles_json', ''))
-        detalle_cobros = self._process_detail_cobros(dux_venta.get('detalles_cobro', []))
-        
-        # Crear registro
-        import_record = self.env['dux.import.record'].create({
-            'batch_id': self.id,
-            'connector_id': self.connector_id.id,
-            'dux_id': str(dux_venta.get('id', '')),
-            'dux_numero': numero_doc,
-            'dux_tipo_comprobante': dux_venta.get('tipo_comp', ''),
-            'dux_data_json': json.dumps(dux_venta),
-            'tipo': 'venta',
-            'partner_id': partner.id if partner else False,
-            'date': self._parse_dux_date(dux_venta.get('fecha_comp')),
-            'amount_total': float(dux_venta.get('total', 0)),
-            'detalle_lineas': detalle_lineas,
-            'detalle_cobros': detalle_cobros,
-            'state': 'imported'
-        })
-        
-        return import_record
+        try:
+            # Manejar valores null de forma segura
+            def safe_get(data, key, default=''):
+                value = data.get(key, default)
+                return value if value is not None else default
+            
+            # Extraer datos del cliente con manejo seguro de null
+            apellido_razon_soc = safe_get(dux_venta, 'apellido_razon_soc', '')
+            nombre = safe_get(dux_venta, 'nombre', '')
+            cliente_nombre = f"{apellido_razon_soc} {nombre}".strip()
+            cliente_cuit = safe_get(dux_venta, 'cuit', '')
+            
+            # Formatear número de documento
+            nro_pto_vta = safe_get(dux_venta, 'nro_pto_vta', '0')
+            nro_comp = safe_get(dux_venta, 'nro_comp', '0')
+            numero_doc = self._format_dux_number(nro_pto_vta, nro_comp)
+            
+            # Buscar partner
+            partner = self._find_partner(cliente_cuit, cliente_nombre, apellido_razon_soc)
+            
+            # Procesar detalles con manejo seguro
+            detalles_json = safe_get(dux_venta, 'detalles_json', '[]')
+            detalles_cobro = dux_venta.get('detalles_cobro', [])
+            if detalles_cobro is None:
+                detalles_cobro = []
+            
+            detalle_lineas = self._process_detail_lines(detalles_json)
+            detalle_cobros = self._process_detail_cobros(detalles_cobro)
+            
+            # Obtener total con manejo seguro
+            total = dux_venta.get('total', 0)
+            if total is None:
+                total = 0
+            
+            # Crear registro
+            import_record = self.env['dux.import.record'].create({
+                'batch_id': self.id,
+                'connector_id': self.connector_id.id,
+                'dux_id': str(safe_get(dux_venta, 'id', '')),
+                'dux_numero': numero_doc,
+                'dux_tipo_comprobante': safe_get(dux_venta, 'tipo_comp', ''),
+                'dux_data_json': json.dumps(dux_venta, default=str),  # Convertir todo a string si hay problemas
+                'tipo': 'venta',
+                'partner_id': partner.id if partner else False,
+                'date': self._parse_dux_date(safe_get(dux_venta, 'fecha_comp', None)),
+                'amount_total': float(total),
+                'detalle_lineas': detalle_lineas,
+                'detalle_cobros': detalle_cobros,
+                'state': 'imported'
+            })
+            
+            return import_record
+            
+        except Exception as e:
+            # Log del error para debug
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error procesando venta {dux_venta.get('id', 'unknown')}: {str(e)}")
+            _logger.error(f"Datos de venta problemática: {str(dux_venta)[:500]}...")
+            raise
     
     def _process_compra_record(self, dux_compra):
         """Procesa registro de compra hacia dux.import.record"""
@@ -299,14 +329,31 @@ class DuxImportBatch(models.Model):
             return ""
         
         try:
-            detalles = json.loads(detalles_json)
+            # Manejar casos donde detalles_json puede ser null o string vacío
+            if detalles_json in [None, 'null', 'None', '']:
+                return ""
+            
+            # Si ya es un string que parece JSON, parsearlo
+            if isinstance(detalles_json, str):
+                # Reemplazar valores problemáticos antes de parsear
+                detalles_json_clean = detalles_json.replace('null', '""').replace('None', '""')
+                detalles = json.loads(detalles_json_clean)
+            else:
+                detalles = detalles_json
+            
+            if not isinstance(detalles, list):
+                return f"Formato inesperado: {type(detalles)}"
+            
             lineas = []
             
             for detalle in detalles:
-                cod_item = detalle.get('cod_item', '')
-                item = detalle.get('item', '')
-                cantidad = detalle.get('ctd', 0)
-                precio_uni = detalle.get('precio_uni', 0)
+                if not isinstance(detalle, dict):
+                    continue
+                    
+                cod_item = detalle.get('cod_item', '') or ''
+                item = detalle.get('item', '') or ''
+                cantidad = detalle.get('ctd', 0) or 0
+                precio_uni = detalle.get('precio_uni', 0) or 0
                 
                 linea = f"[{cod_item}] - [{item}] - [cantidad: {cantidad}] - [{precio_uni}]"
                 lineas.append(linea)
@@ -314,27 +361,45 @@ class DuxImportBatch(models.Model):
             return "\n".join(lineas)
             
         except Exception as e:
-            return f"Error procesando detalles: {str(e)}"
+            return f"Error procesando detalles: {str(e)} - Data: {str(detalles_json)[:100]}..."
     
     def _process_detail_cobros(self, detalles_cobro):
         """Procesa detalles de cobro y retorna formato estructurado"""
-        if not detalles_cobro:
+        if not detalles_cobro or detalles_cobro in [None, 'null', 'None']:
             return ""
         
         try:
+            # Si es string, intentar parsearlo
+            if isinstance(detalles_cobro, str):
+                detalles_cobro_clean = detalles_cobro.replace('null', '""').replace('None', '""')
+                detalles_cobro = json.loads(detalles_cobro_clean)
+            
+            if not isinstance(detalles_cobro, list):
+                return f"Formato inesperado: {type(detalles_cobro)}"
+            
             lineas = []
             
             for cobro in detalles_cobro:
-                punto_venta = cobro.get('numero_punto_de_venta', '')
-                comprobante = cobro.get('numero_comprobante', '')
-                personal = cobro.get('personal', '')
-                caja = cobro.get('caja', '')
+                if not isinstance(cobro, dict):
+                    continue
+                    
+                punto_venta = cobro.get('numero_punto_de_venta', '') or ''
+                comprobante = cobro.get('numero_comprobante', '') or ''
+                personal = cobro.get('personal', '') or ''
+                caja = cobro.get('caja', '') or ''
                 
-                movimientos = cobro.get('detalles_mov_cobro', [])
+                # Procesar movimientos de cobro
+                movimientos = cobro.get('detalles_mov_cobro', []) or []
+                if not isinstance(movimientos, list):
+                    movimientos = []
+                    
                 for mov in movimientos:
-                    tipo_valor = mov.get('tipo_de_valor', '')
-                    referencia = mov.get('referencia', '')
-                    monto = mov.get('monto', 0)
+                    if not isinstance(mov, dict):
+                        continue
+                        
+                    tipo_valor = mov.get('tipo_de_valor', '') or ''
+                    referencia = mov.get('referencia', '') or ''
+                    monto = mov.get('monto', 0) or 0
                     
                     linea = f"PV:{punto_venta} - Comp:{comprobante} - {personal} - {caja} - {tipo_valor} - ${monto}"
                     if referencia:
@@ -344,7 +409,7 @@ class DuxImportBatch(models.Model):
             return "\n".join(lineas)
             
         except Exception as e:
-            return f"Error procesando cobros: {str(e)}"
+            return f"Error procesando cobros: {str(e)} - Data: {str(detalles_cobro)[:100]}..."
     
     def _parse_dux_date(self, date_str):
         """Convierte fecha de Dux a date"""
