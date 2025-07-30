@@ -36,6 +36,7 @@
     'external_dependencies': {
         'python': ['requests', 'python-dateutil'],
     },
+    
     'installable': True,
     'application': False,
     'auto_install': False,
