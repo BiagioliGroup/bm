@@ -11,8 +11,7 @@ class DuxImportWizard(models.TransientModel):
     _description = 'Asistente de Importación Dux'
 
     # Configuración general
-    connector_id = fields.Many2one('dux.connector', 'Conexión Dux', required=True,
-                                  default=lambda self: self.env['dux.connector'].get_default_connector())
+    connector_id = fields.Many2one('dux.connector', 'Conexión Dux', required=True)
     import_mode = fields.Selection([
         ('fetch_only', 'Solo Obtener Datos (Crear Lotes)'),
         ('process_batches', 'Procesar Lotes Existentes'),
@@ -80,6 +79,9 @@ class DuxImportWizard(models.TransientModel):
             self._clear_logs()
             
             # Verificar conexión
+            if not self.connector_id:
+                raise UserError('Debe seleccionar una conexión Dux válida')
+            
             self.connector_id.test_connection()
             
             if self.import_mode == 'fetch_only':
@@ -89,11 +91,21 @@ class DuxImportWizard(models.TransientModel):
             elif self.import_mode == 'fetch_and_process':
                 self._fetch_data_to_batches()
                 return self._process_created_batches()
+            else:
+                raise UserError('Modo de importación no válido')
             
         except Exception as e:
             self.state = 'error'
             self._log('error', f'Error en importación: {str(e)}')
-            raise UserError(f"Error: {str(e)}")
+            # En lugar de raise, devolver el wizard actualizado
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'dux.import.wizard',
+                'res_id': self.id,
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'show_error': True}
+            }
     
     def _fetch_data_to_batches(self):
         """Obtiene datos de Dux y los guarda en lotes JSON"""
@@ -104,43 +116,65 @@ class DuxImportWizard(models.TransientModel):
         try:
             # Obtener ventas
             if self.import_ventas:
-                batch = self._fetch_ventas_to_batch()
-                if batch:
-                    created_batches |= batch
+                try:
+                    batch = self._fetch_ventas_to_batch()
+                    if batch:
+                        created_batches |= batch
+                except Exception as e:
+                    self._log('error', f'Error obteniendo ventas: {str(e)}')
             
             # Obtener compras
             if self.import_compras:
-                batch = self._fetch_compras_to_batch()
-                if batch:
-                    created_batches |= batch
+                try:
+                    batch = self._fetch_compras_to_batch()
+                    if batch:
+                        created_batches |= batch
+                except Exception as e:
+                    self._log('error', f'Error obteniendo compras: {str(e)}')
             
             # Obtener pagos
             if self.import_pagos:
-                batch = self._fetch_pagos_to_batch()
-                if batch:
-                    created_batches |= batch
+                try:
+                    batch = self._fetch_pagos_to_batch()
+                    if batch:
+                        created_batches |= batch
+                except Exception as e:
+                    self._log('error', f'Error obteniendo pagos: {str(e)}')
             
             # Obtener cobros
             if self.import_cobros:
-                batch = self._fetch_cobros_to_batch()
-                if batch:
-                    created_batches |= batch
+                try:
+                    batch = self._fetch_cobros_to_batch()
+                    if batch:
+                        created_batches |= batch
+                except Exception as e:
+                    self._log('error', f'Error obteniendo cobros: {str(e)}')
             
             # Obtener clientes (sin filtro de fechas)
             if self.import_clientes:
-                batch = self._fetch_clientes_to_batch()
-                if batch:
-                    created_batches |= batch
+                try:
+                    batch = self._fetch_clientes_to_batch()
+                    if batch:
+                        created_batches |= batch
+                except Exception as e:
+                    self._log('error', f'Error obteniendo clientes: {str(e)}')
             
             # Obtener productos (sin filtro de fechas)
             if self.import_productos:
-                batch = self._fetch_productos_to_batch()
-                if batch:
-                    created_batches |= batch
+                try:
+                    batch = self._fetch_productos_to_batch()
+                    if batch:
+                        created_batches |= batch
+                except Exception as e:
+                    self._log('error', f'Error obteniendo productos: {str(e)}')
             
             self.created_batch_ids = [(6, 0, created_batches.ids)]
             self.state = 'done'
-            self._log('info', f'Datos obtenidos exitosamente. {len(created_batches)} lotes creados.')
+            
+            if created_batches:
+                self._log('info', f'Datos obtenidos exitosamente. {len(created_batches)} lotes creados.')
+            else:
+                self._log('warning', 'No se crearon lotes. Verificar configuración y conectividad.')
             
             return self._show_batch_results(created_batches)
             
@@ -503,11 +537,22 @@ class DuxImportWizard(models.TransientModel):
     
     def _show_batch_results(self, batches):
         """Muestra resultados de lotes creados"""
+        if not batches:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Importación Completada',
+                'res_model': 'dux.import.wizard',
+                'res_id': self.id,
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'show_results': True}
+            }
+        
         return {
             'type': 'ir.actions.act_window',
             'name': 'Lotes Creados',
             'res_model': 'dux.import.batch',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('id', 'in', batches.ids)],
             'context': {'default_connector_id': self.connector_id.id}
         }
