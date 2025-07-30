@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista lista de conectores Dux -->
+    <!-- VISTAS DE CONECTORES -->
     <record id="view_dux_connector_tree" model="ir.ui.view">
         <field name="name">dux.connector.tree</field>
         <field name="model">dux.connector</field>
@@ -16,7 +16,6 @@
         </field>
     </record>
     
-    <!-- Vista formulario de conector Dux -->
     <record id="view_dux_connector_form" model="ir.ui.view">
         <field name="name">dux.connector.form</field>
         <field name="model">dux.connector</field>
@@ -60,35 +59,10 @@
             </form>
         </field>
     </record>
-    
-    <!-- Acción para conectores -->
-    <record id="action_dux_connector" model="ir.actions.act_window">
-        <field name="name">Conexiones Dux</field>
-        <field name="res_model">dux.connector</field>
-        <field name="view_mode">list,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Crear una nueva conexión con Dux Software
-            </p>
-            <p>
-                Configure las credenciales de API para conectarse con Dux Software
-                y realizar importaciones de datos.
-            </p>
-        </field>
-    </record>
-    
-    <!-- Acción del wizard de importación -->
-    <record id="action_dux_import_wizard" model="ir.actions.act_window">
-        <field name="name">Importar desde Dux</field>
-        <field name="res_model">dux.import.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_dux_import_wizard_form_updated"/>
-        <field name="target">new</field>
-    </record>
-    
-    <!-- Vista formulario del wizard de importación actualizada -->
-    <record id="view_dux_import_wizard_form_updated" model="ir.ui.view">
-        <field name="name">dux.import.wizard.form.updated</field>
+
+    <!-- VISTAS DE WIZARD -->
+    <record id="view_dux_import_wizard_form" model="ir.ui.view">
+        <field name="name">dux.import.wizard.form</field>
         <field name="model">dux.import.wizard</field>
         <field name="arch" type="xml">
             <form string="Importación Dux Software">
@@ -183,7 +157,7 @@
         </field>
     </record>
     
-    <!-- Vista de logs -->
+    <!-- VISTAS DE LOGS -->
     <record id="view_dux_import_log_tree" model="ir.ui.view">
         <field name="name">dux.import.log.tree</field>
         <field name="model">dux.import.log</field>
@@ -215,24 +189,8 @@
             </form>
         </field>
     </record>
-    
-    <!-- Menú principal -->
-    <menuitem id="menu_dux_integration_root" 
-              name="Dux Integration" 
-              sequence="100"/>
-    
-    <menuitem id="menu_dux_configuration" 
-              name="Configuración"
-              parent="menu_dux_integration_root" 
-              sequence="10"/>
-    
-    <menuitem id="menu_dux_connectors" 
-              name="Conexiones Dux"
-              parent="menu_dux_configuration" 
-              action="action_dux_connector" 
-              sequence="10"/>
-    
-    <!-- Vistas para mapeo de diarios -->
+
+    <!-- VISTAS DE MAPEO DE DIARIOS -->
     <record id="view_dux_journal_mapper_tree" model="ir.ui.view">
         <field name="name">dux.journal.mapper.tree</field>
         <field name="model">dux.journal.mapper</field>
@@ -246,63 +204,8 @@
             </list>
         </field>
     </record>
-    
-    <record id="action_dux_journal_mapper" model="ir.actions.act_window">
-        <field name="name">Mapeo de Diarios</field>
-        <field name="res_model">dux.journal.mapper</field>
-        <field name="view_mode">list,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Configurar mapeo de diarios Dux → Odoo
-            </p>
-            <p>
-                Define cómo mapear los tipos de comprobante de Dux Software 
-                a los diarios contables de Odoo.
-            </p>
-        </field>
-    </record>
-    
-    <menuitem id="menu_dux_journal_mapper" 
-              name="Mapeo de Diarios"
-              parent="menu_dux_configuration" 
-              action="action_dux_journal_mapper" 
-              sequence="20"/>
-    
-    <menuitem id="menu_dux_import" 
-              name="Importación"
-              parent="menu_dux_integration_root" 
-              sequence="20"/>
-    
-    <menuitem id="menu_dux_import_wizard" 
-              name="Importar Datos"
-              parent="menu_dux_import" 
-              action="action_dux_import_wizard" 
-              sequence="10"/>
-    
-    <!-- Acción para lotes de importación (movida desde batch_views.xml) -->
-    <record id="action_dux_import_batch" model="ir.actions.act_window">
-        <field name="name">Lotes de Importación</field>
-        <field name="res_model">dux.import.batch</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No hay lotes de importación
-            </p>
-            <p>
-                Los lotes de datos JSON aparecerán aquí para ser procesados.
-                Use el asistente de importación para crear nuevos lotes.
-            </p>
-        </field>
-    </record>
-    
-    <!-- Acción para lotes de importación -->
-    <menuitem id="menu_dux_import_batches" 
-              name="Lotes de Importación"
-              parent="menu_dux_import" 
-              action="action_dux_import_batch" 
-              sequence="15"/>
-    
-    <!-- Vistas para registros importados -->
+
+    <!-- VISTAS DE REGISTROS IMPORTADOS -->
     <record id="view_dux_import_record_tree" model="ir.ui.view">
         <field name="name">dux.import.record.tree</field>
         <field name="model">dux.import.record</field>
@@ -375,6 +278,59 @@
             </form>
         </field>
     </record>
+
+    <!-- ACCIONES -->
+    <record id="action_dux_connector" model="ir.actions.act_window">
+        <field name="name">Conexiones Dux</field>
+        <field name="res_model">dux.connector</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva conexión con Dux Software
+            </p>
+            <p>
+                Configure las credenciales de API para conectarse con Dux Software
+                y realizar importaciones de datos.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_dux_import_wizard" model="ir.actions.act_window">
+        <field name="name">Importar desde Dux</field>
+        <field name="res_model">dux.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    
+    <record id="action_dux_journal_mapper" model="ir.actions.act_window">
+        <field name="name">Mapeo de Diarios</field>
+        <field name="res_model">dux.journal.mapper</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar mapeo de diarios Dux → Odoo
+            </p>
+            <p>
+                Define cómo mapear los tipos de comprobante de Dux Software 
+                a los diarios contables de Odoo.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_dux_import_batch" model="ir.actions.act_window">
+        <field name="name">Lotes de Importación</field>
+        <field name="res_model">dux.import.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay lotes de importación
+            </p>
+            <p>
+                Los lotes de datos JSON aparecerán aquí para ser procesados.
+                Use el asistente de importación para crear nuevos lotes.
+            </p>
+        </field>
+    </record>
     
     <record id="action_dux_import_records" model="ir.actions.act_window">
         <field name="name">Registros Importados</field>
@@ -389,6 +345,45 @@
             </p>
         </field>
     </record>
+
+    <!-- MENÚS -->
+    <menuitem id="menu_dux_integration_root" 
+              name="Dux Integration" 
+              sequence="100"/>
+    
+    <menuitem id="menu_dux_configuration" 
+              name="Configuración"
+              parent="menu_dux_integration_root" 
+              sequence="10"/>
+    
+    <menuitem id="menu_dux_connectors" 
+              name="Conexiones Dux"
+              parent="menu_dux_configuration" 
+              action="action_dux_connector" 
+              sequence="10"/>
+    
+    <menuitem id="menu_dux_journal_mapper" 
+              name="Mapeo de Diarios"
+              parent="menu_dux_configuration" 
+              action="action_dux_journal_mapper" 
+              sequence="20"/>
+    
+    <menuitem id="menu_dux_import" 
+              name="Importación"
+              parent="menu_dux_integration_root" 
+              sequence="20"/>
+    
+    <menuitem id="menu_dux_import_wizard" 
+              name="Importar Datos"
+              parent="menu_dux_import" 
+              action="action_dux_import_wizard" 
+              sequence="10"/>
+    
+    <menuitem id="menu_dux_import_batches" 
+              name="Lotes de Importación"
+              parent="menu_dux_import" 
+              action="action_dux_import_batch" 
+              sequence="15"/>
     
     <menuitem id="menu_dux_import_records" 
               name="Registros Importados"
