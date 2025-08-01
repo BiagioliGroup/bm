@@ -196,15 +196,33 @@
   
 
 <!-- 💰 Precios comparativos en página individual de producto - VERSIÓN CORREGIDA -->
-  <template id="sh_mayorista_product_page_prices_debug_minimal" inherit_id="website_sale.product" name="Product Page Debug Minimal">
-    <xpath expr="//div[@id='product_details']" position="inside">
-      <t t-if="request.env.user.has_group('base.group_user')">
-        <div class="alert alert-info mt-3">
-          <h6>Debug Mínimo:</h6>
-          <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
-          <p>Resultado: <t t-esc="comparatives"/></p>
+<template id="sh_mayorista_product_page_prices_production" inherit_id="website_sale.product" name="Product Page Comparative Prices Production">
+  <xpath expr="//div[@id='product_option_block']" position="after">
+    <t t-if="request.env.user.has_group('base.group_user')">
+      <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
+      <t t-if="comparatives">
+        <div class="row mt-3">
+          <div class="col-12">
+            <h6 class="text-muted mb-2">Precios disponibles:</h6>
+          </div>
+          <t t-foreach="comparatives" t-as="entry">
+            <div class="col-md-4 col-sm-6 mb-2">
+              <div t-att-class="'card h-100 ' + ('border-primary' if entry.get('is_user_pricelist') else 'border-light')">
+                <div class="card-body text-center p-2">
+                  <small class="text-muted d-block"><t t-esc="entry.get('name', 'Lista')"/></small>
+                  <h5 t-att-class="'mb-1 ' + ('text-primary' if entry.get('is_user_pricelist') else 'text-dark')">
+                    $<t t-esc="'{:,.2f}'.format(float(entry.get('price', 0)))"/>
+                  </h5>
+                  <t t-if="entry.get('is_user_pricelist')">
+                    <small class="badge bg-primary">Tu precio</small>
+                  </t>
+                </div>
+              </div>
+            </div>
+          </t>
         </div>
       </t>
-    </xpath>
-  </template>
+    </t>
+  </xpath>
+</template>
 </odoo>
