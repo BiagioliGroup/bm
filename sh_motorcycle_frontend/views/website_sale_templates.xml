@@ -195,7 +195,7 @@
   </template>  <!-- 💰 Precios comparativos en página individual de producto -->
   <template id="sh_mayorista_product_page_prices" inherit_id="website_sale.product" active="True" name="Product Page Comparative Prices">
     <!-- Ocultar el precio original cuando hay precios comparativos -->
-    <xpath expr="//div[hasclass('product_price')]" position="attributes">
+    <xpath expr="//div[contains(@class, 'product_price')]" position="attributes">
       <attribute name="t-attf-style">{{website.sh_show_comparative_prices and not request.env.user._is_public() and len(product.get_comparative_prices()) > 1 and 'display:none;' or ''}}</attribute>
     </xpath>
     
