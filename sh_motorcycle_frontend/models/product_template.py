@@ -87,9 +87,12 @@ class ProductTemplate(models.Model):
             year_list = sorted(set(vehicle.year for vehicle in vehicles), reverse=True)
         return year_list or []
 
+    # REEMPLAZAR el método get_comparative_prices en sh_motorcycle_frontend/models/product_template.py
+
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
+        Solo muestra comparativos cuando hay múltiples listas de precios diferentes
         """
         self.ensure_one()
         user = self.env.user
@@ -106,18 +109,22 @@ class ProductTemplate(models.Model):
             return []
 
         results = []
+        prices_found = set()  # Para evitar duplicados de precios
         
         # Agregar las listas configuradas en settings
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
             for pricelist in website.sh_mayorista_pricelist_ids:
                 try:
                     price = pricelist._get_product_price(self, 1.0, partner)
-                    results.append({
-                        'name': pricelist.name,
-                        'price': price,
-                        'is_user_pricelist': pricelist.id == user_pricelist.id,
-                        'pricelist_id': pricelist.id,
-                    })
+                    # Solo agregar si el precio es diferente a los ya encontrados
+                    if price not in prices_found:
+                        results.append({
+                            'name': pricelist.name,
+                            'price': price,
+                            'is_user_pricelist': pricelist.id == user_pricelist.id,
+                            'pricelist_id': pricelist.id,
+                        })
+                        prices_found.add(price)
                 except:
                     # Si hay error calculando precio, saltear esta lista
                     continue
@@ -126,16 +133,35 @@ class ProductTemplate(models.Model):
         if user_pricelist.id not in [r['pricelist_id'] for r in results]:
             try:
                 price = user_pricelist._get_product_price(self, 1.0, partner)
-                results.append({
-                    'name': user_pricelist.name,
-                    'price': price,
-                    'is_user_pricelist': True,
-                    'pricelist_id': user_pricelist.id,
-                })
+                # Solo agregar si es un precio diferente
+                if price not in prices_found:
+                    results.append({
+                        'name': user_pricelist.name,
+                        'price': price,
+                        'is_user_pricelist': True,
+                        'pricelist_id': user_pricelist.id,
+                    })
+                    prices_found.add(price)
+                elif len(results) == 0:
+                    # Si no hay otros precios, agregar el del usuario de todos modos
+                    results.append({
+                        'name': user_pricelist.name,
+                        'price': price,
+                        'is_user_pricelist': True,
+                        'pricelist_id': user_pricelist.id,
+                    })
             except:
                 # Si hay error, no agregar
                 pass
+        
+        # Solo devolver resultados si hay más de un precio diferente
+        # O si hay múltiples listas (aunque tengan el mismo precio)
+        if len(results) <= 1 and len(prices_found) <= 1:
+            return []
             
+        # Ordenar: precio del usuario primero, luego por precio ascendente
+        results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
+        
         return results
     
     def is_user_mayorista(self):
