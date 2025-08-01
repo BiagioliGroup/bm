@@ -92,7 +92,7 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        Evita duplicados y solo muestra cuando hay diferencias reales
+        Solo muestra cuando hay precios realmente diferentes y válidos
         """
         self.ensure_one()
         user = self.env.user
@@ -115,6 +115,28 @@ class ProductTemplate(models.Model):
         
         results = []
         prices_found = {}  # {pricelist_id: price}
+        list_price = self.list_price  # Precio público base
+        
+        # VALIDACIÓN CRÍTICA: Verificar si el producto tiene precio mayorista definido
+        mayorista_pricelist = self.env['product.pricelist'].search([
+            ('name', 'ilike', 'mayorista')
+        ], limit=1)
+        
+        has_mayorista_price = False
+        if mayorista_pricelist:
+            try:
+                mayorista_price = mayorista_pricelist._get_product_price(
+                    product_variant, 1.0, partner, date=False, uom_id=product_variant.uom_id.id
+                )
+                # Solo considerar que tiene precio mayorista si es diferente al público
+                if mayorista_price > 0 and abs(mayorista_price - list_price) > (list_price * 0.01):
+                    has_mayorista_price = True
+            except:
+                pass
+        
+        # Si no tiene precio mayorista, no mostrar comparativos
+        if not has_mayorista_price:
+            return []
         
         # Lista de pricelists a evaluar (SIN duplicar la del usuario)
         pricelists_to_check = []
@@ -140,8 +162,8 @@ class ProductTemplate(models.Model):
                     uom_id=product_variant.uom_id.id
                 )
                 
-                # Solo agregar si el precio es válido
-                if price > 0:
+                # VALIDACIÓN ADICIONAL: Solo agregar precios que sean diferentes al público
+                if price > 0 and abs(price - list_price) > (list_price * 0.01):
                     prices_found[pricelist.id] = price
                     results.append({
                         'name': pricelist.name,
@@ -156,17 +178,16 @@ class ProductTemplate(models.Model):
                 _logger.warning(f"Error calculando precio para pricelist {pricelist.name}: {e}")
                 continue
         
-        # VALIDACIÓN CRÍTICA: Solo mostrar si hay al menos 2 precios DIFERENTES
+        # VALIDACIÓN FINAL: Solo mostrar si hay al menos 2 precios DIFERENTES
         unique_prices = set(prices_found.values())
         if len(unique_prices) <= 1:
             return []
         
-        # VALIDACIÓN ADICIONAL: Verificar que hay diferencias significativas
+        # Verificar que las diferencias son significativas (> 2%)
         min_price = min(unique_prices)
         max_price = max(unique_prices)
         
-        # Solo mostrar si la diferencia es > 1% (evita diferencias por redondeo)
-        if min_price > 0 and ((max_price - min_price) / min_price) < 0.01:
+        if min_price > 0 and ((max_price - min_price) / min_price) < 0.02:
             return []
         
         # Ordenar: precio del usuario primero, luego por precio ascendente  

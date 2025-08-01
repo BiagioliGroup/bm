@@ -216,22 +216,25 @@
   color: #4a5568 !important;
   font-weight: 600;
   margin-bottom: 3px;
+  font-size: 0.9em; /* Reducido para coincidir con Odoo */
 }
 
 .sh-price-other {
   color: #a0a0a0 !important;
   opacity: 0.7;
   margin-bottom: 2px;
+  font-size: 0.9em; /* Reducido para coincidir con Odoo */
 }
 
 .sh-price-label {
-  font-size: 0.85em;
+  font-size: 0.75em; /* Más pequeño para las etiquetas */
   color: #6a6a6a;
 }
 
 .sh-price-amount {
   font-weight: bold;
   color: #4a5568;
+  font-size: 0.9em; /* Reducido para coincidir con Odoo */
 }
 
 /* Página de producto individual */
