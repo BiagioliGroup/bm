@@ -583,3 +583,37 @@ class sh_motorcycle(http.Controller):
             'is_user_logined_in': False,
             'sh_is_show_garage': request.website.sh_is_show_garage,
         }
+
+    # 5. AGREGAR al final de sh_motorcycle_frontend/controllers/sh_motorcycle_frontend.py
+
+    @http.route(['/sh_motorcycle/get_user_mayorista_info'], type='json', auth='public', website=True)
+    def get_user_mayorista_info(self):
+        """
+        Devuelve información sobre si el usuario es mayorista
+        """
+        if not request.session.uid or request.env.user._is_public():
+            return {
+                'is_mayorista': False,
+                'pricelist_name': '',
+                'show_badge': False,
+            }
+            
+        user = request.env.user
+        partner = user.partner_id
+        pricelist = partner.property_product_pricelist
+        website = request.website
+        
+        is_mayorista = False
+        pricelist_name = ''
+        
+        if pricelist:
+            pricelist_name = pricelist.name
+            # Verificar si es mayorista (tiene "mayorista" en el nombre de la lista)
+            is_mayorista = 'mayorista' in pricelist.name.lower()
+        
+        return {
+            'is_mayorista': is_mayorista,
+            'pricelist_name': pricelist_name,
+            'show_badge': website.sh_show_user_pricelist_badge,
+            'show_comparative_prices': website.sh_show_comparative_prices,
+        }

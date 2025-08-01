@@ -146,6 +146,88 @@
     </xpath>
   </template>
 
+  # 3. AGREGAR al final de sh_motorcycle_frontend/views/website_sale_templates.xml
+
+  <!-- 🏷️ Badge mayorista en header -->
+  <template id="sh_mayorista_badge_header" inherit_id="website.layout" active="True" name="Mayorista Badge Header">
+    <xpath expr="//header[@id='top']//div[contains(@class,'o_not_editable')]//ul[contains(@class,'o_header_affix_topbar')]" position="inside">
+      <li t-if="website.sh_show_user_pricelist_badge and not request.env.user._is_public()">
+        <t t-set="user_pricelist" t-value="request.env.user.partner_id.property_product_pricelist"/>
+        <t t-if="user_pricelist">
+          <span class="badge bg-primary me-2">
+            <i class="fa fa-star me-1"></i>
+            <t t-esc="user_pricelist.name"/>
+          </span>
+        </t>
+      </li>
+    </xpath>
+  </template>
+
+  <!-- 💰 Precios comparativos en grilla de productos -->
+  <template id="sh_mayorista_comparative_prices_grid" inherit_id="website_sale.products_item" active="True" name="Comparative Prices Grid">
+    <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
+      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
+        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
+        <t t-if="comparative_prices">
+          <div class="product-comparative-prices mt-1">
+            <small class="text-muted">
+              <t t-foreach="comparative_prices" t-as="price_info">
+                <div t-att-class="'fw-bold text-success' if price_info['is_user_pricelist'] else 'text-decoration-line-through text-muted'">
+                  <t t-if="price_info['is_user_pricelist']">
+                    <i class="fa fa-check-circle text-success me-1"></i>
+                  </t>
+                  <t t-esc="price_info['name']"/>: 
+                  <span t-field="price_info['price']" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}"/>
+                </div>
+              </t>
+            </small>
+          </div>
+        </t>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- 💰 Precios comparativos en página de producto -->
+  <template id="sh_mayorista_comparative_prices_product" inherit_id="website_sale.product" active="True" name="Comparative Prices Product Page">
+    <xpath expr="//div[@id='product_details']//h1[@itemprop='name']" position="after">
+      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
+        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
+        <t t-if="comparative_prices">
+          <div class="product-comparative-prices-detail mt-3 p-3 bg-light rounded">
+            <h6 class="mb-2">
+              <i class="fa fa-tags me-2"></i>
+              Precios disponibles:
+            </h6>
+            <div class="row">
+              <t t-foreach="comparative_prices" t-as="price_info">
+                <div class="col-md-6 mb-2">
+                  <div t-att-class="'card border-success' if price_info['is_user_pricelist'] else 'card border-secondary'">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span t-att-class="'fw-bold' if price_info['is_user_pricelist'] else ''">
+                          <t t-esc="price_info['name']"/>
+                        </span>
+                        <span t-att-class="'h5 mb-0 text-success fw-bold' if price_info['is_user_pricelist'] else 'text-muted text-decoration-line-through'">
+                          <span t-field="price_info['price']" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}"/>
+                        </span>
+                      </div>
+                      <t t-if="price_info['is_user_pricelist']">
+                        <small class="text-success">
+                          <i class="fa fa-check-circle me-1"></i>
+                          Tu precio
+                        </small>
+                      </t>
+                    </div>
+                  </div>
+                </div>
+              </t>
+            </div>
+          </div>
+        </t>
+      </t>
+    </xpath>
+  </template>
+
   
 
 </odoo>

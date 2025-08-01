@@ -241,3 +241,64 @@ class ProductTemplate(models.Model):
         # softhealer custom code ends here
         # --------------------------------------------------------------------
         return result
+
+    # 2. AGREGAR al final de sh_motorcycle_frontend/models/product_template.py
+
+    def get_comparative_prices(self):
+        """
+        Obtiene precios comparativos para mostrar en tienda
+        """
+        self.ensure_one()
+        user = self.env.user
+        website = self.env['website'].get_current_website()
+        
+        # Si no está configurado, no mostrar precios comparativos
+        if not website.sh_show_comparative_prices:
+            return []
+            
+        partner = user.partner_id
+        user_pricelist = partner.property_product_pricelist
+        
+        if not user_pricelist:
+            return []
+
+        results = []
+        
+        # Agregar las listas configuradas en settings
+        for pricelist in website.sh_mayorista_pricelist_ids:
+            price = pricelist._get_product_price(self, 1.0, partner)
+            results.append({
+                'name': pricelist.name,
+                'price': price,
+                'is_user_pricelist': pricelist.id == user_pricelist.id,
+                'pricelist_id': pricelist.id,
+            })
+        
+        # Asegurar que la lista del usuario esté incluida
+        if user_pricelist.id not in [r['pricelist_id'] for r in results]:
+            price = user_pricelist._get_product_price(self, 1.0, partner)
+            results.append({
+                'name': user_pricelist.name,
+                'price': price,
+                'is_user_pricelist': True,
+                'pricelist_id': user_pricelist.id,
+            })
+            
+        return results
+    
+    def is_user_mayorista(self):
+        """
+        Verifica si el usuario actual es mayorista
+        """
+        user = self.env.user
+        if not user or user._is_public():
+            return False
+            
+        partner = user.partner_id
+        pricelist = partner.property_product_pricelist
+        
+        # Verificar si tiene una lista que contenga "mayorista" en el nombre (case insensitive)
+        if pricelist and 'mayorista' in pricelist.name.lower():
+            return True
+            
+        return False
