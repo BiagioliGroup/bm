@@ -195,77 +195,62 @@
   </template>  
   
   <!-- 💰 Precios comparativos en página individual de producto -->
- <template id="sh_mayorista_product_page_prices" inherit_id="website_sale.product" name="Product Page Comparative Prices">
+ <template id="sh_mayorista_product_page_prices_simple_debug" inherit_id="website_sale.product" name="Product Page Comparative Prices Simple Debug">
     <xpath expr="//div[@id='product_details']" position="inside">
         <t t-if="request.env.user.has_group('base.group_user')">
             <div class="mt-3 border rounded p-3 bg-light">
-                <h6>Debug Info:</h6>
+                <h6>Debug Info Simplificado:</h6>
                 
                 <!-- Verificar que el método existe -->
-                <t t-if="hasattr(product, 'get_comparative_prices')">
-                    <p class="text-success">✓ Método get_comparative_prices existe</p>
-                    
-                    <!-- Llamar al método y verificar resultado -->
+                <t t-set="method_exists" t-value="hasattr(product, 'get_comparative_prices')"/>
+                <p>¿Método existe?: <strong><t t-esc="method_exists"/></strong></p>
+                
+                <t t-if="method_exists">
+                    <!-- Llamar al método -->
                     <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
                     
-                    <!-- Debug del resultado -->
-                    <p>Tipo de resultado: <strong><t t-esc="type(comparatives).__name__"/></strong></p>
-                    <p>Es lista: <strong><t t-esc="isinstance(comparatives, list)"/></strong></p>
-                    <p>Cantidad de elementos: <strong><t t-esc="len(comparatives) if comparatives else 0"/></strong></p>
+                    <!-- Debug básico -->
+                    <p>¿Es lista?: <strong><t t-esc="str(comparatives).startswith('[')"/></strong></p>
+                    <p>¿Está vacío?: <strong><t t-esc="not comparatives"/></strong></p>
+                    <p>Longitud: <strong><t t-esc="len(comparatives) if comparatives else 0"/></strong></p>
                     
-                    <!-- Si hay elementos, mostrar el primer elemento -->
-                    <t t-if="comparatives and len(comparatives) > 0">
-                        <p>Primer elemento: <t t-esc="comparatives[0]"/></p>
-                        <p>Tipo del primer elemento: <strong><t t-esc="type(comparatives[0]).__name__"/></strong></p>
+                    <!-- Mostrar contenido -->
+                    <t t-if="comparatives">
+                        <p>Contenido completo: <t t-esc="comparatives"/></p>
                         
-                        <!-- Verificar si es dict y tiene las claves esperadas -->
-                        <t t-if="isinstance(comparatives[0], dict)">
-                            <p>Keys del primer dict: <t t-esc="list(comparatives[0].keys())"/></p>
-                            
-                            <!-- Mostrar todos los elementos si son válidos -->
-                            <div class="mt-2">
-                                <h6>Precios comparativos:</h6>
-                                <ul class="list-unstyled">
-                                    <t t-foreach="comparatives" t-as="entry">
-                                        <li class="mb-1">
-                                            <!-- Verificación extra de que entry es dict -->
-                                            <t t-if="isinstance(entry, dict)">
-                                                <!-- Usar .get() para acceso seguro -->
-                                                <t t-if="entry.get('is_user_pricelist') == True">
-                                                    <strong class="text-primary">
-                                                        <t t-esc="entry.get('name', 'Sin nombre')"/>:
-                                                    </strong>
-                                                    <span class="fw-bold">
-                                                        $<t t-esc="'{:,.2f}'.format(entry.get('price', 0))"/>
-                                                    </span>
-                                                    <span class="badge bg-success ms-1">Tu precio</span>
-                                                </t>
-                                                <t t-else="">
-                                                    <span class="text-muted text-decoration-line-through">
-                                                        <t t-esc="entry.get('name', 'Sin nombre')"/>: 
-                                                        $<t t-esc="'{:,.2f}'.format(entry.get('price', 0))"/>
-                                                    </span>
-                                                </t>
+                        <!-- Intentar mostrar precios -->
+                        <div class="mt-2">
+                            <h6>Precios detectados:</h6>
+                            <ul class="list-unstyled">
+                                <t t-foreach="comparatives" t-as="entry">
+                                    <li class="mb-1">
+                                        <div class="card border p-2">
+                                            <p class="mb-1">Entry completo: <t t-esc="entry"/></p>
+                                            
+                                            <!-- Acceso seguro a campos -->
+                                            <t t-if="entry and 'name' in entry">
+                                                <p class="mb-1">Nombre: <strong><t t-esc="entry['name']"/></strong></p>
                                             </t>
-                                            <t t-else="">
-                                                <span class="text-danger">Elemento no es dict: <t t-esc="entry"/></span>
+                                            
+                                            <t t-if="entry and 'price' in entry">
+                                                <p class="mb-1">Precio: <strong>$<t t-esc="entry['price']"/></strong></p>
                                             </t>
-                                        </li>
-                                    </t>
-                                </ul>
-                            </div>
-                        </t>
-                        <t t-else="">
-                            <p class="text-warning">El primer elemento no es un diccionario</p>
-                        </t>
+                                            
+                                            <t t-if="entry and 'is_user_pricelist' in entry">
+                                                <p class="mb-0">Es del usuario: <strong><t t-esc="entry['is_user_pricelist']"/></strong></p>
+                                            </t>
+                                        </div>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
                     </t>
                     <t t-else="">
-                        <p class="text-info">No hay precios comparativos disponibles</p>
+                        <p class="text-info">Lista vacía o None</p>
                     </t>
-                    
                 </t>
                 <t t-else="">
-                    <p class="text-danger">✗ Método get_comparative_prices NO existe en el producto</p>
+                    <p class="text-danger">Método get_comparative_prices NO encontrado</p>
                 </t>
             </div>
         </t>
