@@ -196,31 +196,23 @@
   
 
 <!-- 💰 Precios comparativos en página individual de producto - VERSIÓN CORREGIDA -->
-<template id="sh_mayorista_product_page_prices_inline" inherit_id="website_sale.product" name="Product Page Comparative Prices Inline">
-  <xpath expr="//div[@id='product_details']//div[contains(@class, 'product_price')]" position="after">
+<template id="sh_mayorista_product_page_prices_minimal" inherit_id="website_sale.product" name="Product Page Comparative Prices Minimal">
+  <xpath expr="//h1" position="after">
     <t t-if="request.env.user.has_group('base.group_user')">
       <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
       <t t-if="comparatives and len(comparatives) > 1">
-        <div class="mt-1" style="margin-top: -0.5rem;">
+        <div class="small text-muted mb-2">
           <t t-foreach="comparatives" t-as="entry">
             <t t-if="entry.get('is_user_pricelist')">
-              <!-- Precio del usuario destacado -->
-              <div class="d-flex align-items-center">
-                <i class="fa fa-check-circle text-success me-1"></i>
-                <strong class="text-success me-2">
-                  <t t-esc="entry.get('name', 'Tu precio')"/>: 
-                  $<t t-esc="'{:,.0f}'.format(float(entry.get('price', 0)))"/>
-                </strong>
-                <!-- Otros precios al lado -->
-                <t t-foreach="comparatives" t-as="other_entry">
-                  <t t-if="not other_entry.get('is_user_pricelist')">
-                    <small class="text-muted text-decoration-line-through me-2">
-                      <t t-esc="other_entry.get('name', 'Lista')"/>: 
-                      $<t t-esc="'{:,.0f}'.format(float(other_entry.get('price', 0)))"/>
-                    </small>
-                  </t>
-                </t>
-              </div>
+              <span class="text-success fw-bold">
+                <i class="fa fa-check-circle me-1"></i>
+                <t t-esc="entry.get('name', 'Tu precio')"/>: $<t t-esc="'{:,.0f}'.format(float(entry.get('price', 0)))"/>
+              </span>
+            </t>
+            <t t-else="">
+              <span class="text-decoration-line-through ms-2">
+                <t t-esc="entry.get('name', 'Lista')"/>: $<t t-esc="'{:,.0f}'.format(float(entry.get('price', 0)))"/>
+              </span>
             </t>
           </t>
         </div>
