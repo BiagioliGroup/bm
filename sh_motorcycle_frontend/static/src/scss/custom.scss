@@ -191,19 +191,19 @@
 
 /* AGREGAR al final de sh_motorcycle_frontend/static/src/scss/custom.scss */
 
-/*--mayorista styles WARM COLORS--*/
+/*--mayorista styles SUBTLE COLORS--*/
 
 /* Grilla de productos */
 .sh-price-comparison {
   margin-top: 8px;
   padding: 8px;
-  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
   border-radius: 6px;
-  border-left: 3px solid #d4a574;
+  border-left: 3px solid #d0d0d0;
 }
 
 .sh-price-user {
-  color: #8b5a3c !important;
+  color: #4a5568 !important;
   font-weight: 600;
   margin-bottom: 3px;
 }
@@ -216,27 +216,27 @@
 
 .sh-price-label {
   font-size: 0.85em;
-  color: #6d4c37;
+  color: #6a6a6a;
 }
 
 .sh-price-amount {
   font-weight: bold;
-  color: #8b5a3c;
+  color: #4a5568;
 }
 
 /* Página de producto individual */
 .sh-product-price-detail {
-  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-  border: 1px solid #d4a574;
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.15);
+  box-shadow: 0 2px 8px rgba(208, 208, 208, 0.15);
 }
 
 .sh-price-header {
-  color: #8b5a3c;
+  color: #4a5568;
   font-size: 1.1em;
-  border-bottom: 1px solid #d4a574;
+  border-bottom: 1px solid #d0d0d0;
   padding-bottom: 8px;
 }
 
@@ -249,18 +249,18 @@
 }
 
 .sh-price-card-user {
-  background: linear-gradient(135deg, #f7f1e8 0%, #e8dcc6 100%);
-  border-color: #d4a574;
-  box-shadow: 0 2px 6px rgba(212, 165, 116, 0.2);
+  background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 6px rgba(208, 208, 208, 0.2);
 }
 
 .sh-price-card-user .sh-price-label {
-  color: #6d4c37;
+  color: #4a5568;
   font-weight: 600;
 }
 
 .sh-price-card-user .sh-price-amount {
-  color: #8b5a3c;
+  color: #4a5568;
   font-weight: bold;
   font-size: 1.1em;
 }
@@ -272,7 +272,7 @@
 }
 
 .sh-price-card-other .sh-price-label {
-  color: #666;
+  color: #888;
   text-decoration: line-through;
 }
 
@@ -282,8 +282,8 @@
 }
 
 .sh-price-badge {
-  color: #8b5a3c;
-  background: rgba(212, 165, 116, 0.2);
+  color: #4a5568;
+  background: rgba(208, 208, 208, 0.3);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.8em;
@@ -291,10 +291,10 @@
   margin-top: 4px;
 }
 
-/* Badge en header con colores más cálidos */
+/* Badge en header con colores más suaves */
 .badge.bg-primary {
-  background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%) !important;
-  box-shadow: 0 2px 4px rgba(180, 149, 106, 0.3);
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
   color: #fff !important;
   font-size: 0.8em;
   padding: 0.4em 0.8em;
@@ -306,7 +306,7 @@
 }
 
 .sh-price-card-user:hover {
-  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+  box-shadow: 0 4px 12px rgba(208, 208, 208, 0.3);
 }
 
 /* Responsive adjustments */
@@ -332,7 +332,7 @@
 
 /* Estilos para cuando solo hay un precio */
 .sh-price-single {
-  color: #8b5a3c;
+  color: #4a5568;
   font-weight: 600;
 }
 

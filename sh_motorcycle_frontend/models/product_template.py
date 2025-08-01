@@ -93,6 +93,7 @@ class ProductTemplate(models.Model):
         """
         Obtiene precios comparativos para mostrar en tienda
         Solo muestra comparativos cuando hay múltiples listas de precios diferentes
+        Y que realmente tengan precios específicos configurados para el producto
         """
         self.ensure_one()
         user = self.env.user
@@ -109,229 +110,77 @@ class ProductTemplate(models.Model):
             return []
 
         results = []
-        prices_found = set()  # Para evitar duplicados de precios
+        base_price = self.list_price  # Precio base del producto
+        prices_found = set()
         
         # Agregar las listas configuradas en settings
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
             for pricelist in website.sh_mayorista_pricelist_ids:
                 try:
                     price = pricelist._get_product_price(self, 1.0, partner)
-                    # Solo agregar si el precio es diferente a los ya encontrados
-                    if price not in prices_found:
-                        results.append({
-                            'name': pricelist.name,
-                            'price': price,
-                            'is_user_pricelist': pricelist.id == user_pricelist.id,
-                            'pricelist_id': pricelist.id,
-                        })
-                        prices_found.add(price)
+                    
+                    # VALIDACIÓN CRÍTICA: Solo agregar si el precio es diferente al precio base
+                    # Esto evita mostrar precios cuando la lista usa reglas sobre productos sin precio mayorista
+                    if abs(price - base_price) > 0.01:  # Tolerancia para diferencias mínimas
+                        # Verificar si este pricelist tiene reglas específicas para este producto
+                        # o si está aplicando reglas por defecto sobre un precio inexistente
+                        pricelist_items = self.env['product.pricelist.item'].search([
+                            ('pricelist_id', '=', pricelist.id),
+                            '|',
+                            ('product_tmpl_id', '=', self.id),
+                            ('product_id', 'in', self.product_variant_ids.ids)
+                        ])
+                        
+                        # Solo agregar si hay items específicos o si el precio es significativamente diferente
+                        if pricelist_items or abs(price - base_price) > (base_price * 0.05):  # 5% de diferencia mínima
+                            if price not in prices_found:
+                                results.append({
+                                    'name': pricelist.name,
+                                    'price': price,
+                                    'is_user_pricelist': pricelist.id == user_pricelist.id,
+                                    'pricelist_id': pricelist.id,
+                                })
+                                prices_found.add(price)
                 except:
                     # Si hay error calculando precio, saltear esta lista
                     continue
         
-        # Asegurar que la lista del usuario esté incluida
+        # Asegurar que la lista del usuario esté incluida solo si es diferente
         if user_pricelist.id not in [r['pricelist_id'] for r in results]:
             try:
                 price = user_pricelist._get_product_price(self, 1.0, partner)
-                # Solo agregar si es un precio diferente
-                if price not in prices_found:
-                    results.append({
-                        'name': user_pricelist.name,
-                        'price': price,
-                        'is_user_pricelist': True,
-                        'pricelist_id': user_pricelist.id,
-                    })
-                    prices_found.add(price)
+                
+                # Solo agregar la lista del usuario si tiene un precio diferente al base
+                if abs(price - base_price) > 0.01:
+                    # Verificar si tiene reglas específicas
+                    user_pricelist_items = self.env['product.pricelist.item'].search([
+                        ('pricelist_id', '=', user_pricelist.id),
+                        '|',
+                        ('product_tmpl_id', '=', self.id),
+                        ('product_id', 'in', self.product_variant_ids.ids)
+                    ])
+                    
+                    if user_pricelist_items or abs(price - base_price) > (base_price * 0.05):
+                        if price not in prices_found:
+                            results.append({
+                                'name': user_pricelist.name,
+                                'price': price,
+                                'is_user_pricelist': True,
+                                'pricelist_id': user_pricelist.id,
+                            })
+                            prices_found.add(price)
                 elif len(results) == 0:
-                    # Si no hay otros precios, agregar el del usuario de todos modos
-                    results.append({
-                        'name': user_pricelist.name,
-                        'price': price,
-                        'is_user_pricelist': True,
-                        'pricelist_id': user_pricelist.id,
-                    })
+                    # Si no hay otros precios diferentes, no mostrar nada
+                    return []
             except:
                 # Si hay error, no agregar
                 pass
         
-        # Solo devolver resultados si hay más de un precio diferente
-        # O si hay múltiples listas (aunque tengan el mismo precio)
-        if len(results) <= 1 and len(prices_found) <= 1:
+        # Solo devolver resultados si hay más de un precio REALMENTE diferente
+        if len(results) <= 1:
             return []
-            
+        
         # Ordenar: precio del usuario primero, luego por precio ascendente
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
         return results
-    
-    def is_user_mayorista(self):
-        """
-        Verifica si el usuario actual es mayorista
-        """
-        user = self.env.user
-        if not user or user._is_public():
-            return False
-            
-        partner = user.partner_id
-        pricelist = partner.property_product_pricelist
-        
-        # Verificar si tiene una lista que contenga "mayorista" en el nombre (case insensitive)
-        if pricelist and 'mayorista' in pricelist.name.lower():
-            return True
-            
-        return False
-
-    @api.model
-    def _search_get_detail(self, website, order, options):
-        """
-            INHERITED BY SOFTHEALER
-            ==> In order to add vehicle domain in base_domain and return
-                - motorcycle_heading,
-                - motorcycle_type,
-                - motorcycle_make
-                - motorcycle_model
-                - motorcycle_year
-                - type_list
-                - make_list
-                - model_list
-                - year_list
-
-        """
-
-        result = super(ProductTemplate, self)._search_get_detail(
-            website, order, options)
-        base_domain = result.get('base_domain', [])
-        keep_vehicle = True
-        category = options.get('category')
-        min_price = options.get('min_price')
-        max_price = options.get('max_price')
-        attrib_values = options.get('attrib_values')
-        if website:
-            if category and website.sh_do_not_consider_vehicle_over_category:
-                keep_vehicle = False
-
-            if attrib_values and website.sh_do_not_consider_vehicle_over_attribute:
-                keep_vehicle = False
-
-            if min_price or max_price:
-                if website.sh_do_not_consider_vehicle_over_price:
-                    keep_vehicle = False
-
-        # --------------------------------------------------------------------
-        # softhealer custom code start here
-        # --------------------------------------------------------------------
-        base_domain = base_domain or []
-        motorcycle_heading = False
-        type_id = False
-        make_id = False
-        mmodel_id = False
-        year = False
-
-        type_list = []
-        make_list = []
-        model_list = []
-        year_list = []
-
-        search_motorcycles = False
-        if (
-            keep_vehicle and
-            options and
-            options.get('type', False) and
-            options.get('make', False) and
-            options.get('model', False) and
-            options.get('year', False)
-        ):
-
-            type_id = options.get('type')
-            make_id = options.get('make')
-            mmodel_id = options.get('model')
-            year = options.get('year')
-
-            try:
-                if type(type_id) != int:
-                    type_id = int(type_id)
-                if type(make_id) != int:
-                    make_id = int(make_id)
-                if type(mmodel_id) != int:
-                    mmodel_id = int(mmodel_id)
-                if type(year) != int:
-                    year = int(year)
-
-                vehicle_domain = [
-                    ('type_id', '=', type_id),
-                    ('make_id', '=', make_id),
-                    ('mmodel_id', '=', mmodel_id),
-                    ('year', '=', year),  # <- Verificar que la condición es correcta
-                ]
-                _logger.info(f"Searching motorcycles with: {vehicle_domain}")
-                search_motorcycles = self.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
-                
-
-                # =========================================================
-                # Type, Make, Model, Year selected when page refresh.
-
-                type_list = self._get_type_list()
-                make_list = self._get_make_list(type_id)
-                model_list = self._get_model_list(type_id, make_id)
-                year_list = self._get_year_list(type_id, make_id, mmodel_id)
-
-                # =========================================================
-
-            except ValueError:
-                pass
-
-            product_tmpl_id_list = []
-            is_compute_vehicle_name = True
-            if search_motorcycles:
-                for motorcycle in search_motorcycles:
-                    if is_compute_vehicle_name:
-                        # VEHICLE NAME
-                        vehicle_name = ''
-                        if motorcycle.make_id:
-                            vehicle_name += motorcycle.make_id.name + ' '
-                        if motorcycle.mmodel_id:
-                            vehicle_name += motorcycle.mmodel_id.name + ' '
-                        if motorcycle.year:
-                            vehicle_name += str(motorcycle.year)
-                        if vehicle_name == '':
-                            vehicle_name = False
-                        motorcycle_heading = vehicle_name
-                        # VEHICLE NAME
-                        is_compute_vehicle_name = False
-
-                    if motorcycle.product_ids:
-                        for product in motorcycle.product_ids:
-                            if product.product_tmpl_id:
-                                product_tmpl_id_list.append(
-                                    product.product_tmpl_id.id)
-
-                # ------------------
-                # Universal Products
-                universal_products = self.env['product.product'].search([
-                    ('sh_is_common_product', '=', True)
-                ])
-
-                product_tmpl_id_list += universal_products.mapped(
-                    'product_tmpl_id').ids
-                # ------------------
-                # Universal Products
-            base_domain.append([('id', 'in', product_tmpl_id_list)])
-
-        result.update({'base_domain': base_domain})
-        result.update({
-            'motorcycle_heading': motorcycle_heading,
-            'motorcycle_type': type_id,
-            'motorcycle_make': make_id,
-            'motorcycle_model': mmodel_id,
-            'motorcycle_year': year,
-            'type_list': type_list,
-            'make_list': make_list,
-            'model_list': model_list,
-            'year_list': year_list,
-        })
-
-        _logger.info(f"motorcycle_heading = {motorcycle_heading}")
-        # --------------------------------------------------------------------
-        # softhealer custom code ends here
-        # --------------------------------------------------------------------
-        return result
