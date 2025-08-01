@@ -271,7 +271,7 @@
   <!-- 💰 REEMPLAZAR precios en página de producto -->
   <template id="sh_mayorista_replace_prices_product" inherit_id="website_sale.product" active="True" name="Replace Prices Product Page">
     <!-- Reemplazar el precio principal en la página de producto -->
-    <xpath expr="//div[@id='product_price']" position="replace">
+    <xpath expr="//div[@id='product_price']" position="after">
       <div id="product_price" class="mb-3">
         <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
           <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
@@ -322,5 +322,6 @@
       </div>
     </xpath>
   </template>
+
 
 </odoo>
