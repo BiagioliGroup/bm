@@ -177,7 +177,7 @@
                     <i class="fa fa-check-circle text-success me-1"></i>
                   </t>
                   <t t-esc="price_info['name']"/>: 
-                  <span t-field="price_info['price']" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}"/>
+                  $<t t-esc="'{:,.2f}'.format(price_info['price'])"/>
                 </div>
               </t>
             </small>
@@ -208,7 +208,7 @@
                           <t t-esc="price_info['name']"/>
                         </span>
                         <span t-att-class="'h5 mb-0 text-success fw-bold' if price_info['is_user_pricelist'] else 'text-muted text-decoration-line-through'">
-                          <span t-field="price_info['price']" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}"/>
+                          $<t t-esc="'{:,.2f}'.format(price_info['price'])"/>
                         </span>
                       </div>
                       <t t-if="price_info['is_user_pricelist']">
