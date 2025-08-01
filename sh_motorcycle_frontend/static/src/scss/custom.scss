@@ -227,7 +227,7 @@
 }
 
 .sh-price-label {
-  font-size: 0.9em; /* Más pequeño para las etiquetas */
+  font-size: 0.75em; /* Más pequeño para las etiquetas */
   color: #6a6a6a;
 }
 
@@ -242,40 +242,48 @@
   background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
   border: 1px solid #d0d0d0;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   box-shadow: 0 2px 8px rgba(208, 208, 208, 0.15);
+  /* Reemplazar visualmente el precio original */
+  min-height: 120px;
 }
 
 .sh-price-header {
   color: #4a5568;
-  font-size: 1.1em;
+  font-size: 1.2em;
   border-bottom: 1px solid #d0d0d0;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .sh-price-card {
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
   border: 1px solid transparent;
   transition: all 0.3s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .sh-price-card-user {
   background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
   border-color: #d0d0d0;
-  box-shadow: 0 2px 6px rgba(208, 208, 208, 0.2);
+  box-shadow: 0 3px 8px rgba(208, 208, 208, 0.25);
 }
 
 .sh-price-card-user .sh-price-label {
   color: #4a5568;
   font-weight: 600;
+  font-size: 1em;
 }
 
-.sh-price-card-user .sh-price-amount {
+.sh-price-card-user .sh-price-amount-large {
   color: #4a5568;
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: 1.4em; /* Más grande para página de producto */
 }
 
 .sh-price-card-other {
@@ -287,21 +295,43 @@
 .sh-price-card-other .sh-price-label {
   color: #888;
   text-decoration: line-through;
+  font-size: 0.95em;
 }
 
-.sh-price-card-other .sh-price-amount {
+.sh-price-card-other .sh-price-amount-large {
   color: #888;
   text-decoration: line-through;
+  font-size: 1.2em;
 }
 
 .sh-price-badge {
   color: #4a5568;
   background: rgba(208, 208, 208, 0.3);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8em;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 0.85em;
   display: inline-block;
-  margin-top: 4px;
+  margin-top: 6px;
+}
+
+/* Responsive para página de producto */
+@media (max-width: 768px) {
+  .sh-product-price-detail .col-md-6 {
+    margin-bottom: 0.75rem;
+  }
+
+  .sh-product-price-detail {
+    padding: 15px;
+    min-height: 100px;
+  }
+
+  .sh-price-card-user .sh-price-amount-large {
+    font-size: 1.2em;
+  }
+
+  .sh-price-card-other .sh-price-amount-large {
+    font-size: 1.1em;
+  }
 }
 
 /* Badge en header con colores más suaves */
