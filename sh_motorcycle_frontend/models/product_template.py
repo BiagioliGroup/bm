@@ -92,7 +92,7 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        Solo muestra cuando hay precios realmente diferentes y válidos
+        Funciona para todos los casos: Revendedor, Mayorista y Dropshipping
         """
         self.ensure_one()
         user = self.env.user
@@ -116,27 +116,6 @@ class ProductTemplate(models.Model):
         results = []
         prices_found = {}  # {pricelist_id: price}
         list_price = self.list_price  # Precio público base
-        
-        # VALIDACIÓN CRÍTICA: Verificar si el producto tiene precio mayorista definido
-        mayorista_pricelist = self.env['product.pricelist'].search([
-            ('name', 'ilike', 'mayorista')
-        ], limit=1)
-        
-        has_mayorista_price = False
-        if mayorista_pricelist:
-            try:
-                mayorista_price = mayorista_pricelist._get_product_price(
-                    product_variant, 1.0, partner, date=False, uom_id=product_variant.uom_id.id
-                )
-                # Solo considerar que tiene precio mayorista si es diferente al público
-                if mayorista_price > 0 and abs(mayorista_price - list_price) > (list_price * 0.01):
-                    has_mayorista_price = True
-            except:
-                pass
-        
-        # Si no tiene precio mayorista, no mostrar comparativos
-        if not has_mayorista_price:
-            return []
         
         # Lista de pricelists a evaluar (SIN duplicar la del usuario)
         pricelists_to_check = []
@@ -162,8 +141,8 @@ class ProductTemplate(models.Model):
                     uom_id=product_variant.uom_id.id
                 )
                 
-                # VALIDACIÓN ADICIONAL: Solo agregar precios que sean diferentes al público
-                if price > 0 and abs(price - list_price) > (list_price * 0.01):
+                # Agregar el precio si es válido
+                if price > 0:
                     prices_found[pricelist.id] = price
                     results.append({
                         'name': pricelist.name,
@@ -178,16 +157,32 @@ class ProductTemplate(models.Model):
                 _logger.warning(f"Error calculando precio para pricelist {pricelist.name}: {e}")
                 continue
         
-        # VALIDACIÓN FINAL: Solo mostrar si hay al menos 2 precios DIFERENTES
+        # VALIDACIÓN ESPECIAL PARA DROPSHIPPING:
+        # Si el usuario tiene lista "Dropshipping", verificar que hay precio mayorista real
+        if user_pricelist.name and 'dropshipping' in user_pricelist.name.lower():
+            # Buscar si hay lista mayorista configurada
+            mayorista_in_results = False
+            for result in results:
+                if 'mayorista' in result['name'].lower() and not result['is_user_pricelist']:
+                    # Verificar que el precio mayorista es diferente al público
+                    if abs(result['price'] - list_price) > (list_price * 0.01):
+                        mayorista_in_results = True
+                        break
+            
+            # Si no hay precio mayorista real, no mostrar comparativos
+            if not mayorista_in_results:
+                return []
+        
+        # Solo mostrar si hay al menos 2 precios DIFERENTES
         unique_prices = set(prices_found.values())
         if len(unique_prices) <= 1:
             return []
         
-        # Verificar que las diferencias son significativas (> 2%)
+        # Verificar que las diferencias son mínimamente significativas
         min_price = min(unique_prices)
         max_price = max(unique_prices)
         
-        if min_price > 0 and ((max_price - min_price) / min_price) < 0.02:
+        if min_price > 0 and ((max_price - min_price) / min_price) < 0.005:  # 0.5%
             return []
         
         # Ordenar: precio del usuario primero, luego por precio ascendente  
