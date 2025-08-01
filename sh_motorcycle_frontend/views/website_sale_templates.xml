@@ -163,24 +163,31 @@
     </xpath>
   </template>
 
-  <!-- 💰 AGREGAR precios comparativos SIN reemplazar el original -->
+  <!-- 💰 AGREGAR precios comparativos Y OCULTAR original cuando hay comparativos -->
   <template id="sh_mayorista_add_prices_grid" inherit_id="website_sale.products_item" active="True" name="Add Comparative Prices Grid">
-    <!-- Agregar DESPUÉS del precio original, no reemplazarlo -->
+    <!-- Ocultar el precio original cuando hay precios comparativos -->
+    <xpath expr="//div[hasclass('product_price')]" position="attributes">
+      <attribute name="t-attf-style">{{website.sh_show_comparative_prices and not request.env.user._is_public() and len(product.get_comparative_prices()) > 1 and 'display:none;' or ''}}</attribute>
+    </xpath>
+    
+    <!-- Agregar DESPUÉS del precio original -->
     <xpath expr="//div[hasclass('product_price')]" position="after">
       <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
         <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
         <t t-if="len(comparative_prices) > 1">
-          <!-- Mostrar precios comparativos solo si hay múltiples listas -->
-          <div class="sh-price-comparison">
-            <t t-foreach="comparative_prices" t-as="price_info">
-              <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
-                <t t-if="price_info['is_user_pricelist']">
-                  <i class="fa fa-check-circle me-1"></i>
-                </t>
-                <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
-                <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
-              </div>
-            </t>
+          <!-- Mostrar precios comparativos cuando hay múltiples listas diferentes -->
+          <div class="sh-price-comparison-wrapper">
+            <div class="sh-price-comparison">
+              <t t-foreach="comparative_prices" t-as="price_info">
+                <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
+                  <t t-if="price_info['is_user_pricelist']">
+                    <i class="fa fa-check-circle me-1"></i>
+                  </t>
+                  <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
+                  <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
+                </div>
+              </t>
+            </div>
           </div>
         </t>
       </t>

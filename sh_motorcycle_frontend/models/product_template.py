@@ -92,7 +92,7 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        Usa el precio real que Odoo calcula para cada lista de precios
+        Evita duplicados y solo muestra cuando hay diferencias reales
         """
         self.ensure_one()
         user = self.env.user
@@ -108,24 +108,25 @@ class ProductTemplate(models.Model):
         if not user_pricelist:
             return []
 
-        results = []
-        prices_found = {}  # Para evitar duplicados y trackear precios
-        
         # Obtener el producto variant principal para cálculos de precio
         product_variant = self.product_variant_ids[0] if self.product_variant_ids else None
         if not product_variant:
             return []
         
-        # Lista de pricelists a evaluar: las configuradas + la del usuario
+        results = []
+        prices_found = {}  # {pricelist_id: price}
+        
+        # Lista de pricelists a evaluar (SIN duplicar la del usuario)
         pricelists_to_check = []
         
         # Agregar las listas configuradas en settings
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
-            pricelists_to_check.extend(website.sh_mayorista_pricelist_ids)
+            for pricelist in website.sh_mayorista_pricelist_ids:
+                if pricelist.id != user_pricelist.id:  # Evitar duplicados
+                    pricelists_to_check.append(pricelist)
         
-        # Asegurar que la lista del usuario esté incluida
-        if user_pricelist not in pricelists_to_check:
-            pricelists_to_check.append(user_pricelist)
+        # SIEMPRE agregar la lista del usuario
+        pricelists_to_check.append(user_pricelist)
         
         # Calcular precios para cada lista
         for pricelist in pricelists_to_check:
@@ -139,25 +140,33 @@ class ProductTemplate(models.Model):
                     uom_id=product_variant.uom_id.id
                 )
                 
-                # Solo agregar si el precio es válido y único
-                if price > 0 and price not in prices_found.values():
+                # Solo agregar si el precio es válido
+                if price > 0:
+                    prices_found[pricelist.id] = price
                     results.append({
                         'name': pricelist.name,
                         'price': price,
                         'is_user_pricelist': pricelist.id == user_pricelist.id,
                         'pricelist_id': pricelist.id,
                     })
-                    prices_found[pricelist.id] = price
                     
             except Exception as e:
-                # Log del error para debugging
                 import logging
                 _logger = logging.getLogger(__name__)
                 _logger.warning(f"Error calculando precio para pricelist {pricelist.name}: {e}")
                 continue
         
-        # Solo devolver resultados si hay más de un precio diferente
-        if len(results) <= 1:
+        # VALIDACIÓN CRÍTICA: Solo mostrar si hay al menos 2 precios DIFERENTES
+        unique_prices = set(prices_found.values())
+        if len(unique_prices) <= 1:
+            return []
+        
+        # VALIDACIÓN ADICIONAL: Verificar que hay diferencias significativas
+        min_price = min(unique_prices)
+        max_price = max(unique_prices)
+        
+        # Solo mostrar si la diferencia es > 1% (evita diferencias por redondeo)
+        if min_price > 0 and ((max_price - min_price) / min_price) < 0.01:
             return []
         
         # Ordenar: precio del usuario primero, luego por precio ascendente  

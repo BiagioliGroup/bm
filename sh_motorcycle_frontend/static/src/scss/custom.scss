@@ -193,13 +193,23 @@
 
 /*--mayorista styles SUBTLE COLORS--*/
 
+/* Wrapper para el reemplazo visual */
+.sh-price-comparison-wrapper {
+  position: relative;
+}
+
 /* Grilla de productos */
 .sh-price-comparison {
-  margin-top: 8px;
+  margin-top: 0px;
   padding: 8px;
   background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
   border-radius: 6px;
   border-left: 3px solid #d0d0d0;
+  /* Hacer que reemplace visualmente al precio original */
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .sh-price-user {
