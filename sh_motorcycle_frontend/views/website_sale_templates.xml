@@ -194,40 +194,17 @@
     </xpath>
   </template>  
   
-  <!-- 💰 Precios comparativos en página individual de producto -->
-<template id="sh_mayorista_product_page_prices_direct" inherit_id="website_sale.product" name="Product Page Comparative Prices Direct">
-    <xpath expr="//div[@id='product_details']" position="inside">
-        <t t-if="request.env.user.has_group('base.group_user')">
-            <div class="mt-3 border rounded p-3 bg-warning">
-                <h6>Test Directo:</h6>
-                
-                <t t-try="">
-                    <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
-                    <p class="text-success">✓ Método ejecutado exitosamente</p>
-                    
-                    <t t-if="comparatives">
-                        <p>Hay <strong><t t-esc="len(comparatives)"/></strong> elementos</p>
-                        <p>Datos brutos: <t t-esc="comparatives"/></p>
-                        
-                        <div class="mt-2">
-                            <h6>Precios encontrados:</h6>
-                            <t t-foreach="comparatives" t-as="entry">
-                                <div class="border p-2 mb-1">
-                                    <p>Elemento <t t-esc="entry_index"/>: <t t-esc="entry"/></p>
-                                </div>
-                            </t>
-                        </div>
-                    </t>
-                    <t t-else="">
-                        <p class="text-info">Método retornó datos vacíos</p>
-                    </t>
-                    
-                <t t-except="">
-                    <p class="text-danger">❌ Error al ejecutar el método</p>
-                </t>
-            </div>
-        </t>
-    </xpath>
-</template>
 
+<!-- 💰 Precios comparativos en página individual de producto - VERSIÓN CORREGIDA -->
+  <template id="sh_mayorista_product_page_prices_debug_minimal" inherit_id="website_sale.product" name="Product Page Debug Minimal">
+    <xpath expr="//div[@id='product_details']" position="inside">
+      <t t-if="request.env.user.has_group('base.group_user')">
+        <div class="alert alert-info mt-3">
+          <h6>Debug Mínimo:</h6>
+          <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
+          <p>Resultado: <t t-esc="comparatives"/></p>
+        </div>
+      </t>
+    </xpath>
+  </template>
 </odoo>
