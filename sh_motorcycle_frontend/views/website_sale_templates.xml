@@ -192,52 +192,34 @@
         </t>
       </t>
     </xpath>
-  </template>  <!-- 💰 Precios comparativos en página individual de producto -->
-  <template id="sh_mayorista_product_page_prices" inherit_id="website_sale.product" active="True" name="Product Page Comparative Prices">
-    <!-- Ocultar el precio original cuando hay precios comparativos -->
-    <xpath expr="//div[@id='product_price']]" position="attributes">
-      <attribute name="t-attf-style">{{website.sh_show_comparative_prices and not request.env.user._is_public() and len(product.get_comparative_prices()) > 1 and 'display:none;' or ''}}</attribute>
-    </xpath>
-    
-    <!-- Agregar DESPUÉS del precio original -->
-    <xpath expr="//div[hasclass('product_price')]" position="after">
-      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
-        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
-        <t t-if="len(comparative_prices) > 1">
-          <!-- Mostrar tabla de precios comparativos que reemplaza el precio original -->
-          <div id="sh_product_price_replacement" class="mb-3">
-            <div class="sh-product-price-detail">
-              <div class="sh-price-header mb-3">
-                <i class="fa fa-tags me-2"></i>
-                <strong>Precios disponibles:</strong>
-              </div>
-              <div class="row g-3">
-                <t t-foreach="comparative_prices" t-as="price_info">
-                  <div class="col-md-6">
-                    <div t-att-class="'sh-price-card sh-price-card-user' if price_info['is_user_pricelist'] else 'sh-price-card sh-price-card-other'">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="sh-price-label">
-                          <t t-esc="price_info['name']"/>
-                        </span>
-                        <span class="sh-price-amount-large">
-                          $<t t-esc="'{:,.2f}'.format(price_info['price'])"/>
-                        </span>
-                      </div>
-                      <t t-if="price_info['is_user_pricelist']">
-                        <small class="sh-price-badge">
-                          <i class="fa fa-check-circle me-1"></i>
-                          Tu precio
-                        </small>
-                      </t>
-                    </div>
-                  </div>
-                </t>
-              </div>
+  </template>  
+  
+  <!-- 💰 Precios comparativos en página individual de producto -->
+  <template id="sh_mayorista_product_page_prices" inherit_id="website_sale.product" name="Product Page Comparative Prices">
+    <xpath expr="//div[@id='product_details']" position="inside">
+        <t t-if="request.env.user.has_group('base.group_user')">
+            <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
+            <div class="mt-2">
+                <h6>Precios comparativos:</h6>
+                <ul class="list-unstyled small">
+                    <t t-foreach="comparatives" t-as="entry">
+                        <li>
+                            <t t-if="entry.is_user_pricelist">
+                                <strong><t t-esc="entry.name"/>:</strong>
+                                <span><t t-esc="entry.price | float_to_currency(product.currency_id)"/></span>
+                                <span class="badge badge-success ml-1">Tu precio</span>
+                            </t>
+                            <t t-if="not entry.is_user_pricelist">
+                                <span class="text-decoration-line-through">
+                                    <t t-esc="entry.name"/>: <t t-esc="entry.price | float_to_currency(product.currency_id)"/>
+                                </span>
+                            </t>
+                        </li>
+                    </t>
+                </ul>
             </div>
-          </div>
         </t>
-      </t>
     </xpath>
-  </template>
+</template>
 
 </odoo>
