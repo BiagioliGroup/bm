@@ -190,7 +190,37 @@
           <t t-else="">
             <!-- Mostrar precio normal si solo hay una lista -->
             <span class="h6 mb-0" data-oe-type="monetary" data-oe-expression="template_price_vals['price_reduce']">
-              $&nbsp;<span class="oe_currency_value" t-esc="'{:,.2f}'.format(product.list_price)"/>
+                <!-- 💰 REEMPLAZAR precios en grilla de productos -->
+  <template id="sh_mayorista_replace_prices_grid" inherit_id="website_sale.products_item" active="True" name="Replace Prices Grid">
+    <!-- Ocultar el precio original -->
+    <xpath expr="//span[contains(@class,'oe_currency_value')]" position="replace">
+      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
+        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
+        <t t-if="len(comparative_prices) > 1">
+          <!-- Mostrar precios comparativos solo si hay múltiples listas -->
+          <div class="sh-price-comparison">
+            <t t-foreach="comparative_prices" t-as="price_info">
+              <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
+                <t t-if="price_info['is_user_pricelist']">
+                  <i class="fa fa-check-circle me-1"></i>
+                </t>
+                <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
+                <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
+              </div>
+            </t>
+          </div>
+        </t>
+        <t t-else="">
+          <!-- Mostrar precio normal si solo hay una lista -->
+          <span t-field="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" class="oe_currency_value"/>
+        </t>
+      </t>
+      <t t-else="">
+        <!-- Mostrar precio normal si no está configurado para mostrar comparativos -->
+        <span t-field="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" class="oe_currency_value"/>
+      </t>
+    </xpath>
+  </template>nbsp;<span class="oe_currency_value" t-esc="'{:,.2f}'.format(product.list_price)"/>
             </span>
             <span itemprop="price" style="display:none;"><t t-esc="product.list_price"/></span>
             <span itemprop="priceCurrency" style="display:none;"><t t-esc="product.currency_id.name"/></span>
@@ -199,7 +229,37 @@
         <t t-else="">
           <!-- Mostrar precio normal si no está configurado para mostrar comparativos -->
           <span class="h6 mb-0" data-oe-type="monetary" data-oe-expression="template_price_vals['price_reduce']">
-            $&nbsp;<span class="oe_currency_value" t-esc="'{:,.2f}'.format(product.list_price)"/>
+              <!-- 💰 REEMPLAZAR precios en grilla de productos -->
+  <template id="sh_mayorista_replace_prices_grid" inherit_id="website_sale.products_item" active="True" name="Replace Prices Grid">
+    <!-- Ocultar el precio original -->
+    <xpath expr="//span[contains(@class,'oe_currency_value')]" position="replace">
+      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
+        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
+        <t t-if="len(comparative_prices) > 1">
+          <!-- Mostrar precios comparativos solo si hay múltiples listas -->
+          <div class="sh-price-comparison">
+            <t t-foreach="comparative_prices" t-as="price_info">
+              <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
+                <t t-if="price_info['is_user_pricelist']">
+                  <i class="fa fa-check-circle me-1"></i>
+                </t>
+                <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
+                <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
+              </div>
+            </t>
+          </div>
+        </t>
+        <t t-else="">
+          <!-- Mostrar precio normal si solo hay una lista -->
+          <span t-field="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" class="oe_currency_value"/>
+        </t>
+      </t>
+      <t t-else="">
+        <!-- Mostrar precio normal si no está configurado para mostrar comparativos -->
+        <span t-field="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" class="oe_currency_value"/>
+      </t>
+    </xpath>
+  </template>nbsp;<span class="oe_currency_value" t-esc="'{:,.2f}'.format(product.list_price)"/>
           </span>
           <span itemprop="price" style="display:none;"><t t-esc="product.list_price"/></span>
           <span itemprop="priceCurrency" style="display:none;"><t t-esc="product.currency_id.name"/></span>
@@ -208,9 +268,9 @@
     </xpath>
   </template>
 
-  <!-- 💰 REEMPLAZAR precios en página de producto - CORREGIDO -->
+  <!-- 💰 REEMPLAZAR precios en página de producto -->
   <template id="sh_mayorista_replace_prices_product" inherit_id="website_sale.product" active="True" name="Replace Prices Product Page">
-    <!-- Buscar el precio en la página de producto y reemplazarlo -->
+    <!-- Reemplazar el precio principal en la página de producto -->
     <xpath expr="//div[@id='product_price']" position="replace">
       <div id="product_price" class="mb-3">
         <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
