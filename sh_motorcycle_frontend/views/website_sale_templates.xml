@@ -1,50 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<!-- 🛠️ Tabla de compatibilidad vehicular -->
-<template id="sh_supported_vehicles" inherit_id="website_sale.product"
-          active="True" customize_show="True" name="Supported Vehicles">
-  <xpath expr="//div[@id='product_detail_main']" position="after">
-    <div class="tab-pane" id="sh_supported" role="tabpanel">
-      <section class="container">
-        <div class="row">
-          <div t-if="not sh_is_common_product" class="col-12">
-            <div class="sh-supported-container">
-              <!-- ESTE DIV CONTROLARÁ EL ALTO Y SCROLL -->
-              <div class="sh-supported-scroll">
-                <table class="table table-striped table-sm table-hover mb-0 sh-supported-table">
+  <!-- 🛠️ Tabla de compatibilidad vehicular -->
+  <template id="sh_supported_vehicles" inherit_id="website_sale.product" active="True" customize_show="True" name="Supported Vehicles">
+    <xpath expr="//div[@id='product_detail_main']" position="after">
+      <div class="tab-pane" id="sh_supported" role="tabpanel">
+        <section class="container">
+          <div class="row">
+            <div t-if="not sh_is_common_product" class="col-lg-12">
+              <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 5px;">
+                <table class="table table-striped table-sm table-hover mb-0">
                   <thead>
                     <tr><th colspan="3" class="text-center">Compatible con:</th></tr>
-                    <tr>
-                      <th>Marca</th>
-                      <th>Modelo</th>
-                      <th>Año</th>
-                    </tr>
+                    <tr><th>Marca</th><th>Modelo</th><th>Año</th></tr>
                   </thead>
                   <tbody>
                     <t t-if="vehicles" t-foreach="vehicles" t-as="vehicle">
                       <tr>
-                        <td><t t-esc="vehicle.make_id.name"/></td>
-                        <td><t t-esc="vehicle.mmodel_id.name"/></td>
-                        <td><t t-esc="vehicle.year"/></td>
+                        <td><t t-if="vehicle.make_id" t-esc="vehicle.make_id.name"/></td>
+                        <td><t t-if="vehicle.mmodel_id" t-esc="vehicle.mmodel_id.name"/></td>
+                        <td><t t-if="vehicle.year" t-esc="vehicle.year"/></td>
                       </tr>
                     </t>
                   </tbody>
                 </table>
               </div>
             </div>
-          </div>
-          <div t-if="sh_is_common_product" class="col-12">
-            <div class="alert alert-success text-center">
-              <strong>Mounting is possible on all vehicles.</strong>
+            <div t-if="sh_is_common_product" class="col-lg-12">
+              <div class="alert alert-success text-center">
+                <strong>Este producto es compatible con todos los vehiculos</strong>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
-  </xpath>
-</template>
-
+        </section>
+      </div>
+    </xpath>
+  </template>
 
   <!-- ✅ Mantener filtros de moto -->
   <template id="products_attributes" inherit_id="website_sale.products_attributes" customize_show="False" active="True" name="Keep Motorcycle Attributes and Variants filters">
@@ -94,9 +85,9 @@
 
             <!-- Botones Garage -->
             <div class="mt-2">
-              <a t-if="not request.session.uid and website.sh_is_show_garage" href="/web/login" class="btn btn-secondary" style="margin-left:10px;">My Garage</a>
+              <a t-if="not request.session.uid and website.sh_is_show_garage" href="/web/login" class="btn btn-secondary" style="margin-left:10px;">Mi Garage</a>
               <div t-if="request.session.uid and website.sh_is_show_garage" class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Garage</button>
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="id_sh_motorcycle_select_saved_bike_btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Mi Garage</button>
                 <div class="dropdown-menu" id="id_sh_motorcycle_select_saved_bike_div" aria-labelledby="id_sh_motorcycle_select_saved_bike_btn">
                   <a class="dropdown-item" href="#">Action</a>
                   <a class="dropdown-item" href="#">Another action</a>
@@ -155,24 +146,6 @@
     </xpath>
   </template>
 
-  <!-- 🏷️ Mostrar código de producto en grid -->
-  <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
-    <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
-      <t t-if="product.default_code">
-        <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
-      </t>
-    </xpath>
-  </template>
-
-  <!-- 🏷️ Mostrar código de variante en vista de producto -->
-  <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
-    <xpath expr="//div[@id='product_details']/h1" position="before">
-      <t t-if="product_variant and product_variant.default_code">
-        <div id="variant_default_code" class="text-muted small mb-2">
-          <strong>Código:</strong> <span t-esc="product_variant.default_code"/>
-        </div>
-      </t>
-    </xpath>
-  </template>
+  
 
 </odoo>
