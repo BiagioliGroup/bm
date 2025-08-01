@@ -41,6 +41,7 @@ Find Auto Parts Based On Model ,Type App , Search Auto Parts Based On Model Year
         "views/res_config_settings_view.xml",
         "views/sh_morotcycle_garage_templates.xml",
         "views/sh_motorcycle_frontend_snippet_templates.xml",
+        "views/in_stock_badges.xml",
     ],
     'assets': {
         'web.assets_frontend': [
