@@ -163,47 +163,27 @@
     </xpath>
   </template>
 
-  <!-- 💰 REEMPLAZAR precios en grilla de productos -->
-  <template id="sh_mayorista_replace_prices_grid" inherit_id="website_sale.products_item" active="True" name="Replace Prices Grid">
-    <xpath expr="//div[hasclass('product_price')]" position="replace">
-      <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
-        <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
-          <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
-          <t t-if="len(comparative_prices) > 1">
-            <!-- Mostrar precios comparativos solo si hay múltiples listas -->
-            <div class="sh-price-comparison">
-              <t t-foreach="comparative_prices" t-as="price_info">
-                <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
-                  <t t-if="price_info['is_user_pricelist']">
-                    <i class="fa fa-check-circle me-1"></i>
-                  </t>
-                  <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
-                  <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
-                </div>
-              </t>
-            </div>
-            <!-- Mantener los spans ocultos para schema.org -->
-            <span itemprop="price" style="display:none;"><t t-esc="comparative_prices[0]['price'] if comparative_prices else product.list_price"/></span>
-            <span itemprop="priceCurrency" style="display:none;"><t t-esc="product.currency_id.name"/></span>
-          </t>
-          <t t-else="">
-            <!-- Mostrar precio normal si solo hay una lista -->
-            <span class="h6 mb-0" data-oe-type="monetary" data-oe-expression="template_price_vals['price_reduce']">
-              $<span class="oe_currency_value" t-esc="'{:,.2f}'.format(product.list_price)"/>
-            </span>
-            <span itemprop="price" style="display:none;"><t t-esc="product.list_price"/></span>
-            <span itemprop="priceCurrency" style="display:none;"><t t-esc="product.currency_id.name"/></span>
-          </t>
+  <!-- 💰 AGREGAR precios comparativos SIN reemplazar el original -->
+  <template id="sh_mayorista_add_prices_grid" inherit_id="website_sale.products_item" active="True" name="Add Comparative Prices Grid">
+    <!-- Agregar DESPUÉS del precio original, no reemplazarlo -->
+    <xpath expr="//div[hasclass('product_price')]" position="after">
+      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
+        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
+        <t t-if="len(comparative_prices) > 1">
+          <!-- Mostrar precios comparativos solo si hay múltiples listas -->
+          <div class="sh-price-comparison">
+            <t t-foreach="comparative_prices" t-as="price_info">
+              <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
+                <t t-if="price_info['is_user_pricelist']">
+                  <i class="fa fa-check-circle me-1"></i>
+                </t>
+                <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
+                <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
+              </div>
+            </t>
+          </div>
         </t>
-        <t t-else="">
-          <!-- Mostrar precio normal si no está configurado para mostrar comparativos -->
-          <span class="h6 mb-0" data-oe-type="monetary" data-oe-expression="template_price_vals['price_reduce']">
-            $<span class="oe_currency_value" t-esc="'{:,.2f}'.format(product.list_price)"/>
-          </span>
-          <span itemprop="price" style="display:none;"><t t-esc="product.list_price"/></span>
-          <span itemprop="priceCurrency" style="display:none;"><t t-esc="product.currency_id.name"/></span>
-        </t>
-      </div>
+      </t>
     </xpath>
   </template>
 

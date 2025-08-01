@@ -92,8 +92,7 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        Solo muestra comparativos cuando hay múltiples listas de precios diferentes
-        Y que realmente tengan precios específicos configurados para el producto
+        Usa el precio real que Odoo calcula para cada lista de precios
         """
         self.ensure_one()
         user = self.env.user
@@ -110,77 +109,58 @@ class ProductTemplate(models.Model):
             return []
 
         results = []
-        base_price = self.list_price  # Precio base del producto
-        prices_found = set()
+        prices_found = {}  # Para evitar duplicados y trackear precios
+        
+        # Obtener el producto variant principal para cálculos de precio
+        product_variant = self.product_variant_ids[0] if self.product_variant_ids else None
+        if not product_variant:
+            return []
+        
+        # Lista de pricelists a evaluar: las configuradas + la del usuario
+        pricelists_to_check = []
         
         # Agregar las listas configuradas en settings
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
-            for pricelist in website.sh_mayorista_pricelist_ids:
-                try:
-                    price = pricelist._get_product_price(self, 1.0, partner)
-                    
-                    # VALIDACIÓN CRÍTICA: Solo agregar si el precio es diferente al precio base
-                    # Esto evita mostrar precios cuando la lista usa reglas sobre productos sin precio mayorista
-                    if abs(price - base_price) > 0.01:  # Tolerancia para diferencias mínimas
-                        # Verificar si este pricelist tiene reglas específicas para este producto
-                        # o si está aplicando reglas por defecto sobre un precio inexistente
-                        pricelist_items = self.env['product.pricelist.item'].search([
-                            ('pricelist_id', '=', pricelist.id),
-                            '|',
-                            ('product_tmpl_id', '=', self.id),
-                            ('product_id', 'in', self.product_variant_ids.ids)
-                        ])
-                        
-                        # Solo agregar si hay items específicos o si el precio es significativamente diferente
-                        if pricelist_items or abs(price - base_price) > (base_price * 0.05):  # 5% de diferencia mínima
-                            if price not in prices_found:
-                                results.append({
-                                    'name': pricelist.name,
-                                    'price': price,
-                                    'is_user_pricelist': pricelist.id == user_pricelist.id,
-                                    'pricelist_id': pricelist.id,
-                                })
-                                prices_found.add(price)
-                except:
-                    # Si hay error calculando precio, saltear esta lista
-                    continue
+            pricelists_to_check.extend(website.sh_mayorista_pricelist_ids)
         
-        # Asegurar que la lista del usuario esté incluida solo si es diferente
-        if user_pricelist.id not in [r['pricelist_id'] for r in results]:
+        # Asegurar que la lista del usuario esté incluida
+        if user_pricelist not in pricelists_to_check:
+            pricelists_to_check.append(user_pricelist)
+        
+        # Calcular precios para cada lista
+        for pricelist in pricelists_to_check:
             try:
-                price = user_pricelist._get_product_price(self, 1.0, partner)
+                # Usar el método correcto de Odoo para obtener el precio
+                price = pricelist._get_product_price(
+                    product_variant, 
+                    1.0, 
+                    partner,
+                    date=False,
+                    uom_id=product_variant.uom_id.id
+                )
                 
-                # Solo agregar la lista del usuario si tiene un precio diferente al base
-                if abs(price - base_price) > 0.01:
-                    # Verificar si tiene reglas específicas
-                    user_pricelist_items = self.env['product.pricelist.item'].search([
-                        ('pricelist_id', '=', user_pricelist.id),
-                        '|',
-                        ('product_tmpl_id', '=', self.id),
-                        ('product_id', 'in', self.product_variant_ids.ids)
-                    ])
+                # Solo agregar si el precio es válido y único
+                if price > 0 and price not in prices_found.values():
+                    results.append({
+                        'name': pricelist.name,
+                        'price': price,
+                        'is_user_pricelist': pricelist.id == user_pricelist.id,
+                        'pricelist_id': pricelist.id,
+                    })
+                    prices_found[pricelist.id] = price
                     
-                    if user_pricelist_items or abs(price - base_price) > (base_price * 0.05):
-                        if price not in prices_found:
-                            results.append({
-                                'name': user_pricelist.name,
-                                'price': price,
-                                'is_user_pricelist': True,
-                                'pricelist_id': user_pricelist.id,
-                            })
-                            prices_found.add(price)
-                elif len(results) == 0:
-                    # Si no hay otros precios diferentes, no mostrar nada
-                    return []
-            except:
-                # Si hay error, no agregar
-                pass
+            except Exception as e:
+                # Log del error para debugging
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.warning(f"Error calculando precio para pricelist {pricelist.name}: {e}")
+                continue
         
-        # Solo devolver resultados si hay más de un precio REALMENTE diferente
+        # Solo devolver resultados si hay más de un precio diferente
         if len(results) <= 1:
             return []
         
-        # Ordenar: precio del usuario primero, luego por precio ascendente
+        # Ordenar: precio del usuario primero, luego por precio ascendente  
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
         return results
