@@ -101,7 +101,6 @@ class MotorCycleWebsiteSale(WebsiteSale):
         return stock_map
 
     def _shop_lookup_products(self, attrib_set, options, post, search, website):
-
         _logger.info("[🔎 DEBUG] options received: %s", {k: v for k, v in options.items() if k in ['type', 'make', 'model', 'year']})
 
         # 1) Búsqueda fuzzy original
@@ -115,18 +114,40 @@ class MotorCycleWebsiteSale(WebsiteSale):
         _logger.info("[🔎 DEBUG] details[0] keys: %s", list(details[0].keys()))
 
         search_result = details[0].get('results', request.env['product.template'])\
-                                        .with_context(bin_size=True)
+                                            .with_context(bin_size=True)
 
-        # ✅ DEBUG RECORTADO
         _logger.info("[🔎 _shop_lookup_products] fuzzy=%s, count=%d, products_found=%d", 
                     fuzzy_search_term, product_count, len(search_result))
 
-        # 2) Guardamos el contexto motero
+        # 2) Extraer parámetros de moto
         motorcycle_type = options.get('type')
         motorcycle_make = options.get('make') 
         motorcycle_model = options.get('model')
         motorcycle_year = options.get('year')
         
+        # 3) ✅ FILTRAR PRODUCTOS POR MOTO
+        if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
+            # Buscar la moto específica
+            motorcycle = request.env['motorcycle.motorcycle'].search([
+                ('type_id', '=', int(motorcycle_type)),
+                ('make_id', '=', int(motorcycle_make)),
+                ('mmodel_id', '=', int(motorcycle_model)),
+                ('year', '=', motorcycle_year)
+            ], limit=1)
+            
+            if motorcycle:
+                # Filtrar productos compatibles con esta moto
+                search_result = search_result.filtered(
+                    lambda template: any(
+                        motorcycle in variant.motorcycle_ids 
+                        for variant in template.product_variant_ids
+                    )
+                )
+                _logger.info("[🔎 FILTRO] Productos filtrados para moto: %d", len(search_result))
+                # Actualizar count
+                product_count = len(search_result)
+        
+        # 4) Construir heading
         motorcycle_heading = ''
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             try:
@@ -150,15 +171,41 @@ class MotorCycleWebsiteSale(WebsiteSale):
             'motorcycle_heading': motorcycle_heading,
         }
 
-        # ✅ DEBUG RECORTADO
-        _logger.info("[🔎 _shop_lookup_products] moto_heading='%s'", motorcycle_heading)
-
-        # 3) Filtrado por atributos (código existente sin cambios)
+        # 5) Filtrado por atributos
         if attrib_set:
-            # ... tu código de filtrado existente ...
+            attribute_values = request.env['product.attribute.value'].browse(attrib_set)
+            values_per_attribute = defaultdict(lambda: request.env['product.attribute.value'])
+            multi = False
+            for v in attribute_values:
+                values_per_attribute[v.attribute_id] |= v
+                if len(values_per_attribute[v.attribute_id]) > 1:
+                    multi = True
+
+            def keep_template(template, combos):
+                mapping = {
+                    ptav.product_attribute_value_id: ptav.id
+                    for ptav in template.attribute_line_ids.product_template_value_ids
+                }
+                for val_group in combos:
+                    ptavs = request.env['product.template.attribute.value'].browse(
+                        [mapping[val] for val in val_group if val in mapping]
+                    )
+                    if len(ptavs) == len(template.attribute_line_ids) and template._is_combination_possible(ptavs):
+                        return True
+                return False
+
+            if not multi:
+                combos = [attribute_values]
+            else:
+                combos = [
+                    request.env['product.attribute.value'].browse([v.id for v in group])
+                    for group in cartesian_product(*values_per_attribute.values())
+                ]
+
+            search_result = search_result.filtered(lambda tmpl: keep_template(tmpl, combos))
             _logger.info("[🔎 _shop_lookup_products] after attr filter: %d products", len(search_result))
 
-        # 4) Construimos e inyectamos el stock_map
+        # 6) Construir stock_map
         stock_map = self._build_stock_map(search_result)
         request.update_context(has_stock_map=stock_map)
 
