@@ -202,6 +202,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
                     for group in cartesian_product(*values_per_attribute.values())
                 ]
 
+
             search_result = search_result.filtered(lambda tmpl: keep_template(tmpl, combos))
             _logger.info("[🔎 _shop_lookup_products] after attr filter: %d products", len(search_result))
 
