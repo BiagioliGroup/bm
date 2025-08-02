@@ -101,7 +101,7 @@
                                 <!-- Botones centrados -->
                                 <div class="row justify-content-center g-2">
                                     <!-- Botón Buscar -->
-                                    <div class="col-6 col-md-3 col-lg-2">
+                                    <div class="col-3 col-md-3 col-lg-2">
                                         <button type="submit" class="btn btn-primary w-100" style="background-color: #d2691e; border-color: #d2691e;">
                                             <i class="fa fa-search me-1"></i>Buscar
                                         </button>
@@ -109,7 +109,7 @@
                                     
                                     <!-- Botón Mi Garage -->
                                     <t t-if="request.session.uid and website.sh_is_show_garage">
-                                        <div class="col-6 col-md-3 col-lg-2">
+                                        <div class="col-3 col-md-3 col-lg-2">
                                             <button type="button" id="id_sh_motorcycle_garage_btn" class="btn btn-secondary w-100" style="background-color: #cd853f; border-color: #cd853f;">
                                                 Mi Garage <i class="fa fa-angle-down"></i>
                                             </button>
