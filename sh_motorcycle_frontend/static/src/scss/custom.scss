@@ -1,91 +1,382 @@
 /*--sh_motorcycle--*/
-.id_sh_motorcycle_search_diff_bike_div{z-index:9}
-#id_sh_motorcycle_search_div .text-center{color:o-color('o-color-2');font-size: 18px;}
-.id_sh_motorcycle_select_diff_bike_btn{color:o-color('o-color-2');}
-.id_sh_motorcycle_select_diff_bike_btn:hover{text-decoration: none;}
-#id_sh_motorcycle_search_form .form-control{margin-right:5px;padding: 0.375em 2em 0.375em 1em;border-radius:0px;}
-.id_sh_motorcycle_search_diff_bike_div{margin-bottom:1rem;padding: 20px 0px;border-top: 2px solid;border-top-color:o-color('o-color-2') !important;}
-#id_sh_motorcycle_search_diff_bike_form .form-control{margin-right:5px;padding: 0.375em 3.5em 0.375em 1em;border-radius:0px;}
-#id_sh_motorcycle_search_diff_bike_div, #id_sh_motorcycle_search_div{margin-bottom:1rem;padding: 20px 30px;width: 100%;position: relative;border-color:o-color('o-color-2') #ddd #ddd #ddd;border-style: solid;border-width: 2px 1px 1px 1px;border-top-color:o-color('o-color-2');}
-#id_sh_motorcycle_search_form .form-control{margin-right:5px;padding: 0.375em 2em 0.375em 1em;border-radius:0px;}
-#id_sh_motorcycle_garage_div{ padding: 20px 30px;position: relative;border-color: #875A7B #ddd #ddd #ddd;border-style: solid; border-width: 2px 1px 1px 1px; border-top-color: #875A7B;position: relative;margin-bottom:1rem;}
-#id_sh_motorcycle_garage_div h4{   padding-right:5px;}
-.id_sh_motorcycle_save_bike_to_garage_btn i{padding-right:5px;}
-.id_sh_motorcycle_save_bike_to_garage_btn {color:#155724;}
+.id_sh_motorcycle_search_diff_bike_div {
+  z-index: 9;
+}
+#id_sh_motorcycle_search_div .text-center {
+  color: o-color("o-color-2");
+  font-size: 18px;
+}
+.id_sh_motorcycle_select_diff_bike_btn {
+  color: o-color("o-color-2");
+}
+.id_sh_motorcycle_select_diff_bike_btn:hover {
+  text-decoration: none;
+}
+#id_sh_motorcycle_search_form .form-control {
+  margin-right: 5px;
+  padding: 0.375em 2em 0.375em 1em;
+  border-radius: 0px;
+}
+.id_sh_motorcycle_search_diff_bike_div {
+  margin-bottom: 1rem;
+  padding: 20px 0px;
+  border-top: 2px solid;
+  border-top-color: o-color("o-color-2") !important;
+}
+#id_sh_motorcycle_search_diff_bike_form .form-control {
+  margin-right: 5px;
+  padding: 0.375em 3.5em 0.375em 1em;
+  border-radius: 0px;
+}
+#id_sh_motorcycle_search_diff_bike_div,
+#id_sh_motorcycle_search_div {
+  margin-bottom: 1rem;
+  padding: 20px 30px;
+  width: 100%;
+  position: relative;
+  border-color: o-color("o-color-2") #ddd #ddd #ddd;
+  border-style: solid;
+  border-width: 2px 1px 1px 1px;
+  border-top-color: o-color("o-color-2");
+}
+#id_sh_motorcycle_search_form .form-control {
+  margin-right: 5px;
+  padding: 0.375em 2em 0.375em 1em;
+  border-radius: 0px;
+}
+#id_sh_motorcycle_garage_div {
+  padding: 20px 30px;
+  position: relative;
+  border-color: #875a7b #ddd #ddd #ddd;
+  border-style: solid;
+  border-width: 2px 1px 1px 1px;
+  border-top-color: #875a7b;
+  position: relative;
+  margin-bottom: 1rem;
+}
+#id_sh_motorcycle_garage_div h4 {
+  padding-right: 5px;
+}
+.id_sh_motorcycle_save_bike_to_garage_btn i {
+  padding-right: 5px;
+}
+.id_sh_motorcycle_save_bike_to_garage_btn {
+  color: #155724;
+}
 /*--sh_motorcycle--*/
 
-.id_sh_motorcycle_select_diff_bike_btn i{padding-right:5px;}
-.sh_garage_buttons_cls{white-space: nowrap;}
+.id_sh_motorcycle_select_diff_bike_btn i {
+  padding-right: 5px;
+}
+.sh_garage_buttons_cls {
+  white-space: nowrap;
+}
 .id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::after,
-.id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::before{
-    content: '';
-    background: #6c6c6c;
-    width: 14px;
-    height: 2px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    display: block;
+.id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::before {
+  content: "";
+  background: #6c6c6c;
+  width: 14px;
+  height: 2px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
 }
-.id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::after{
-    transform: rotateZ(45deg);
+.id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::after {
+  transform: rotateZ(45deg);
 }
-.id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::before{
-    transform: rotateZ(135deg);
+.id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::before {
+  transform: rotateZ(135deg);
 }
 
 /*--media-query--*/
-@media screen and (max-width:991px){
-//#id_sh_motorcycle_search_div .dropdown{margin-top:1.5%}
-#id_sh_motorcycle_select_saved_bike_btn{margin-left: 0%!important;margin-top: 0%;}
+@media screen and (max-width: 991px) {
+  //#id_sh_motorcycle_search_div .dropdown{margin-top:1.5%}
+  #id_sh_motorcycle_select_saved_bike_btn {
+    margin-left: 0% !important;
+    margin-top: 0%;
+  }
 }
-@media screen and (min-width:768px) and (max-width:992px){
-    #id_sh_motorcycle_search_diff_bike_form,
-    #id_sh_motorcycle_search_form{flex-wrap: wrap;}
+@media screen and (min-width: 768px) and (max-width: 992px) {
+  #id_sh_motorcycle_search_diff_bike_form,
+  #id_sh_motorcycle_search_form {
+    flex-wrap: wrap;
+  }
 
-
-    #id_sh_motorcycle_type_select,
-    #id_sh_motorcycle_make_select,
-    #id_sh_motorcycle_model_select,
-    #id_sh_motorcycle_year_select{width: 23%;}
-    .sh_garage_buttons_cls{margin-top: 10px;margin-left: 0 !important;}
-    #id_sh_motorcycle_select_saved_bike_btn{margin-left: 0px !important;}
+  #id_sh_motorcycle_type_select,
+  #id_sh_motorcycle_make_select,
+  #id_sh_motorcycle_model_select,
+  #id_sh_motorcycle_year_select {
+    width: 23%;
+  }
+  .sh_garage_buttons_cls {
+    margin-top: 10px;
+    margin-left: 0 !important;
+  }
+  #id_sh_motorcycle_select_saved_bike_btn {
+    margin-left: 0px !important;
+  }
 }
-@media screen and (max-width:768px){
-#id_sh_motorcycle_search_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#id_sh_motorcycle_search_diff_bike_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-.id_sh_motorcycle_search_diff_bike_div{padding: 20px 0px;}
-#id_sh_motorcycle_search_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#id_sh_motorcycle_search_div{padding: 20px 15px;}
-#id_sh_motorcycle_select_saved_bike_btn{margin-left: 0%!important;margin-top: 0%;}
+@media screen and (max-width: 768px) {
+  #id_sh_motorcycle_search_form .form-control {
+    padding: 0.375em 1em 0.375em 1em;
+  }
+  #id_sh_motorcycle_search_diff_bike_form .form-control {
+    padding: 0.375em 1em 0.375em 1em;
+  }
+  .id_sh_motorcycle_search_diff_bike_div {
+    padding: 20px 0px;
+  }
+  #id_sh_motorcycle_search_form .form-control {
+    padding: 0.375em 1em 0.375em 1em;
+  }
+  #id_sh_motorcycle_search_div {
+    padding: 20px 15px;
+  }
+  #id_sh_motorcycle_select_saved_bike_btn {
+    margin-left: 0% !important;
+    margin-top: 0%;
+  }
 }
-@media screen and (max-width:575px){
-#id_sh_motorcycle_search_form .form-group {width:100%}
-#id_sh_motorcycle_search_form { align-items: baseline;}
-#id_sh_motorcycle_search_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#id_sh_motorcycle_go_submit_button{width: 100%;margin-bottom:10px}
-.id_sh_motorcycle_search_diff_bike_div .form-group {width:100%}
-.sh_garage_buttons_cls{width: fit-content;margin: 0 auto !important;display:inline-block;}
-#id_sh_motorcycle_search_diff_bike_form, #id_sh_motorcycle_search_form{margin-top: 10px;flex-direction: column;}
-#id_sh_motorcycle_search_div .form-group {width:100%;margin-bottom: 1rem;}
-#id_sh_motorcycle_search_form{margin-top: 10px;}
-#id_sh_motorcycle_type_select,
-#id_sh_motorcycle_make_select,
-#id_sh_motorcycle_model_select,
-#id_sh_motorcycle_year_select,#id_sh_motorcycle_go_submit_button{margin-top:10px;}
+@media screen and (max-width: 575px) {
+  #id_sh_motorcycle_search_form .form-group {
+    width: 100%;
+  }
+  #id_sh_motorcycle_search_form {
+    align-items: baseline;
+  }
+  #id_sh_motorcycle_search_form .form-control {
+    padding: 0.375em 1em 0.375em 1em;
+  }
+  #id_sh_motorcycle_go_submit_button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .id_sh_motorcycle_search_diff_bike_div .form-group {
+    width: 100%;
+  }
+  .sh_garage_buttons_cls {
+    width: fit-content;
+    margin: 0 auto !important;
+    display: inline-block;
+  }
+  #id_sh_motorcycle_search_diff_bike_form,
+  #id_sh_motorcycle_search_form {
+    margin-top: 10px;
+    flex-direction: column;
+  }
+  #id_sh_motorcycle_search_div .form-group {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  #id_sh_motorcycle_search_form {
+    margin-top: 10px;
+  }
+  #id_sh_motorcycle_type_select,
+  #id_sh_motorcycle_make_select,
+  #id_sh_motorcycle_model_select,
+  #id_sh_motorcycle_year_select,
+  #id_sh_motorcycle_go_submit_button {
+    margin-top: 10px;
+  }
 
-#id_sh_motorcycle_select_saved_bike_btn {width:100%;margin-left:0%!important;margin-top:0%!important}
+  #id_sh_motorcycle_select_saved_bike_btn {
+    width: 100%;
+    margin-left: 0% !important;
+    margin-top: 0% !important;
+  }
 }
 /*--media-query--*/
 
+/* AGREGAR al final de sh_motorcycle_frontend/static/src/scss/custom.scss */
 
+/*--mayorista styles SUBTLE COLORS--*/
 
+/* Wrapper para el reemplazo visual */
+.sh-price-comparison-wrapper {
+  position: relative;
+}
 
+/* Grilla de productos */
+.sh-price-comparison {
+  margin-top: 0px;
+  padding: 8px;
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  border-radius: 6px;
+  border-left: 3px solid #d0d0d0;
+  /* Hacer que reemplace visualmente al precio original */
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
+.sh-price-user {
+  color: #4a5568 !important;
+  font-weight: 600;
+  margin-bottom: 3px;
+  font-size: 0.9em; /* Reducido para coincidir con Odoo */
+}
 
+.sh-price-other {
+  color: #a0a0a0 !important;
+  opacity: 0.7;
+  margin-bottom: 2px;
+  font-size: 0.9em; /* Reducido para coincidir con Odoo */
+}
 
+.sh-price-label {
+  font-size: 0.9em; /* Más pequeño para las etiquetas */
+  color: #6a6a6a;
+}
 
+.sh-price-amount {
+  font-weight: bold;
+  color: #4a5568;
+  font-size: 0.9em; /* Reducido para coincidir con Odoo */
+}
 
+/* Página de producto individual */
+.sh-product-price-detail {
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(208, 208, 208, 0.15);
+  /* Reemplazar visualmente el precio original */
+  min-height: 120px;
+}
 
+.sh-price-header {
+  color: #4a5568;
+  font-size: 1.2em;
+  border-bottom: 1px solid #d0d0d0;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
 
+.sh-price-card {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sh-price-card-user {
+  background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+  border-color: #d0d0d0;
+  box-shadow: 0 3px 8px rgba(208, 208, 208, 0.25);
+}
+
+.sh-price-card-user .sh-price-label {
+  color: #4a5568;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.sh-price-card-user .sh-price-amount-large {
+  color: #4a5568;
+  font-weight: bold;
+  font-size: 1.4em; /* Más grande para página de producto */
+}
+
+.sh-price-card-other {
+  background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+  border-color: #d0d0d0;
+  opacity: 0.8;
+}
+
+.sh-price-card-other .sh-price-label {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 0.95em;
+}
+
+.sh-price-card-other .sh-price-amount-large {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 1.2em;
+}
+
+.sh-price-badge {
+  color: #4a5568;
+  background: rgba(208, 208, 208, 0.3);
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+/* Responsive para página de producto */
+@media (max-width: 768px) {
+  .sh-product-price-detail .col-md-6 {
+    margin-bottom: 0.75rem;
+  }
+
+  .sh-product-price-detail {
+    padding: 15px;
+    min-height: 100px;
+  }
+
+  .sh-price-card-user .sh-price-amount-large {
+    font-size: 1.2em;
+  }
+
+  .sh-price-card-other .sh-price-amount-large {
+    font-size: 1.1em;
+  }
+}
+
+/* Badge en header con colores más suaves */
+.badge.bg-primary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+  color: #fff !important;
+  font-size: 0.8em;
+  padding: 0.4em 0.8em;
+}
+
+/* Hover effects */
+.sh-price-card:hover {
+  transform: translateY(-1px);
+}
+
+.sh-price-card-user:hover {
+  box-shadow: 0 4px 12px rgba(208, 208, 208, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sh-product-price-detail .col-md-6 {
+    margin-bottom: 0.5rem;
+  }
+
+  .sh-price-comparison {
+    padding: 6px;
+    margin-top: 6px;
+  }
+
+  .badge.bg-primary {
+    font-size: 0.7em;
+    padding: 0.3em 0.6em;
+  }
+
+  .sh-price-amount {
+    font-size: 0.9em;
+  }
+}
+
+/* Estilos para cuando solo hay un precio */
+.sh-price-single {
+  color: #4a5568;
+  font-weight: 600;
+}
+
+/*--end mayorista styles--*/

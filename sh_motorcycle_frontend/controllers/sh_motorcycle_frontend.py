@@ -6,6 +6,9 @@ from odoo import http
 from itertools import product as cartesian_product
 from collections import defaultdict
 from odoo.addons.website_sale.controllers.main import WebsiteSale
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class MotorCycleWebsiteSale(WebsiteSale):
     _sh_motorcycle_frontend_detail = {}
@@ -29,12 +32,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
             for product_variant in product.product_variant_ids:
                 if product_variant.motorcycle_ids:
                     vehicles_ids += product_variant.motorcycle_ids.ids
-            if vehicles_ids:
-                # To Make List Unique
-                # insert the list to the set
-                list_set = set(vehicles_ids)
-                # convert the set to the list
-                vehicles_ids = (list(list_set))
+            vehicles_ids = list(set(vehicles_ids))
             vehicles = vehicles.browse(vehicles_ids).sorted(
                 key=lambda r: r.make_id.id or 0)
 
@@ -42,166 +40,269 @@ class MotorCycleWebsiteSale(WebsiteSale):
         values['sh_is_common_product'] = sh_is_common_product
 
         return values
+    
+    def _get_motorcycle_context_from_details(self, details):
+        motorcycle_type = details[0].get('motorcycle_type')
+        motorcycle_make = details[0].get('motorcycle_make')
+        motorcycle_model = details[0].get('motorcycle_model')
+        motorcycle_year = details[0].get('motorcycle_year')
 
-    def _shop_lookup_products(self, attrib_set, options, post, search, website):
-        """
-            REPLACE/OVERWRITE METHOD BY SOFTHEALER
-            ==> In order to get in order to get
-                - motorcycle_heading,
-                - motorcycle_type,
-                - motorcycle_make
-                - motorcycle_model
-                - motorcycle_year
-                - type_list
-                - make_list
-                - model_list
-                - year_list
+        motorcycle_heading = ''
 
-                values from 
-             def _search_get_detail method defined in product template.
+        if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
+            try:
+                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
+                model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
+                motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
+                _logger.info(f"[🚀 Motorcycle Selected de _get_motorcycle_context_from_details] {motorcycle_heading}")
+            except Exception as e:
+                _logger.warning(f"[⚠️ Error generating motorcycle_heading] {e}")
+                motorcycle_heading = ''
 
-        """
-        # No limit because attributes are obtained from complete product list
-        product_count, details, fuzzy_search_term = website._search_with_fuzzy("products_only", search,
-                                                                               limit=None,
-                                                                               order=self._get_search_order(
-                                                                                   post),
-                                                                               options=options)
-        search_result = details[0].get(
-            'results', request.env['product.template']).with_context(bin_size=True)
-
-        # --------------------------------------------------------------------
-        # softhealer custom code start here
-        # --------------------------------------------------------------------
-        # we assigned motorcycle detaile in controller variable - _sh_motorcycle_frontend_detail
-        # in order to use it in shop controller.
-        self._sh_motorcycle_frontend_detail = {
-            'motorcycle_heading': details[0].get('motorcycle_heading', ''),
-            'motorcycle_type': details[0].get('motorcycle_type', ''),
-            'motorcycle_make': details[0].get('motorcycle_make', ''),
-            'motorcycle_model': details[0].get('motorcycle_model', ''),
-            'motorcycle_year': details[0].get('motorcycle_year', ''),
+        return {
+            'motorcycle_type': motorcycle_type or '',
+            'motorcycle_make': motorcycle_make or '',
+            'motorcycle_model': motorcycle_model or '',
+            'motorcycle_year': motorcycle_year or '',
             'type_list': details[0].get('type_list', ''),
             'make_list': details[0].get('make_list', ''),
             'model_list': details[0].get('model_list', ''),
             'year_list': details[0].get('year_list', ''),
+            'motorcycle_heading': motorcycle_heading,
         }
-        # --------------------------------------------------------------------
-        # softhealer custom code ends here
-        # --------------------------------------------------------------------
+    
+    def _build_stock_map(self, product_templates):
+        """
+        Devuelve un dict {template_id: True/False} indicando
+        si tiene stock (>0) sumando todas sus variantes.
+        """
+        stock_map = {}
+        if not product_templates:
+            return stock_map
 
-        if attrib_set:
-            # Attributes value per attribute
-            attribute_values = request.env['product.attribute.value'].browse(
-                attrib_set)
-            values_per_attribute = defaultdict(
-                lambda: request.env['product.attribute.value'])
-            # In case we have only one value per attribute we can check for a combination using those attributes directly
-            multi_value_attribute = False
-            for value in attribute_values:
-                values_per_attribute[value.attribute_id] |= value
-                if len(values_per_attribute[value.attribute_id]) > 1:
-                    multi_value_attribute = True
+        # Leemos las variantes y su qty_available
+        variants = request.env['product.product'].sudo().search([
+            ('product_tmpl_id', 'in', product_templates.ids)
+        ]).read(['product_tmpl_id', 'qty_available'])
 
-            def filter_template(template, attribute_values_list):
-                # Transform product.attribute.value to product.template.attribute.value
-                attribute_value_to_ptav = dict()
-                for ptav in template.attribute_line_ids.product_template_value_ids:
-                    attribute_value_to_ptav[ptav.product_attribute_value_id] = ptav.id
-                possible_combinations = False
-                for attribute_values in attribute_values_list:
-                    ptavs = request.env['product.template.attribute.value'].browse(
-                        [attribute_value_to_ptav[val]
-                            for val in attribute_values if val in attribute_value_to_ptav]
+        # Agregamos por template
+        agg = {}
+        for v in variants:
+            tid = v['product_tmpl_id'][0]
+            agg[tid] = agg.get(tid, 0) + v['qty_available']
+
+        # Convertimos a map booleano
+        stock_map = {tid: (qty > 0) for tid, qty in agg.items()}
+        
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔎 _build_stock_map] Created stock_map for %d templates", len(stock_map))
+        
+        return stock_map
+
+    def _shop_lookup_products(self, attrib_set, options, post, search, website):
+        _logger.info("[🔎 DEBUG] options received: %s", {k: v for k, v in options.items() if k in ['type', 'make', 'model', 'year']})
+
+        # 1) Búsqueda fuzzy original
+        product_count, details, fuzzy_search_term = website._search_with_fuzzy(
+            "products_only", search,
+            limit=None,
+            order=self._get_search_order(post),
+            options=options
+        )
+
+        _logger.info("[🔎 DEBUG] details[0] keys: %s", list(details[0].keys()))
+
+        search_result = details[0].get('results', request.env['product.template'])\
+                                            .with_context(bin_size=True)
+
+        _logger.info("[🔎 _shop_lookup_products] fuzzy=%s, count=%d, products_found=%d", 
+                    fuzzy_search_term, product_count, len(search_result))
+
+        # 2) Extraer parámetros de moto
+        motorcycle_type = options.get('type')
+        motorcycle_make = options.get('make') 
+        motorcycle_model = options.get('model')
+        motorcycle_year = options.get('year')
+        
+        # 3) ✅ FILTRAR PRODUCTOS POR MOTO
+        if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
+            # Buscar la moto específica
+            motorcycle = request.env['motorcycle.motorcycle'].search([
+                ('type_id', '=', int(motorcycle_type)),
+                ('make_id', '=', int(motorcycle_make)),
+                ('mmodel_id', '=', int(motorcycle_model)),
+                ('year', '=', motorcycle_year)
+            ], limit=1)
+            
+            if motorcycle:
+                # Filtrar productos compatibles con esta moto
+                search_result = search_result.filtered(
+                    lambda template: any(
+                        motorcycle in variant.motorcycle_ids 
+                        for variant in template.product_variant_ids
                     )
-                    if len(ptavs) < len(attribute_values):
-                        # In this case the template is not compatible with this specific combination
-                        continue
-                    if len(ptavs) == len(template.attribute_line_ids):
-                        if template._is_combination_possible(ptavs):
-                            return True
-                    elif len(ptavs) < len(template.attribute_line_ids):
-                        if len(attribute_values_list) == 1:
-                            if any(template._get_possible_combinations(necessary_values=ptavs)):
-                                return True
-                        if not possible_combinations:
-                            possible_combinations = template._get_possible_combinations()
-                        if any(len(ptavs & combination) == len(ptavs) for combination in possible_combinations):
-                            return True
+                )
+                _logger.info("[🔎 FILTRO] Productos filtrados para moto: %d", len(search_result))
+                # Actualizar count
+                product_count = len(search_result)
+        
+        # 4) Construir heading
+        motorcycle_heading = ''
+        if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
+            try:
+                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
+                model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
+                motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
+                _logger.info("[🚀 SUCCESS] moto_heading='%s'", motorcycle_heading)
+            except Exception as e:
+                _logger.warning("[⚠️ ERROR] heading generation: %s", e)
+
+        self._sh_motorcycle_frontend_detail = {
+            'motorcycle_type': motorcycle_type or '',
+            'motorcycle_make': motorcycle_make or '',
+            'motorcycle_model': motorcycle_model or '',
+            'motorcycle_year': motorcycle_year or '',
+            'type_list': details[0].get('type_list', []),
+            'make_list': details[0].get('make_list', []),
+            'model_list': details[0].get('model_list', []),
+            'year_list': details[0].get('year_list', []),
+            'motorcycle_heading': motorcycle_heading,
+        }
+
+        # 5) Filtrado por atributos
+        if attrib_set:
+            attribute_values = request.env['product.attribute.value'].browse(attrib_set)
+            values_per_attribute = defaultdict(lambda: request.env['product.attribute.value'])
+            multi = False
+            for v in attribute_values:
+                values_per_attribute[v.attribute_id] |= v
+                if len(values_per_attribute[v.attribute_id]) > 1:
+                    multi = True
+
+            def keep_template(template, combos):
+                mapping = {
+                    ptav.product_attribute_value_id: ptav.id
+                    for ptav in template.attribute_line_ids.product_template_value_ids
+                }
+                for val_group in combos:
+                    ptavs = request.env['product.template.attribute.value'].browse(
+                        [mapping[val] for val in val_group if val in mapping]
+                    )
+                    if len(ptavs) == len(template.attribute_line_ids) and template._is_combination_possible(ptavs):
+                        return True
                 return False
 
-            # If multi_value_attribute is False we know that we have our final combination (or at least a subset of it)
-            if not multi_value_attribute:
-                possible_attrib_values_list = [attribute_values]
+            if not multi:
+                combos = [attribute_values]
             else:
-                # Cartesian product from dict keys and values
-                possible_attrib_values_list = [request.env['product.attribute.value'].browse([v.id for v in values]) for
-                                               values in cartesian_product(*values_per_attribute.values())]
+                combos = [
+                    request.env['product.attribute.value'].browse([v.id for v in group])
+                    for group in cartesian_product(*values_per_attribute.values())
+                ]
 
-            search_result = search_result.filtered(
-                lambda tmpl: filter_template(tmpl, possible_attrib_values_list))
+
+            search_result = search_result.filtered(lambda tmpl: keep_template(tmpl, combos))
+            _logger.info("[🔎 _shop_lookup_products] after attr filter: %d products", len(search_result))
+
+        # 6) Construir stock_map
+        stock_map = self._build_stock_map(search_result)
+        request.update_context(has_stock_map=stock_map)
 
         return fuzzy_search_term, product_count, search_result
 
-    def _get_search_options(
-            self, category=None, attrib_values=None, pricelist=None, min_price=0.0, max_price=0.0, conversion_rate=1, **post):
+
+    def _get_search_options(self, category=None, attrib_values=None, pricelist=None, 
+                       min_price=0.0, max_price=0.0, conversion_rate=1, **post):
         """
-            INHERITED BY SOFTHEALER
-            Get type, make, mode, year values from URL/POST and add it into options in order to use it in
-            1) _shop_lookup_products in website_sale controller
-            2) _search_get_detail in product template
+        INHERITED BY SOFTHEALER - Fixed parameter extraction
         """
-        result = super(MotorCycleWebsiteSale, self)._get_search_options(
-            category=category, attrib_values=attrib_values, pricelist=pricelist, min_price=min_price, max_price=max_price, conversion_rate=conversion_rate, **post
+        result = super()._get_search_options(
+            category=category, attrib_values=attrib_values, pricelist=pricelist, 
+            min_price=min_price, max_price=max_price, conversion_rate=conversion_rate, **post
         )
+        
+        # ✅ FIX: Extraer de post['post'] si existe, sino de post directamente
+        moto_params = post.get('post', post) if 'post' in post else post
+        
         options_motorcycle = {
-            'type': post.get('type', False),
-            'make': post.get('make', False),
-            'model': post.get('model', False),
-            'year': post.get('year', False),
+            'type': moto_params.get('type', False),
+            'make': moto_params.get('make', False), 
+            'model': moto_params.get('model', False),
+            'year': moto_params.get('year', False),
         }
+        
+        _logger.info("[🔍 _get_search_options FIXED] moto_params: %s", moto_params)
+        _logger.info("[🔍 _get_search_options FIXED] options_motorcycle: %s", options_motorcycle)
+        
+        result.update(options_motorcycle)
+        return result
+    
+
+
+    def _shop_get_query_url_kwargs(self, category, search, min_price, max_price, **post):
+        """
+        INHERITED BY SOFTHEALER - Fixed parameter preservation
+        """
+        result = super()._shop_get_query_url_kwargs(
+            category, search, min_price, max_price, **post)
+        
+        # ✅ FIX: Mismo patrón de extracción
+        moto_params = post.get('post', post) if 'post' in post else post
+        
+        options_motorcycle = {}
+        for param in ['type', 'make', 'model', 'year']:
+            if moto_params.get(param):
+                options_motorcycle[param] = moto_params[param]
+        
         result.update(options_motorcycle)
         return result
 
-    def _shop_get_query_url_kwargs(self,category , search, min_price, max_price, **post):
-        """
-            INHERITED BY SOFTHEALER
-            Get type, make, mode, year values from URL/POST and add it into KEEP in order to keep
-            all the parameter when user click on category, attribute or price.
-        """
-        result = super(MotorCycleWebsiteSale, self)._shop_get_query_url_kwargs(
-            category , search, min_price, max_price, **post)
-        options_motorcycle = {}
-        if post.get('type', False):
-            options_motorcycle.update({
-                'type': post.get('type', False)
-            })
-        if post.get('make', False):
-            options_motorcycle.update({
-                'make': post.get('make', False)
-            })
-        if post.get('model', False):
-            options_motorcycle.update({
-                'model': post.get('model', False)
-            })
-        if post.get('year', False):
-            options_motorcycle.update({
-                'year': post.get('year', False)
-            })
-        result.update(options_motorcycle)
-        return result
 
     @http.route()
-    def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
+    def shop(self, page=0, category=None, search='', min_price=0.0,
+            max_price=0.0, ppg=False, **post):
         """
-        INHERITED BY SOFTHEALER
-        get motorcyle values from self._sh_motorcycle_frontend_detail and add in qcontext in order to use in
-        template - website_sale.products
+        CORREGIDO: Debug recortado
         """
-        res = super(MotorCycleWebsiteSale, self).shop(
-            page, category, search, min_price, max_price, ppg, **post)
-        res.qcontext.update(self._sh_motorcycle_frontend_detail)
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔍 SHOP] ENTRADA - params: %s", {k: v for k, v in request.params.items() if k in ['type', 'make', 'model', 'year']})
+        
+        # Ejecutamos la búsqueda "motera"
+        fuzzy, count, products = self._shop_lookup_products(
+            attrib_set=None,
+            options=self._get_search_options(**request.params),
+            post=request.params,
+            search=search,
+            website=request.website
+        )
+
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔍 SHOP] BÚSQUEDA - found %d products", len(products) if products else 0)
+
+        # Preparamos contexto motero
+        moto_context = self._sh_motorcycle_frontend_detail.copy()
+        moto_context.update({
+            'filter_order': getattr(request.website, 'sh_filter_order', False),
+            'show_only_with_products': getattr(request.website, 'sh_show_only_with_products', False),
+        })
+        request.update_context(**moto_context)
+
+        # Llamamos al shop original
+        res = super().shop(page, category, search, min_price, max_price, ppg, **post)
+
+        # ✅ DEBUG RECORTADO
+        if hasattr(res, 'qcontext'):
+            _logger.info("[🔍 SHOP] FINAL - qcontext updated with %d products", 
+                        len(res.qcontext.get('products', [])))
+            res.qcontext.update(moto_context)
+
         return res
+
+
+
+
 
 
 class sh_motorcycle(http.Controller):
@@ -259,56 +360,107 @@ class sh_motorcycle(http.Controller):
 
         return make_list or []
 
-    @http.route(['/sh_motorcycle/get_model_list'], type='json', auth='public', website=True)
-    def get_model_list(self, type_id=None, make_id=None):
+    @http.route(['/sh_motorcycle/get_year_list'], type='json', auth='public', website=True)
+    def get_year_list(self, type_id=None, make_id=None):
         """
-            METHOD BY SOFTHEALER
-            to get vehicle model
+            CORREGIDO: Get vehicle year based only on type and make
+        """
+        year_list = []
+        if (
+            type_id not in ('', None, False) and
+            make_id not in ('', None, False)
+        ):
+            try:
+                type_id = int(type_id)
+                make_id = int(make_id)
+                
+                vehicles = request.env['motorcycle.motorcycle'].sudo().search([
+                    ('type_id', '=', type_id),
+                    ('make_id', '=', make_id),
+                ])
+
+                year_list = list(set(vehicle.year for vehicle in vehicles))
+                year_list.sort(reverse=True)
+            except ValueError:
+                pass
+        return year_list or []
+
+    @http.route(['/sh_motorcycle/get_model_list'], type='json', auth='public', website=True)
+    def get_model_list(self, type_id=None, make_id=None, year=None):
+        """
+            MODIFICADO: ahora filtra también por Año.
         """
         model_list = []
         if (
             type_id not in ('', "", None, False) and
-            make_id not in ('', "", None, False)
+            make_id not in ('', "", None, False) and
+            year not in ('', "", None, False)
         ):
-            if type_id != int:
+            try:
                 type_id = int(type_id)
-            if make_id != int:
                 make_id = int(make_id)
-            model_list = request.env['motorcycle.mmodel'].sudo().search_read(
-                domain=[
-                    ('make_id', '=', make_id),
+                year = int(year)
+
+                # Ahora buscamos las motos específicas para tipo+marca+año
+                motorcycles = request.env['motorcycle.motorcycle'].sudo().search([
                     ('type_id', '=', type_id),
-                ],
-                fields=['id', 'name'],
-                order="name asc",
-            )
+                    ('make_id', '=', make_id),
+                    ('year', '=', year),
+                ])
+
+                # Extraemos los modelos de esas motos
+                model_ids = motorcycles.mapped('mmodel_id').filtered(lambda m: m.id)
+
+                # Eliminamos duplicados
+                model_list = [{'id': model.id, 'name': model.name} for model in model_ids.sorted(key=lambda m: m.name)]
+            except ValueError:
+                pass
+
         return model_list or []
 
-    @http.route(['/sh_motorcycle/get_year_list'], type='json', auth='public', website=True)
-    def get_year_list(self, type_id=None, make_id=None, model_id=None):
-        """
-            METHOD BY SOFTHEALER
-            to get vehicle year
-        """
-        year_list = []
-        if type_id and make_id and model_id:
-            type_id = int(type_id)
-            make_id = int(make_id)
-            model_id = int(model_id)
-            vehicles = request.env['motorcycle.motorcycle'].sudo().search([
-                ('type_id', '=', type_id),
-                ('make_id', '=', make_id),
-                ('mmodel_id', '=', model_id),
-            ])
-            year_list = sorted(set(vehicle.year for vehicle in vehicles if vehicle.year))
-        return year_list or []
-
-
     @http.route(['/sh_motorcycle/is_bike_already_in_garage'], type='json', auth='public', website=True)
-    def is_bike_already_in_garage(self, type_id=None, make_id=None, model_id=None, year_id=None):
+    def is_bike_already_in_garage(self, type_id=None, make_id=None, model_id=None, year=None):
         """
             METHOD BY SOFTHEALER
             to check vehicle is already in garage or not
+        """
+        is_already = False
+
+        if (
+            request.session.uid and
+            type_id not in ('', "", None, False) and
+            make_id not in ('', "", None, False) and
+            model_id not in ('', "", None, False) and
+            year not in ('', "", None, False)
+        ):
+            try:
+                type_id = int(type_id)
+                make_id = int(make_id)
+                model_id = int(model_id)
+                year = int(year)
+
+                search_motorcycle = request.env['motorcycle.garage'].sudo().search([
+                    ('type_id', '=', type_id),
+                    ('make_id', '=', make_id),
+                    ('mmodel_id', '=', model_id),
+                    ('year', '=', year),
+                    ('user_id', '=', request.env.user.id)
+                ], limit=1)
+
+                is_already = bool(search_motorcycle)
+
+            except ValueError:
+                pass
+
+        return {
+            'is_bike_already_in_garage': is_already
+        }
+
+    @http.route(['/sh_motorcycle/add_bike_to_garage'], type='json', auth='public', website=True)
+    def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year=None):
+        """
+            METHOD BY SOFTHEALER
+            to add vehicle to garage option
         """
         search_motorcycle = False
         if (
@@ -316,7 +468,7 @@ class sh_motorcycle(http.Controller):
             type_id not in ('', "", None, False) and
             make_id not in ('', "", None, False) and
             model_id not in ('', "", None, False) and
-            year_id not in ('', "", None, False)
+            year not in ('', "", None, False)
         ):
             try:
                 if type_id != int:
@@ -325,59 +477,29 @@ class sh_motorcycle(http.Controller):
                     make_id = int(make_id)
                 if model_id != int:
                     model_id = int(model_id)
-                if year_id != int:
-                    year_id = int(year_id)
+                if year != int:
+                    year = int(year)
                 garage_obj = request.env['motorcycle.garage']
-
                 search_motorcycle = garage_obj.sudo().search([
-                    ('type_id', '=', type_id),
-                    ('make_id', '=', make_id),
-                    ('mmodel_id', '=', model_id),
-                    ('year_id', '=', year_id),
-                    ('user_id', '=', request.env.user.id)
-                ], limit=1)
-            except ValueError:
-                pass
-
-            if search_motorcycle:
-                return {
-                    'is_bike_already_in_garage': True
-                }
-            return {
-                'is_bike_already_in_garage': False
-            }
-        return {}
-
-    @http.route(['/sh_motorcycle/add_bike_to_garage'], type='json', auth='public', website=True)
-    def add_bike_to_garage(self, type_id=None, make_id=None, model_id=None, year=None):
-        """
-            METHOD BY SOFTHEALER
-            to add vehicle to garage option
-        """
-        if request.env.user and type_id and make_id and model_id and year:
-            try:
-                type_id = int(type_id)
-                make_id = int(make_id)
-                model_id = int(model_id)
-                year = int(year)
-                garage_obj = request.env['motorcycle.garage']
-                exists = garage_obj.sudo().search([
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', model_id),
                     ('year', '=', year),
                     ('user_id', '=', request.env.user.id)
                 ], limit=1)
-                if not exists:
-                    garage_obj.sudo().create({
-                        'type_id': type_id,
-                        'make_id': make_id,
-                        'mmodel_id': model_id,
-                        'year': year,
-                        'user_id': request.env.user.id,
-                    })
             except ValueError:
                 pass
+
+            if not search_motorcycle:
+                garage_vals = {
+                    'type_id': type_id,
+                    'make_id': make_id,
+                    'mmodel_id': model_id,
+                    'year': year,
+                    'user_id': request.env.user.id,
+                }
+                garage_obj.sudo().create(garage_vals)
+
         return {}
 
     def _prepare_garage_layout_values(self):
@@ -440,13 +562,22 @@ class sh_motorcycle(http.Controller):
             search_motorcycles = garage_obj.sudo().search([
                 ('user_id', '=', request.env.user.id)
             ])
-            for motorcycle in search_motorcycles:
-                moto_url = f"/shop?type={motorcycle.type_id.id}&make={motorcycle.make_id.id}&model={motorcycle.mmodel_id.id}&year={motorcycle.year}"
-                saved_bike_list.append({
-                    'id': motorcycle.id,
-                    'name': motorcycle.name,
-                    'moto_url': moto_url
-                })
+            if search_motorcycles:
+                saved_bike_dic = {}
+                for motorcycle in search_motorcycles:
+                    moto_url = '/shop?type=' + str(motorcycle.type_id.id) + '&make=' + str(
+                        motorcycle.make_id.id) + '&model=' + str(motorcycle.mmodel_id.id) + '&year=' + str(motorcycle.year)
+                    saved_bike_dic.update({
+                        motorcycle.id:
+                            {
+                                'id': motorcycle.id,
+                                'name': motorcycle.name,
+                                'moto_url': moto_url
+                            }
+                    })
+                if saved_bike_dic:
+                    for key, value in sorted(saved_bike_dic.items(), key=lambda kv: kv[1]['name']):
+                        saved_bike_list.append(value)
         return saved_bike_list or []
 
     @http.route(['/sh_motorcycle/is_user_logined_in'], type='json', auth='public', website=True)
@@ -464,4 +595,38 @@ class sh_motorcycle(http.Controller):
         return {
             'is_user_logined_in': False,
             'sh_is_show_garage': request.website.sh_is_show_garage,
+        }
+
+    # 5. AGREGAR al final de sh_motorcycle_frontend/controllers/sh_motorcycle_frontend.py
+
+    @http.route(['/sh_motorcycle/get_user_mayorista_info'], type='json', auth='public', website=True)
+    def get_user_mayorista_info(self):
+        """
+        Devuelve información sobre si el usuario es mayorista
+        """
+        if not request.session.uid or request.env.user._is_public():
+            return {
+                'is_mayorista': False,
+                'pricelist_name': '',
+                'show_badge': False,
+            }
+            
+        user = request.env.user
+        partner = user.partner_id
+        pricelist = partner.property_product_pricelist
+        website = request.website
+        
+        is_mayorista = False
+        pricelist_name = ''
+        
+        if pricelist:
+            pricelist_name = pricelist.name
+            # Verificar si es mayorista (tiene "mayorista" en el nombre de la lista)
+            is_mayorista = 'mayorista' in pricelist.name.lower()
+        
+        return {
+            'is_mayorista': is_mayorista,
+            'pricelist_name': pricelist_name,
+            'show_badge': website.sh_show_user_pricelist_badge,
+            'show_comparative_prices': website.sh_show_comparative_prices,
         }
