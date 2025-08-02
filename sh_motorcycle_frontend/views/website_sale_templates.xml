@@ -47,6 +47,7 @@
     </xpath>
   </template>
 
+
 <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Complete motorcycle search optimized">
     <xpath expr="//div[contains(@class,'oe_website_sale')]" position="before">
 
@@ -110,9 +111,23 @@
                                     <!-- Botón Mi Garage -->
                                     <t t-if="request.session.uid and website.sh_is_show_garage">
                                         <div class="col-3 col-md-3 col-lg-2">
-                                            <button type="button" id="id_sh_motorcycle_garage_btn" class="btn btn-secondary w-100" style="background-color: #cd853f; border-color: #cd853f;">
-                                                Mi Garage <i class="fa fa-angle-down"></i>
-                                            </button>
+                                            <div class="dropdown">
+                                                <button type="button" id="id_sh_motorcycle_garage_btn" class="btn btn-secondary w-100 dropdown-toggle" 
+                                                        style="background-color: #cd853f; border-color: #cd853f;" 
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <span class="d-none d-md-inline">Mi Garage</span>
+                                                    <span class="d-md-none">Garage</span>
+                                                </button>
+                                                <ul class="dropdown-menu" id="id_sh_motorcycle_garage_dropdown">
+                                                    <li><a class="dropdown-item" href="#" onclick="loadGarageVehicles()">
+                                                        <i class="fa fa-refresh me-2"></i>Cargar vehículos guardados
+                                                    </a></li>
+                                                    <li><hr class="dropdown-divider"/></li>
+                                                    <li><small class="dropdown-item-text text-muted">
+                                                        Tus vehículos aparecerán aquí
+                                                    </small></li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </t>
                                     
