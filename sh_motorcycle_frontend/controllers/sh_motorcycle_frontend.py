@@ -5,7 +5,7 @@ from odoo.http import request
 from odoo import http
 from itertools import product as cartesian_product
 from collections import defaultdict
-from odoo.addons.website_sale.controllers.main import WebsiteSales
+from odoo.addons.website_sale.controllers.main import WebsiteSale
 import logging
 _logger = logging.getLogger(__name__)
 
