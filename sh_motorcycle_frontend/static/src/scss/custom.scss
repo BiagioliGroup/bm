@@ -378,73 +378,63 @@
 
 /*--end mayorista styles--*/
 
-/*--Motorcycle Search Mobile Responsive--*/
+/*--Motorcycle Search Horizontal Mobile--*/
 @media screen and (max-width: 767px) {
-  /* Hacer el buscador más compacto en móviles */
-  .container-fluid.bg-light.py-3.mb-4 {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    margin-bottom: 1rem !important;
+  /* Container más compacto */
+  .container-fluid.bg-light.py-2.mb-3 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
   }
 
-  /* Reducir espaciado del título */
-  .container-fluid.bg-light h5 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem !important;
-  }
-
-  .container-fluid.bg-light small {
-    font-size: 0.75rem;
-  }
-
-  /* Hacer los campos más pequeños */
-  .form-select-sm {
-    padding: 0.25rem 0.5rem !important;
-    font-size: 0.8rem;
-  }
-
-  .form-label.small {
-    font-size: 0.7rem !important;
+  /* Título más pequeño para búsqueda */
+  .container-fluid.bg-light h6 {
+    font-size: 0.9rem;
     margin-bottom: 0.25rem !important;
   }
 
+  /* Campos más pequeños pero horizontales */
+  #id_sh_motorcycle_search_form .form-select-sm {
+    padding: 0.25rem 0.3rem !important;
+    font-size: 0.75rem !important;
+    height: auto !important;
+  }
+
+  /* Reducir espaciado */
+  .row.g-1 {
+    --bs-gutter-x: 0.125rem;
+    --bs-gutter-y: 0.125rem;
+  }
+
   /* Botón más compacto */
-  .btn-sm {
-    padding: 0.35rem 0.5rem !important;
+  #id_sh_motorcycle_search_form .btn-sm {
+    padding: 0.3rem 0.5rem !important;
     font-size: 0.8rem;
   }
 
-  /* Reducir espaciado entre columnas */
-  .row.g-2 {
-    --bs-gutter-x: 0.25rem;
-    --bs-gutter-y: 0.25rem;
+  /* Sección de vehículo seleccionado más compacta */
+  .motorcycle_heading_section h4 {
+    font-size: 1rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
-  /* Ajustar distribución de columnas en móvil */
-  .col-6.col-md-2 {
-    flex: 0 0 auto;
-    width: 48%;
-  }
-
-  .col-12.col-md-2 {
-    width: 100%;
-    margin-top: 0.5rem;
+  /* Botones de garage más pequeños en móvil */
+  #id_sh_motorcycle_save_bike_to_garage_btn,
+  #id_sh_motorcycle_select_diff_bike_btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0.25rem;
   }
 }
 
 /* Para pantallas muy pequeñas */
 @media screen and (max-width: 480px) {
-  .container-fluid.bg-light.py-3.mb-4 {
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
+  #id_sh_motorcycle_search_form .form-select-sm {
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.25rem !important;
   }
 
-  /* Una sola columna en pantallas muy pequeñas */
-  .col-6.col-md-2 {
-    width: 100% !important;
-  }
-
-  .form-select-sm {
-    padding: 0.4rem 0.75rem !important;
+  .motorcycle_heading_section h4 {
+    font-size: 0.9rem !important;
   }
 }
