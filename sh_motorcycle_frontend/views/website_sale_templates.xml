@@ -68,7 +68,7 @@
                             <div class="col-12 col-lg-10 col-xl-8">
                                 
                                 <!-- Campos en línea horizontal -->
-                                <div class="row g-2 mb-3">
+                                <div class="row g-4 mb-3">
                                     <!-- Tipo -->
                                     <div class="col-6 col-md-3">
                                         <select name="type" id="id_sh_motorcycle_type" class="form-select" required="required">
