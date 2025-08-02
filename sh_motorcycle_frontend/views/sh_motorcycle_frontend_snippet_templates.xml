@@ -56,10 +56,10 @@
                             <input type="hidden" id="id_input_sh_moto_categ_id" name="category" value="" />
 
                             <!-- Botones centrados -->
-                            <div class="row justify-content-center g-2">
+                            <div class="row justify-content-center g-2 align-items-stretch">
                                 <!-- Botón Buscar -->
                                 <div class="col-3 col-md-3 col-lg-2">
-                                    <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-primary w-100" style="background-color: #d2691e; border-color: #d2691e;">
+                                    <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: #d2691e; border-color: #d2691e; min-height: 42px;">
                                         <i class="fa fa-search me-1"></i>
                                     </button>
                                 </div>
@@ -67,10 +67,10 @@
                                 <!-- Botón Mi Garage -->
                                 <t t-if="request.session.uid">
                                     <div class="col-3 col-md-3 col-lg-2">
-                                        <div class="dropdown">
+                                        <div class="dropdown h-100">
                                             <button type="button" id="id_sh_motorcycle_snippet_select_saved_bike_btn" 
-                                                    class="btn btn-secondary w-100 dropdown-toggle"
-                                                    style="background-color: #cd853f; border-color: #cd853f;" 
+                                                    class="btn btn-secondary w-100 h-100 dropdown-toggle d-flex align-items-center justify-content-center"
+                                                    style="background-color: #cd853f; border-color: #cd853f; min-height: 42px;" 
                                                     data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span class="d-none d-md-inline">Mi Garage</span>
                                                 <span class="d-md-none">Garage</span>
@@ -88,8 +88,8 @@
                                 <t t-if="not request.session.uid">
                                     <div class="col-3 col-md-3 col-lg-2">
                                         <a id="id_sh_motorcycle_snippet_login_to_acc_garage_link" href="/web/login" 
-                                           class="btn btn-secondary w-100 d-flex align-items-center justify-content-center"
-                                           style="text-decoration: none; height: 42px;">
+                                           class="btn btn-secondary w-100 h-100 d-flex align-items-center justify-content-center"
+                                           style="text-decoration: none; background-color: #cd853f; border-color: #cd853f; min-height: 42px;">
                                             <span class="d-none d-md-inline">Mi Garage</span>
                                             <span class="d-md-none">Garage</span>
                                         </a>
@@ -98,8 +98,8 @@
                                 
                                 <!-- Botón Reset -->
                                 <div class="col-3 col-md-2">
-                                    <a href="/shop" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center" 
-                                       title="Ver todos los productos" style="text-decoration: none; height: 42px;">
+                                    <a href="/shop" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center" 
+                                       title="Ver todos los productos" style="text-decoration: none; min-height: 42px;">
                                         <i class="fa fa-refresh me-1" style="font-size: 0.9rem;"></i>
                                         <span class="d-none d-md-inline">Reset</span>
                                     </a>
