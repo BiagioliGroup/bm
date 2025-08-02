@@ -52,7 +52,7 @@
                                 </div>
                             </div>
 
-                            <!-- Input hidden para categoría -->
+                            <!-- Input hidde    n para categoría -->
                             <input type="hidden" id="id_input_sh_moto_categ_id" name="category" value="" />
 
                             <!-- Botones centrados -->

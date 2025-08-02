@@ -84,41 +84,75 @@ section#sh_motorcycle_snippet_section_1 .btn {
   }
 }
 
-/* MEDIA QUERY CRÍTICA: 760px - 1000px */
-@media screen and (min-width: 760px) and (max-width: 1000px) {
-  /* Container más ancho */
-  section#sh_motorcycle_snippet_section_1 .col-12.col-lg-10.col-xl-8 {
-    width: 95% !important;
-    max-width: none !important;
+@media screen and (min-width: 700px) and (max-width: 1000px) {
+  /* Container del formulario de búsqueda */
+  #id_sh_motorcycle_search_form {
+    /* Forzar que los elementos se distribuyan en 2 filas */
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+
+    /* Primera fila: Tipo y Marca */
+    .col-6:nth-child(1), /* Tipo */
+        .col-6:nth-child(2)  /* Marca */ {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Segunda fila: Año y Modelo */
+    .col-6:nth-child(3), /* Año */
+        .col-6:nth-child(4)  /* Modelo */ {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Los selectores individuales */
+    #id_sh_motorcycle_type_select,
+    #id_sh_motorcycle_make_select,
+    #id_sh_motorcycle_year_select,
+    #id_sh_motorcycle_model_select {
+      width: 100% !important;
+      margin-right: 0 !important;
+    }
+
+    /* Botón de búsqueda centrado debajo */
+    #id_sh_motorcycle_go_submit_button {
+      width: 200px !important;
+      margin-top: 0.5rem !important;
+      align-self: center !important;
+    }
   }
 
-  /* Selects más grandes y en 2 columnas */
-  section#sh_motorcycle_snippet_section_1 .col-6.col-md-3 {
-    width: 100% !important;
-    margin-bottom: 0.75rem !important;
+  /* También para el formulario alternativo si existe */
+  #id_sh_motorcycle_search_diff_bike_form {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+
+    .col-6:nth-child(1),
+    .col-6:nth-child(2) {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    .col-6:nth-child(3),
+    .col-6:nth-child(4) {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-control {
+      width: 100% !important;
+      margin-right: 0 !important;
+    }
   }
 
-  /* Altura uniforme para todos los elementos */
-  section#sh_motorcycle_snippet_section_1 .form-select,
-  section#sh_motorcycle_snippet_section_1 .btn {
-    height: 42px !important;
-    font-size: 0.9rem !important;
-    padding: 0.5rem 0.75rem !important;
-  }
-
-  /* Botones de acción más proporcionados */
-  section#sh_motorcycle_snippet_section_1 .col-4.col-md-3.col-lg-2 {
-    width: 30% !important;
-  }
-
-  section#sh_motorcycle_snippet_section_1 .col-4.col-md-2 {
-    width: 25% !important;
-  }
-
-  /* Espaciado mejorado */
-  section#sh_motorcycle_snippet_section_1 .row.g-2 {
-    --bs-gutter-x: 0.75rem !important;
-    --bs-gutter-y: 0.75rem !important;
+  /* Asegurar que el container padre permita el wrap */
+  .row.g-2 {
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
   }
 }
 
