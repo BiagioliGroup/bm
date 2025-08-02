@@ -120,6 +120,7 @@
                       <span id="id_sh_motorcycle_save_bike_to_garage_btn" class="btn ui-link link-primary"><i class="fa fa-plus"/> Save bike to garage</span>
                     </t>
                     <span id="id_sh_motorcycle_select_diff_bike_btn" class="btn ui-link link-secondary"><i class="fa fa-retweet"/> Seleccioná un vehículo diferente</span>
+                </t>
 
             </div>
         </section>
