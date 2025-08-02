@@ -58,22 +58,22 @@
                             <!-- Botones centrados -->
                             <div class="row justify-content-center g-2 align-items-stretch">
                                 <!-- Botón Buscar -->
-                                <div class="col-3 col-md-3 col-lg-2">
-                                    <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: #d2691e; border-color: #d2691e; min-height: 42px;">
+                                <div class="col-4 col-md-3 col-lg-2">
+                                    <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: #d2691e; border-color: #d2691e; min-height: 48px;">
                                         <i class="fa fa-search me-1"></i>
                                     </button>
                                 </div>
                                 
                                 <!-- Botón Mi Garage -->
                                 <t t-if="request.session.uid">
-                                    <div class="col-3 col-md-3 col-lg-2">
+                                    <div class="col-4 col-md-3 col-lg-2">
                                         <div class="dropdown h-100">
                                             <button type="button" id="id_sh_motorcycle_snippet_select_saved_bike_btn" 
                                                     class="btn btn-secondary w-100 h-100 dropdown-toggle d-flex align-items-center justify-content-center"
-                                                    style="background-color: #cd853f; border-color: #cd853f; min-height: 42px;" 
+                                                    style="background-color: #cd853f; border-color: #cd853f; min-height: 48px;" 
                                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="d-none d-md-inline">Mi Garage</span>
-                                                <span class="d-md-none">Garage</span>
+                                                <span class="d-none d-sm-inline">Mi Garage</span>
+                                                <span class="d-sm-none">Garage</span>
                                             </button>
                                             <ul class="dropdown-menu" id="id_sh_motorcycle_snippet_select_saved_bike_div">
                                                 <li><small class="dropdown-item-text text-muted">
@@ -86,22 +86,23 @@
                                 
                                 <!-- Link de login para usuarios no logueados -->
                                 <t t-if="not request.session.uid">
-                                    <div class="col-3 col-md-3 col-lg-2">
+                                    <div class="col-4 col-md-3 col-lg-2">
                                         <a id="id_sh_motorcycle_snippet_login_to_acc_garage_link" href="/web/login" 
                                            class="btn btn-secondary w-100 h-100 d-flex align-items-center justify-content-center"
-                                           style="text-decoration: none; background-color: #cd853f; border-color: #cd853f; min-height: 42px;">
-                                            <span class="d-none d-md-inline">Mi Garage</span>
-                                            <span class="d-md-none">Garage</span>
+                                           style="text-decoration: none; background-color: #cd853f; border-color: #cd853f; min-height: 48px;">
+                                            <span class="d-none d-sm-inline">Mi Garage</span>
+                                            <span class="d-sm-none">Garage</span>
                                         </a>
                                     </div>
                                 </t>
                                 
                                 <!-- Botón Reset -->
-                                <div class="col-3 col-md-2">
+                                <div class="col-4 col-md-2">
                                     <a href="/shop" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center" 
-                                       title="Ver todos los productos" style="text-decoration: none; min-height: 42px;">
+                                       title="Ver todos los productos" style="text-decoration: none; min-height: 48px;">
                                         <i class="fa fa-refresh me-1" style="font-size: 0.9rem;"></i>
-                                        <span class="d-none d-md-inline">Reset</span>
+                                        <span class="d-none d-sm-inline">Reset</span>
+                                        <span class="d-sm-none"><i class="fa fa-refresh"></i></span>
                                     </a>
                                 </div>
                             </div>
