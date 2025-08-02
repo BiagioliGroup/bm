@@ -464,81 +464,147 @@
   transform: rotate(180deg);
 }
 
-/* CSS copiado del template principal y adaptado para snippets */
+/* CSS ESPECÍFICO PARA EL SNIPPET - IDs correctos */
 
-/* Copiado de custom.scss principal */
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_div{z-index:9}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_div .text-center{color:o-color('o-color-2');font-size: 18px;}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_select_diff_bike_btn{color:o-color('o-color-2');}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_select_diff_bike_btn:hover{text-decoration: none;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form .form-control{margin-right:5px;padding: 0.375em 2em 0.375em 1em;border-radius:0px;}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_div{margin-bottom:1rem;padding: 20px 0px;border-top: 2px solid;border-top-color:o-color('o-color-2') !important;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_diff_bike_form .form-control{margin-right:5px;padding: 0.375em 3.5em 0.375em 1em;border-radius:0px;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_diff_bike_div, #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_div{margin-bottom:1rem;padding: 20px 30px;width: 100%;position: relative;border-color:o-color('o-color-2') #ddd #ddd #ddd;border-style: solid;border-width: 2px 1px 1px 1px;border-top-color:o-color('o-color-2');}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form .form-control{margin-right:5px;padding: 0.375em 2em 0.375em 1em;border-radius:0px;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_garage_div{ padding: 20px 30px;position: relative;border-color: #875A7B #ddd #ddd #ddd;border-style: solid; border-width: 2px 1px 1px 1px; border-top-color: #875A7B;position: relative;margin-bottom:1rem;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_garage_div h4{   padding-right:5px;}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_save_bike_to_garage_btn i{padding-right:5px;}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_save_bike_to_garage_btn {color:#155724;}
-
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_select_diff_bike_btn i{padding-right:5px;}
-#sh_motorcycle_snippet_section_1 .sh_garage_buttons_cls{white-space: nowrap;}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::after,
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::before{
-    content: '';
-    background: #6c6c6c;
-    width: 14px;
-    height: 2px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    display: block;
-}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::after{
-    transform: rotateZ(45deg);
-}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_close .sh_cls_close_btn::before{
-    transform: rotateZ(135deg);
+/* Forzar alineación en el snippet */
+#sh_motorcycle_snippet_section_1 .row.justify-content-center {
+  align-items: stretch !important;
 }
 
-/*--media-query copiadas del template principal--*/
-@media screen and (max-width:991px){
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_snippet_select_saved_bike_btn{margin-left: 0%!important;margin-top: 0%;}
+#sh_motorcycle_snippet_section_1 .row.justify-content-center > div {
+  display: flex !important;
+  align-items: stretch !important;
 }
-@media screen and (min-width:768px) and (max-width:992px){
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_diff_bike_form,
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form{flex-wrap: wrap;}
 
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_type_select,
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_make_select,
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_model_select,
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_year_select{width: 23%;}
-    #sh_motorcycle_snippet_section_1 .sh_garage_buttons_cls{margin-top: 10px;margin-left: 0 !important;}
-    #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_snippet_select_saved_bike_btn{margin-left: 0px !important;}
+/* Botones con altura fija */
+#sh_motorcycle_snippet_section_1 .btn,
+#sh_motorcycle_snippet_section_1 .dropdown .btn,
+#sh_motorcycle_snippet_section_1 a.btn {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  padding: 0.5rem 1rem !important;
+  box-sizing: border-box !important;
 }
-@media screen and (max-width:768px){
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_diff_bike_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_div{padding: 20px 0px;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_div{padding: 20px 15px;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_snippet_select_saved_bike_btn{margin-left: 0%!important;margin-top: 0%;}
-}
-@media screen and (max-width:575px){
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form .form-group {width:100%}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form { align-items: baseline;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form .form-control {padding: 0.375em 1em 0.375em 1em;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_go_submit_button{width: 100%;margin-bottom:10px}
-#sh_motorcycle_snippet_section_1 .id_sh_motorcycle_search_diff_bike_div .form-group {width:100%}
-#sh_motorcycle_snippet_section_1 .sh_garage_buttons_cls{width: fit-content;margin: 0 auto !important;display:inline-block;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_diff_bike_form, #sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form{margin-top: 10px;flex-direction: column;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_div .form-group {width:100%;margin-bottom: 1rem;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_search_form{margin-top: 10px;}
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_type_select,
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_make_select,
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_model_select,
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_year_select,#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_go_submit_button{margin-top:10px;}
 
-#sh_motorcycle_snippet_section_1 #id_sh_motorcycle_snippet_select_saved_bike_btn {width:100%;margin-left:0%!important;margin-top:0%!important}
+/* Dropdown específico */
+#sh_motorcycle_snippet_section_1 .dropdown {
+  height: 48px !important;
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+#sh_motorcycle_snippet_section_1 .dropdown .btn {
+  width: 100% !important;
+  height: 48px !important;
+  flex: 1 !important;
+}
+
+/* Botón específico del snippet */
+#id_sh_motorcycle_snippet_select_saved_bike_btn {
+  height: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#id_sh_motorcycle_go_submit_button {
+  height: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Link de login */
+#id_sh_motorcycle_snippet_login_to_acc_garage_link {
+  height: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+}
+
+/* NUEVO: Rango problemático 760px - 1000px */
+@media screen and (min-width: 760px) and (max-width: 1000px) {
+  /* Hacer los selects más grandes */
+  #sh_motorcycle_snippet_section_1 .form-select {
+    height: 48px !important;
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Ajustar columnas para mejor distribución */
+  #sh_motorcycle_snippet_section_1 .col-6.col-md-3 {
+    flex: 0 0 auto !important;
+    width: 48% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Botones más proporcionados */
+  #sh_motorcycle_snippet_section_1 .btn {
+    height: 48px !important;
+    font-size: 0.9rem !important;
+    padding: 0.6rem 1rem !important;
+  }
+
+  /* Container más centrado */
+  #sh_motorcycle_snippet_section_1 .col-lg-8 {
+    flex: 0 0 auto !important;
+    width: 90% !important;
+  }
+
+  /* Espaciado mejorado */
+  #sh_motorcycle_snippet_section_1 .row.g-2 {
+    --bs-gutter-x: 0.75rem !important;
+    --bs-gutter-y: 0.75rem !important;
+  }
+
+  /* Botones de acción más pequeños */
+  #sh_motorcycle_snippet_section_1 .col-4.col-md-3.col-lg-2 {
+    flex: 0 0 auto !important;
+    width: 30% !important;
+  }
+
+  #sh_motorcycle_snippet_section_1 .col-4.col-md-2 {
+    flex: 0 0 auto !important;
+    width: 25% !important;
+  }
+}
+
+/* Media queries específicas para el snippet */
+@media screen and (max-width: 575px) {
+  #sh_motorcycle_snippet_section_1 .btn,
+  #sh_motorcycle_snippet_section_1 .dropdown .btn,
+  #sh_motorcycle_snippet_section_1 a.btn {
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  #sh_motorcycle_snippet_section_1 .row.justify-content-center {
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
+  }
+
+  #sh_motorcycle_snippet_section_1 .dropdown {
+    height: 48px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #sh_motorcycle_snippet_section_1 .btn,
+  #sh_motorcycle_snippet_section_1 .dropdown .btn,
+  #sh_motorcycle_snippet_section_1 a.btn {
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.75rem !important;
+  }
 }
