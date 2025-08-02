@@ -465,37 +465,55 @@
 }
 
 /* CSS específico para alinear botones del snippet en mobile */
-@media (max-width: 373.98px) {
-  #sh_motorcycle_snippet_section_1 .row.justify-content-center .btn {
+
+/* Para pantallas exactamente en el breakpoint problemático */
+@media (max-width: 576px) {
+  #sh_motorcycle_snippet_section_1 .row.justify-content-center > div {
+    display: flex !important;
+    align-items: stretch !important;
+  }
+
+  #sh_motorcycle_snippet_section_1 .btn {
     height: 48px !important;
     min-height: 48px !important;
     max-height: 48px !important;
     line-height: 1.2 !important;
-    padding: 8px 12px !important;
+    padding: 10px 16px !important;
     font-size: 14px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 24px !important;
+    box-sizing: border-box !important;
   }
 
   #sh_motorcycle_snippet_section_1 .dropdown {
     height: 48px !important;
+    display: flex !important;
+    align-items: stretch !important;
   }
 
   #sh_motorcycle_snippet_section_1 .dropdown .btn {
     height: 48px !important;
     line-height: 1.2 !important;
-  }
-
-  /* Asegurar que todos los elementos tengan la misma altura base */
-  #sh_motorcycle_snippet_section_1 .row.align-items-stretch > div {
-    display: flex !important;
-    align-items: stretch !important;
-  }
-
-  #sh_motorcycle_snippet_section_1 .row.align-items-stretch > div > * {
     flex: 1 !important;
+  }
+
+  /* Forzar misma altura para enlaces también */
+  #sh_motorcycle_snippet_section_1 a.btn {
     height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  #sh_motorcycle_snippet_section_1 .btn {
+    font-size: 13px !important;
+    padding: 8px 12px !important;
   }
 }
