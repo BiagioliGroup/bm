@@ -236,7 +236,7 @@
 
 <!-- 🏷️ Mostrar código de producto en grid -->
   <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
-    <xpath expr="//div[contains(@class,'o_wsale_product_information')]" position="inside">
+    <xpath expr="//div[contains(@class,'o_wsale_product_information_text')]" position="after">
       <t t-if="product.default_code">
         <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
       </t>
