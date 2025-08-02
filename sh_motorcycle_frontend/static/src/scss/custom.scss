@@ -1,163 +1,151 @@
 /* ======================================
-   CSS ESPECÍFICO PARA SNIPPET - PRIORIDAD ALTA
-   COLOCAR AL INICIO DEL ARCHIVO SCSS
+   CSS ESPECÍFICO PARA SNIPPET - VERSION DEBUG
+   SELECTORES MÁS GENERALES PARA ASEGURAR QUE SE APLIQUE
    ====================================== */
 
-/* Base - Alineación fundamental */
-#sh_motorcycle_snippet_section_1.container-fluid .row.justify-content-center {
+/* Base - Forzar alineación con máxima especificidad */
+section[id="sh_motorcycle_snippet_section_1"] .row {
   align-items: stretch !important;
 }
 
-#sh_motorcycle_snippet_section_1.container-fluid
-  .row.justify-content-center
-  > div {
+section[id="sh_motorcycle_snippet_section_1"] .row > div {
   display: flex !important;
   align-items: stretch !important;
 }
 
-/* Todos los botones y elementos de forma - altura uniforme */
-#sh_motorcycle_snippet_section_1 .btn,
-#sh_motorcycle_snippet_section_1 .dropdown .btn,
-#sh_motorcycle_snippet_section_1 a.btn,
-#sh_motorcycle_snippet_section_1 .form-select {
+/* FORZAR altura uniforme en TODOS los elementos del snippet */
+section[id="sh_motorcycle_snippet_section_1"] .btn,
+section[id="sh_motorcycle_snippet_section_1"] .dropdown .btn,
+section[id="sh_motorcycle_snippet_section_1"] a.btn,
+section[id="sh_motorcycle_snippet_section_1"] .form-select,
+section[id="sh_motorcycle_snippet_section_1"] select {
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  line-height: 1.2 !important;
   box-sizing: border-box !important;
+  line-height: 1.2 !important;
 }
 
-/* Form selects específicos */
-#sh_motorcycle_snippet_section_1 .form-select {
-  padding: 0.75rem !important;
-  font-size: 0.95rem !important;
+/* Form selects con padding específico */
+section[id="sh_motorcycle_snippet_section_1"] .form-select,
+section[id="sh_motorcycle_snippet_section_1"] select {
+  padding: 0.6rem 0.75rem !important;
+  font-size: 0.9rem !important;
 }
 
-/* Botones específicos */
-#sh_motorcycle_snippet_section_1 .btn {
-  padding: 0.75rem 1rem !important;
+/* Botones con padding específico */
+section[id="sh_motorcycle_snippet_section_1"] .btn,
+section[id="sh_motorcycle_snippet_section_1"] a.btn {
+  padding: 0.6rem 1rem !important;
   font-size: 0.9rem !important;
 }
 
 /* Dropdown específico */
-#sh_motorcycle_snippet_section_1 .dropdown {
+section[id="sh_motorcycle_snippet_section_1"] .dropdown {
   height: 48px !important;
   display: flex !important;
   align-items: stretch !important;
 }
 
-/* IDs específicos del snippet */
+/* IDs específicos con máxima prioridad */
 #id_sh_motorcycle_snippet_select_saved_bike_btn,
 #id_sh_motorcycle_go_submit_button,
 #id_sh_motorcycle_snippet_login_to_acc_garage_link {
   height: 48px !important;
   min-height: 48px !important;
+  max-height: 48px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  font-size: 0.9rem !important;
+  padding: 0.6rem 1rem !important;
 }
 
-/* Media Query: Desktop grande */
-@media screen and (min-width: 1200px) {
-  #sh_motorcycle_snippet_section_1 .col-lg-8 {
-    max-width: 800px !important;
-  }
-}
-
-/* Media Query: Desktop medio */
-@media screen and (min-width: 992px) and (max-width: 1199px) {
-  #sh_motorcycle_snippet_section_1 .col-lg-8 {
-    width: 85% !important;
-  }
-}
-
-/* Media Query: RANGO PROBLEMÁTICO 760px - 1000px */
+/* MEDIA QUERY CRÍTICA: 760px - 1000px */
 @media screen and (min-width: 760px) and (max-width: 1000px) {
-  /* Container más ancho */
-  #sh_motorcycle_snippet_section_1 .col-lg-8 {
+  /* FORZAR container más ancho */
+  section[id="sh_motorcycle_snippet_section_1"] .container > .row > .col-12 {
     width: 95% !important;
     max-width: none !important;
   }
 
-  /* Selects en filas de 2 */
-  #sh_motorcycle_snippet_section_1 .col-6.col-md-3 {
-    width: 49% !important;
+  /* FORZAR selects más grandes */
+  section[id="sh_motorcycle_snippet_section_1"] .form-select,
+  section[id="sh_motorcycle_snippet_section_1"] select {
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: 0.95rem !important;
+    padding: 0.7rem !important;
+  }
+
+  /* FORZAR botones proporcionados */
+  section[id="sh_motorcycle_snippet_section_1"] .btn,
+  section[id="sh_motorcycle_snippet_section_1"] a.btn {
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: 0.9rem !important;
+    padding: 0.7rem 1rem !important;
+  }
+
+  /* FORZAR columnas de selects más anchas */
+  section[id="sh_motorcycle_snippet_section_1"] .row.g-2 > div[class*="col-6"] {
+    flex: 0 0 auto !important;
+    width: 48% !important;
     margin-bottom: 0.75rem !important;
   }
 
-  /* Todos los elementos con altura consistente */
-  #sh_motorcycle_snippet_section_1 .form-select,
-  #sh_motorcycle_snippet_section_1 .btn,
-  #sh_motorcycle_snippet_section_1 .dropdown .btn,
-  #sh_motorcycle_snippet_section_1 a.btn {
-    height: 48px !important;
-    font-size: 0.9rem !important;
+  /* FORZAR columnas de botones más pequeñas */
+  section[id="sh_motorcycle_snippet_section_1"] .row.g-2 > div[class*="col-4"] {
+    flex: 0 0 auto !important;
+    width: 30% !important;
   }
 
-  /* Botones de acción más pequeños */
-  #sh_motorcycle_snippet_section_1 .col-4.col-md-3.col-lg-2 {
-    width: 28% !important;
-  }
-
-  #sh_motorcycle_snippet_section_1 .col-4.col-md-2 {
-    width: 22% !important;
-  }
-
-  /* Espaciado mejorado */
-  #sh_motorcycle_snippet_section_1 .row.g-2 {
-    --bs-gutter-x: 0.5rem !important;
+  /* FORZAR espaciado */
+  section[id="sh_motorcycle_snippet_section_1"] .row.g-2 {
+    --bs-gutter-x: 0.75rem !important;
     --bs-gutter-y: 0.75rem !important;
   }
 }
 
-/* Media Query: Tablet */
+/* Media queries adicionales */
 @media screen and (min-width: 768px) and (max-width: 991px) {
-  #sh_motorcycle_snippet_section_1 .col-lg-8 {
-    width: 90% !important;
-  }
-
-  #sh_motorcycle_snippet_section_1 .form-select,
-  #sh_motorcycle_snippet_section_1 .btn {
+  section[id="sh_motorcycle_snippet_section_1"] .form-select,
+  section[id="sh_motorcycle_snippet_section_1"] select,
+  section[id="sh_motorcycle_snippet_section_1"] .btn,
+  section[id="sh_motorcycle_snippet_section_1"] a.btn {
     height: 48px !important;
     font-size: 0.85rem !important;
   }
 }
 
-/* Media Query: Mobile grande */
 @media screen and (min-width: 576px) and (max-width: 767px) {
-  #sh_motorcycle_snippet_section_1 .form-select,
-  #sh_motorcycle_snippet_section_1 .btn,
-  #sh_motorcycle_snippet_section_1 .dropdown .btn,
-  #sh_motorcycle_snippet_section_1 a.btn {
+  section[id="sh_motorcycle_snippet_section_1"] .form-select,
+  section[id="sh_motorcycle_snippet_section_1"] select,
+  section[id="sh_motorcycle_snippet_section_1"] .btn,
+  section[id="sh_motorcycle_snippet_section_1"] a.btn {
     height: 48px !important;
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  section[id="sh_motorcycle_snippet_section_1"] .form-select,
+  section[id="sh_motorcycle_snippet_section_1"] select,
+  section[id="sh_motorcycle_snippet_section_1"] .btn,
+  section[id="sh_motorcycle_snippet_section_1"] a.btn {
+    height: 48px !important;
+    font-size: 0.8rem !important;
     padding: 0.5rem !important;
   }
 }
 
-/* Media Query: Mobile pequeño */
-@media screen and (max-width: 575px) {
-  #sh_motorcycle_snippet_section_1 .form-select,
-  #sh_motorcycle_snippet_section_1 .btn,
-  #sh_motorcycle_snippet_section_1 .dropdown .btn,
-  #sh_motorcycle_snippet_section_1 a.btn {
-    height: 48px !important;
-    font-size: 0.8rem !important;
-    padding: 0.4rem !important;
-  }
-
-  #sh_motorcycle_snippet_section_1 .row.justify-content-center {
-    --bs-gutter-x: 0.25rem !important;
-    --bs-gutter-y: 0.5rem !important;
-  }
-}
-
 /* ====================================== 
-   FIN CSS SNIPPET - PRIORIDAD ALTA
+   FIN CSS SNIPPET DEBUG
    ====================================== */
+
 /*--sh_motorcycle--*/
 .id_sh_motorcycle_search_diff_bike_div {
   z-index: 9;
