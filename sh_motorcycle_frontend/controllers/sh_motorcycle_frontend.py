@@ -122,30 +122,31 @@ class MotorCycleWebsiteSale(WebsiteSale):
                     fuzzy_search_term, product_count, len(search_result))
 
         # 2) Guardamos el contexto motero
-        motorcycle_type  = details[0].get('motorcycle_type')
-        motorcycle_make  = details[0].get('motorcycle_make')
-        motorcycle_model = details[0].get('motorcycle_model')
-        motorcycle_year  = details[0].get('motorcycle_year')
+        motorcycle_type = options.get('type')
+        motorcycle_make = options.get('make') 
+        motorcycle_model = options.get('model')
+        motorcycle_year = options.get('year')
         
         motorcycle_heading = ''
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             try:
-                type_obj  = request.env['motorcycle.type'].browse(int(motorcycle_type))
-                make_obj  = request.env['motorcycle.make'].browse(int(motorcycle_make))
+                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
                 model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
                 motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
+                _logger.info("[🚀 SUCCESS] moto_heading='%s'", motorcycle_heading)
             except Exception as e:
-                _logger.warning("[⚠️ _shop_lookup_products] heading error: %s", e)
+                _logger.warning("[⚠️ ERROR] heading generation: %s", e)
 
         self._sh_motorcycle_frontend_detail = {
             'motorcycle_type': motorcycle_type or '',
             'motorcycle_make': motorcycle_make or '',
             'motorcycle_model': motorcycle_model or '',
             'motorcycle_year': motorcycle_year or '',
-            'type_list':   details[0].get('type_list',   []),
-            'make_list':   details[0].get('make_list',   []),
-            'model_list':  details[0].get('model_list',  []),
-            'year_list':   details[0].get('year_list',   []),
+            'type_list': details[0].get('type_list', []),
+            'make_list': details[0].get('make_list', []),
+            'model_list': details[0].get('model_list', []),
+            'year_list': details[0].get('year_list', []),
             'motorcycle_heading': motorcycle_heading,
         }
 
