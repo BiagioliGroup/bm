@@ -83,14 +83,14 @@ publicWidget.registry.sh_motorcycle_frontend_tmpl_1 =
           if (data && data.length > 0) {
             data.forEach(function (bike) {
               $snippetDiv.append(
-                `<a class="dropdown-item" href="${bike.moto_url}">${bike.name}</a>`
+                `<li><a class="dropdown-item" href="${bike.moto_url}">${bike.name}</a></li>`
               );
             });
 
             // Aplicar categoría solo para el snippet
             const categ_id = $('input[id="id_input_sh_moto_categ_id"]').val();
             if (categ_id && categ_id.length) {
-              $snippetDiv.children("a").each(function () {
+              $snippetDiv.find("a").each(function () {
                 const $link = $(this);
                 let href = $link.attr("href");
                 if (href && !href.includes("category=")) {
@@ -99,9 +99,15 @@ publicWidget.registry.sh_motorcycle_frontend_tmpl_1 =
                 }
               });
             }
+
+            // Habilitar el botón del snippet
+            $("#id_sh_motorcycle_snippet_select_saved_bike_btn")
+              .removeClass("disabled")
+              .prop("disabled", false)
+              .attr("data-bs-toggle", "dropdown");
           } else {
             $snippetDiv.append(
-              '<span class="dropdown-item-text text-muted">No hay vehículos guardados</span>'
+              '<li><span class="dropdown-item-text text-muted">No hay vehículos guardados</span></li>'
             );
           }
         })
