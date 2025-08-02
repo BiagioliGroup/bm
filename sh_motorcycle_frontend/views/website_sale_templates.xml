@@ -249,6 +249,7 @@
             <span class="badge bg-success">
                 <t t-esc="product_qty_display"/>
             </span>
+            
         </t>
 
     </xpath>
