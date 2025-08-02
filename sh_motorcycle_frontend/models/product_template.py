@@ -2,8 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, models
-import logging
-_logger = logging.getLogger(__name__)
+
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
@@ -76,15 +75,21 @@ class ProductTemplate(models.Model):
 
     @api.model
     def _get_year_list(self, type_id=None, make_id=None, model_id=None):
+        """
+            METHOD BY SOFTHEALER
+            to get product year list
+        """
         year_list = []
         if type_id and make_id and model_id:
-            type_id, make_id, model_id = int(type_id), int(make_id), int(model_id)
+            type_id = int(type_id)
+            make_id = int(make_id)
+            model_id = int(model_id)
             vehicles = self.env['motorcycle.motorcycle'].sudo().search([
                 ('type_id', '=', type_id),
                 ('make_id', '=', make_id),
                 ('mmodel_id', '=', model_id),
             ])
-            year_list = sorted(set(vehicle.year for vehicle in vehicles), reverse=True)
+            year_list = sorted(set(vehicle.year for vehicle in vehicles if vehicle.year))
         return year_list or []
 
     @api.model
@@ -101,11 +106,9 @@ class ProductTemplate(models.Model):
                 - make_list
                 - model_list
                 - year_list
-
         """
 
-        result = super(ProductTemplate, self)._search_get_detail(
-            website, order, options)
+        result = super()._search_get_detail(website, order, options)
         base_domain = result.get('base_domain', [])
         keep_vehicle = True
         category = options.get('category')
@@ -115,10 +118,8 @@ class ProductTemplate(models.Model):
         if website:
             if category and website.sh_do_not_consider_vehicle_over_category:
                 keep_vehicle = False
-
             if attrib_values and website.sh_do_not_consider_vehicle_over_attribute:
                 keep_vehicle = False
-
             if min_price or max_price:
                 if website.sh_do_not_consider_vehicle_over_price:
                     keep_vehicle = False
@@ -126,12 +127,11 @@ class ProductTemplate(models.Model):
         # --------------------------------------------------------------------
         # softhealer custom code start here
         # --------------------------------------------------------------------
-        base_domain = base_domain or []
         motorcycle_heading = False
-        type_id = False
-        make_id = False
-        mmodel_id = False
-        year = False
+        type_id = options.get('type')
+        make_id = options.get('make')
+        mmodel_id = options.get('model')
+        year = options.get('year')
 
         type_list = []
         make_list = []
@@ -139,49 +139,25 @@ class ProductTemplate(models.Model):
         year_list = []
 
         search_motorcycles = False
-        if (
-            keep_vehicle and
-            options and
-            options.get('type', False) and
-            options.get('make', False) and
-            options.get('model', False) and
-            options.get('year', False)
-        ):
-
-            type_id = options.get('type')
-            make_id = options.get('make')
-            mmodel_id = options.get('model')
-            year = options.get('year')
-
+        if keep_vehicle and type_id and make_id and mmodel_id and year:
             try:
-                if type(type_id) != int:
-                    type_id = int(type_id)
-                if type(make_id) != int:
-                    make_id = int(make_id)
-                if type(mmodel_id) != int:
-                    mmodel_id = int(mmodel_id)
-                if type(year) != int:
-                    year = int(year)
+                type_id = int(type_id)
+                make_id = int(make_id)
+                mmodel_id = int(mmodel_id)
+                year = int(year)
 
                 vehicle_domain = [
                     ('type_id', '=', type_id),
                     ('make_id', '=', make_id),
                     ('mmodel_id', '=', mmodel_id),
-                    ('year', '=', year),  # <- Verificar que la condición es correcta
+                    ('year', '=', year),
                 ]
-                _logger.info(f"Searching motorcycles with: {vehicle_domain}")
                 search_motorcycles = self.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
-                
-
-                # =========================================================
-                # Type, Make, Model, Year selected when page refresh.
 
                 type_list = self._get_type_list()
                 make_list = self._get_make_list(type_id)
                 model_list = self._get_model_list(type_id, make_id)
                 year_list = self._get_year_list(type_id, make_id, mmodel_id)
-
-                # =========================================================
 
             except ValueError:
                 pass
@@ -191,36 +167,19 @@ class ProductTemplate(models.Model):
             if search_motorcycles:
                 for motorcycle in search_motorcycles:
                     if is_compute_vehicle_name:
-                        # VEHICLE NAME
-                        vehicle_name = ''
-                        if motorcycle.make_id:
-                            vehicle_name += motorcycle.make_id.name + ' '
-                        if motorcycle.mmodel_id:
-                            vehicle_name += motorcycle.mmodel_id.name + ' '
-                        if motorcycle.year:
-                            vehicle_name += str(motorcycle.year)
-                        if vehicle_name == '':
-                            vehicle_name = False
-                        motorcycle_heading = vehicle_name
-                        # VEHICLE NAME
+                        vehicle_name = f"{motorcycle.make_id.name} {motorcycle.mmodel_id.name} {motorcycle.year}"
+                        motorcycle_heading = vehicle_name.strip()
                         is_compute_vehicle_name = False
 
                     if motorcycle.product_ids:
                         for product in motorcycle.product_ids:
                             if product.product_tmpl_id:
-                                product_tmpl_id_list.append(
-                                    product.product_tmpl_id.id)
+                                product_tmpl_id_list.append(product.product_tmpl_id.id)
 
-                # ------------------
-                # Universal Products
                 universal_products = self.env['product.product'].search([
                     ('sh_is_common_product', '=', True)
                 ])
-
-                product_tmpl_id_list += universal_products.mapped(
-                    'product_tmpl_id').ids
-                # ------------------
-                # Universal Products
+                product_tmpl_id_list += universal_products.mapped('product_tmpl_id').ids
             base_domain.append([('id', 'in', product_tmpl_id_list)])
 
         result.update({'base_domain': base_domain})
@@ -235,8 +194,7 @@ class ProductTemplate(models.Model):
             'model_list': model_list,
             'year_list': year_list,
         })
-
-        _logger.info(f"motorcycle_heading = {motorcycle_heading}")
+        
         # --------------------------------------------------------------------
         # softhealer custom code ends here
         # --------------------------------------------------------------------
