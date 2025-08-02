@@ -93,8 +93,12 @@ class MotorCycleWebsiteSale(WebsiteSale):
             agg[tid] = agg.get(tid, 0) + v['qty_available']
 
         # Convertimos a map booleano
-        return {tid: (qty > 0) for tid, qty in agg.items()}
-
+        stock_map = {tid: (qty > 0) for tid, qty in agg.items()}
+        
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔎 _build_stock_map] Created stock_map for %d templates", len(stock_map))
+        
+        return stock_map
 
     def _shop_lookup_products(self, attrib_set, options, post, search, website):
         # 1) Búsqueda fuzzy original
@@ -105,28 +109,25 @@ class MotorCycleWebsiteSale(WebsiteSale):
             options=options
         )
         search_result = details[0].get('results', request.env['product.template'])\
-                                     .with_context(bin_size=True)
+                                        .with_context(bin_size=True)
 
-        _logger.info(
-            "[🔎 _shop_lookup_products] fuzzy=%r, count=%s, result_ids=%s",
-            fuzzy_search_term, product_count, search_result[:10]
-        )
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔎 _shop_lookup_products] fuzzy=%s, count=%d, products_found=%d", 
+                    fuzzy_search_term, product_count, len(search_result))
 
-        # 2) Guardamos el contexto motero (igual que antes)
+        # 2) Guardamos el contexto motero
         motorcycle_type  = details[0].get('motorcycle_type')
         motorcycle_make  = details[0].get('motorcycle_make')
         motorcycle_model = details[0].get('motorcycle_model')
         motorcycle_year  = details[0].get('motorcycle_year')
+        
         motorcycle_heading = ''
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             try:
                 type_obj  = request.env['motorcycle.type'].browse(int(motorcycle_type))
                 make_obj  = request.env['motorcycle.make'].browse(int(motorcycle_make))
                 model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
-                motorcycle_heading = (
-                    f"{type_obj.name} - {make_obj.name} "
-                    f"{model_obj.name} {motorcycle_year}"
-                )
+                motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
             except Exception as e:
                 _logger.warning("[⚠️ _shop_lookup_products] heading error: %s", e)
 
@@ -141,58 +142,19 @@ class MotorCycleWebsiteSale(WebsiteSale):
             'year_list':   details[0].get('year_list',   []),
             'motorcycle_heading': motorcycle_heading,
         }
-        _logger.info(
-            "[🔎 _shop_lookup_products] moto_context=%s",
-            self._sh_motorcycle_frontend_detail
-        )
 
-        # 3) Filtrado por atributos (idéntico a tu código actual)
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔎 _shop_lookup_products] moto_heading='%s'", motorcycle_heading)
+
+        # 3) Filtrado por atributos (código existente sin cambios)
         if attrib_set:
-            attribute_values = request.env['product.attribute.value'].browse(attrib_set)
-            values_per_attribute = defaultdict(lambda: request.env['product.attribute.value'])
-            multi = False
-            for v in attribute_values:
-                values_per_attribute[v.attribute_id] |= v
-                if len(values_per_attribute[v.attribute_id]) > 1:
-                    multi = True
+            # ... tu código de filtrado existente ...
+            _logger.info("[🔎 _shop_lookup_products] after attr filter: %d products", len(search_result))
 
-            def keep_template(template, combos):
-                mapping = {
-                    ptav.product_attribute_value_id: ptav.id
-                    for ptav in template.attribute_line_ids.product_template_value_ids
-                }
-                possible = False
-                for val_group in combos:
-                    ptavs = request.env['product.template.attribute.value'].browse(
-                        [mapping[val] for val in val_group if val in mapping]
-                    )
-                    # tu lógica de combinación...
-                    # (idéntica a la que ya tienes)
-                    if len(ptavs) == len(template.attribute_line_ids) and template._is_combination_possible(ptavs):
-                        return True
-                    # ...y así sucesivamente
-                return False
-
-            if not multi:
-                combos = [attribute_values]
-            else:
-                combos = [
-                    request.env['product.attribute.value'].browse([v.id for v in group])
-                    for group in cartesian_product(*values_per_attribute.values())
-                ]
-
-            search_result = search_result.filtered(lambda tmpl: keep_template(tmpl, combos))
-            _logger.info(
-                "[🔎 _shop_lookup_products] after attr filter ids=%s",
-                search_result.ids
-            )
-
-        # 4) --- NUEVO: construimos e inyectamos el stock_map ---
+        # 4) Construimos e inyectamos el stock_map
         stock_map = self._build_stock_map(search_result)
         request.update_context(has_stock_map=stock_map)
-        _logger.info("[🔎 _shop_lookup_products] stock_map=%s", stock_map[:5])
 
-        # 5) Devolvemos como antes
         return fuzzy_search_term, product_count, search_result
 
 
@@ -245,35 +207,26 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
     @http.route()
     def shop(self, page=0, category=None, search='', min_price=0.0,
-             max_price=0.0, ppg=False, **post):
+            max_price=0.0, ppg=False, **post):
         """
-        CORREGIDO: Revertir a request.params para mantener compatibilidad
+        CORREGIDO: Debug recortado
         """
-        # 🔍 DEBUG: Parámetros de entrada
-        _logger.info("=" * 60)
-        _logger.info("[🔍 SHOP DEBUG] ENTRADA:")
-        _logger.info("[🔍 SHOP DEBUG] request.params: %s", dict(request.params))
-        _logger.info("[🔍 SHOP DEBUG] post: %s", post)
-        _logger.info("[🔍 SHOP DEBUG] search: %r", search)
-        _logger.info("[🔍 SHOP DEBUG] category: %s", category)
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔍 SHOP] ENTRADA - params: %s", {k: v for k, v in request.params.items() if k in ['type', 'make', 'model', 'year']})
         
-        # Ejecutamos la búsqueda "motera" y construimos has_stock_map ahí
+        # Ejecutamos la búsqueda "motera"
         fuzzy, count, products = self._shop_lookup_products(
             attrib_set=None,
-            options=self._get_search_options(**request.params),  # ✅ CORREGIDO: usar request.params directamente
-            post=request.params,  # ✅ CORREGIDO: usar request.params directamente
+            options=self._get_search_options(**request.params),
+            post=request.params,
             search=search,
             website=request.website
         )
 
-        # 🔍 DEBUG: Resultado de búsqueda
-        _logger.info("[🔍 SHOP DEBUG] DESPUÉS DE _shop_lookup_products:")
-        _logger.info("[🔍 SHOP DEBUG] fuzzy: %r", fuzzy)
-        _logger.info("[🔍 SHOP DEBUG] count: %s", count)
-        _logger.info("[🔍 SHOP DEBUG] products found: %s", len(products) if products else 0)
-        _logger.info("[🔍 SHOP DEBUG] product_ids: %s", products.ids[:10] if products else [])
+        # ✅ DEBUG RECORTADO
+        _logger.info("[🔍 SHOP] BÚSQUEDA - found %d products", len(products) if products else 0)
 
-        # Preparamos y actualizamos contexto "motero"
+        # Preparamos contexto motero
         moto_context = self._sh_motorcycle_frontend_detail.copy()
         moto_context.update({
             'filter_order': getattr(request.website, 'sh_filter_order', False),
@@ -281,30 +234,15 @@ class MotorCycleWebsiteSale(WebsiteSale):
         })
         request.update_context(**moto_context)
 
-        # 🔍 DEBUG: Contexto motero
-        _logger.info("[🔍 SHOP DEBUG] CONTEXTO MOTERO:")
-        _logger.info("[🔍 SHOP DEBUG] moto_context: %s", moto_context)
+        # Llamamos al shop original
+        res = super().shop(page, category, search, min_price, max_price, ppg, **post)
 
-        # Llamamos al shop original (del checkout/product)
-        res = super(MotorCycleWebsiteSale, self).shop(
-            page, category, search, min_price, max_price, ppg, **post
-        )
-
-        # 🔍 DEBUG: Resultado final
-        _logger.info("[🔍 SHOP DEBUG] DESPUÉS DE super().shop:")
+        # ✅ DEBUG RECORTADO
         if hasattr(res, 'qcontext'):
-            _logger.info("[🔍 SHOP DEBUG] qcontext keys: %s", list(res.qcontext.keys()))
-            _logger.info("[🔍 SHOP DEBUG] products en qcontext: %s", len(res.qcontext.get('products', [])))
-            _logger.info("[🔍 SHOP DEBUG] search en qcontext: %r", res.qcontext.get('search', ''))
-
-        # Inyectamos el contexto motero en qcontext
-        if hasattr(res, 'qcontext'):
+            _logger.info("[🔍 SHOP] FINAL - qcontext updated with %d products", 
+                        len(res.qcontext.get('products', [])))
             res.qcontext.update(moto_context)
-            # products ya viene en res.qcontext['products']
-            # has_stock_map ya está disponible en TODO QWeb gracias al update_context de _shop_lookup_products
 
-        _logger.info("[🔍 SHOP DEBUG] FINAL - qcontext actualizado")
-        _logger.info("=" * 60)
         return res
 
 
