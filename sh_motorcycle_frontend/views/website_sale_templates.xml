@@ -112,14 +112,16 @@
                                     <t t-if="request.session.uid and website.sh_is_show_garage">
                                         <div class="col-3 col-md-3 col-lg-2">
                                             <div class="dropdown">
-                                                <button type="button" id="id_sh_motorcycle_garage_btn" class="btn btn-secondary w-100 dropdown-toggle" 
+                                                <button type="button" id="id_sh_motorcycle_select_saved_bike_btn"
                                                         style="background-color: #cd853f; border-color: #cd853f;" 
                                                         data-bs-toggle="dropdown" aria-expanded="false">
                                                     <span class="d-none d-md-inline">Mi Garage</span>
                                                     <span class="d-md-none">Garage</span>
                                                 </button>
-                                                <ul class="dropdown-menu" id="id_sh_motorcycle_garage_dropdown">
-                                                    <li><a class="dropdown-item" href="#" onclick="loadGarageVehicles()">
+                                                <ul class="dropdown-menu" id="id_sh_motorcycle_select_saved_bike_div">
+                                                    <li><small class="dropdown-item-text text-muted">
+                                                        Cargando vehículos...
+                                                    </small></li>
                                                         <i class="fa fa-refresh me-2"></i>Cargar vehículos guardados
                                                     </a></li>
                                                     <li><hr class="dropdown-divider"/></li>
