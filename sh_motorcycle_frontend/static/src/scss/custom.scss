@@ -448,3 +448,18 @@
     margin: 0.25rem;
   }
 }
+
+/* Botón reset sutil */
+.btn-link.text-muted:hover {
+    color: #6c757d !important;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.btn-link.text-muted .fa-refresh {
+    transition: transform 0.3s ease;
+}
+
+.btn-link.text-muted:hover .fa-refresh {
+    transform: rotate(180deg);
+}
