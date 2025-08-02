@@ -47,15 +47,14 @@
     </xpath>
   </template>
 
-  <!-- 🚀 Buscador de motos + seleccionar vehículo diferente -->
-  <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Compact horizontal motorcycle search">
+  <template id="override_motorcycle_search" inherit_id="website_sale.products" name="Complete motorcycle search with 3 phases">
     <xpath expr="//div[contains(@class,'oe_website_sale')]" position="before">
 
         <!-- 🔲 Container compacto -->
         <section class="container-fluid bg-light py-2 mb-3">
             <div class="container">
                 
-                <!-- 🚘 Cuando NO hay vehículo seleccionado -->
+                <!-- 🚘 FASE 1: Cuando NO hay vehículo seleccionado -->
                 <t t-if="not motorcycle_heading">
                     <div class="text-center mb-2">
                         <h6 class="mb-1 text-muted">Seleccioná tu Vehículo</h6>
@@ -107,7 +106,7 @@
                     </form>
                 </t>
 
-                <!-- 🛠 Cuando ya hay vehículo seleccionado -->
+                <!-- 🛠 FASE 2: Cuando ya hay vehículo seleccionado -->
                 <t t-if="motorcycle_heading">
                     <div class="form-inline justify-content-center text-center">
                         <div class="motorcycle_heading_section">
@@ -126,6 +125,71 @@
                         </span>
                     </div>
                 </t>
+
+                <!-- 🔄 FASE 3: Formulario para cambiar vehículo (oculto por defecto) -->
+                <div id="id_sh_motorcycle_search_diff_bike_div" class="form-inline justify-content-center" style="display:none;width:100%;position:relative;transform:translate(-50%,0);left:50%;padding:2rem 0;z-index:5;">
+                    
+                    <form id="id_sh_motorcycle_search_diff_bike_form" action="/shop" method="get" class="form-inline" style="justify-content:center;display:flex;width:90%;margin:0 auto;">
+                        
+                        <!-- Tipo -->
+                        <select name="type" class="form-select" style="height:38px;">
+                            <option value="">Tipo</option>
+                            <t t-if="type_list">
+                                <t t-foreach="type_list" t-as="type_dic">
+                                    <option t-att-value="type_dic.get('id')" t-att-selected="type_dic.get('id') == motorcycle_type">
+                                        <t t-esc="type_dic.get('name')"/>
+                                    </option>
+                                </t>
+                            </t>
+                        </select>
+                        
+                        <!-- Marca -->
+                        <select name="make" class="form-select" style="height:38px;">
+                            <option value="">Marca</option>
+                            <t t-if="make_list">
+                                <t t-foreach="make_list" t-as="make_dic">
+                                    <option t-att-value="make_dic.get('id')" t-att-selected="make_dic.get('id') == motorcycle_make">
+                                        <t t-esc="make_dic.get('name')"/>
+                                    </option>
+                                </t>
+                            </t>
+                        </select>
+                        
+                        <!-- Año -->
+                        <select name="year" class="form-select" style="height:38px;">
+                            <option value="">Año</option>
+                            <t t-if="year_list">
+                                <t t-foreach="year_list" t-as="year_item">
+                                    <option t-att-value="year_item" t-att-selected="year_item == motorcycle_year">
+                                        <t t-esc="year_item"/>
+                                    </option>
+                                </t>
+                            </t>
+                        </select>
+                        
+                        <!-- Modelo -->
+                        <select name="model" class="form-select" style="height:38px;">
+                            <option value="">Modelo</option>
+                            <t t-if="model_list">
+                                <t t-foreach="model_list" t-as="model_dic">
+                                    <option t-att-value="model_dic.get('id')" t-att-selected="model_dic.get('id') == motorcycle_model">
+                                        <t t-esc="model_dic.get('name')"/>
+                                    </option>
+                                </t>
+                            </t>
+                        </select>
+                        
+                        <!-- Botón Submit -->
+                        <button id="id_sh_motorcycle_go_submit_button" type="submit" class="btn btn-secondary" style="height:38px;">
+                            <i class="fa fa-search"/>
+                        </button>
+                        
+                    </form>
+                    
+                    <!-- Botón Cerrar -->
+                    <a href="#" role="button" class="close id_sh_motorcycle_search_diff_bike_close" style="position:absolute;right:20px;top:12px;font-size:15px;">×</a>
+                    
+                </div>
 
             </div>
         </section>
