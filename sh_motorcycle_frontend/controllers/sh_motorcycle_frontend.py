@@ -5,7 +5,7 @@ from odoo.http import request
 from odoo import http
 from itertools import product as cartesian_product
 from collections import defaultdict
-from odoo.addons.website_sale.controllers.main import WebsiteSale
+from odoo.addons.website_sale.controllers.main import WebsiteSales
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -38,8 +38,6 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
         values['vehicles'] = vehicles
         values['sh_is_common_product'] = sh_is_common_product
-
-        
 
         return values
     
@@ -198,7 +196,6 @@ class MotorCycleWebsiteSale(WebsiteSale):
         return fuzzy_search_term, product_count, search_result
 
 
-
     def _get_search_options(
             self, category=None, attrib_values=None, pricelist=None, min_price=0.0, max_price=0.0, conversion_rate=1, **post):
         """
@@ -253,20 +250,19 @@ class MotorCycleWebsiteSale(WebsiteSale):
     @http.route()
     def shop(self, page=0, category=None, search='', min_price=0.0,
              max_price=0.0, ppg=False, **post):
-        # 1) Clonamos params y quitamos category
-        params = dict(request.params)
-        params.pop('category', None)
-
-        # 2) Ejecutamos la búsqueda “motera” y construimos has_stock_map ahí
+        """
+        CORREGIDO: Revertir a request.params para mantener compatibilidad
+        """
+        # Ejecutamos la búsqueda "motera" y construimos has_stock_map ahí
         fuzzy, count, products = self._shop_lookup_products(
             attrib_set=None,
-            options=self._get_search_options(**params),
-            post=params,
+            options=self._get_search_options(**request.params),  # ✅ CORREGIDO: usar request.params directamente
+            post=request.params,  # ✅ CORREGIDO: usar request.params directamente
             search=search,
             website=request.website
         )
 
-        # 3) Preparamos y actualizamos contexto “motero”
+        # Preparamos y actualizamos contexto "motero"
         moto_context = self._sh_motorcycle_frontend_detail.copy()
         moto_context.update({
             'filter_order': getattr(request.website, 'sh_filter_order', False),
@@ -274,12 +270,12 @@ class MotorCycleWebsiteSale(WebsiteSale):
         })
         request.update_context(**moto_context)
 
-        # 4) Llamamos al shop original (del checkout/product)
+        # Llamamos al shop original (del checkout/product)
         res = super(MotorCycleWebsiteSale, self).shop(
             page, category, search, min_price, max_price, ppg, **post
         )
 
-        # 5) Inyectamos el contexto motero en qcontext
+        # Inyectamos el contexto motero en qcontext
         if hasattr(res, 'qcontext'):
             res.qcontext.update(moto_context)
             # products ya viene en res.qcontext['products']
