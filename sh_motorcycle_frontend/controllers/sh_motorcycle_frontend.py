@@ -213,8 +213,12 @@ class MotorCycleWebsiteSale(WebsiteSale):
             'model': post.get('model', False),
             'year': post.get('year', False),
         }
-        # _logger.info("[🔍 _get_search_options] post params: %s", post)
-        # _logger.info("[🔍 _get_search_options] options built: %s", result)
+        
+        # 🔍 DEBUG: Opciones de moto
+        _logger.info("[🔍 _get_search_options DEBUG] post: %s", post)
+        _logger.info("[🔍 _get_search_options DEBUG] options_motorcycle: %s", options_motorcycle)
+        _logger.info("[🔍 _get_search_options DEBUG] result final: %s", {**result, **options_motorcycle})
+        
         result.update(options_motorcycle)
         return result
 
@@ -253,6 +257,14 @@ class MotorCycleWebsiteSale(WebsiteSale):
         """
         CORREGIDO: Revertir a request.params para mantener compatibilidad
         """
+        # 🔍 DEBUG: Parámetros de entrada
+        _logger.info("=" * 60)
+        _logger.info("[🔍 SHOP DEBUG] ENTRADA:")
+        _logger.info("[🔍 SHOP DEBUG] request.params: %s", dict(request.params))
+        _logger.info("[🔍 SHOP DEBUG] post: %s", post)
+        _logger.info("[🔍 SHOP DEBUG] search: %r", search)
+        _logger.info("[🔍 SHOP DEBUG] category: %s", category)
+        
         # Ejecutamos la búsqueda "motera" y construimos has_stock_map ahí
         fuzzy, count, products = self._shop_lookup_products(
             attrib_set=None,
@@ -262,6 +274,13 @@ class MotorCycleWebsiteSale(WebsiteSale):
             website=request.website
         )
 
+        # 🔍 DEBUG: Resultado de búsqueda
+        _logger.info("[🔍 SHOP DEBUG] DESPUÉS DE _shop_lookup_products:")
+        _logger.info("[🔍 SHOP DEBUG] fuzzy: %r", fuzzy)
+        _logger.info("[🔍 SHOP DEBUG] count: %s", count)
+        _logger.info("[🔍 SHOP DEBUG] products found: %s", len(products) if products else 0)
+        _logger.info("[🔍 SHOP DEBUG] product_ids: %s", products.ids if products else [])
+
         # Preparamos y actualizamos contexto "motero"
         moto_context = self._sh_motorcycle_frontend_detail.copy()
         moto_context.update({
@@ -270,10 +289,21 @@ class MotorCycleWebsiteSale(WebsiteSale):
         })
         request.update_context(**moto_context)
 
+        # 🔍 DEBUG: Contexto motero
+        _logger.info("[🔍 SHOP DEBUG] CONTEXTO MOTERO:")
+        _logger.info("[🔍 SHOP DEBUG] moto_context: %s", moto_context)
+
         # Llamamos al shop original (del checkout/product)
         res = super(MotorCycleWebsiteSale, self).shop(
             page, category, search, min_price, max_price, ppg, **post
         )
+
+        # 🔍 DEBUG: Resultado final
+        _logger.info("[🔍 SHOP DEBUG] DESPUÉS DE super().shop:")
+        if hasattr(res, 'qcontext'):
+            _logger.info("[🔍 SHOP DEBUG] qcontext keys: %s", list(res.qcontext.keys()))
+            _logger.info("[🔍 SHOP DEBUG] products en qcontext: %s", len(res.qcontext.get('products', [])))
+            _logger.info("[🔍 SHOP DEBUG] search en qcontext: %r", res.qcontext.get('search', ''))
 
         # Inyectamos el contexto motero en qcontext
         if hasattr(res, 'qcontext'):
@@ -281,6 +311,8 @@ class MotorCycleWebsiteSale(WebsiteSale):
             # products ya viene en res.qcontext['products']
             # has_stock_map ya está disponible en TODO QWeb gracias al update_context de _shop_lookup_products
 
+        _logger.info("[🔍 SHOP DEBUG] FINAL - qcontext actualizado")
+        _logger.info("=" * 60)
         return res
 
 
