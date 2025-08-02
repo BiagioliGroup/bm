@@ -158,9 +158,9 @@
                             
                             <!-- Botón Save bike to garage -->
                             <t t-if="request.session.uid and website.sh_is_show_garage">
-                                <button id="id_sh_motorcycle_save_bike_to_garage_btn" class="btn btn-success btn-sm">
-                                    <i class="fa fa-plus me-1"/> Save bike to garage
-                                </button>
+                                <span id="id_sh_motorcycle_save_bike_to_garage_btn" class="btn ui-link link-primary">
+                                    <i class="fa fa-plus"/> Guardar en Mi Garage
+                                </span>
                             </t>
                             
                             <!-- Botón Mi Garage -->
