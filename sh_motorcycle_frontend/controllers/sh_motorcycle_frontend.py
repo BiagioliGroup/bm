@@ -101,6 +101,9 @@ class MotorCycleWebsiteSale(WebsiteSale):
         return stock_map
 
     def _shop_lookup_products(self, attrib_set, options, post, search, website):
+
+        _logger.info("[🔎 DEBUG] options received: %s", {k: v for k, v in options.items() if k in ['type', 'make', 'model', 'year']})
+
         # 1) Búsqueda fuzzy original
         product_count, details, fuzzy_search_term = website._search_with_fuzzy(
             "products_only", search,
@@ -108,6 +111,9 @@ class MotorCycleWebsiteSale(WebsiteSale):
             order=self._get_search_order(post),
             options=options
         )
+
+        _logger.info("[🔎 DEBUG] details[0] keys: %s", list(details[0].keys()))
+
         search_result = details[0].get('results', request.env['product.template'])\
                                         .with_context(bin_size=True)
 
