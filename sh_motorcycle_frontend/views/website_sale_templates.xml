@@ -116,12 +116,12 @@
                                         </div>
                                     </t>
                                     
-                                    <!-- Botón Reset sutil -->
-                                    <div class="col-12 col-md-6 col-lg-8 d-flex justify-content-center align-items-center">
-                                        <a href="/shop" class="btn btn-link btn-sm text-muted" title="Ver todos los productos" style="text-decoration: none; font-size: 0.8rem;">
+                                    <!-- Boton Reset -->
+                                    <div class="col-4 col-md-2">
+                                        <a href="/shop" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center" 
+                                           title="Ver todos los productos" style="text-decoration: none; height: 42px;">
                                             <i class="fa fa-refresh me-1" style="font-size: 0.9rem;"></i>
                                             <span class="d-none d-md-inline">Reset</span>
-                                            <span class="d-md-none">Reset</span>
                                         </a>
                                     </div>
                                 </div>
