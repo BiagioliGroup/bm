@@ -43,7 +43,7 @@
   </template> -->
 
   <!-- 1) Quitamos overflow-hidden del contenedor para que el badge no se recorte -->
-  <template id="remove_overflow_from_product_image"
+  <!-- <template id="remove_overflow_from_product_image"
             inherit_id="website_sale.products_item"
             name="Allow overflow on product image">
     <xpath expr="//div[contains(@class,'oe_product_image')]" position="attributes">
@@ -51,7 +51,7 @@
     </xpath>
   </template>
 
-  <!-- 2) Insertamos el badge “En stock” en la esquina inferior derecha -->
+  2) Insertamos el badge “En stock” en la esquina inferior derecha
   <template id="stock_badge_on_products_item"
             inherit_id="website_sale.products_item"
             name="Show 'En stock' badge on product cards">
@@ -64,7 +64,7 @@
         </span>
       </t>
     </xpath>
-  </template>
+  </template> -->
 
 
 </odoo>
