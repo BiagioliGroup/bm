@@ -100,9 +100,12 @@
                                 <div class="col-4 col-md-2">
                                     <a href="/shop" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center" 
                                        title="Ver todos los productos" style="text-decoration: none; min-height: 48px;">
-                                        <i class="fa fa-refresh me-1" style="font-size: 0.9rem;"></i>
-                                        <span class="d-none d-sm-inline">Reset</span>
-                                        <span class="d-sm-none"><i class="fa fa-refresh"></i></span>
+                                        <span class="d-none d-sm-inline">
+                                            <i class="fa fa-refresh me-1" style="font-size: 0.9rem;"></i>Reset
+                                        </span>
+                                        <span class="d-sm-none">
+                                            <i class="fa fa-refresh"></i>
+                                        </span>
                                     </a>
                                 </div>
                             </div>
