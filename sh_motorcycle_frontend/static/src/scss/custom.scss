@@ -379,7 +379,7 @@
 /*--end mayorista styles--*/
 
 /*--Motorcycle Search Responsive--*/
-/* Desktop: más estrecho y centrado */
+/* Desktop: botones más pequeños y centrados */
 @media screen and (min-width: 768px) {
   .container-fluid.bg-light.py-3.mb-3 {
     padding-top: 1.5rem !important;
@@ -393,11 +393,12 @@
 
   #id_sh_motorcycle_search_form .btn {
     height: 42px;
-    padding: 0.5rem 1.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }
 
-/* Mobile: más altura y mejor proporción */
+/* Mobile: botones 50% del ancho */
 @media screen and (max-width: 767px) {
   .container-fluid.bg-light.py-3.mb-3 {
     padding-top: 1rem !important;
@@ -420,11 +421,11 @@
     height: 45px !important;
   }
 
-  /* Botón más alto en móvil */
+  /* Botones más pequeños en móvil - 50% del ancho */
   #id_sh_motorcycle_search_form .btn {
-    padding: 0.7rem 1rem !important;
-    font-size: 0.95rem;
-    height: 45px !important;
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.85rem;
+    height: 42px !important;
   }
 
   /* Espaciado mejorado */
