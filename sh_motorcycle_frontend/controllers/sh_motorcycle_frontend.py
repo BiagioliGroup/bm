@@ -109,7 +109,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
         _logger.info(
             "[🔎 _shop_lookup_products] fuzzy=%r, count=%s, result_ids=%s",
-            fuzzy_search_term, product_count, search_result.ids
+            fuzzy_search_term, product_count, search_result[:10]
         )
 
         # 2) Guardamos el contexto motero (igual que antes)
@@ -190,7 +190,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
         # 4) --- NUEVO: construimos e inyectamos el stock_map ---
         stock_map = self._build_stock_map(search_result)
         request.update_context(has_stock_map=stock_map)
-        _logger.info("[🔎 _shop_lookup_products] stock_map=%s", stock_map)
+        _logger.info("[🔎 _shop_lookup_products] stock_map=%s", stock_map[:5])
 
         # 5) Devolvemos como antes
         return fuzzy_search_term, product_count, search_result
@@ -271,7 +271,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
         _logger.info("[🔍 SHOP DEBUG] fuzzy: %r", fuzzy)
         _logger.info("[🔍 SHOP DEBUG] count: %s", count)
         _logger.info("[🔍 SHOP DEBUG] products found: %s", len(products) if products else 0)
-        _logger.info("[🔍 SHOP DEBUG] product_ids: %s", products.ids if products else [])
+        _logger.info("[🔍 SHOP DEBUG] product_ids: %s", products.ids[:10] if products else [])
 
         # Preparamos y actualizamos contexto "motero"
         moto_context = self._sh_motorcycle_frontend_detail.copy()
