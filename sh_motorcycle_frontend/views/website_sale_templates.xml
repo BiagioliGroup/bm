@@ -120,7 +120,7 @@
                                     <div class="col-12 col-md-6 col-lg-8 d-flex justify-content-center align-items-center">
                                         <a href="/shop" class="btn btn-link btn-sm text-muted" title="Ver todos los productos" style="text-decoration: none; font-size: 0.8rem;">
                                             <i class="fa fa-refresh me-1" style="font-size: 0.9rem;"></i>
-                                            <span class="d-none d-md-inline">Mostrar todos</span>
+                                            <span class="d-none d-md-inline">Reset</span>
                                             <span class="d-md-none">Reset</span>
                                         </a>
                                     </div>

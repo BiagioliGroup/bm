@@ -419,6 +419,7 @@
     padding: 0.6rem 0.75rem !important;
     font-size: 0.9rem;
     height: 45px !important;
+    width: 60%;
   }
 
   /* Botones más pequeños en móvil - 50% del ancho */
@@ -451,15 +452,15 @@
 
 /* Botón reset sutil */
 .btn-link.text-muted:hover {
-    color: #6c757d !important;
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
+  color: #6c757d !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
 .btn-link.text-muted .fa-refresh {
-    transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .btn-link.text-muted:hover .fa-refresh {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
