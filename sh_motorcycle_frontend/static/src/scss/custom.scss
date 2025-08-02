@@ -187,9 +187,6 @@
     margin-top: 0% !important;
   }
 }
-/*--media-query--*/
-
-/* AGREGAR al final de sh_motorcycle_frontend/static/src/scss/custom.scss */
 
 /*--mayorista styles SUBTLE COLORS--*/
 
@@ -380,3 +377,74 @@
 }
 
 /*--end mayorista styles--*/
+
+/*--Motorcycle Search Mobile Responsive--*/
+@media screen and (max-width: 767px) {
+  /* Hacer el buscador más compacto en móviles */
+  .container-fluid.bg-light.py-3.mb-4 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Reducir espaciado del título */
+  .container-fluid.bg-light h5 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .container-fluid.bg-light small {
+    font-size: 0.75rem;
+  }
+
+  /* Hacer los campos más pequeños */
+  .form-select-sm {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.8rem;
+  }
+
+  .form-label.small {
+    font-size: 0.7rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Botón más compacto */
+  .btn-sm {
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.8rem;
+  }
+
+  /* Reducir espaciado entre columnas */
+  .row.g-2 {
+    --bs-gutter-x: 0.25rem;
+    --bs-gutter-y: 0.25rem;
+  }
+
+  /* Ajustar distribución de columnas en móvil */
+  .col-6.col-md-2 {
+    flex: 0 0 auto;
+    width: 48%;
+  }
+
+  .col-12.col-md-2 {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media screen and (max-width: 480px) {
+  .container-fluid.bg-light.py-3.mb-4 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  /* Una sola columna en pantallas muy pequeñas */
+  .col-6.col-md-2 {
+    width: 100% !important;
+  }
+
+  .form-select-sm {
+    padding: 0.4rem 0.75rem !important;
+  }
+}
