@@ -167,7 +167,7 @@
                             <t t-if="request.session.uid and website.sh_is_show_garage">
                                 <div class="dropdown">
                                     <button type="button" id="id_sh_motorcycle_select_saved_bike_btn_phase2" 
-                                            class="btn btn-secondary btn-sm dropdown-toggle"
+                                            class="btn btn-secondary dropdown-toggle"
                                             style="background-color: #cd853f; border-color: #cd853f;" 
                                             data-bs-toggle="dropdown" aria-expanded="false">
                                         Mi Garage
@@ -181,7 +181,7 @@
                             </t>
                             
                             <!-- Botón Seleccionar vehículo diferente -->
-                            <button id="id_sh_motorcycle_select_diff_bike_btn" class="btn btn-outline-secondary btn-sm">
+                            <button id="id_sh_motorcycle_select_diff_bike_btn" class="btn btn-outline-secondary">
                                 <i class="fa fa-retweet me-1"/> Seleccioná un vehículo diferente
                             </button>
                             
