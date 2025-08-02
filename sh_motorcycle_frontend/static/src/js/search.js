@@ -5,15 +5,14 @@ import { rpc } from "@web/core/network/rpc";
 import { _t } from "@web/core/l10n/translation";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 
-// Widget principal para la búsqueda de motocicletas
 publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   selector: "#wrap",
 
   events: {
-    "change #id_sh_motorcycle_type_select": "_onChangeType",
-    "change #id_sh_motorcycle_make_select": "_onChangeMake",
-    "change #id_sh_motorcycle_year_select": "_onChangeYear",
-    "change #id_sh_motorcycle_model_select": "_onChangeModel",
+    "change #id_sh_motorcycle_type": "_onChangeType",
+    "change #id_sh_motorcycle_make": "_onChangeMake",
+    "change #id_sh_motorcycle_year": "_onChangeYear",
+    "change #id_sh_motorcycle_model": "_onChangeModel",
 
     "change select[name='type']": "_onChangeType",
     "change select[name='make']": "_onChangeMake",
@@ -27,8 +26,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       "_onClickSaveBikeToGarage",
     "click .js_cls_remove_vehicle_button": "_onClickRemoveVehicle",
 
-    // Eventos para el botón Mi Garage - usando los IDs correctos del template
+    // Eventos para ambos botones Mi Garage (fase 1 y fase 2)
     "click #id_sh_motorcycle_select_saved_bike_btn": "_onClickMyGarage",
+    "click #id_sh_motorcycle_select_saved_bike_btn_phase2":
+      "_onClickMyGaragePhase2",
   },
 
   init: function () {
@@ -41,11 +42,11 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     this._initializeSelectors();
     this._loadSavedBikes();
     this._checkSavedButton();
-    this._initializeMyGarageButton();
+    this._initializeMyGarageButtons();
   },
 
-  /*** INICIALIZACIÓN DEL BOTÓN MI GARAGE ***/
-  _initializeMyGarageButton: function () {
+  /*** INICIALIZACIÓN DE AMBOS BOTONES MI GARAGE ***/
+  _initializeMyGarageButtons: function () {
     const self = this;
 
     rpc("/sh_motorcycle/is_user_logined_in")
@@ -53,18 +54,27 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
         console.log("Estado del usuario:", rec);
 
         if (rec.is_user_logined_in) {
-          // Usuario logueado - habilitar el botón
+          // Habilitar botón de fase 1
           $("#id_sh_motorcycle_select_saved_bike_btn")
             .removeClass("disabled")
             .prop("disabled", false)
             .attr("data-bs-toggle", "dropdown")
             .attr("aria-expanded", "false");
 
-          // Cargar los vehículos guardados
+          // Habilitar botón de fase 2
+          $("#id_sh_motorcycle_select_saved_bike_btn_phase2")
+            .removeClass("disabled")
+            .prop("disabled", false)
+            .attr("data-bs-toggle", "dropdown")
+            .attr("aria-expanded", "false");
+
+          // Cargar los vehículos guardados para ambas fases
           self._loadSavedBikes();
         } else {
-          // Usuario no logueado - deshabilitar el botón
-          $("#id_sh_motorcycle_select_saved_bike_btn")
+          // Deshabilitar ambos botones
+          $(
+            "#id_sh_motorcycle_select_saved_bike_btn, #id_sh_motorcycle_select_saved_bike_btn_phase2"
+          )
             .addClass("disabled")
             .prop("disabled", true)
             .removeAttr("data-bs-toggle");
@@ -72,17 +82,35 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       })
       .catch(function (error) {
         console.error("Error al verificar el estado del usuario:", error);
-        // En caso de error, deshabilitar el botón
-        $("#id_sh_motorcycle_select_saved_bike_btn")
+        // En caso de error, deshabilitar ambos botones
+        $(
+          "#id_sh_motorcycle_select_saved_bike_btn, #id_sh_motorcycle_select_saved_bike_btn_phase2"
+        )
           .addClass("disabled")
           .prop("disabled", true)
           .removeAttr("data-bs-toggle");
       });
   },
 
-  /*** MANEJADOR DEL CLICK EN MI GARAGE ***/
+  /*** MANEJADOR DEL CLICK EN MI GARAGE - FASE 1 ***/
   _onClickMyGarage: function (ev) {
-    console.log("Mi Garage clickeado");
+    return this._handleMyGarageClick(
+      ev,
+      "#id_sh_motorcycle_select_saved_bike_div"
+    );
+  },
+
+  /*** MANEJADOR DEL CLICK EN MI GARAGE - FASE 2 ***/
+  _onClickMyGaragePhase2: function (ev) {
+    return this._handleMyGarageClick(
+      ev,
+      "#id_sh_motorcycle_select_saved_bike_div_phase2"
+    );
+  },
+
+  /*** LÓGICA COMÚN PARA AMBOS BOTONES MI GARAGE ***/
+  _handleMyGarageClick: function (ev, dropdownSelector) {
+    console.log("Mi Garage clickeado:", dropdownSelector);
 
     const $target = $(ev.currentTarget);
 
@@ -95,7 +123,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     }
 
     // Verificar si hay vehículos en el dropdown
-    const $dropdownMenu = $("#id_sh_motorcycle_select_saved_bike_div");
+    const $dropdownMenu = $(dropdownSelector);
     const vehicleLinks = $dropdownMenu.find("a.dropdown-item:not(.text-muted)");
 
     if (vehicleLinks.length === 0) {
@@ -131,15 +159,14 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   },
 
   _resetSelectors: function () {
-    this.renderSelect($("#id_sh_motorcycle_type_select"), [], "Tipo");
+    this.renderSelect($("#id_sh_motorcycle_type"), [], "Tipo");
     this.renderSelect($("select[name='type']"), [], "Tipo");
-    this.renderSelect($("#id_sh_motorcycle_make_select"), [], "Marca", true);
+    this.renderSelect($("#id_sh_motorcycle_make"), [], "Marca", true);
     this.renderSelect($("select[name='make']"), [], "Marca", true);
-    this.renderSelect($("#id_sh_motorcycle_year_select"), [], "Año", true);
+    this.renderSelect($("#id_sh_motorcycle_year"), [], "Año", true);
     this.renderSelect($("select[name='year']"), [], "Año", true);
-    this.renderSelect($("#id_sh_motorcycle_model_select"), [], "Modelo", true);
+    this.renderSelect($("#id_sh_motorcycle_model"), [], "Modelo", true);
     this.renderSelect($("select[name='model']"), [], "Modelo", true);
-    $("#id_sh_motorcycle_go_submit_button").prop("disabled", true);
   },
 
   renderSelect: function ($select, items, placeholder, disabled = false) {
@@ -160,7 +187,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   /*** CARGA LISTAS DE OPCIONES ***/
   loadTypeList: function () {
     rpc("/sh_motorcycle/get_type_list").then((data) => {
-      this.renderSelect($("#id_sh_motorcycle_type_select"), data, "Tipo");
+      this.renderSelect($("#id_sh_motorcycle_type"), data, "Tipo");
       this.renderSelect($("select[name='type']"), data, "Tipo");
     });
   },
@@ -168,7 +195,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   loadMakeList: function (type_id) {
     if (!type_id) return;
     rpc("/sh_motorcycle/get_make_list", { type_id }).then((data) => {
-      this.renderSelect($("#id_sh_motorcycle_make_select"), data, "Marca");
+      this.renderSelect($("#id_sh_motorcycle_make"), data, "Marca");
       this.renderSelect($("select[name='make']"), data, "Marca");
     });
   },
@@ -176,7 +203,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   loadYearList: function (type_id, make_id) {
     if (!type_id || !make_id) return;
     rpc("/sh_motorcycle/get_year_list", { type_id, make_id }).then((data) => {
-      this.renderSelect($("#id_sh_motorcycle_year_select"), data, "Año");
+      this.renderSelect($("#id_sh_motorcycle_year"), data, "Año");
       this.renderSelect($("select[name='year']"), data, "Año");
     });
   },
@@ -185,7 +212,7 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     if (!type_id || !make_id || !year) return;
     rpc("/sh_motorcycle/get_model_list", { type_id, make_id, year }).then(
       (data) => {
-        this.renderSelect($("#id_sh_motorcycle_model_select"), data, "Modelo");
+        this.renderSelect($("#id_sh_motorcycle_model"), data, "Modelo");
         this.renderSelect($("select[name='model']"), data, "Modelo");
       }
     );
@@ -194,45 +221,38 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   /*** EVENTOS ***/
   _onChangeType: function () {
     const type_id =
-      $("#id_sh_motorcycle_type_select").val() ||
-      $("select[name='type']").val();
+      $("#id_sh_motorcycle_type").val() || $("select[name='type']").val();
     this.loadMakeList(type_id);
-    this.renderSelect($("#id_sh_motorcycle_year_select"), [], "Año", true);
+    this.renderSelect($("#id_sh_motorcycle_year"), [], "Año", true);
     this.renderSelect($("select[name='year']"), [], "Año", true);
-    this.renderSelect($("#id_sh_motorcycle_model_select"), [], "Modelo", true);
+    this.renderSelect($("#id_sh_motorcycle_model"), [], "Modelo", true);
     this.renderSelect($("select[name='model']"), [], "Modelo", true);
   },
 
   _onChangeMake: function () {
     const type_id =
-      $("#id_sh_motorcycle_type_select").val() ||
-      $("select[name='type']").val();
+      $("#id_sh_motorcycle_type").val() || $("select[name='type']").val();
     const make_id =
-      $("#id_sh_motorcycle_make_select").val() ||
-      $("select[name='make']").val();
+      $("#id_sh_motorcycle_make").val() || $("select[name='make']").val();
     this.loadYearList(type_id, make_id);
-    this.renderSelect($("#id_sh_motorcycle_model_select"), [], "Modelo", true);
+    this.renderSelect($("#id_sh_motorcycle_model"), [], "Modelo", true);
     this.renderSelect($("select[name='model']"), [], "Modelo", true);
   },
 
   _onChangeYear: function () {
     const type_id =
-      $("#id_sh_motorcycle_type_select").val() ||
-      $("select[name='type']").val();
+      $("#id_sh_motorcycle_type").val() || $("select[name='type']").val();
     const make_id =
-      $("#id_sh_motorcycle_make_select").val() ||
-      $("select[name='make']").val();
+      $("#id_sh_motorcycle_make").val() || $("select[name='make']").val();
     const year =
-      $("#id_sh_motorcycle_year_select").val() ||
-      $("select[name='year']").val();
+      $("#id_sh_motorcycle_year").val() || $("select[name='year']").val();
     this.loadModelList(type_id, make_id, year);
   },
 
   _onChangeModel: function () {
     const model_id =
-      $("#id_sh_motorcycle_model_select").val() ||
-      $("select[name='model']").val();
-    $("#id_sh_motorcycle_go_submit_button").prop("disabled", !model_id);
+      $("#id_sh_motorcycle_model").val() || $("select[name='model']").val();
+    // Habilitar botón de búsqueda cuando se selecciona modelo
   },
 
   _onClickSelectDiffVehicle: function () {
@@ -288,34 +308,43 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   _loadSavedBikes: function () {
     console.log("Cargando vehículos guardados...");
 
-    // Limpiar elementos existentes (excepto los placeholder del template)
-    $("#id_sh_motorcycle_select_saved_bike_div > a").remove();
+    // Limpiar elementos existentes en ambos dropdowns
+    $(
+      "#id_sh_motorcycle_select_saved_bike_div > a, #id_sh_motorcycle_select_saved_bike_div_phase2 > a"
+    ).remove();
 
     return rpc("/sh_motorcycle/get_saved_bike")
       .then((data) => {
         console.log("Vehículos recibidos:", data);
 
         if (data && data.length > 0) {
+          // Agregar vehículos a ambos dropdowns
           data.forEach((bike) => {
-            $("#id_sh_motorcycle_select_saved_bike_div").append(
-              `<a class="dropdown-item" href="${bike.moto_url}">${bike.name}</a>`
+            const vehicleLink = `<a class="dropdown-item" href="${bike.moto_url}">${bike.name}</a>`;
+            $("#id_sh_motorcycle_select_saved_bike_div").append(vehicleLink);
+            $("#id_sh_motorcycle_select_saved_bike_div_phase2").append(
+              vehicleLink
             );
           });
 
           // Aplicar filtro de categoría si existe
           this._applyCategoryFilter();
 
-          // Habilitar el botón
-          $("#id_sh_motorcycle_select_saved_bike_btn")
+          // Habilitar ambos botones
+          $(
+            "#id_sh_motorcycle_select_saved_bike_btn, #id_sh_motorcycle_select_saved_bike_btn_phase2"
+          )
             .removeClass("disabled")
             .prop("disabled", false)
             .attr("data-bs-toggle", "dropdown");
 
-          console.log("Vehículos cargados correctamente");
+          console.log("Vehículos cargados correctamente en ambas fases");
         } else {
-          // No hay vehículos - agregar mensaje informativo
-          $("#id_sh_motorcycle_select_saved_bike_div").append(
-            `<span class="dropdown-item-text text-muted">No hay vehículos guardados</span>`
+          // No hay vehículos - agregar mensaje informativo en ambos dropdowns
+          const emptyMessage = `<span class="dropdown-item-text text-muted">No hay vehículos guardados</span>`;
+          $("#id_sh_motorcycle_select_saved_bike_div").append(emptyMessage);
+          $("#id_sh_motorcycle_select_saved_bike_div_phase2").append(
+            emptyMessage
           );
 
           console.log("No se encontraron vehículos guardados");
@@ -323,9 +352,11 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
       })
       .catch(function (error) {
         console.error("Error al cargar vehículos guardados:", error);
-        // En caso de error, agregar mensaje de error
-        $("#id_sh_motorcycle_select_saved_bike_div").append(
-          `<span class="dropdown-item-text text-danger">Error al cargar vehículos</span>`
+        // En caso de error, agregar mensaje de error en ambos dropdowns
+        const errorMessage = `<span class="dropdown-item-text text-danger">Error al cargar vehículos</span>`;
+        $("#id_sh_motorcycle_select_saved_bike_div").append(errorMessage);
+        $("#id_sh_motorcycle_select_saved_bike_div_phase2").append(
+          errorMessage
         );
       });
   },
@@ -334,7 +365,10 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
     const categ_id = $('input[id="id_input_sh_moto_categ_id"]').val();
 
     if (categ_id && categ_id.length) {
-      const $links = $("#id_sh_motorcycle_select_saved_bike_div > a");
+      // Aplicar filtro a ambos dropdowns
+      const $links = $(
+        "#id_sh_motorcycle_select_saved_bike_div > a, #id_sh_motorcycle_select_saved_bike_div_phase2 > a"
+      );
 
       $links.each(function () {
         const $link = $(this);
@@ -364,31 +398,20 @@ publicWidget.registry.sh_motorcycle_shop_search = publicWidget.Widget.extend({
   },
 });
 
-// Función global para compatibilidad con posibles onclick en HTML
-// Esta función previene el error "loadGarageVehicles is not defined"
+// Función global para compatibilidad
 window.loadGarageVehicles = function () {
   console.log("loadGarageVehicles llamada - redirigiendo al widget");
 
-  // Buscar el widget activo
-  const widget = publicWidget.registry.sh_motorcycle_shop_search;
-  if (widget && widget.prototype._loadSavedBikes) {
-    // Si existe una instancia del widget, usar su método
-    const instance = $(".sh_motorcycle_shop_search").data("widget");
-    if (instance && instance._loadSavedBikes) {
-      instance._loadSavedBikes();
-    } else {
-      // Si no hay instancia, crear una temporal para cargar los vehículos
-      console.log("Creando carga temporal de vehículos");
-      rpc("/sh_motorcycle/get_saved_bike").then((data) => {
-        $("#id_sh_motorcycle_select_saved_bike_div > a").remove();
-        if (data && data.length > 0) {
-          data.forEach((bike) => {
-            $("#id_sh_motorcycle_select_saved_bike_div").append(
-              `<a class="dropdown-item" href="${bike.moto_url}">${bike.name}</a>`
-            );
-          });
-        }
+  rpc("/sh_motorcycle/get_saved_bike").then((data) => {
+    $(
+      "#id_sh_motorcycle_select_saved_bike_div > a, #id_sh_motorcycle_select_saved_bike_div_phase2 > a"
+    ).remove();
+    if (data && data.length > 0) {
+      data.forEach((bike) => {
+        const vehicleLink = `<a class="dropdown-item" href="${bike.moto_url}">${bike.name}</a>`;
+        $("#id_sh_motorcycle_select_saved_bike_div").append(vehicleLink);
+        $("#id_sh_motorcycle_select_saved_bike_div_phase2").append(vehicleLink);
       });
     }
-  }
+  });
 };
