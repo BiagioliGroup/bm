@@ -196,57 +196,49 @@ class MotorCycleWebsiteSale(WebsiteSale):
         return fuzzy_search_term, product_count, search_result
 
 
-    def _get_search_options(
-            self, category=None, attrib_values=None, pricelist=None, min_price=0.0, max_price=0.0, conversion_rate=1, **post):
+    def _get_search_options(self, category=None, attrib_values=None, pricelist=None, 
+                       min_price=0.0, max_price=0.0, conversion_rate=1, **post):
         """
-            INHERITED BY SOFTHEALER
-            Get type, make, mode, year values from URL/POST and add it into options in order to use it in
-            1) _shop_lookup_products in website_sale controller
-            2) _search_get_detail in product template
+        INHERITED BY SOFTHEALER - Fixed parameter extraction
         """
-        result = super(MotorCycleWebsiteSale, self)._get_search_options(
-            category=category, attrib_values=attrib_values, pricelist=pricelist, min_price=min_price, max_price=max_price, conversion_rate=conversion_rate, **post
+        result = super()._get_search_options(
+            category=category, attrib_values=attrib_values, pricelist=pricelist, 
+            min_price=min_price, max_price=max_price, conversion_rate=conversion_rate, **post
         )
+        
+        # ✅ FIX: Extraer de post['post'] si existe, sino de post directamente
+        moto_params = post.get('post', post) if 'post' in post else post
+        
         options_motorcycle = {
-            'type': post.get('type', False),
-            'make': post.get('make', False),
-            'model': post.get('model', False),
-            'year': post.get('year', False),
+            'type': moto_params.get('type', False),
+            'make': moto_params.get('make', False), 
+            'model': moto_params.get('model', False),
+            'year': moto_params.get('year', False),
         }
         
-        # 🔍 DEBUG: Opciones de moto
-        _logger.info("[🔍 _get_search_options DEBUG] post: %s", post)
-        _logger.info("[🔍 _get_search_options DEBUG] options_motorcycle: %s", options_motorcycle)
-        _logger.info("[🔍 _get_search_options DEBUG] result final: %s", {**result, **options_motorcycle})
+        _logger.info("[🔍 _get_search_options FIXED] moto_params: %s", moto_params)
+        _logger.info("[🔍 _get_search_options FIXED] options_motorcycle: %s", options_motorcycle)
         
         result.update(options_motorcycle)
         return result
+    
 
-    def _shop_get_query_url_kwargs(self,category , search, min_price, max_price, **post):
+
+    def _shop_get_query_url_kwargs(self, category, search, min_price, max_price, **post):
         """
-            INHERITED BY SOFTHEALER
-            Get type, make, mode, year values from URL/POST and add it into KEEP in order to keep
-            all the parameter when user click on category, attribute or price.
+        INHERITED BY SOFTHEALER - Fixed parameter preservation
         """
-        result = super(MotorCycleWebsiteSale, self)._shop_get_query_url_kwargs(
-            category , search, min_price, max_price, **post)
+        result = super()._shop_get_query_url_kwargs(
+            category, search, min_price, max_price, **post)
+        
+        # ✅ FIX: Mismo patrón de extracción
+        moto_params = post.get('post', post) if 'post' in post else post
+        
         options_motorcycle = {}
-        if post.get('type', False):
-            options_motorcycle.update({
-                'type': post.get('type', False)
-            })
-        if post.get('make', False):
-            options_motorcycle.update({
-                'make': post.get('make', False)
-            })
-        if post.get('model', False):
-            options_motorcycle.update({
-                'model': post.get('model', False)
-            })
-        if post.get('year', False):
-            options_motorcycle.update({
-                'year': post.get('year', False)
-            })
+        for param in ['type', 'make', 'model', 'year']:
+            if moto_params.get(param):
+                options_motorcycle[param] = moto_params[param]
+        
         result.update(options_motorcycle)
         return result
 
