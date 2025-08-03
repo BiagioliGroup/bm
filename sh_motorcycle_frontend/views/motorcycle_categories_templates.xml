@@ -10,13 +10,27 @@
         <!-- Reemplazamos el contenedor principal de categorías -->
         <xpath expr="//div[@class='o_wsale_products_searchbar_form d-flex flex-column gap-2']" position="replace">
             <div class="motorcycle_categories_container">
-                <h5 class="text-uppercase mb-3 fw-bold">Categorías</h5>
+                <h5 class="text-uppercase mb-3 fw-bold">
+                    Categorías
+                    <small class="text-muted ms-2" t-if="categories_with_products">
+                        (<t t-esc="len(categories_with_products)"/>)
+                    </small>
+                </h5>
                 
-                <!-- Lista de categorías con nuevo estilo -->
-                <div class="motorcycle_categories_list">
-                    <t t-foreach="categories" t-as="c">
-                        <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
+                <!-- 🔍 SOLO MOSTRAR CATEGORÍAS CON PRODUCTOS -->
+                <div class="motorcycle_categories_list" t-if="categories_with_products">
+                    <!-- Filtrar solo categorías padre (sin parent_id) que tengan productos -->
+                    <t t-foreach="categories_with_products.filtered(lambda c: not c.parent_id)" t-as="c">
+                        <t t-if="categories_data.get(c.id, {}).get('total_count', 0) > 0">
+                            <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
+                        </t>
                     </t>
+                </div>
+                
+                <!-- Mensaje cuando no hay categorías con productos -->
+                <div class="text-center text-muted py-3" t-if="not categories_with_products">
+                    <i class="fa fa-info-circle fa-2x mb-2"></i>
+                    <p class="mb-0">No hay categorías disponibles<br/>para los filtros seleccionados</p>
                 </div>
             </div>
         </xpath>
@@ -31,27 +45,29 @@
                 <!-- Icono + expandir/contraer -->
                 <i class="motorcycle_category_icon fa fa-plus" 
                    t-att-class="'fa-minus' if c.child_id and c.id in parent_category_ids else 'fa-plus'"
-                   t-if="c.child_id"></i>
-                <i class="motorcycle_category_icon fa fa-folder-o" t-if="not c.child_id"></i>
+                   t-if="c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)"></i>
+                <i class="motorcycle_category_icon fa fa-folder-o" 
+                   t-if="not c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)"></i>
                 
                 <!-- Link de la categoría -->
                 <a class="motorcycle_category_link" 
                    t-att-href="keep('/shop/category/' + slug(c), category=0)"
                    t-att-title="c.name">
                     <span t-field="c.name"/>
-                    <small class="text-muted ms-2" t-if="c.product_count">
-                        (<t t-esc="c.product_count"/>)
+                    <!-- Mostrar contador de productos usando los datos del controlador -->
+                    <small class="text-muted ms-2" t-if="categories_data.get(c.id, {}).get('total_count', 0) > 0">
+                        (<t t-esc="categories_data[c.id]['total_count']"/>)
                     </small>
                 </a>
             </div>
 
-            <!-- Subcategorías (desplegable) -->
+            <!-- Subcategorías (desplegable) - Solo mostrar las que tienen productos -->
             <div class="motorcycle_subcategories" 
-                 t-att-class="'show' if c.id in parent_category_ids else 'collapse'">
-                <t t-if="c.child_id">
-                    <t t-foreach="c.child_id" t-as="c">
-                        <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
-                    </t>
+                 t-att-class="'show' if c.id in parent_category_ids else 'collapse'"
+                 t-if="c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)">
+                
+                <t t-foreach="c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)" t-as="c">
+                    <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
                 </t>
             </div>
         </div>
