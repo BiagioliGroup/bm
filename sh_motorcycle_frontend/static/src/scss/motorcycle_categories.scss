@@ -1,0 +1,245 @@
+/* =====================================================
+   🎨 ESTILOS PERSONALIZADOS PARA CATEGORÍAS DE MOTOS
+   ===================================================== */
+
+.motorcycle_categories_container {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h5 {
+    color: #495057;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #007bff;
+  }
+}
+
+.motorcycle_categories_list {
+  .motorcycle_category_item {
+    margin-bottom: 2px;
+
+    .motorcycle_category_header {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+
+      &:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+      }
+
+      &.active {
+        background-color: #007bff;
+        color: white;
+
+        .motorcycle_category_link {
+          color: white !important;
+
+          .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+          }
+        }
+
+        .motorcycle_category_icon {
+          color: white;
+        }
+      }
+    }
+
+    .motorcycle_category_icon {
+      width: 16px;
+      margin-right: 8px;
+      color: #6c757d;
+      font-size: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+
+      &.fa-minus {
+        transform: rotate(0deg);
+      }
+
+      &.fa-plus {
+        transform: rotate(0deg);
+      }
+    }
+
+    .motorcycle_category_link {
+      flex: 1;
+      text-decoration: none;
+      color: #495057;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      &:hover {
+        text-decoration: none;
+        color: #007bff;
+      }
+
+      span {
+        flex: 1;
+      }
+
+      small {
+        font-size: 11px;
+        background: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 10px;
+        min-width: 20px;
+        text-align: center;
+      }
+    }
+
+    // Subcategorías (anidadas)
+    .motorcycle_subcategories {
+      margin-left: 20px;
+      border-left: 2px solid #e9ecef;
+      padding-left: 10px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+
+      &.collapse {
+        max-height: 0;
+      }
+
+      &.show {
+        max-height: 1000px; // Suficiente para mostrar subcategorías
+      }
+
+      .motorcycle_category_item {
+        .motorcycle_category_header {
+          padding: 6px 8px;
+          font-size: 13px;
+
+          .motorcycle_category_icon {
+            font-size: 11px;
+            margin-right: 6px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* =============================================
+   📱 RESPONSIVE DESIGN PARA MÓVILES
+   ============================================= */
+
+@media (max-width: 991px) {
+  .motorcycle_categories_container {
+    margin-bottom: 15px;
+    padding: 15px;
+
+    h5 {
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+  }
+
+  .motorcycle_categories_list {
+    .motorcycle_category_item {
+      .motorcycle_category_header {
+        padding: 10px;
+
+        .motorcycle_category_link {
+          font-size: 13px;
+
+          small {
+            font-size: 10px;
+            padding: 1px 4px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .motorcycle_categories_container {
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .motorcycle_categories_list {
+    .motorcycle_category_item {
+      .motorcycle_subcategories {
+        margin-left: 15px;
+        padding-left: 8px;
+      }
+    }
+  }
+}
+
+/* =============================================
+   🎯 ANIMACIONES Y EFECTOS ESPECIALES
+   ============================================= */
+
+.motorcycle_category_header {
+  position: relative;
+
+  &:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.3s ease;
+  }
+
+  &.active:before {
+    background: #ffc107;
+  }
+}
+
+/* Efecto de hover más suave */
+.motorcycle_category_item:hover {
+  .motorcycle_category_icon {
+    transform: scale(1.1);
+  }
+}
+
+/* Estados de loading para mejorar la UX */
+.motorcycle_categories_loading {
+  .motorcycle_category_item {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+/* =============================================
+   🔧 INTEGRACIÓN CON TEMA BOOTSTRAP DE ODOO
+   ============================================= */
+
+// Aseguramos compatibilidad con variables de Odoo
+.motorcycle_categories_container {
+  --motorcycle-primary: #{$primary};
+  --motorcycle-secondary: #{$secondary};
+  --motorcycle-light: #{$light};
+  --motorcycle-dark: #{$dark};
+
+  h5 {
+    color: var(--motorcycle-dark);
+    border-bottom-color: var(--motorcycle-primary);
+  }
+}
+
+.motorcycle_category_header.active {
+  background-color: var(--motorcycle-primary);
+}
+
+.motorcycle_category_link:hover {
+  color: var(--motorcycle-primary);
+}

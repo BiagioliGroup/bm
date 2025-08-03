@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 🔧 PERSONALIZACIÓN DE SIDEBAR DE CATEGORÍAS -->
+    <!-- Heredamos del template de categorías de website_sale para modificar su estilo -->
+    <template id="motorcycle_custom_categories" 
+              inherit_id="website_sale.products_categories" 
+              name="Motorcycle Custom Categories Style" 
+              priority="20">
+        
+        <!-- Reemplazamos el contenedor principal de categorías -->
+        <xpath expr="//div[@class='o_wsale_products_searchbar_form d-flex flex-column gap-2']" position="replace">
+            <div class="motorcycle_categories_container">
+                <h5 class="text-uppercase mb-3 fw-bold">Categorías</h5>
+                
+                <!-- Lista de categorías con nuevo estilo -->
+                <div class="motorcycle_categories_list">
+                    <t t-foreach="categories" t-as="c">
+                        <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- 🎨 Template individual para cada categoría (estilo desplegable) -->
+    <template id="motorcycle_category_item" name="Motorcycle Category Item">
+        <div class="motorcycle_category_item" t-att-data-category-id="c.id">
+            <div class="motorcycle_category_header" 
+                 t-att-class="'active' if c.id == category.id else ''">
+                
+                <!-- Icono + expandir/contraer -->
+                <i class="motorcycle_category_icon fa fa-plus" 
+                   t-att-class="'fa-minus' if c.child_id and c.id in parent_category_ids else 'fa-plus'"
+                   t-if="c.child_id"></i>
+                <i class="motorcycle_category_icon fa fa-folder-o" t-if="not c.child_id"></i>
+                
+                <!-- Link de la categoría -->
+                <a class="motorcycle_category_link" 
+                   t-att-href="keep('/shop/category/' + slug(c), category=0)"
+                   t-att-title="c.name">
+                    <span t-field="c.name"/>
+                    <small class="text-muted ms-2" t-if="c.product_count">
+                        (<t t-esc="c.product_count"/>)
+                    </small>
+                </a>
+            </div>
+
+            <!-- Subcategorías (desplegable) -->
+            <div class="motorcycle_subcategories" 
+                 t-att-class="'show' if c.id in parent_category_ids else 'collapse'">
+                <t t-if="c.child_id">
+                    <t t-foreach="c.child_id" t-as="c">
+                        <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
+                    </t>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <!-- 🔄 Override del template principal de productos para incluir nuestro sidebar -->
+    <template id="motorcycle_products_with_custom_sidebar" 
+              inherit_id="website_sale.products" 
+              name="Motorcycle Products with Custom Categories">
+        
+        <!-- Modificamos la estructura del grid principal -->
+        <xpath expr="//div[@id='products_grid_before']" position="replace">
+            <div id="products_grid_before" class="col-lg-3">
+                <!-- Nuestro sidebar personalizado de categorías -->
+                <t t-call="sh_motorcycle_frontend.motorcycle_custom_categories"/>
+                
+                <!-- Filtros de atributos (si están habilitados) -->
+                <t t-call="website_sale.products_attributes"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>

@@ -42,6 +42,7 @@ Find Auto Parts Based On Model ,Type App , Search Auto Parts Based On Model Year
         "views/res_config_settings_view.xml",
         "views/sh_morotcycle_garage_templates.xml",
         "views/sh_motorcycle_frontend_snippet_templates.xml",
+        "views/motorcycle_categories_templates.xml",
     ],
     'assets': {
         'web.assets_frontend': [
@@ -50,6 +51,8 @@ Find Auto Parts Based On Model ,Type App , Search Auto Parts Based On Model Year
             'sh_motorcycle_frontend/static/src/js/snippets.js',
             'sh_motorcycle_frontend/static/src/scss/snippets.scss',
             'sh_motorcycle_frontend/static/src/js/variant_code_update.js',
+            'sh_motorcycle_frontend/static/src/scss/motorcycle_categories.scss',
+            'sh_motorcycle_frontend/static/src/js/motorcycle_categories.js',
         ],
         'website.assets_wysiwyg': [
             'sh_motorcycle_frontend/static/src/js/editor.js',
