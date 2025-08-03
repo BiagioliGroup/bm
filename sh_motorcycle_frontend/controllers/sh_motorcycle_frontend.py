@@ -22,7 +22,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
         values = super(MotorCycleWebsiteSale, self)._prepare_product_values(
             product, category, search, **kwargs)
 
-        vehicles = request.env['motorcycle.motorcycle']
+        vehicles = request.env['motorcycle.motorcycle'].sudo()
         vehicles_ids = []
         sh_is_common_product = False
         if product and product.product_variant_id:
@@ -51,10 +51,11 @@ class MotorCycleWebsiteSale(WebsiteSale):
 
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             try:
-                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
-                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
-                model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
-                motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
+                # type_obj = request.env['motorcycle.type'].sudo().browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].sudo().browse(int(motorcycle_make))
+                model_obj = request.env['motorcycle.mmodel'].sudo().browse(int(motorcycle_model))
+
+                motorcycle_heading = f"{make_obj.name} {model_obj.name} {motorcycle_year}"
                 _logger.info(f"[🚀 Motorcycle Selected de _get_motorcycle_context_from_details] {motorcycle_heading}")
             except Exception as e:
                 _logger.warning(f"[⚠️ Error generating motorcycle_heading] {e}")
@@ -128,7 +129,7 @@ class MotorCycleWebsiteSale(WebsiteSale):
         # 3) ✅ FILTRAR PRODUCTOS POR MOTO
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             # Buscar la moto específica
-            motorcycle = request.env['motorcycle.motorcycle'].search([
+            motorcycle = request.env['motorcycle.motorcycle'].sudo().search([
                 ('type_id', '=', int(motorcycle_type)),
                 ('make_id', '=', int(motorcycle_make)),
                 ('mmodel_id', '=', int(motorcycle_model)),
@@ -151,10 +152,10 @@ class MotorCycleWebsiteSale(WebsiteSale):
         motorcycle_heading = ''
         if all([motorcycle_type, motorcycle_make, motorcycle_model, motorcycle_year]):
             try:
-                type_obj = request.env['motorcycle.type'].browse(int(motorcycle_type))
-                make_obj = request.env['motorcycle.make'].browse(int(motorcycle_make))
-                model_obj = request.env['motorcycle.mmodel'].browse(int(motorcycle_model))
-                motorcycle_heading = f"{type_obj.name} - {make_obj.name} {model_obj.name} {motorcycle_year}"
+                # type_obj = request.env['motorcycle.type'].sudo().browse(int(motorcycle_type))
+                make_obj = request.env['motorcycle.make'].sudo().browse(int(motorcycle_make))
+                model_obj = request.env['motorcycle.mmodel'].sudo().browse(int(motorcycle_model))
+                motorcycle_heading = f"{make_obj.name} {model_obj.name} {motorcycle_year}"
                 _logger.info("[🚀 SUCCESS] moto_heading='%s'", motorcycle_heading)
             except Exception as e:
                 _logger.warning("[⚠️ ERROR] heading generation: %s", e)

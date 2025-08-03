@@ -1,3 +1,165 @@
+/* ======================================
+   CSS ESPECÍFICO PARA SNIPPET - VERSIÓN FINAL
+   BASADO EN LA ESTRUCTURA HTML REAL DEL SNIPPET
+   ====================================== */
+
+/* Aplicar los mismos estilos del template principal al snippet */
+section#sh_motorcycle_snippet_section_1.container-fluid.bg-light.py-3.mb-3 {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+/* Aplicar altura uniforme a todos los elementos del snippet */
+section#sh_motorcycle_snippet_section_1 .form-select,
+section#sh_motorcycle_snippet_section_1 .btn {
+  height: 42px !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.9rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* IDs específicos del snippet */
+#id_sh_motorcycle_type_select,
+#id_sh_motorcycle_make_select,
+#id_sh_motorcycle_year_select,
+#id_sh_motorcycle_model_select,
+#id_sh_motorcycle_go_submit_button,
+#id_sh_motorcycle_snippet_select_saved_bike_btn,
+#id_sh_motorcycle_snippet_login_to_acc_garage_link {
+  height: 42px !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.9rem !important;
+}
+
+/* Media Query: Desktop */
+@media screen and (min-width: 768px) {
+  section#sh_motorcycle_snippet_section_1 .form-select {
+    height: 42px !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  section#sh_motorcycle_snippet_section_1 .btn {
+    height: 42px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Media Query: Mobile */
+@media screen and (max-width: 767px) {
+  section#sh_motorcycle_snippet_section_1.container-fluid.bg-light.py-3.mb-3 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  section#sh_motorcycle_snippet_section_1 h5 {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  section#sh_motorcycle_snippet_section_1 small {
+    font-size: 0.85rem !important;
+  }
+
+  /* Campos más grandes en móvil */
+  section#sh_motorcycle_snippet_section_1 .form-select {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    height: 45px !important;
+  }
+
+  /* Botones más pequeños en móvil */
+  section#sh_motorcycle_snippet_section_1 .btn {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.85rem !important;
+    height: 42px !important;
+  }
+
+  /* Espaciado mejorado */
+  section#sh_motorcycle_snippet_section_1 .row.g-2 {
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
+  }
+}
+
+@media screen and (min-width: 700px) and (max-width: 1000px) {
+  /* Container del formulario de búsqueda */
+  #id_sh_motorcycle_search_form {
+    /* Forzar que los elementos se distribuyan en 2 filas */
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+
+    /* Primera fila: Tipo y Marca */
+    .col-6:nth-child(1), /* Tipo */
+        .col-6:nth-child(2)  /* Marca */ {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Segunda fila: Año y Modelo */
+    .col-6:nth-child(3), /* Año */
+        .col-6:nth-child(4)  /* Modelo */ {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Los selectores individuales */
+    #id_sh_motorcycle_type_select,
+    #id_sh_motorcycle_make_select,
+    #id_sh_motorcycle_year_select,
+    #id_sh_motorcycle_model_select {
+      width: 100% !important;
+      margin-right: 0 !important;
+    }
+
+    /* Botón de búsqueda centrado debajo */
+    #id_sh_motorcycle_go_submit_button {
+      width: 170px !important;
+      // margin-top: 0 !important;
+      align-self: center !important;
+    }
+  }
+
+  /* También para el formulario alternativo si existe */
+  #id_sh_motorcycle_search_diff_bike_form {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+
+    .col-6:nth-child(1),
+    .col-6:nth-child(2) {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    .col-6:nth-child(3),
+    .col-6:nth-child(4) {
+      flex: 0 0 calc(50% - 0.5rem) !important;
+      max-width: calc(50% - 0.5rem) !important;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-control {
+      width: 100% !important;
+      margin-right: 0 !important;
+    }
+  }
+
+  /* Asegurar que el container padre permita el wrap */
+  .row.g-2 {
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
+  }
+}
+
+/* ====================================== 
+   FIN CSS SNIPPET VERSIÓN FINAL
+   ====================================== */
+
 /*--sh_motorcycle--*/
 .id_sh_motorcycle_search_diff_bike_div {
   z-index: 9;
@@ -178,7 +340,7 @@
   #id_sh_motorcycle_model_select,
   #id_sh_motorcycle_year_select,
   #id_sh_motorcycle_go_submit_button {
-    margin-top: 10px;
+    margin-top: 0px;
   }
 
   #id_sh_motorcycle_select_saved_bike_btn {
@@ -187,9 +349,6 @@
     margin-top: 0% !important;
   }
 }
-/*--media-query--*/
-
-/* AGREGAR al final de sh_motorcycle_frontend/static/src/scss/custom.scss */
 
 /*--mayorista styles SUBTLE COLORS--*/
 
@@ -380,3 +539,89 @@
 }
 
 /*--end mayorista styles--*/
+
+/*--Motorcycle Search Responsive--*/
+/* Desktop: botones más pequeños y centrados */
+@media screen and (min-width: 768px) {
+  .container-fluid.bg-light.py-3.mb-3 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  #id_sh_motorcycle_search_form .form-select {
+    height: 42px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  #id_sh_motorcycle_search_form .btn {
+    height: 42px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile: botones 50% del ancho */
+@media screen and (max-width: 767px) {
+  .container-fluid.bg-light.py-3.mb-3 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .container-fluid.bg-light h5 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .container-fluid.bg-light small {
+    font-size: 0.85rem;
+  }
+
+  /* Campos más grandes en móvil */
+  #id_sh_motorcycle_search_form .form-select {
+    // padding: 0.6rem 0.75rem !important;
+    font-size: 0.9rem;
+    height: 45px !important;
+  }
+
+  /* Botones más pequeños en móvil - 50% del ancho */
+  #id_sh_motorcycle_search_form .btn {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.85rem;
+    height: 42px !important;
+  }
+
+  /* Espaciado mejorado */
+  .row.g-2 {
+    --bs-gutter-x: 0.5rem;
+    --bs-gutter-y: 0.5rem;
+  }
+
+  /* Sección de vehículo seleccionado */
+  .motorcycle_heading_section h4 {
+    font-size: 1.1rem !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  #id_sh_motorcycle_save_bike_to_garage_btn,
+  #id_sh_motorcycle_select_diff_bike_btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    margin: 0.25rem;
+  }
+}
+
+/* Botón reset sutil */
+.btn-link.text-muted:hover {
+  color: #6c757d !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.btn-link.text-muted .fa-refresh {
+  transition: transform 0.3s ease;
+}
+
+.btn-link.text-muted:hover .fa-refresh {
+  transform: rotate(180deg);
+}
