@@ -152,3 +152,4 @@ export default {
   MotorcycleCategoriesEffects:
     publicWidget.registry.MotorcycleCategoriesEffects,
 };
+// CHECKPOINT
