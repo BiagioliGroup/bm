@@ -55,7 +55,7 @@ $subcategory-color: #6c757d;
       background-color: #f8f9fa !important;
     }
 
-    // Categorías que tienen subcategorías - ICONOS QUE CAMBIAN CON EL ESTADO
+    // Categorías que tienen subcategorías - ICONOS QUE RESPONDEN A HOVER Y CLICK
     &.has-subcategories {
       > a::before {
         content: "▸" !important; // Flecha derecha por defecto
@@ -65,10 +65,17 @@ $subcategory-color: #6c757d;
         transition: transform 0.3s ease !important; // Transición suave del icono
       }
 
-      // Cuando está expandido, rotar la flecha hacia abajo
+      // Cuando está expandido por CLICK, rotar la flecha hacia abajo
       &.expanded {
         > a::before {
           transform: rotate(90deg) !important; // Rotar 90 grados
+        }
+      }
+
+      // También rotar en HOVER (pero menos pronunciado para diferenciarlo)
+      &:hover:not(.expanded) {
+        > a::before {
+          transform: rotate(45deg) !important; // Rotación intermedia en hover
         }
       }
     }
@@ -183,20 +190,13 @@ $subcategory-color: #6c757d;
   }
 }
 
-/* Estado expandido - TRANSICIÓN MÁS LENTA */
-.wsale_products_categories_list .nav-item.expanded .nav-hierarchy {
+/* Estado expandido - RESTAURANDO HOVER AUTOMÁTICO + CLICK MANUAL */
+.wsale_products_categories_list .nav-item.expanded .nav-hierarchy,
+.wsale_products_categories_list .nav-item:hover .nav-hierarchy,
+.wsale_products_categories_list .nav-item:focus-within .nav-hierarchy {
   max-height: 400px !important; // Más espacio
   opacity: 1 !important;
   margin-top: 8px !important; // Espacio final
-}
-
-/* Remover comportamiento hover automático para que solo funcione con clicks */
-.wsale_products_categories_list .nav-item:hover .nav-hierarchy {
-  // ❌ REMOVIDO - no queremos hover automático
-}
-
-.wsale_products_categories_list .nav-item:focus-within .nav-hierarchy {
-  // ❌ REMOVIDO - solo click manual
 }
 
 /* =============================================
