@@ -12,6 +12,7 @@
   margin-bottom: 20px !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   position: relative !important;
+  color: #495057 !important; /* Forzar texto oscuro */
 
   /* Animación de entrada */
   animation: slideInLeft 0.5s ease-out !important;
@@ -338,23 +339,44 @@
   }
 }
 
-/* Mejora de contraste para modo oscuro */
+/* Mejora de contraste - REMOVIDO EL MODO OSCURO AUTOMÁTICO */
+/* 
 @media (prefers-color-scheme: dark) {
-  .products_categories {
-    background: #343a40 !important;
-    border-color: #495057 !important;
-    color: #f8f9fa !important;
-  }
+    .products_categories {
+        background: #343a40 !important;
+        border-color: #495057 !important;
+        color: #f8f9fa !important;
+    }
+    
+    .o_categories_collapse_title {
+        color: #f8f9fa !important;
+    }
+    
+    .wsale_products_categories_list .nav-item > a {
+        color: #e9ecef !important;
+    }
+    
+    .wsale_products_categories_list .nav-item > a:hover {
+        background-color: #495057 !important;
+    }
+}
+*/
 
-  .o_categories_collapse_title {
-    color: #f8f9fa !important;
-  }
+/* Forzar colores claros siempre */
+.products_categories,
+.products_categories * {
+  color: #495057 !important;
+}
 
-  .wsale_products_categories_list .nav-item > a {
-    color: #e9ecef !important;
-  }
+.o_categories_collapse_title {
+  color: #495057 !important;
+}
 
-  .wsale_products_categories_list .nav-item > a:hover {
-    background-color: #495057 !important;
-  }
+.wsale_products_categories_list .nav-item > a {
+  color: #495057 !important;
+  background: transparent !important;
+}
+
+.wsale_products_categories_list .nav-hierarchy .nav-item > a {
+  color: #6c757d !important;
 }
