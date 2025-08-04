@@ -71,26 +71,17 @@ publicWidget.registry.MotorcycleCategoriesEnhancer = publicWidget.Widget.extend(
     },
 
     /**
-     * Alternar visibilidad de subcategorías
+     * Alternar visibilidad de subcategorías - VELOCIDAD ORIGINAL
      * @private
      * @param {jQuery} $item - Item de categoría
      * @param {jQuery} $subcategories - Elemento de subcategorías
      */
     _toggleSubcategories: function ($item, $subcategories) {
       if ($subcategories.is(":visible")) {
-        $subcategories.slideUp(200);
+        $subcategories.slideUp(300); // Velocidad original
         $item.removeClass("expanded");
       } else {
-        // Cerrar otras categorías abiertas primero
-        this.$(".nav-item.expanded")
-          .not($item)
-          .each((index, element) => {
-            const $otherItem = $(element);
-            $otherItem.find(".nav-hierarchy").slideUp(200);
-            $otherItem.removeClass("expanded");
-          });
-
-        $subcategories.slideDown(200);
+        $subcategories.slideDown(300); // Velocidad original
         $item.addClass("expanded");
       }
     },
@@ -140,18 +131,18 @@ publicWidget.registry.MotorcycleCategoriesEffects = publicWidget.Widget.extend({
   },
 
   /**
-   * Agregar efecto visual sutil al hacer click en enlaces de categoría
+   * Agregar efecto visual sutil al hacer click en enlaces de categoría - ORIGINAL
    * @private
    * @param {Event} ev
    */
   _onCategoryLinkClick: function (ev) {
     const $link = $(ev.currentTarget);
 
-    // Efecto visual sutil
+    // Efecto visual sutil - DURACIÓN ORIGINAL
     $link.css("opacity", "0.7");
     setTimeout(() => {
       $link.css("opacity", "1");
-    }, 150);
+    }, 150); // Mantener duración original
   },
 });
 
