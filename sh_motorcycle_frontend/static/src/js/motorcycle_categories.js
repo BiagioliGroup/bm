@@ -41,7 +41,8 @@ publicWidget.registry.MotorcycleCategoriesEnhancer = publicWidget.Widget.extend(
 
         if ($subcategories.length > 0) {
           $item.addClass("has-subcategories");
-          $subcategories.hide(); // Ocultar por defecto
+          // NO ocultar por defecto - dejar que CSS maneje el estado inicial
+          // $subcategories.hide(); // ❌ REMOVIDO - esto causaba el conflicto
         }
       });
     },
@@ -71,17 +72,16 @@ publicWidget.registry.MotorcycleCategoriesEnhancer = publicWidget.Widget.extend(
     },
 
     /**
-     * Alternar visibilidad de subcategorías - VELOCIDAD ORIGINAL
+     * Alternar visibilidad de subcategorías - USANDO SOLO CSS, SIN JQUERY ANIMATIONS
      * @private
      * @param {jQuery} $item - Item de categoría
      * @param {jQuery} $subcategories - Elemento de subcategorías
      */
     _toggleSubcategories: function ($item, $subcategories) {
-      if ($subcategories.is(":visible")) {
-        $subcategories.slideUp(300); // Velocidad original
+      // Usar solo clases CSS - dejar que las transiciones CSS manejen la velocidad
+      if ($item.hasClass("expanded")) {
         $item.removeClass("expanded");
       } else {
-        $subcategories.slideDown(300); // Velocidad original
         $item.addClass("expanded");
       }
     },
