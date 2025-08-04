@@ -1,92 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 🔧 PERSONALIZACIÓN DE SIDEBAR DE CATEGORÍAS -->
-    <!-- Heredamos del template de categorías de website_sale para modificar su estilo -->
+    <!-- 🎨 PERSONALIZACIÓN SIMPLE DEL ESTILO DE CATEGORÍAS -->
+    <!-- Basado en el HTML real del sistema -->
+    
     <template id="motorcycle_custom_categories" 
               inherit_id="website_sale.products_categories" 
               name="Motorcycle Custom Categories Style" 
               priority="20">
         
-        <!-- Reemplazamos el contenedor principal de categorías -->
-        <xpath expr="//div[@class='o_wsale_products_searchbar_form d-flex flex-column gap-2']" position="replace">
-            <div class="motorcycle_categories_container">
-                <h5 class="text-uppercase mb-3 fw-bold">
-                    Categorías
-                    <small class="text-muted ms-2" t-if="categories_with_products">
-                        (<t t-esc="len(categories_with_products)"/>)
-                    </small>
-                </h5>
-                
-                <!-- 🔍 SOLO MOSTRAR CATEGORÍAS CON PRODUCTOS -->
-                <div class="motorcycle_categories_list" t-if="categories_with_products">
-                    <!-- Filtrar solo categorías padre (sin parent_id) que tengan productos -->
-                    <t t-foreach="categories_with_products.filtered(lambda c: not c.parent_id)" t-as="c">
-                        <t t-if="categories_data.get(c.id, {}).get('total_count', 0) > 0">
-                            <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
-                        </t>
-                    </t>
-                </div>
-                
-                <!-- Mensaje cuando no hay categorías con productos -->
-                <div class="text-center text-muted py-3" t-if="not categories_with_products">
-                    <i class="fa fa-info-circle fa-2x mb-2"></i>
-                    <p class="mb-0">No hay categorías disponibles<br/>para los filtros seleccionados</p>
-                </div>
-            </div>
+        <!-- 1. Cambiar el contenedor principal de categorías -->
+        <xpath expr="//div[hasclass('products_categories')]" position="attributes">
+            <attribute name="class">products_categories mb-3 motorcycle_categories_container</attribute>
         </xpath>
-    </template>
-
-    <!-- 🎨 Template individual para cada categoría (estilo desplegable) -->
-    <template id="motorcycle_category_item" name="Motorcycle Category Item">
-        <div class="motorcycle_category_item" t-att-data-category-id="c.id">
-            <div class="motorcycle_category_header" 
-                 t-att-class="'active' if c.id == category.id else ''">
-                
-                <!-- Icono + expandir/contraer -->
-                <i class="motorcycle_category_icon fa fa-plus" 
-                   t-att-class="'fa-minus' if c.child_id and c.id in parent_category_ids else 'fa-plus'"
-                   t-if="c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)"></i>
-                <i class="motorcycle_category_icon fa fa-folder-o" 
-                   t-if="not c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)"></i>
-                
-                <!-- Link de la categoría -->
-                <a class="motorcycle_category_link" 
-                   t-att-href="keep('/shop/category/' + slug(c), category=0)"
-                   t-att-title="c.name">
-                    <span t-field="c.name"/>
-                    <!-- Mostrar contador de productos usando los datos del controlador -->
-                    <small class="text-muted ms-2" t-if="categories_data.get(c.id, {}).get('total_count', 0) > 0">
-                        (<t t-esc="categories_data[c.id]['total_count']"/>)
-                    </small>
-                </a>
-            </div>
-
-            <!-- Subcategorías (desplegable) - Solo mostrar las que tienen productos -->
-            <div class="motorcycle_subcategories" 
-                 t-att-class="'show' if c.id in parent_category_ids else 'collapse'"
-                 t-if="c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)">
-                
-                <t t-foreach="c.child_id.filtered(lambda child: categories_data.get(child.id, {}).get('total_count', 0) > 0)" t-as="c">
-                    <t t-call="sh_motorcycle_frontend.motorcycle_category_item"/>
-                </t>
-            </div>
-        </div>
-    </template>
-
-    <!-- 🔄 Override del template principal de productos para incluir nuestro sidebar -->
-    <template id="motorcycle_products_with_custom_sidebar" 
-              inherit_id="website_sale.products" 
-              name="Motorcycle Products with Custom Categories">
         
-        <!-- Modificamos la estructura del grid principal -->
-        <xpath expr="//div[@id='products_grid_before']" position="replace">
-            <div id="products_grid_before" class="col-lg-3">
-                <!-- Nuestro sidebar personalizado de categorías -->
-                <t t-call="sh_motorcycle_frontend.motorcycle_custom_categories"/>
-                
-                <!-- Filtros de atributos (si están habilitados) -->
-                <t t-call="website_sale.products_attributes"/>
-            </div>
+        <!-- 2. Cambiar el título de categorías -->
+        <xpath expr="//h6[hasclass('o_categories_collapse_title')]" position="attributes">
+            <attribute name="class">o_categories_collapse_title motorcycle_categories_title</attribute>
         </xpath>
+        
+        <!-- 3. Cambiar la lista principal de categorías -->
+        <xpath expr="//div[hasclass('wsale_products_categories_list')]" position="attributes">
+            <attribute name="class">wsale_products_categories_list motorcycle_categories_list</attribute>
+        </xpath>
+        
+
     </template>
 </odoo>

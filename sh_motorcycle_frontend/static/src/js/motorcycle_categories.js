@@ -1,6 +1,6 @@
 /**
- * 🚀 JAVASCRIPT SIMPLE PARA CATEGORÍAS PERSONALIZADAS DE MOTOS
- * Solo maneja la funcionalidad básica de expand/collapse
+ * 🚀 JAVASCRIPT PARA CATEGORÍAS PERSONALIZADAS DE MOTOS
+ * Maneja iconos y funcionalidad expand/collapse
  */
 
 odoo.define("sh_motorcycle_frontend.categories", function (require) {
@@ -8,89 +8,126 @@ odoo.define("sh_motorcycle_frontend.categories", function (require) {
 
   var publicWidget = require("web.public.widget");
 
-  // Widget simple para manejar las categorías
+  // Widget principal para manejar las categorías
   publicWidget.registry.MotorcycleCategoriesWidget = publicWidget.Widget.extend(
     {
       selector: ".motorcycle_categories_container",
-      events: {
-        "click .motorcycle_category_icon": "_onIconClick",
-      },
 
       /**
        * Inicialización del widget
        */
       start: function () {
-        this._initializeCategories();
+        console.log("🏍️ Inicializando categorías de motos...");
+        this._addCategoryIcons();
+        this._expandActiveCategory();
+        this._addKeyboardSupport();
         return this._super.apply(this, arguments);
       },
 
       /**
-       * Inicializa el estado de las categorías
+       * Agregar iconos a las categorías
        */
-      _initializeCategories: function () {
-        // Auto-expandir categoría activa
-        this._expandActiveCategory();
+      _addCategoryIcons: function () {
+        var self = this;
 
-        console.log("🏍️ Motorcycle Categories initialized");
+        // Agregar iconos a categorías que tienen subcategorías
+        this.$(".motorcycle_categories_list .nav-item").each(function () {
+          var $item = $(this);
+          var $link = $item.find("> a");
+          var $subcategoryList = $item.find("ul.nav-hierarchy");
+
+          if ($link.length && $subcategoryList.length) {
+            // Categoría con subcategorías - agregar icono expandible
+            var $icon = $(
+              '<i class="motorcycle_category_icon fa fa-plus me-2"></i>'
+            );
+            $icon.css({
+              cursor: "pointer",
+              width: "16px",
+              "text-align": "center",
+            });
+
+            // Evento click para expandir/contraer
+            $icon.on("click", function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              self._toggleSubcategory($subcategoryList, $icon);
+            });
+
+            // Insertar icono al inicio del link
+            $link.prepend($icon);
+
+            // Ocultar subcategorías por defecto
+            $subcategoryList.hide();
+          } else if ($link.length) {
+            // Categoría sin subcategorías - agregar icono de carpeta
+            var $icon = $(
+              '<i class="motorcycle_category_icon fa fa-folder-o me-2"></i>'
+            );
+            $icon.css({
+              width: "16px",
+              "text-align": "center",
+            });
+            $link.prepend($icon);
+          }
+        });
       },
 
       /**
-       * Maneja el click en el icono
+       * Alternar subcategoría (expandir/contraer)
        */
-      _onIconClick: function (ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        var $icon = $(ev.currentTarget);
-        var $categoryItem = $icon.closest(".motorcycle_category_item");
-        var $subcategories = $categoryItem.find("> .motorcycle_subcategories");
-
-        if ($subcategories.length > 0) {
-          this._toggleCategory($subcategories, $icon);
-        }
-      },
-
-      /**
-       * Expande o contrae una categoría
-       */
-      _toggleCategory: function ($subcategories, $icon) {
-        if ($subcategories.is(":visible")) {
-          // Contraer
-          $subcategories.slideUp(300);
+      _toggleSubcategory: function ($subcategoryList, $icon) {
+        if ($subcategoryList.is(":visible")) {
+          $subcategoryList.slideUp(300);
           $icon.removeClass("fa-minus").addClass("fa-plus");
         } else {
-          // Expandir
-          $subcategories.slideDown(300);
+          $subcategoryList.slideDown(300);
           $icon.removeClass("fa-plus").addClass("fa-minus");
         }
       },
 
       /**
-       * Expande automáticamente la categoría activa
+       * Auto-expandir categoría activa
        */
       _expandActiveCategory: function () {
-        var $activeLink = this.$(
-          'a[href*="' + window.location.pathname + '"]'
-        ).first();
-        if ($activeLink.length > 0) {
-          $activeLink.addClass("active");
+        var currentPath = window.location.pathname;
+        var self = this;
 
-          // Expandir categorías padre
-          var $parentSubcategories = $activeLink.closest(
-            ".motorcycle_subcategories"
-          );
-          while ($parentSubcategories.length > 0) {
-            $parentSubcategories.show();
-            var $parentIcon = $parentSubcategories
-              .siblings("a")
-              .find(".motorcycle_category_icon");
-            $parentIcon.removeClass("fa-plus").addClass("fa-minus");
+        this.$(".motorcycle_categories_list a").each(function () {
+          var $link = $(this);
+          if ($link.attr("href") === currentPath) {
+            $link.addClass("active");
 
-            $parentSubcategories = $parentSubcategories
-              .parent()
-              .closest(".motorcycle_subcategories");
+            // Expandir categorías padre si es una subcategoría
+            var $parentUl = $link.closest("ul.nav-hierarchy");
+            while ($parentUl.length > 0) {
+              $parentUl.show();
+              var $parentIcon = $parentUl
+                .parent()
+                .find("> a .motorcycle_category_icon");
+              if ($parentIcon.hasClass("fa-plus")) {
+                $parentIcon.removeClass("fa-plus").addClass("fa-minus");
+              }
+              $parentUl = $parentUl.parent().closest("ul.nav-hierarchy");
+            }
           }
-        }
+        });
+      },
+
+      /**
+       * Agregar soporte de teclado para accesibilidad
+       */
+      _addKeyboardSupport: function () {
+        this.$(".motorcycle_category_icon")
+          .attr("role", "button")
+          .attr("tabindex", "0")
+          .on("keypress", function (e) {
+            if (e.which === 13 || e.which === 32) {
+              // Enter o Espacio
+              e.preventDefault();
+              $(this).click();
+            }
+          });
       },
     }
   );
@@ -102,20 +139,15 @@ odoo.define("sh_motorcycle_frontend.categories", function (require) {
 });
 
 /**
- * 🎯 INICIALIZACIÓN AUTOMÁTICA
- * Se ejecuta cuando el DOM está listo
+ * 🎯 INICIALIZACIÓN ADICIONAL
+ * Para funcionalidad que no depende del widget
  */
 $(document).ready(function () {
-  console.log("🏍️ Motorcycle Categories System Ready");
+  console.log("🏍️ Sistema de categorías de motos listo");
 
-  // Mejorar accesibilidad
-  $(".motorcycle_category_icon")
-    .attr("role", "button")
-    .attr("tabindex", "0")
-    .on("keypress", function (e) {
-      if (e.which === 13 || e.which === 32) {
-        // Enter o Espacio
-        $(this).click();
-      }
-    });
+  // Funcionalidad adicional si es necesaria
+  // Por ejemplo, detectar cambios en filtros de motocicletas
+  $(".motorcycle_categories_container").on("category_update", function () {
+    console.log("📝 Categorías actualizadas");
+  });
 });
