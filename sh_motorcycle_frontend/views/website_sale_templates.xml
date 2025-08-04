@@ -424,7 +424,7 @@
 <template id="enhanced_categories_with_vehicle_filter" inherit_id="website_sale.products_categories" name="Enhanced Categories with Vehicle Filter">
     
     <!-- Agregar indicador de filtro activo - SELECTOR CORREGIDO -->
-    <xpath expr="//div[@class='o_categories_collapse_title']" position="after">
+    <!-- <xpath expr="//div[@class='o_categories_collapse_title']" position="after">
         <t t-if="has_vehicle_filter and motorcycle_heading">
             <div class="alert alert-info text-center py-2 mb-3">
                 <small>
@@ -433,9 +433,9 @@
                 </small>
             </div>
         </t>
-    </xpath>
+    </xpath> -->
     
-    <!-- Si el selector anterior no funciona, intentar con este alternativo
+    <!-- Si el selector anterior no funciona, intentar con este alternativo -->
     <xpath expr="//h5[contains(@class, 'collapse-title')] | //div[contains(@class, 'collapse-title')] | //div[@id='o_shop_collapse_category']//div[1]" position="after">
         <t t-if="has_vehicle_filter and motorcycle_heading and not rendered_filter_info">
             <div class="alert alert-info text-center py-2 mb-3">
@@ -446,7 +446,7 @@
             </div>
             <t t-set="rendered_filter_info" t-value="True"/>
         </t>
-    </xpath> -->
+    </xpath>
 
 </template>
 
