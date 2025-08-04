@@ -1,159 +1,163 @@
-/**
- * 🚀 JAVASCRIPT PARA CATEGORÍAS DE MOTOS - SIN TEMPLATES
- * Solo mejora la funcionalidad del HTML existente
- */
-
-odoo.define('sh_motorcycle_frontend.categories_enhance', function (require) {
-    'use strict';
-
-    var publicWidget = require('web.public.widget');
-
-    // Widget para mejorar las categorías existentes
-    publicWidget.registry.MotorcycleCategoriesEnhancer = publicWidget.Widget.extend({
-        selector: '.products_categories',
-        
-        /**
-         * Inicialización del widget
-         */
-        start: function () {
-            console.log('🏍️ Inicializando mejoras de categorías...');
-            this._enhanceCategories();
-            this._addClickToExpand();
-            this._markActiveCategory();
-            this._addKeyboardNavigation();
-            return this._super.apply(this, arguments);
-        },
+/** @odoo-module */
 
 /**
- * 🚀 JAVASCRIPT SUTIL PARA CATEGORÍAS DE MOTOS
- * Funcionalidad mínima sin efectos exagerados
+ * 🏍️ CATEGORÍAS DE MOTOS - VERSIÓN COMPATIBLE CON SEARCH.JS
+ * Optimizado para no interferir con la funcionalidad de búsqueda
  */
 
-odoo.define('sh_motorcycle_frontend.categories_subtle', function (require) {
-    'use strict';
+import publicWidget from "@web/legacy/js/public/public_widget";
 
-    var publicWidget = require('web.public.widget');
+publicWidget.registry.MotorcycleCategoriesEnhancer = publicWidget.Widget.extend(
+  {
+    selector: ".products_categories:not(#wrap)", // Evitar conflicto con search.js que usa #wrap
+    events: {
+      "click .nav-item.has-subcategories > a": "_onCategoryClick",
+      "keydown .nav-item.has-subcategories > a": "_onCategoryKeydown",
+    },
 
-    // Widget minimalista para categorías
-    publicWidget.registry.MotorcycleCategoriesSubtle = publicWidget.Widget.extend({
-        selector: '.products_categories',
-        
-        /**
-         * Inicialización del widget
-         */
-        start: function () {
-            console.log('🏍️ Categorías sutiles inicializadas...');
-            this._addClickToExpand();
-            this._markActiveCategory();
-            return this._super.apply(this, arguments);
-        },
+    /**
+     * @override
+     */
+    start: function () {
+      console.log("🏍️ Inicializando categorías de motos...");
+      this._initializeCategories();
+      this._markActiveCategory();
+      return this._super.apply(this, arguments);
+    },
 
-        /**
-         * Agregar funcionalidad de click para expandir/contraer
-         */
-        _addClickToExpand: function () {
-            var self = this;
-            
-            // Solo para categorías que tienen subcategorías
-            this.$('.nav-item').each(function() {
-                var $item = $(this);
-                var $link = $item.find('> a');
-                var $subcategories = $item.find('.nav-hierarchy');
-                
-                if ($subcategories.length > 0) {
-                    $item.addClass('has-subcategories');
-                    $subcategories.hide(); // Ocultar por defecto
-                    
-                    $link.on('click', function(e) {
-                        e.preventDefault();
-                        self._toggleSubcategories($item, $subcategories);
-                    });
-                }
-            });
-        },
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
 
-        /**
-         * Alternar subcategorías - SIN ANIMACIONES COMPLEJAS
-         */
-        _toggleSubcategories: function ($item, $subcategories) {
-            if ($subcategories.is(':visible')) {
-                $subcategories.slideUp(200); // Más rápido
-                $item.removeClass('expanded');
-            } else {
-                $subcategories.slideDown(200); // Más rápido
-                $item.addClass('expanded');
-            }
-        },
+    /**
+     * Inicializar la estructura de categorías
+     * @private
+     */
+    _initializeCategories: function () {
+      // Identificar categorías con subcategorías
+      this.$(".nav-item").each((index, element) => {
+        const $item = $(element);
+        const $subcategories = $item.find(".nav-hierarchy");
 
-        /**
-         * Marcar la categoría activa
-         */
-        _markActiveCategory: function () {
-            var currentPath = window.location.pathname;
-            
-            this.$('a[href]').each(function() {
-                var $link = $(this);
-                var href = $link.attr('href');
-                
-                if (href === currentPath) {
-                    $link.addClass('active-category');
-                    
-                    // Auto-expandir categorías padre
-                    var $parentHierarchy = $link.closest('.nav-hierarchy');
-                    if ($parentHierarchy.length > 0) {
-                        $parentHierarchy.show();
-                        $parentHierarchy.parent().addClass('expanded');
-                    }
-                }
-            });
+        if ($subcategories.length > 0) {
+          $item.addClass("has-subcategories");
+          $subcategories.hide(); // Ocultar por defecto
         }
-    });
+      });
+    },
 
-    return {
-        MotorcycleCategoriesSubtle: publicWidget.registry.MotorcycleCategoriesSubtle
-    };
-});
+    /**
+     * Marcar la categoría activa basada en la URL actual
+     * @private
+     */
+    _markActiveCategory: function () {
+      const currentPath = window.location.pathname;
+
+      this.$("a[href]").each((index, element) => {
+        const $link = $(element);
+        const href = $link.attr("href");
+
+        if (href === currentPath) {
+          $link.addClass("active-category");
+
+          // Auto-expandir categorías padre si es una subcategoría
+          const $parentHierarchy = $link.closest(".nav-hierarchy");
+          if ($parentHierarchy.length > 0) {
+            $parentHierarchy.show();
+            $parentHierarchy.parent().addClass("expanded");
+          }
+        }
+      });
+    },
+
+    /**
+     * Alternar visibilidad de subcategorías
+     * @private
+     * @param {jQuery} $item - Item de categoría
+     * @param {jQuery} $subcategories - Elemento de subcategorías
+     */
+    _toggleSubcategories: function ($item, $subcategories) {
+      if ($subcategories.is(":visible")) {
+        $subcategories.slideUp(200);
+        $item.removeClass("expanded");
+      } else {
+        // Cerrar otras categorías abiertas primero
+        this.$(".nav-item.expanded")
+          .not($item)
+          .each((index, element) => {
+            const $otherItem = $(element);
+            $otherItem.find(".nav-hierarchy").slideUp(200);
+            $otherItem.removeClass("expanded");
+          });
+
+        $subcategories.slideDown(200);
+        $item.addClass("expanded");
+      }
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * Manejar click en categorías con subcategorías
+     * @private
+     * @param {Event} ev
+     */
+    _onCategoryClick: function (ev) {
+      ev.preventDefault();
+      const $item = $(ev.currentTarget).parent();
+      const $subcategories = $item.find(".nav-hierarchy");
+
+      if ($subcategories.length > 0) {
+        this._toggleSubcategories($item, $subcategories);
+      }
+    },
+
+    /**
+     * Manejar navegación por teclado
+     * @private
+     * @param {Event} ev
+     */
+    _onCategoryKeydown: function (ev) {
+      if (ev.which === 13 || ev.which === 32) {
+        // Enter o Espacio
+        ev.preventDefault();
+        this._onCategoryClick(ev);
+      }
+    },
+  }
+);
 
 /**
- * 🎯 FUNCIONALIDAD MÍNIMA
+ * Widget adicional para efectos sutiles en las categorías
+ * Selector específico para evitar conflictos con el buscador de vehículos
  */
-$(document).ready(function () {
-    console.log('🏍️ Sistema sutil de categorías cargado');
-    
-    // Solo agregar navegación por teclado básica
-    $('.products_categories .has-subcategories > a').on('keydown', function(e) {
-        if (e.which === 13 || e.which === 32) { // Enter o Espacio
-            e.preventDefault();
-            $(this).click();
-        }
-    });
-});
-    });
+publicWidget.registry.MotorcycleCategoriesEffects = publicWidget.Widget.extend({
+  selector: '.products_categories a[href^="/shop/category/"]:not(#wrap a)', // Evitar conflicto
+  events: {
+    click: "_onCategoryLinkClick",
+  },
 
-    return {
-        MotorcycleCategoriesEnhancer: publicWidget.registry.MotorcycleCategoriesEnhancer
-    };
+  /**
+   * Agregar efecto visual sutil al hacer click en enlaces de categoría
+   * @private
+   * @param {Event} ev
+   */
+  _onCategoryLinkClick: function (ev) {
+    const $link = $(ev.currentTarget);
+
+    // Efecto visual sutil
+    $link.css("opacity", "0.7");
+    setTimeout(() => {
+      $link.css("opacity", "1");
+    }, 150);
+  },
 });
 
-/**
- * 🎯 FUNCIONALIDAD MÍNIMA Y SUTIL
- */
-$(document).ready(function () {
-    console.log('🏍️ Sistema sutil de categorías cargado');
-    
-    // Solo agregar navegación por teclado básica
-    $('.products_categories .has-subcategories > a').on('keydown', function(e) {
-        if (e.which === 13 || e.which === 32) { // Enter o Espacio
-            e.preventDefault();
-            $(this).click();
-        }
-    });
-    
-    // Agregar efecto sutil al hacer click
-    $('.products_categories a[href^="/shop/category/"]').on('click', function() {
-        $(this).css('opacity', '0.7');
-        setTimeout(() => {
-            $(this).css('opacity', '1');
-        }, 150);
-    });
-});
+export default {
+  MotorcycleCategoriesEnhancer:
+    publicWidget.registry.MotorcycleCategoriesEnhancer,
+  MotorcycleCategoriesEffects:
+    publicWidget.registry.MotorcycleCategoriesEffects,
+};

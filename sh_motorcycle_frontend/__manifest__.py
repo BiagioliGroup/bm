@@ -46,13 +46,18 @@ Find Auto Parts Based On Model ,Type App , Search Auto Parts Based On Model Year
     ],
     'assets': {
         'web.assets_frontend': [
+            # ORDEN CRÍTICO: search.js PRIMERO, luego categories
             'sh_motorcycle_frontend/static/src/js/search.js',
+            'sh_motorcycle_frontend/static/src/js/motorcycle_categories.js',
+            
+            # CSS en orden de especificidad
             'sh_motorcycle_frontend/static/src/scss/custom.scss',
+            'sh_motorcycle_frontend/static/src/scss/motorcycle_categories.scss',
+            
+            # Otros archivos JavaScript
             'sh_motorcycle_frontend/static/src/js/snippets.js',
             'sh_motorcycle_frontend/static/src/scss/snippets.scss',
             'sh_motorcycle_frontend/static/src/js/variant_code_update.js',
-            'sh_motorcycle_frontend/static/src/scss/motorcycle_categories.scss',
-            'sh_motorcycle_frontend/static/src/js/motorcycle_categories.js',
         ],
         'website.assets_wysiwyg': [
             'sh_motorcycle_frontend/static/src/js/editor.js',
