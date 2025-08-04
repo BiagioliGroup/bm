@@ -57,6 +57,7 @@ Find Auto Parts Based On Model ,Type App , Search Auto Parts Based On Model Year
             # Otros archivos JavaScript
             'sh_motorcycle_frontend/static/src/js/snippets.js',
             'sh_motorcycle_frontend/static/src/scss/snippets.scss',
+            'sh_motorcycle_frontend/static/src/js/category_filter.js', 
             'sh_motorcycle_frontend/static/src/js/variant_code_update.js',
         ],
         'website.assets_wysiwyg': [

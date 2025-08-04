@@ -440,27 +440,31 @@ class MotorCycleWebsiteSale(WebsiteSale):
             
             # 🆕 NUEVO: Agregar categorías filtradas (SOLO SI HAY VEHÍCULO)
             try:
-                motorcycle_filters = {
-                    'type': moto_context.get('motorcycle_type'),
-                    'make': moto_context.get('motorcycle_make'),
-                    'model': moto_context.get('motorcycle_model'),
-                    'year': moto_context.get('motorcycle_year'),
-                }
-                
-                # Solo procesar si hay vehículo completo seleccionado
-                if all(motorcycle_filters.values()):
+                # Solo si hay vehículo completo seleccionado
+                if all([moto_context.get('motorcycle_type'), moto_context.get('motorcycle_make'), 
+                    moto_context.get('motorcycle_model'), moto_context.get('motorcycle_year')]):
                     _logger.info("[📂 SHOP] Aplicando filtro de categorías para vehículo")
-                    filtered_categories = self._get_categories_with_products(motorcycle_filters)
-                    res.qcontext['filtered_categories'] = filtered_categories
-                    res.qcontext['has_vehicle_filter'] = True
-                    _logger.info("[📂 SHOP] Categorías filtradas: %d", len(filtered_categories))
+                    
+                    # Llamar al método que ya tienes (si lo implementaste)
+                    if hasattr(self, '_get_categories_with_products'):
+                        motorcycle_filters = {
+                            'type': moto_context.get('motorcycle_type'),
+                            'make': moto_context.get('motorcycle_make'),
+                            'model': moto_context.get('motorcycle_model'),
+                            'year': moto_context.get('motorcycle_year'),
+                        }
+                        filtered_categories = self._get_categories_with_products(motorcycle_filters)
+                        res.qcontext['filtered_categories'] = filtered_categories
+                        res.qcontext['has_vehicle_filter'] = True
+                        _logger.info("[📂 SHOP] Categorías filtradas: %d", len(filtered_categories))
+                    else:
+                        _logger.warning("[📂 SHOP] Método _get_categories_with_products no implementado")
                 else:
                     res.qcontext['filtered_categories'] = None
                     res.qcontext['has_vehicle_filter'] = False
                     
             except Exception as e:
-                # En caso de error, no romper la funcionalidad existente
-                _logger.warning("[⚠️ SHOP] Error al filtrar categorías: %s", e)
+                _logger.error("[❌ SHOP] Error al filtrar categorías: %s", e)
                 res.qcontext['filtered_categories'] = None
                 res.qcontext['has_vehicle_filter'] = False
 
