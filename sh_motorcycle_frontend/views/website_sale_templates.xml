@@ -413,4 +413,144 @@
     </xpath>
   </template>   
 
+
+<!-- TRABAJO SOBRE CATEGORIAS -->
+<!-- TRABAJO SOBRE CATEGORIAS -->
+<!-- TRABAJO SOBRE CATEGORIAS -->
+
+<!-- 📂 Mejoras en las categorías para mostrar filtrado por vehículo -->
+<template id="enhanced_categories_with_vehicle_filter" inherit_id="website_sale.products_categories" name="Enhanced Categories with Vehicle Filter">
+    
+    <!-- Agregar indicador de filtro activo -->
+    <xpath expr="//div[hasclass('o_categories_collapse_title')]" position="after">
+        <t t-if="has_vehicle_filter and motorcycle_heading">
+            <div class="alert alert-info text-center py-2 mb-3">
+                <small>
+                    <i class="fa fa-filter me-1"></i>
+                    Categorías compatibles con: <strong t-esc="motorcycle_heading"/>
+                </small>
+            </div>
+        </t>
+    </xpath>
+    
+    <!-- Agregar contador de productos por categoría si es necesario -->
+    <xpath expr="//a[hasclass('nav-link')]" position="inside">
+        <t t-if="has_vehicle_filter">
+            <!-- Badge sutil para mostrar que la categoría tiene productos para este vehículo -->
+            <span class="badge badge-light ms-2 category-vehicle-compatible" style="font-size: 0.7em;">
+                <i class="fa fa-check text-success"></i>
+            </span>
+        </t>
+    </xpath>
+
+</template>
+
+<!-- 🎯 Snippet para mostrar categorías destacadas por vehículo -->
+<template id="vehicle_compatible_categories_snippet" name="Vehicle Compatible Categories">
+    <section class="s_vehicle_categories mt-3 mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="text-center mb-4">
+                        <t t-if="motorcycle_heading">
+                            Categorías disponibles para <span class="text-primary" t-esc="motorcycle_heading"/>
+                        </t>
+                        <t t-else="">
+                            Todas las categorías
+                        </t>
+                    </h3>
+                </div>
+            </div>
+            
+            <t t-if="filtered_categories">
+                <div class="row">
+                    <t t-foreach="filtered_categories.filtered(lambda c: not c.parent_id)[:8]" t-as="category">
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <a t-attf-href="/shop/category/#{category.slug}-#{category.id}" 
+                               class="card h-100 text-decoration-none category-card-link">
+                                <div class="card-body text-center">
+                                    <t t-if="category.image_1920">
+                                        <img t-attf-src="/web/image/product.public.category/#{category.id}/image_128" 
+                                             class="img-fluid mb-2" 
+                                             style="max-height: 64px;"
+                                             t-att-alt="category.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <i class="fa fa-folder-o fa-3x mb-2 text-muted"></i>
+                                    </t>
+                                    <h5 class="card-title" t-esc="category.name"/>
+                                    <small class="text-muted">
+                                        <t t-if="has_vehicle_filter">
+                                            Compatible con tu vehículo
+                                        </t>
+                                        <t t-else="">
+                                            Ver todos los productos
+                                        </t>
+                                    </small>
+                                </div>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </t>
+            
+            <t t-else="">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="alert alert-warning">
+                            <i class="fa fa-exclamation-triangle"></i>
+                            No hay categorías específicas para este vehículo.
+                            <br/>
+                            <a href="/shop" class="btn btn-outline-primary mt-2">
+                                Ver todos los productos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </section>
+</template>
+
+<!-- 🎨 CSS específico para las categorías filtradas -->
+<template id="vehicle_categories_styles">
+    <style>
+        /* Estilos para categorías compatibles con vehículo */
+        .category-vehicle-compatible {
+            animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .category-card-link {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .category-card-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-decoration: none;
+        }
+        
+        .s_vehicle_categories .card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .s_vehicle_categories .card:hover {
+            border-color: var(--bs-primary);
+        }
+        
+        /* Indicador de filtro activo más sutil */
+        .alert.py-2 {
+            border-radius: 6px;
+            border-left: 4px solid var(--bs-info);
+        }
+    </style>
+</template>
+
 </odoo>
