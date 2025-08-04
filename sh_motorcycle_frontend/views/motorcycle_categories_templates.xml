@@ -9,20 +9,28 @@
               priority="20">
         
         <!-- 1. Cambiar el contenedor principal de categorías -->
-        <xpath expr="//div[hasclass('products_categories')]" position="attributes">
+        <xpath expr="//div[@class='products_categories mb-3']" position="attributes">
             <attribute name="class">products_categories mb-3 motorcycle_categories_container</attribute>
         </xpath>
         
         <!-- 2. Cambiar el título de categorías -->
-        <xpath expr="//h6[hasclass('o_categories_collapse_title')]" position="attributes">
+        <xpath expr="//h6[@class='o_categories_collapse_title ']" position="attributes">
             <attribute name="class">o_categories_collapse_title motorcycle_categories_title</attribute>
         </xpath>
         
         <!-- 3. Cambiar la lista principal de categorías -->
-        <xpath expr="//div[hasclass('wsale_products_categories_list')]" position="attributes">
+        <xpath expr="//div[@class='wsale_products_categories_list']" position="attributes">
             <attribute name="class">wsale_products_categories_list motorcycle_categories_list</attribute>
         </xpath>
         
-
+        <!-- 4. Cambiar la lista ul principal -->
+        <xpath expr="//ul[@class='nav d-flex flex-column mb-3']" position="attributes">
+            <attribute name="class">nav d-flex flex-column mb-3 motorcycle_main_nav</attribute>
+        </xpath>
+        
+        <!-- 5. Cambiar subcategorías -->
+        <xpath expr="//ul[@class='nav flex-column nav-hierarchy mt-1 ps-3']" position="attributes">
+            <attribute name="class">nav flex-column nav-hierarchy mt-1 ps-3 motorcycle_subcategories</attribute>
+        </xpath>
     </template>
 </odoo>

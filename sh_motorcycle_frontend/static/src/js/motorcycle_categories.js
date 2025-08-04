@@ -34,7 +34,7 @@ odoo.define("sh_motorcycle_frontend.categories", function (require) {
         this.$(".motorcycle_categories_list .nav-item").each(function () {
           var $item = $(this);
           var $link = $item.find("> a");
-          var $subcategoryList = $item.find("ul.nav-hierarchy");
+          var $subcategoryList = $item.find("ul.motorcycle_subcategories");
 
           if ($link.length && $subcategoryList.length) {
             // Categoría con subcategorías - agregar icono expandible
@@ -99,7 +99,7 @@ odoo.define("sh_motorcycle_frontend.categories", function (require) {
             $link.addClass("active");
 
             // Expandir categorías padre si es una subcategoría
-            var $parentUl = $link.closest("ul.nav-hierarchy");
+            var $parentUl = $link.closest("ul.motorcycle_subcategories");
             while ($parentUl.length > 0) {
               $parentUl.show();
               var $parentIcon = $parentUl
@@ -108,7 +108,9 @@ odoo.define("sh_motorcycle_frontend.categories", function (require) {
               if ($parentIcon.hasClass("fa-plus")) {
                 $parentIcon.removeClass("fa-plus").addClass("fa-minus");
               }
-              $parentUl = $parentUl.parent().closest("ul.nav-hierarchy");
+              $parentUl = $parentUl
+                .parent()
+                .closest("ul.motorcycle_subcategories");
             }
           }
         });
