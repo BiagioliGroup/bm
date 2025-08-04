@@ -9,7 +9,7 @@
               priority="20">
         
         <!-- 1. Cambiar el contenedor principal de categorías -->
-        <xpath expr="//div[@class='products_categories]" position="attributes">
+        <xpath expr="//div[@hasclass('products_categories')]" position="attributes">
             <attribute name="class">products_categories mb-3 motorcycle_categories_container</attribute>
         </xpath>
         
