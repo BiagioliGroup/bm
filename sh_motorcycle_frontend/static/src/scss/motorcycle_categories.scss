@@ -1,227 +1,360 @@
 /* =====================================================
-   🎨 ESTILOS SIMPLES PARA CATEGORÍAS DE MOTOS
+   🎨 ESTILOS PARA CATEGORÍAS DE MOTOS - SOLO CSS
+   Aplicado directamente sobre las clases del HTML existente
    ===================================================== */
 
-.motorcycle_categories_container {
-  background: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* 1. Contenedor principal de categorías */
+.products_categories {
+  background: #fff !important;
+  border: 1px solid #e9ecef !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+
+  /* Animación de entrada */
+  animation: slideInLeft 0.5s ease-out !important;
 }
 
-.motorcycle_categories_title {
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 2. Título de categorías */
+.o_categories_collapse_title {
   color: #495057 !important;
   font-size: 14px !important;
-  margin-bottom: 15px !important;
-  padding-bottom: 8px !important;
-  border-bottom: 2px solid #007bff !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 3px solid #007bff !important;
   font-weight: bold !important;
-  text-transform: uppercase;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  position: relative !important;
 }
 
-.motorcycle_categories_list {
-  /* Estilos para la lista principal */
+.o_categories_collapse_title::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 30px;
+  height: 3px;
+  background: #ffc107 !important;
+  border-radius: 2px;
 }
 
-.motorcycle_category_item {
-  margin-bottom: 4px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+/* 3. Contenedor de la lista de categorías */
+.wsale_products_categories_list {
+  position: relative !important;
 }
 
-.motorcycle_category_item:hover {
-  background-color: #f8f9fa;
-  transform: translateX(2px);
+/* 4. Lista principal de navegación */
+.wsale_products_categories_list .nav {
+  margin-bottom: 0 !important;
 }
 
-.motorcycle_category_link {
+/* 5. Items de categorías principales */
+.wsale_products_categories_list .nav-item {
+  margin-bottom: 6px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.wsale_products_categories_list .nav-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.wsale_products_categories_list .nav-item:hover::before {
+  left: 100%;
+}
+
+.wsale_products_categories_list .nav-item:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  transform: translateX(5px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 6. Enlaces de categorías */
+.wsale_products_categories_list .nav-item > a {
   display: flex !important;
   align-items: center !important;
-  padding: 8px 12px !important;
+  padding: 12px 16px !important;
   text-decoration: none !important;
   color: #495057 !important;
   font-size: 14px !important;
-  font-weight: 500 !important;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  position: relative;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+  line-height: 1.4 !important;
 }
 
-.motorcycle_category_link:hover {
+.wsale_products_categories_list .nav-item > a:hover {
   color: #007bff !important;
-  background-color: #f8f9fa;
   text-decoration: none !important;
+  text-shadow: 0 1px 2px rgba(0, 123, 255, 0.1) !important;
 }
 
-.motorcycle_category_link.active,
-.motorcycle_category_item .active {
-  background-color: #007bff !important;
+/* 7. Pseudo-elementos para iconos con CSS */
+.wsale_products_categories_list .nav-item > a::before {
+  content: "📁";
+  margin-right: 8px !important;
+  font-size: 16px !important;
+  transition: transform 0.3s ease !important;
+}
+
+/* Iconos especiales para categorías con subcategorías */
+.wsale_products_categories_list .nav-item:has(ul) > a::before {
+  content: "📂";
+  cursor: pointer !important;
+}
+
+.wsale_products_categories_list .nav-item > a:hover::before {
+  transform: scale(1.2) rotate(5deg) !important;
+}
+
+/* 8. Categoría activa (cuando la URL coincide) */
+.wsale_products_categories_list .nav-item > a[class*="active"],
+.wsale_products_categories_list .nav-item > a:target {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
   color: white !important;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4) !important;
+  transform: translateX(3px) !important;
 }
 
-.motorcycle_category_link.active:before {
+.wsale_products_categories_list .nav-item > a[class*="active"]::before {
+  content: "⭐";
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+}
+
+.wsale_products_categories_list .nav-item > a[class*="active"]::after {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
-  background: #ffc107;
-  border-radius: 0 2px 2px 0;
+  width: 4px;
+  background: #ffc107 !important;
+  border-radius: 0 3px 3px 0;
 }
 
-.motorcycle_category_icon {
-  width: 16px;
-  margin-right: 8px;
-  color: #6c757d;
-  font-size: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.motorcycle_category_icon.fa-minus {
-  color: #007bff;
-}
-
-.motorcycle_category_icon.fa-plus:hover {
-  color: #007bff;
-  transform: scale(1.1);
-}
-
-.motorcycle_category_icon.fa-folder-o {
-  color: #ffc107;
-}
-
-/* Subcategorías */
-.motorcycle_subcategories {
+/* 9. Subcategorías (nav-hierarchy) */
+.wsale_products_categories_list .nav-hierarchy {
   margin-left: 20px !important;
-  border-left: 2px solid #e9ecef !important;
-  padding-left: 10px !important;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  display: none; /* Ocultas por defecto */
+  margin-top: 8px !important;
+  border-left: 3px solid #e9ecef !important;
+  padding-left: 15px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  max-height: 0 !important;
+  opacity: 0 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.motorcycle_subcategories.show {
-  display: block !important;
+/* Línea decorativa para subcategorías */
+.wsale_products_categories_list .nav-hierarchy::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #007bff, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.motorcycle_subcategories .motorcycle_category_item {
-  margin-bottom: 2px;
+/* Estado expandido de subcategorías */
+.wsale_products_categories_list .nav-item:hover .nav-hierarchy,
+.wsale_products_categories_list .nav-item:focus-within .nav-hierarchy {
+  max-height: 500px !important;
+  opacity: 1 !important;
+  margin-top: 12px !important;
 }
 
-.motorcycle_subcategories .motorcycle_category_link {
-  padding: 6px 8px !important;
+.wsale_products_categories_list .nav-item:hover .nav-hierarchy::before {
+  opacity: 0.6;
+}
+
+/* 10. Items de subcategorías */
+.wsale_products_categories_list .nav-hierarchy .nav-item {
+  margin-bottom: 3px !important;
+  transform: translateX(-10px);
+  opacity: 0;
+  transition: all 0.3s ease !important;
+}
+
+.wsale_products_categories_list .nav-item:hover .nav-hierarchy .nav-item {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.wsale_products_categories_list .nav-hierarchy .nav-item:nth-child(1) {
+  transition-delay: 0.1s;
+}
+.wsale_products_categories_list .nav-hierarchy .nav-item:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.wsale_products_categories_list .nav-hierarchy .nav-item:nth-child(3) {
+  transition-delay: 0.2s;
+}
+.wsale_products_categories_list .nav-hierarchy .nav-item:nth-child(4) {
+  transition-delay: 0.25s;
+}
+.wsale_products_categories_list .nav-hierarchy .nav-item:nth-child(5) {
+  transition-delay: 0.3s;
+}
+
+.wsale_products_categories_list .nav-hierarchy .nav-item > a {
+  padding: 8px 12px !important;
   font-size: 13px !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
+  color: #6c757d !important;
+  border-radius: 4px !important;
 }
 
-.motorcycle_subcategories .motorcycle_category_icon {
-  font-size: 11px;
-  margin-right: 6px;
+.wsale_products_categories_list .nav-hierarchy .nav-item > a::before {
+  content: "▸";
+  color: #007bff !important;
+  font-size: 12px !important;
+  margin-right: 6px !important;
+}
+
+.wsale_products_categories_list .nav-hierarchy .nav-item > a:hover {
+  background-color: rgba(0, 123, 255, 0.1) !important;
+  color: #007bff !important;
+  transform: translateX(3px) !important;
+}
+
+.wsale_products_categories_list .nav-hierarchy .nav-item > a:hover::before {
+  content: "▶";
+  transform: scale(1.2);
 }
 
 /* =============================================
-   📱 RESPONSIVE DESIGN PARA MÓVILES
+   📱 RESPONSIVE DESIGN
    ============================================= */
 
 @media (max-width: 991px) {
-  .motorcycle_categories_container {
-    margin-bottom: 15px;
-    padding: 15px;
+  .products_categories {
+    margin-bottom: 15px !important;
+    padding: 15px !important;
+    border-radius: 6px !important;
   }
 
-  .motorcycle_categories_title {
+  .o_categories_collapse_title {
     font-size: 13px !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 15px !important;
   }
 
-  .motorcycle_category_item:hover {
-    transform: none; /* Desactivar transform en móviles */
+  .wsale_products_categories_list .nav-item:hover {
+    transform: none !important; /* Desactivar animaciones en móviles */
   }
 
-  .motorcycle_category_link {
-    padding: 10px !important;
+  .wsale_products_categories_list .nav-item > a {
+    padding: 10px 12px !important;
     font-size: 13px !important;
+  }
+
+  .wsale_products_categories_list .nav-hierarchy {
+    margin-left: 15px !important;
+    padding-left: 10px !important;
   }
 }
 
 @media (max-width: 576px) {
-  .motorcycle_categories_container {
-    border-radius: 6px;
-    padding: 12px;
+  .products_categories {
+    border-radius: 4px !important;
+    padding: 12px !important;
   }
 
-  .motorcycle_subcategories {
-    margin-left: 15px !important;
+  .wsale_products_categories_list .nav-hierarchy {
+    margin-left: 10px !important;
     padding-left: 8px !important;
   }
 }
 
 /* =============================================
-   🎯 EFECTOS ESPECIALES
+   🎯 EFECTOS ESPECIALES Y MEJORAS UX
    ============================================= */
 
-/* Efecto de carga suave */
-.motorcycle_categories_container {
-  animation: fadeInUp 0.5s ease-out;
+/* Efecto de focus para accesibilidad */
+.wsale_products_categories_list .nav-item > a:focus {
+  outline: 2px solid #007bff !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25) !important;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* Indicador de carga */
+.products_categories.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.products_categories.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 2px solid #007bff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  100% {
+    transform: rotate(360deg);
   }
 }
 
-/* Hover más suave en iconos */
-.motorcycle_category_icon:hover {
-  transform: scale(1.1);
-}
+/* Mejora de contraste para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .products_categories {
+    background: #343a40 !important;
+    border-color: #495057 !important;
+    color: #f8f9fa !important;
+  }
 
-/* Estados de las categorías activas */
-.motorcycle_category_item .motorcycle_category_link[href*="category"] {
-  position: relative;
-}
+  .o_categories_collapse_title {
+    color: #f8f9fa !important;
+  }
 
-/* Integración con Bootstrap de Odoo */
-.motorcycle_categories_container h6 b {
-  color: #495057;
-}
+  .wsale_products_categories_list .nav-item > a {
+    color: #e9ecef !important;
+  }
 
-.motorcycle_categories_list .nav-item {
-  margin-bottom: 4px !important;
-}
-
-.motorcycle_categories_list .nav-item a {
-  padding: 8px 12px !important;
-  color: #495057 !important;
-  font-weight: 500 !important;
-  border-radius: 4px !important;
-  transition: all 0.2s ease !important;
-}
-
-.motorcycle_categories_list .nav-item a:hover {
-  background-color: #f8f9fa !important;
-  color: #007bff !important;
-  transform: translateX(2px) !important;
-}
-
-/* Subcategorías específicas */
-.motorcycle_subcategories .nav-item a {
-  padding: 6px 8px !important;
-  font-size: 13px !important;
-  font-weight: 400 !important;
-}
-
-.motorcycle_subcategories .nav-item a:hover {
-  transform: translateX(3px) !important;
+  .wsale_products_categories_list .nav-item > a:hover {
+    background-color: #495057 !important;
+  }
 }

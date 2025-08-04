@@ -1,155 +1,277 @@
 /**
- * 🚀 JAVASCRIPT PARA CATEGORÍAS PERSONALIZADAS DE MOTOS
- * Maneja iconos y funcionalidad expand/collapse
+ * 🚀 JAVASCRIPT PARA CATEGORÍAS DE MOTOS - SIN TEMPLATES
+ * Solo mejora la funcionalidad del HTML existente
  */
 
-odoo.define("sh_motorcycle_frontend.categories", function (require) {
+odoo.define("sh_motorcycle_frontend.categories_enhance", function (require) {
   "use strict";
 
   var publicWidget = require("web.public.widget");
 
-  // Widget principal para manejar las categorías
-  publicWidget.registry.MotorcycleCategoriesWidget = publicWidget.Widget.extend(
-    {
-      selector: ".motorcycle_categories_container",
+  // Widget para mejorar las categorías existentes
+  publicWidget.registry.MotorcycleCategoriesEnhancer =
+    publicWidget.Widget.extend({
+      selector: ".products_categories",
 
       /**
        * Inicialización del widget
        */
       start: function () {
-        console.log("🏍️ Inicializando categorías de motos...");
-        this._addCategoryIcons();
-        this._expandActiveCategory();
-        this._addKeyboardSupport();
+        console.log("🏍️ Inicializando mejoras de categorías...");
+        this._enhanceCategories();
+        this._addClickToExpand();
+        this._markActiveCategory();
+        this._addKeyboardNavigation();
         return this._super.apply(this, arguments);
       },
 
       /**
-       * Agregar iconos a las categorías
+       * Mejora las categorías existentes con funcionalidad adicional
        */
-      _addCategoryIcons: function () {
+      _enhanceCategories: function () {
         var self = this;
 
-        // Agregar iconos a categorías que tienen subcategorías
-        this.$(".motorcycle_categories_list .nav-item").each(function () {
+        // Agregar funcionalidad de expand/collapse con click
+        this.$(".nav-item").each(function () {
           var $item = $(this);
           var $link = $item.find("> a");
-          var $subcategoryList = $item.find("ul.motorcycle_subcategories");
+          var $subcategories = $item.find(".nav-hierarchy");
 
-          if ($link.length && $subcategoryList.length) {
-            // Categoría con subcategorías - agregar icono expandible
-            var $icon = $(
-              '<i class="motorcycle_category_icon fa fa-plus me-2"></i>'
-            );
-            $icon.css({
-              cursor: "pointer",
-              width: "16px",
-              "text-align": "center",
-            });
+          if ($subcategories.length > 0) {
+            // Agregar clase para identificar categorías expandibles
+            $item.addClass("has-subcategories");
 
-            // Evento click para expandir/contraer
-            $icon.on("click", function (e) {
-              e.preventDefault();
-              e.stopPropagation();
-              self._toggleSubcategory($subcategoryList, $icon);
-            });
+            // Ocultar subcategorías inicialmente
+            $subcategories.hide();
 
-            // Insertar icono al inicio del link
-            $link.prepend($icon);
-
-            // Ocultar subcategorías por defecto
-            $subcategoryList.hide();
-          } else if ($link.length) {
-            // Categoría sin subcategorías - agregar icono de carpeta
-            var $icon = $(
-              '<i class="motorcycle_category_icon fa fa-folder-o me-2"></i>'
-            );
-            $icon.css({
-              width: "16px",
-              "text-align": "center",
-            });
-            $link.prepend($icon);
+            // Cambiar el cursor
+            $link.css("cursor", "pointer");
           }
+        });
+
+        console.log("✅ Categorías mejoradas");
+      },
+
+      /**
+       * Agregar funcionalidad de click para expandir/contraer
+       */
+      _addClickToExpand: function () {
+        var self = this;
+
+        this.$(".has-subcategories > a").on("click", function (e) {
+          // Solo prevenir si es una categoría con subcategorías
+          var $link = $(this);
+          var $item = $link.parent();
+          var $subcategories = $item.find(".nav-hierarchy");
+
+          if ($subcategories.length > 0) {
+            e.preventDefault();
+            self._toggleSubcategories($item, $subcategories);
+          }
+          // Si no tiene subcategorías, permitir navegación normal
         });
       },
 
       /**
-       * Alternar subcategoría (expandir/contraer)
+       * Alternar subcategorías
        */
-      _toggleSubcategory: function ($subcategoryList, $icon) {
-        if ($subcategoryList.is(":visible")) {
-          $subcategoryList.slideUp(300);
-          $icon.removeClass("fa-minus").addClass("fa-plus");
+      _toggleSubcategories: function ($item, $subcategories) {
+        if ($subcategories.is(":visible")) {
+          // Contraer con animación
+          $subcategories.slideUp(300);
+          $item.removeClass("expanded");
         } else {
-          $subcategoryList.slideDown(300);
-          $icon.removeClass("fa-plus").addClass("fa-minus");
+          // Expandir con animación
+          $subcategories.slideDown(300);
+          $item.addClass("expanded");
+
+          // Contraer otras categorías abiertas (opcional)
+          this.$(".has-subcategories")
+            .not($item)
+            .each(function () {
+              var $otherSub = $(this).find(".nav-hierarchy");
+              if ($otherSub.is(":visible")) {
+                $otherSub.slideUp(200);
+                $(this).removeClass("expanded");
+              }
+            });
         }
       },
 
       /**
-       * Auto-expandir categoría activa
+       * Marcar la categoría activa basada en la URL
        */
-      _expandActiveCategory: function () {
+      _markActiveCategory: function () {
         var currentPath = window.location.pathname;
         var self = this;
 
-        this.$(".motorcycle_categories_list a").each(function () {
+        this.$("a[href]").each(function () {
           var $link = $(this);
-          if ($link.attr("href") === currentPath) {
-            $link.addClass("active");
+          var href = $link.attr("href");
 
-            // Expandir categorías padre si es una subcategoría
-            var $parentUl = $link.closest("ul.motorcycle_subcategories");
-            while ($parentUl.length > 0) {
-              $parentUl.show();
-              var $parentIcon = $parentUl
+          if (href === currentPath) {
+            $link.addClass("active-category");
+
+            // Auto-expandir categorías padre
+            var $parentHierarchy = $link.closest(".nav-hierarchy");
+            while ($parentHierarchy.length > 0) {
+              $parentHierarchy.show();
+              $parentHierarchy.parent().addClass("expanded");
+              $parentHierarchy = $parentHierarchy
                 .parent()
-                .find("> a .motorcycle_category_icon");
-              if ($parentIcon.hasClass("fa-plus")) {
-                $parentIcon.removeClass("fa-plus").addClass("fa-minus");
-              }
-              $parentUl = $parentUl
-                .parent()
-                .closest("ul.motorcycle_subcategories");
+                .closest(".nav-hierarchy");
             }
           }
         });
       },
 
       /**
-       * Agregar soporte de teclado para accesibilidad
+       * Agregar navegación por teclado
        */
-      _addKeyboardSupport: function () {
-        this.$(".motorcycle_category_icon")
-          .attr("role", "button")
-          .attr("tabindex", "0")
-          .on("keypress", function (e) {
-            if (e.which === 13 || e.which === 32) {
-              // Enter o Espacio
-              e.preventDefault();
-              $(this).click();
-            }
-          });
+      _addKeyboardNavigation: function () {
+        this.$(".has-subcategories > a").attr("tabindex", "0");
+
+        this.$(".has-subcategories > a").on("keydown", function (e) {
+          if (e.which === 13 || e.which === 32) {
+            // Enter o Espacio
+            e.preventDefault();
+            $(this).click();
+          }
+        });
       },
-    }
-  );
+
+      /**
+       * Función pública para contraer todas las categorías
+       */
+      collapseAll: function () {
+        this.$(".nav-hierarchy").slideUp(200);
+        this.$(".has-subcategories").removeClass("expanded");
+      },
+
+      /**
+       * Función pública para expandir todas las categorías
+       */
+      expandAll: function () {
+        this.$(".nav-hierarchy").slideDown(300);
+        this.$(".has-subcategories").addClass("expanded");
+      },
+    });
 
   return {
-    MotorcycleCategoriesWidget:
-      publicWidget.registry.MotorcycleCategoriesWidget,
+    MotorcycleCategoriesEnhancer:
+      publicWidget.registry.MotorcycleCategoriesEnhancer,
   };
 });
 
 /**
- * 🎯 INICIALIZACIÓN ADICIONAL
- * Para funcionalidad que no depende del widget
+ * 🎯 FUNCIONALIDAD ADICIONAL SIN WIDGETS
+ * Se ejecuta cuando el DOM está listo
  */
 $(document).ready(function () {
-  console.log("🏍️ Sistema de categorías de motos listo");
+  console.log("🏍️ Sistema de categorías mejorado cargado");
 
-  // Funcionalidad adicional si es necesaria
-  // Por ejemplo, detectar cambios en filtros de motocicletas
-  $(".motorcycle_categories_container").on("category_update", function () {
-    console.log("📝 Categorías actualizadas");
-  });
+  // Agregar indicadores visuales adicionales
+  setTimeout(function () {
+    // Agregar badges con número de subcategorías
+    $(".products_categories .nav-item").each(function () {
+      var $item = $(this);
+      var $subcategories = $item.find(".nav-hierarchy .nav-item");
+
+      if ($subcategories.length > 0) {
+        var $badge = $(
+          '<span class="category-count badge badge-secondary ms-2"></span>'
+        );
+        $badge.text($subcategories.length);
+        $badge.css({
+          "font-size": "10px",
+          "background-color": "#6c757d",
+          color: "white",
+          padding: "2px 6px",
+          "border-radius": "10px",
+          "margin-left": "8px",
+        });
+        $item.find("> a").append($badge);
+      }
+    });
+
+    console.log("✅ Badges de conteo agregados");
+  }, 500);
+
+  // Funcionalidad de búsqueda en categorías (opcional)
+  if ($(".products_categories").length > 0) {
+    // Agregar campo de búsqueda
+    var $searchContainer = $('<div class="category-search mb-3"></div>');
+    var $searchInput = $(
+      '<input type="text" class="form-control form-control-sm" placeholder="Buscar categorías...">'
+    );
+
+    $searchContainer.append($searchInput);
+    $(".products_categories .o_categories_collapse_title").after(
+      $searchContainer
+    );
+
+    // Funcionalidad de búsqueda
+    $searchInput.on("input", function () {
+      var searchTerm = $(this).val().toLowerCase();
+
+      if (searchTerm === "") {
+        // Mostrar todas las categorías
+        $(".products_categories .nav-item").show();
+      } else {
+        // Filtrar categorías
+        $(".products_categories .nav-item").each(function () {
+          var $item = $(this);
+          var categoryText = $item.find("> a").text().toLowerCase();
+
+          if (categoryText.includes(searchTerm)) {
+            $item.show();
+          } else {
+            $item.hide();
+          }
+        });
+      }
+    });
+
+    console.log("✅ Buscador de categorías agregado");
+  }
+
+  // Agregar efecto de scroll suave
+  $('.products_categories a[href^="/shop/category/"]').on(
+    "click",
+    function (e) {
+      // No prevenir la navegación, solo agregar efecto visual
+      $(this).addClass("clicked");
+      setTimeout(function () {
+        $(".products_categories a").removeClass("clicked");
+      }, 200);
+    }
+  );
 });
+
+/**
+ * 🔧 UTILIDADES GLOBALES
+ */
+window.MotorcycleCategories = {
+  /**
+   * Función para colapsar todas las categorías
+   */
+  collapseAll: function () {
+    $(".products_categories .nav-hierarchy").slideUp(200);
+    $(".products_categories .has-subcategories").removeClass("expanded");
+  },
+
+  /**
+   * Función para expandir todas las categorías
+   */
+  expandAll: function () {
+    $(".products_categories .nav-hierarchy").slideDown(300);
+    $(".products_categories .has-subcategories").addClass("expanded");
+  },
+
+  /**
+   * Función para buscar categorías
+   */
+  searchCategories: function (term) {
+    $(".category-search input").val(term).trigger("input");
+  },
+};
