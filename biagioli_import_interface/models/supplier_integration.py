@@ -361,7 +361,7 @@ class SupplierIntegration(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Logs de Importación - {self.name}',
             'res_model': 'product.import.log',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'domain': [('supplier_integration_id', '=', self.id)],
             'context': {'default_supplier_integration_id': self.id},
         }
@@ -372,7 +372,7 @@ class SupplierIntegration(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Productos - {self.name}',
             'res_model': 'product.template',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('supplier_integration_id', '=', self.id)],
             'context': {'default_supplier_integration_id': self.id},
         }
