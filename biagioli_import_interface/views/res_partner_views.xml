@@ -10,7 +10,7 @@
             <!-- Agregar botones en el header para proveedores -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_integrations" type="object" class="oe_stat_button" icon="fa-plug"
-                        attrs="{'invisible': [('supplier_rank', '=', 0)]}">
+                        invisible="supplier_rank == 0">
                     <div class="o_stat_info">
                         <field name="integration_count" class="o_stat_value"/>
                         <span class="o_stat_text">Integraciones</span>
@@ -18,42 +18,42 @@
                 </button>
                 
                 <button name="sync_all_integrations" type="object" class="oe_stat_button" icon="fa-refresh"
-                        attrs="{'invisible': ['|', ('supplier_rank', '=', 0), ('integration_count', '=', 0)]}">
+                        invisible="supplier_rank == 0 or integration_count == 0">
                     <span class="o_stat_text">Sincronizar Todo</span>
                 </button>
             </xpath>
             
             <!-- Agregar pestaña de Integración API para proveedores -->
             <xpath expr="//notebook" position="inside">
-                <page string="Integración API" attrs="{'invisible': [('supplier_rank', '=', 0)]}">
+                <page string="Integración API" invisible="supplier_rank == 0">
                     <group>
                         <group string="Configuración API">
                             <field name="has_api_integration"/>
-                            <field name="api_base_url" attrs="{'invisible': [('has_api_integration', '=', False)]}"/>
-                            <field name="api_token" password="True" attrs="{'invisible': [('has_api_integration', '=', False)]}"/>
-                            <field name="api_version" attrs="{'invisible': [('has_api_integration', '=', False)]}"/>
+                            <field name="api_base_url" invisible="has_api_integration == False"/>
+                            <field name="api_token" password="True" invisible="has_api_integration == False"/>
+                            <field name="api_version" invisible="has_api_integration == False"/>
                         </group>
                         
                         <group string="Configuración de Importación">
                             <field name="requires_import"/>
-                            <field name="import_country_id" attrs="{'invisible': [('requires_import', '=', False)]}"/>
+                            <field name="import_country_id" invisible="requires_import == False"/>
                             <field name="default_markup_percentage"/>
-                            <field name="default_import_cost_percentage" attrs="{'invisible': [('requires_import', '=', False)]}"/>
+                            <field name="default_import_cost_percentage" invisible="requires_import == False"/>
                         </group>
                     </group>
                     
-                    <div attrs="{'invisible': [('has_api_integration', '=', False)]}">
+                    <div invisible="has_api_integration == False">
                         <div class="row">
                             <div class="col-12">
                                 <button name="action_create_integration" string="Nueva Integración" 
                                         type="object" class="btn-primary"/>
                                 <button name="action_view_integrations" string="Ver Integraciones" 
-                                        type="object" class="btn-secondary" attrs="{'invisible': [('integration_count', '=', 0)]}"/>
+                                        type="object" class="btn-secondary" invisible="integration_count == 0"/>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="alert alert-info" attrs="{'invisible': [('has_api_integration', '=', True)]}">
+                    <div class="alert alert-info" invisible="has_api_integration == True">
                         <strong>Integración API:</strong><br/>
                         Active esta opción si el proveedor tiene API para importación automática de productos.<br/>
                         Actualmente soportamos: WPS-inc, APIs JSON genéricas, feeds XML/CSV.
@@ -75,9 +75,9 @@
                 <field name="integration_count"/>
                 <field name="requires_import"/>
                 <button name="action_create_integration" type="object" string="Nueva Integración" 
-                        attrs="{'invisible': [('has_api_integration', '=', False)]}" class="btn-primary"/>
+                        invisible="has_api_integration == False" class="btn-primary"/>
                 <button name="sync_all_integrations" type="object" string="Sincronizar" 
-                        attrs="{'invisible': [('integration_count', '=', 0)]}" class="btn-secondary"/>
+                        invisible="integration_count == 0" class="btn-secondary"/>
             </tree>
         </field>
     </record>
