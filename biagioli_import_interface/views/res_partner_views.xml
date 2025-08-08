@@ -47,19 +47,10 @@
                             <div class="col-12">
                                 <button name="action_create_integration" string="Nueva Integración" 
                                         type="object" class="btn-primary"/>
+                                <button name="action_view_integrations" string="Ver Integraciones" 
+                                        type="object" class="btn-secondary" attrs="{'invisible': [('integration_count', '=', 0)]}"/>
                             </div>
                         </div>
-                        
-                        <field name="integration_ids">
-                            <tree>
-                                <field name="integration_type"/>
-                                <field name="is_active"/>
-                                <field name="last_import"/>
-                                <field name="products_imported"/>
-                                <field name="last_sync_status"/>
-                                <button name="sync_products" type="object" string="Sync" class="btn-sm btn-primary"/>
-                            </tree>
-                        </field>
                     </div>
                     
                     <div class="alert alert-info" attrs="{'invisible': [('has_api_integration', '=', True)]}">

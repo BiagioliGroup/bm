@@ -15,7 +15,7 @@ class SupplierIntegration(models.Model):
     
     partner_id = fields.Many2one('res.partner', 'Proveedor', required=True, 
                                 domain=[('is_company', '=', True), ('supplier_rank', '>', 0)])
-    name = fields.Char('Nombre', related='partner_id.name', readonly=True)
+    name = fields.Char('Nombre Integración', compute='_compute_name', store=True)
     integration_type = fields.Selection([
         ('wps', 'WPS-inc API'),
         ('csv', 'Importación CSV'),
@@ -52,6 +52,16 @@ class SupplierIntegration(models.Model):
         ('error', 'Error'),
         ('pending', 'Pendiente')
     ], readonly=True)
+    
+    @api.depends('partner_id', 'integration_type')
+    def _compute_name(self):
+        for record in self:
+            if record.partner_id and record.integration_type:
+                record.name = f"{record.partner_id.name} - {dict(record._fields['integration_type'].selection)[record.integration_type]}"
+            elif record.partner_id:
+                record.name = f"{record.partner_id.name} - Nueva Integración"
+            else:
+                record.name = "Nueva Integración"
     
     @api.model
     def create(self, vals):
