@@ -15,7 +15,7 @@
     'depends': ['base', 'product', 'stock', 'purchase'],
     'data': [
         'security/ir.model.access.csv',
-        # 'data/supplier_data.xml',
+        'data/supplier_data.xml',
         'views/res_partner_views.xml',
         'views/supplier_integration_views.xml',
         # 'views/product_import_views.xml',
