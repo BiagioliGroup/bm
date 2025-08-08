@@ -147,6 +147,9 @@
     <menuitem id="menu_supplier_integrations" name="Integraciones" parent="menu_import_interface_root" 
               action="action_supplier_integration" sequence="10"/>
               
+    <menuitem id="menu_supplier_with_integration" name="Proveedores con API" parent="menu_import_interface_root" 
+              action="action_partner_supplier_integration" sequence="5"/>
+              
     <menuitem id="menu_import_logs" name="Logs de Importación" parent="menu_import_interface_root" 
               action="action_import_log" sequence="20"/>
 </odoo>
