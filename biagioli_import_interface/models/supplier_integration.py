@@ -325,7 +325,7 @@ class SupplierIntegration(models.Model):
             'default_code': sku,
             'list_price': sale_price,
             'standard_price': total_cost,
-            'type': 'product',
+            'type': 'consu',
             'purchase_ok': True,
             'sale_ok': True,
             'supplier_integration_id': self.id,
