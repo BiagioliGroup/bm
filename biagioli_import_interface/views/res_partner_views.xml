@@ -1,0 +1,119 @@
+<!-- views/res_partner_views.xml -->
+<odoo>
+    <!-- Extensión de vista formulario de partner -->
+    <record id="view_partner_form_integration" model="ir.ui.view">
+        <field name="name">res.partner.form.integration</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Agregar botones en el header para proveedores -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_integrations" type="object" class="oe_stat_button" icon="fa-plug"
+                        attrs="{'invisible': [('supplier_rank', '=', 0)]}">
+                    <div class="o_stat_info">
+                        <field name="integration_count" class="o_stat_value"/>
+                        <span class="o_stat_text">Integraciones</span>
+                    </div>
+                </button>
+                
+                <button name="sync_all_integrations" type="object" class="oe_stat_button" icon="fa-refresh"
+                        attrs="{'invisible': ['|', ('supplier_rank', '=', 0), ('integration_count', '=', 0)]}">
+                    <span class="o_stat_text">Sincronizar Todo</span>
+                </button>
+            </xpath>
+            
+            <!-- Agregar pestaña de Integración API para proveedores -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Integración API" attrs="{'invisible': [('supplier_rank', '=', 0)]}">
+                    <group>
+                        <group string="Configuración API">
+                            <field name="has_api_integration"/>
+                            <field name="api_base_url" attrs="{'invisible': [('has_api_integration', '=', False)]}"/>
+                            <field name="api_token" password="True" attrs="{'invisible': [('has_api_integration', '=', False)]}"/>
+                            <field name="api_version" attrs="{'invisible': [('has_api_integration', '=', False)]}"/>
+                        </group>
+                        
+                        <group string="Configuración de Importación">
+                            <field name="requires_import"/>
+                            <field name="import_country_id" attrs="{'invisible': [('requires_import', '=', False)]}"/>
+                            <field name="default_markup_percentage"/>
+                            <field name="default_import_cost_percentage" attrs="{'invisible': [('requires_import', '=', False)]}"/>
+                        </group>
+                    </group>
+                    
+                    <div attrs="{'invisible': [('has_api_integration', '=', False)]}">
+                        <div class="row">
+                            <div class="col-12">
+                                <button name="action_create_integration" string="Nueva Integración" 
+                                        type="object" class="btn-primary"/>
+                            </div>
+                        </div>
+                        
+                        <field name="integration_ids">
+                            <tree>
+                                <field name="integration_type"/>
+                                <field name="is_active"/>
+                                <field name="last_import"/>
+                                <field name="products_imported"/>
+                                <field name="last_sync_status"/>
+                                <button name="sync_products" type="object" string="Sync" class="btn-sm btn-primary"/>
+                            </tree>
+                        </field>
+                    </div>
+                    
+                    <div class="alert alert-info" attrs="{'invisible': [('has_api_integration', '=', True)]}">
+                        <strong>Integración API:</strong><br/>
+                        Active esta opción si el proveedor tiene API para importación automática de productos.<br/>
+                        Actualmente soportamos: WPS-inc, APIs JSON genéricas, feeds XML/CSV.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista de lista de proveedores con integración -->
+    <record id="view_partner_supplier_integration_tree" model="ir.ui.view">
+        <field name="name">res.partner.supplier.integration.tree</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="country_id"/>
+                <field name="has_api_integration"/>
+                <field name="integration_count"/>
+                <field name="requires_import"/>
+                <button name="action_create_integration" type="object" string="Nueva Integración" 
+                        attrs="{'invisible': [('has_api_integration', '=', False)]}" class="btn-primary"/>
+                <button name="sync_all_integrations" type="object" string="Sincronizar" 
+                        attrs="{'invisible': [('integration_count', '=', 0)]}" class="btn-secondary"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Acción para proveedores con integración -->
+    <record id="action_partner_supplier_integration" model="ir.actions.act_window">
+        <field name="name">Proveedores con Integración</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_partner_supplier_integration_tree"/>
+        <field name="domain">[('supplier_rank', '>', 0), ('has_api_integration', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar proveedores con integración API
+            </p>
+            <p>
+                Aquí se muestran todos los proveedores que tienen integración API configurada.<br/>
+                Puede crear nuevas integraciones o sincronizar productos existentes.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Actualizar menú -->
+    <menuitem id="menu_supplier_integrations" name="Integraciones" parent="menu_import_interface_root" 
+              action="action_supplier_integration" sequence="10"/>
+              
+    <menuitem id="menu_supplier_with_integration" name="Proveedores con API" parent="menu_import_interface_root" 
+              action="action_partner_supplier_integration" sequence="5"/>
+
+</odoo>
