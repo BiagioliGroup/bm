@@ -1,3 +1,4 @@
+# models/supplier_integration.py
 import requests
 import json
 import logging

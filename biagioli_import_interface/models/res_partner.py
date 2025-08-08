@@ -1,5 +1,5 @@
 # models/res_partner.py
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
