@@ -54,7 +54,7 @@
                         <group string="Última Sincronización">
                             <field name="last_import"/>
                             <field name="auto_import"/>
-                            <field name="import_interval_hours" invisible="auto_import == False"/>
+                            <field name="import_interval_hours" invisible="not auto_import"/>
                         </group>
                     </group>
                     

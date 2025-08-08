@@ -16,7 +16,7 @@
                         <page string="Filtros Específicos">
                             <group>
                                 <group>
-                                    <field name="specific_skus" attrs="{'invisible': [('import_mode', '!=', 'specific')]}"/>
+                                    <field name="specific_skus" invisible="import_mode != 'specific'"/>
                                     <field name="category_filter"/>
                                 </group>
                                 <group>
@@ -26,7 +26,7 @@
                             </group>
                         </page>
                         
-                        <page string="Vista Previa" attrs="{'invisible': [('preview_count', '=', 0)]}">
+                        <page string="Vista Previa" invisible="preview_count == 0">
                             <field name="preview_products"/>
                             <div class="alert alert-info">
                                 Se importarán <field name="preview_count" readonly="1"/> productos

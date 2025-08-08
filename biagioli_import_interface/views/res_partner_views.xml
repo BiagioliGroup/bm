@@ -29,20 +29,20 @@
                     <group>
                         <group string="Configuración API">
                             <field name="has_api_integration"/>
-                            <field name="api_base_url" invisible="has_api_integration == False"/>
-                            <field name="api_token" password="True" invisible="has_api_integration == False"/>
-                            <field name="api_version" invisible="has_api_integration == False"/>
+                            <field name="api_base_url" invisible="not has_api_integration"/>
+                            <field name="api_token" password="True" invisible="not has_api_integration"/>
+                            <field name="api_version" invisible="not has_api_integration"/>
                         </group>
                         
                         <group string="Configuración de Importación">
                             <field name="requires_import"/>
-                            <field name="import_country_id" invisible="requires_import == False"/>
+                            <field name="import_country_id" invisible="not requires_import"/>
                             <field name="default_markup_percentage"/>
-                            <field name="default_import_cost_percentage" invisible="requires_import == False"/>
+                            <field name="default_import_cost_percentage" invisible="not requires_import"/>
                         </group>
                     </group>
                     
-                    <div invisible="has_api_integration == False">
+                    <div invisible="not has_api_integration">
                         <div class="row">
                             <div class="col-12">
                                 <button name="action_create_integration" string="Nueva Integración" 
@@ -53,7 +53,7 @@
                         </div>
                     </div>
                     
-                    <div class="alert alert-info" invisible="has_api_integration == True">
+                    <div class="alert alert-info" invisible="has_api_integration">
                         <strong>Integración API:</strong><br/>
                         Active esta opción si el proveedor tiene API para importación automática de productos.<br/>
                         Actualmente soportamos: WPS-inc, APIs JSON genéricas, feeds XML/CSV.
@@ -75,7 +75,7 @@
                 <field name="integration_count"/>
                 <field name="requires_import"/>
                 <button name="action_create_integration" type="object" string="Nueva Integración" 
-                        invisible="has_api_integration == False" class="btn-primary"/>
+                        invisible="not has_api_integration" class="btn-primary"/>
                 <button name="sync_all_integrations" type="object" string="Sincronizar" 
                         invisible="integration_count == 0" class="btn-secondary"/>
             </list>
