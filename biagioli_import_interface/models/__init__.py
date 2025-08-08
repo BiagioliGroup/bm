@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from . import models
+from . import supplier_integration
 from . import res_partner
