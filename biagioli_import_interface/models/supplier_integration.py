@@ -152,7 +152,7 @@ class SupplierIntegration(models.Model):
         products_url = f"{self.api_base_url}/products"
         params = {
             'page[size]': 50,  # WPS recomienda máximo 50-100 por página
-            'include': 'inventory,dealer_pricing'  # Incluir inventario y precios
+            'include': 'items,features'  # Solo includes permitidos para products
         }
         
         all_products = []
@@ -174,9 +174,7 @@ class SupplierIntegration(models.Model):
             if not products:
                 break
             
-            # Filtrar productos con stock mínimo
-            filtered_products = self._filter_wps_products_by_stock(products)
-            all_products.extend(filtered_products)
+            all_products.extend(products)
             
             # Verificar si hay más páginas usando cursor
             meta = data.get('meta', {})
@@ -189,7 +187,7 @@ class SupplierIntegration(models.Model):
             time.sleep(0.5)  # Rate limiting
             
             # Límite de seguridad para evitar importaciones masivas
-            if len(all_products) >= 500:
+            if len(all_products) >= 100:  # Reducir para primera prueba
                 break
         
         # Procesar productos obtenidos
@@ -245,24 +243,23 @@ class SupplierIntegration(models.Model):
                 # WPS structure: product_data['attributes'] contiene los datos
                 attributes = product_data.get('attributes', {})
                 
-                # Obtener items relacionados (SKUs)
-                relationships = product_data.get('relationships', {})
-                items_rel = relationships.get('items', {}).get('data', [])
+                # Obtener items incluidos (SKUs)
+                included_items = []
+                included_data = product_data.get('included', [])
                 
-                if not items_rel:
-                    # Si no hay items, usar el producto principal
-                    self._process_single_wps_product(product_data, attributes, product_data.get('id'))
-                    processed_count += 1
+                for include_item in included_data:
+                    if include_item.get('type') == 'items':
+                        included_items.append(include_item)
+                
+                if included_items:
+                    # Procesar cada item (SKU) incluido
+                    for item_data in included_items:
+                        self._process_single_wps_product(product_data, attributes, item_data)
+                        processed_count += 1
                 else:
-                    # Procesar cada item (SKU) del producto
-                    for item_ref in items_rel:
-                        item_id = item_ref.get('id')
-                        if item_id:
-                            # Buscar los datos del item en included
-                            item_data = self._find_included_item(product_data, item_id)
-                            if item_data:
-                                self._process_single_wps_product(product_data, attributes, item_data)
-                                processed_count += 1
+                    # Si no hay items incluidos, crear producto principal
+                    self._process_single_wps_product(product_data, attributes, None)
+                    processed_count += 1
                 
             except Exception as e:
                 _logger.error(f"Error procesando producto WPS: {e}")
@@ -270,24 +267,23 @@ class SupplierIntegration(models.Model):
                 
         return processed_count
     
-    def _find_included_item(self, product_data, item_id):
-        """Busca los datos de un item específico en la sección included"""
-        included_data = product_data.get('included', [])
-        for item in included_data:
-            if item.get('type') == 'items' and item.get('id') == item_id:
-                return item
-        return None
-    
     def _process_single_wps_product(self, product_data, product_attrs, item_data):
         """Procesa un producto/item individual de WPS"""
-        if isinstance(item_data, str):
-            # Si item_data es solo un ID, usar datos del producto principal
-            sku = product_attrs.get('sku', item_data)
-            item_attrs = {}
-        else:
-            # Si item_data es un objeto completo
+        if item_data:
+            # Si hay datos del item, usar esos
             item_attrs = item_data.get('attributes', {})
-            sku = item_attrs.get('sku') or product_attrs.get('sku')
+            sku = item_attrs.get('sku')
+            # Combinar nombre del producto con variante del item si existe
+            item_name = item_attrs.get('name', '')
+            if item_name and item_name != product_attrs.get('name', ''):
+                product_name = f"{product_attrs.get('name', '')} - {item_name}"
+            else:
+                product_name = product_attrs.get('name', 'Producto WPS')
+        else:
+            # Si no hay item, usar datos del producto principal
+            item_attrs = {}
+            sku = product_attrs.get('sku') or product_data.get('id')
+            product_name = product_attrs.get('name', 'Producto WPS')
         
         if not sku:
             return
@@ -299,7 +295,7 @@ class SupplierIntegration(models.Model):
         ], limit=1)
         
         # Preparar valores del producto
-        product_vals = self._prepare_wps_product_values(product_attrs, item_attrs, product_data)
+        product_vals = self._prepare_wps_product_values(product_attrs, item_attrs, product_name, sku)
         
         try:
             if existing_product:
@@ -313,36 +309,16 @@ class SupplierIntegration(models.Model):
         except Exception as e:
             self._create_import_log('error', sku, f"Error creando producto: {str(e)}")
     
-    def _prepare_wps_product_values(self, product_attrs, item_attrs, full_product_data):
+    def _prepare_wps_product_values(self, product_attrs, item_attrs, product_name, sku):
         """Prepara valores específicos para productos WPS"""
         
-        # Obtener precio desde dealer_pricing incluido
-        base_price = 0
-        included_data = full_product_data.get('included', [])
-        
-        for include_item in included_data:
-            if include_item.get('type') == 'dealer_pricing':
-                pricing_attrs = include_item.get('attributes', {})
-                base_price = float(pricing_attrs.get('price', 0))
-                break
-        
-        # Si no hay pricing incluido, usar precio por defecto
-        if base_price == 0:
-            base_price = float(product_attrs.get('price', 0))
+        # Por ahora usar precio base de $100 (después implementaremos dealer_pricing)
+        base_price = 100.0  
         
         # Calcular costos
         import_cost = base_price * (self.import_cost_percentage / 100)
         total_cost = base_price + import_cost
         sale_price = total_cost * (1 + self.markup_percentage / 100)
-        
-        # Construir nombre del producto
-        product_name = product_attrs.get('name', 'Producto WPS')
-        brand_name = product_attrs.get('brand', '')
-        if brand_name and brand_name not in product_name:
-            product_name = f"{brand_name} {product_name}"
-        
-        # SKU del item o del producto
-        sku = item_attrs.get('sku') or product_attrs.get('sku')
         
         vals = {
             'name': product_name,
@@ -366,10 +342,6 @@ class SupplierIntegration(models.Model):
             'min_qty': 1,
             'product_code': sku,
         })]
-        
-        # Stock calculado si está disponible
-        if '_calculated_stock' in full_product_data:
-            vals['qty_available'] = full_product_data['_calculated_stock']
         
         return vals
     
