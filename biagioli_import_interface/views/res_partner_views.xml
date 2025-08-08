@@ -64,11 +64,11 @@
     </record>
     
     <!-- Vista de lista de proveedores con integración -->
-    <record id="view_partner_supplier_integration_tree" model="ir.ui.view">
-        <field name="name">res.partner.supplier.integration.tree</field>
+    <record id="view_partner_supplier_integration_list" model="ir.ui.view">
+        <field name="name">res.partner.supplier.integration.list</field>
         <field name="model">res.partner</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="country_id"/>
                 <field name="has_api_integration"/>
@@ -78,7 +78,7 @@
                         invisible="has_api_integration == False" class="btn-primary"/>
                 <button name="sync_all_integrations" type="object" string="Sincronizar" 
                         invisible="integration_count == 0" class="btn-secondary"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -87,7 +87,7 @@
         <field name="name">Proveedores con Integración</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
-        <field name="view_id" ref="view_partner_supplier_integration_tree"/>
+        <field name="view_id" ref="view_partner_supplier_integration_list"/>
         <field name="domain">[('supplier_rank', '>', 0), ('has_api_integration', '=', True)]</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
