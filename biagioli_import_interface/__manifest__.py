@@ -20,7 +20,7 @@
         'views/supplier_integration_views.xml',
         # 'views/product_import_views.xml',
         # 'views/import_log_views.xml',
-        # 'wizard/import_products_wizard.xml',
+        'views/import_products_wizard.xml',
     ],
     'installable': True,
     'application': True,

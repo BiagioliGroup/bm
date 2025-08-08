@@ -1,4 +1,3 @@
-
 <!-- wizard/import_products_wizard.xml -->
 <odoo>
     <!-- Wizard para Importación Manual -->
@@ -50,39 +49,5 @@
         <field name="res_model">import.products.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-    </record>
-</odoo>
-
-<!-- data/supplier_data.xml -->
-<odoo>
-    <!-- Proveedor WPS como contacto -->
-    <record id="partner_wps_inc" model="res.partner">
-        <field name="name">WPS-inc</field>
-        <field name="is_company">True</field>
-        <field name="supplier_rank">1</field>
-        <field name="country_id" ref="base.us"/>
-        <field name="website">https://www.wps-inc.com</field>
-        <field name="email">sales@wps-inc.com</field>
-        
-        <!-- Configuración de integración -->
-        <field name="has_api_integration">True</field>
-        <field name="api_base_url">https://www.wps-inc.com/data-depot</field>
-        <field name="api_version">v4</field>
-        <field name="requires_import">True</field>
-        <field name="import_country_id" ref="base.us"/>
-        <field name="default_markup_percentage">25.0</field>
-        <field name="default_import_cost_percentage">15.0</field>
-    </record>
-
-    <!-- Integración de ejemplo para WPS -->
-    <record id="supplier_integration_wps_demo" model="supplier.integration">
-        <field name="partner_id" ref="partner_wps_inc"/>
-        <field name="integration_type">wps</field>
-        <field name="api_base_url">https://www.wps-inc.com/data-depot</field>
-        <field name="api_version">v4</field>
-        <field name="min_stock_qty">1</field>
-        <field name="markup_percentage">25.0</field>
-        <field name="import_cost_percentage">15.0</field>
-        <field name="is_active">False</field>
     </record>
 </odoo>

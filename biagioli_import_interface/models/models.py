@@ -265,6 +265,28 @@ class SupplierIntegration(models.Model):
             'message': message,
             'import_date': fields.Datetime.now()
         })
+    
+    def action_view_import_logs(self):
+        """Ver logs de importación de esta integración"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Logs de Importación - {self.name}',
+            'res_model': 'product.import.log',
+            'view_mode': 'tree',
+            'domain': [('supplier_integration_id', '=', self.id)],
+            'context': {'default_supplier_integration_id': self.id},
+        }
+    
+    def action_view_products(self):
+        """Ver productos importados de esta integración"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Productos - {self.name}',
+            'res_model': 'product.template',
+            'view_mode': 'tree,form',
+            'domain': [('supplier_integration_id', '=', self.id)],
+            'context': {'default_supplier_integration_id': self.id},
+        }
 
 # models/product_template.py
 class ProductTemplate(models.Model):
