@@ -87,7 +87,7 @@ class SupplierIntegration(models.Model):
     def _test_wps_connection(self):
         """Prueba específica para WPS API - CORREGIDA"""
         headers = {
-            'Authorization': f'Token {self.api_token}',
+            'Authorization': f'Bearer {self.api_token}',
             'Content-Type': 'application/json'
         }
         
@@ -144,7 +144,7 @@ class SupplierIntegration(models.Model):
     def _sync_wps_products(self):
         """Sincronización específica para WPS - CORREGIDA"""
         headers = {
-            'Authorization': f'Token {self.api_token}',
+            'Authorization': f'Bearer {self.api_token}',
             'Content-Type': 'application/json'
         }
         
@@ -209,37 +209,6 @@ class SupplierIntegration(models.Model):
                 'type': 'success',
             }
         }
-    
-    def _process_products(self, products_data):
-        """Procesa los productos obtenidos y los crea/actualiza en Odoo"""
-        processed_count = 0
-        
-        for product_data in products_data:
-            try:
-                # Buscar si el producto ya existe por SKU del proveedor
-                existing_product = self.env['product.template'].search([
-                    ('default_code', '=', product_data.get('sku')),
-                    ('supplier_integration_id', '=', self.id)
-                ], limit=1)
-                
-                product_vals = self._prepare_product_values(product_data)
-                
-                if existing_product:
-                    existing_product.write(product_vals)
-                else:
-                    self.env['product.template'].create(product_vals)
-                
-                processed_count += 1
-                
-                # Log de importación
-                self._create_import_log('success', product_data.get('sku'), 
-                                      f"Producto procesado: {product_data.get('name', 'Sin nombre')}")
-                
-            except Exception as e:
-                _logger.error(f"Error procesando producto {product_data.get('sku')}: {e}")
-                self._create_import_log('error', product_data.get('sku'), str(e))
-                
-        return processed_count
     
     def _filter_wps_products_by_stock(self, products):
         """Filtra productos WPS por stock usando datos incluidos"""
@@ -404,44 +373,6 @@ class SupplierIntegration(models.Model):
         
         return vals
     
-    def _prepare_product_values(self, product_data):
-        """Prepara los valores del producto para Odoo"""
-        # Precio base del proveedor
-        base_price = float(product_data.get('price', 0))
-        
-        # Calcular costo de importación
-        import_cost = base_price * (self.import_cost_percentage / 100)
-        total_cost = base_price + import_cost
-        
-        # Calcular precio de venta con markup
-        sale_price = total_cost * (1 + self.markup_percentage / 100)
-        
-        vals = {
-            'name': product_data.get('name', 'Producto Importado'),
-            'default_code': product_data.get('sku'),
-            'list_price': sale_price,
-            'standard_price': total_cost,
-            'type': 'product',
-            'purchase_ok': True,
-            'sale_ok': True,
-            'supplier_integration_id': self.id,
-            'description': product_data.get('description', ''),
-        }
-        
-        # Agregar información del proveedor
-        vals['seller_ids'] = [(0, 0, {
-            'partner_id': self.partner_id.id,
-            'price': base_price,
-            'min_qty': 1,
-            'product_code': product_data.get('sku'),
-        })]
-        
-        # Actualizar stock si está disponible
-        if product_data.get('stock_quantity'):
-            vals['qty_available'] = int(product_data.get('stock_quantity', 0))
-        
-        return vals
-    
     def _create_import_log(self, status, product_sku, message):
         """Crea log de importación"""
         self.env['product.import.log'].create({
@@ -451,28 +382,25 @@ class SupplierIntegration(models.Model):
             'message': message,
             'import_date': fields.Datetime.now()
         })
-
-# models/product_template.py
-class ProductTemplate(models.Model):
-    _inherit = 'product.template'
     
-    supplier_integration_id = fields.Many2one('supplier.integration', 'Integración Proveedor')
-    original_price = fields.Float('Precio Original Proveedor')
-    import_cost = fields.Float('Costo Importación')
-    last_sync_date = fields.Datetime('Última Sincronización')
-
-# models/import_log.py
-class ProductImportLog(models.Model):
-    _name = 'product.import.log'
-    _description = 'Log de Importación de Productos'
-    _order = 'import_date desc'
+    def action_view_import_logs(self):
+        """Ver logs de importación de esta integración"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Logs de Importación - {self.name}',
+            'res_model': 'product.import.log',
+            'view_mode': 'tree',
+            'domain': [('supplier_integration_id', '=', self.id)],
+            'context': {'default_supplier_integration_id': self.id},
+        }
     
-    supplier_integration_id = fields.Many2one('supplier.integration', 'Proveedor', required=True)
-    product_sku = fields.Char('SKU Producto')
-    status = fields.Selection([
-        ('success', 'Éxito'),
-        ('error', 'Error'),
-        ('warning', 'Advertencia')
-    ], required=True)
-    message = fields.Text('Mensaje')
-    import_date = fields.Datetime('Fecha Importación', default=fields.Datetime.now)
+    def action_view_products(self):
+        """Ver productos importados de esta integración"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Productos - {self.name}',
+            'res_model': 'product.template',
+            'view_mode': 'tree,form',
+            'domain': [('supplier_integration_id', '=', self.id)],
+            'context': {'default_supplier_integration_id': self.id},
+        }
