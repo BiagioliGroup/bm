@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <!-- VISTA MEJORADA PARA CATEGORÍAS DE PRODUCTO -->
   <record id="view_product_category_form_inherit_webshop" model="ir.ui.view">
     <field name="name">product.category.form.inherit.webshop</field>
     <field name="model">product.category</field>
@@ -7,14 +8,158 @@
     <field name="arch" type="xml">
       <!-- Después del grupo principal con parent_id -->
       <xpath expr="//group[@name='first']" position="after">
-        <group string="Web y Clasificación" col="2">
-          <field name="show_in_website"/>
-          <field name="depth" readonly="1"/>
+        <group string="Configuración Web y Clasificación" col="2">
+          <field name="show_in_website" widget="boolean_toggle"/>
+          <field name="depth" readonly="1" 
+                 help="Profundidad en la jerarquía de categorías (calculado automáticamente)"/>
         </group>
-        <group string="Atributos Técnicos" colspan="2">
-          <field name="attribute_ids" widget="many2many_tags"/>
+        
+        <separator string="Atributos Técnicos"/>
+        <group colspan="2">
+          <field name="attribute_ids" widget="many2many_tags" 
+                 options="{'color_field': 'name', 'no_create': True}"
+                 placeholder="Selecciona los atributos técnicos disponibles para esta categoría..."/>
+        </group>
+        
+        <group string="Información de Ayuda" colspan="2">
+          <div class="alert alert-info" role="alert">
+            <h4>Atributos Técnicos</h4>
+            <p><strong>¿Qué son?</strong> Los atributos técnicos permiten definir especificaciones 
+               detalladas para los productos de esta categoría.</p>
+            <p><strong>Ejemplo:</strong> Para la categoría "Motor", puedes asignar atributos como 
+               "Cilindrada", "Potencia", "Torque", etc.</p>
+            <p><strong>Beneficio:</strong> Al crear datos técnicos de motocicletas, solo aparecerán 
+               los atributos relevantes para cada categoría.</p>
+          </div>
         </group>
       </xpath>
+    </field>
+  </record>
+
+  <!-- VISTA MEJORADA PARA LISTA DE CATEGORÍAS -->
+  <record id="product_category_tree_enhanced" model="ir.ui.view">
+    <field name="name">product.category.tree.enhanced</field>
+    <field name="model">product.category</field>
+    <field name="inherit_id" ref="product.product_category_list_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//tree" position="attributes">
+        <attribute name="decoration-success">show_in_website == True</attribute>
+        <attribute name="decoration-info">attribute_ids</attribute>
+        <attribute name="decoration-muted">depth &gt; 3</attribute>
+        <attribute name="sample">1</attribute>
+      </xpath>
+      
+      <xpath expr="//field[@name='complete_name']" position="after">
+        <field name="show_in_website" widget="boolean_toggle" optional="show"/>
+        <field name="depth" optional="show" readonly="1"/>
+        <field name="attribute_ids" widget="many2many_tags" 
+               options="{'color_field': 'name'}" optional="hide"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- VISTA KANBAN PARA CATEGORÍAS -->
+  <record id="product_category_kanban_enhanced" model="ir.ui.view">
+    <field name="name">product.category.kanban.enhanced</field>
+    <field name="model">product.category</field>
+    <field name="arch" type="xml">
+      <kanban class="o_kanban_mobile">
+        <field name="name"/>
+        <field name="complete_name"/>
+        <field name="parent_id"/>
+        <field name="show_in_website"/>
+        <field name="depth"/>
+        <field name="attribute_ids"/>
+        <templates>
+          <t t-name="kanban-box">
+            <div class="oe_kanban_card oe_kanban_global_click">
+              <div class="oe_kanban_content">
+                <div class="o_kanban_record_top">
+                  <div class="o_kanban_record_headings">
+                    <strong class="o_kanban_record_title">
+                      <field name="name"/>
+                    </strong>
+                    <small class="o_kanban_record_subtitle text-muted" 
+                           t-if="record.parent_id.raw_value">
+                      <i class="fa fa-level-up"/> <field name="parent_id"/>
+                    </small>
+                  </div>
+                  <div class="o_kanban_record_top_right">
+                    <span class="badge text-bg-info" t-if="record.depth.raw_value &gt; 0">
+                      Nivel <field name="depth"/>
+                    </span>
+                  </div>
+                </div>
+                <div class="o_kanban_record_body">
+                  <div class="row" t-if="record.attribute_ids.raw_value.length &gt; 0">
+                    <div class="col-12">
+                      <small class="text-muted">
+                        <i class="fa fa-cogs"/> 
+                        <field name="attribute_ids" widget="many2many_tags"/>
+                      </small>
+                    </div>
+                  </div>
+                </div>
+                <div class="o_kanban_record_bottom">
+                  <div class="oe_kanban_bottom_left">
+                    <span class="badge text-bg-success" t-if="record.show_in_website.raw_value">
+                      <i class="fa fa-globe"/> Web
+                    </span>
+                  </div>
+                  <div class="oe_kanban_bottom_right">
+                    <small class="text-muted">
+                      <t t-esc="record.attribute_ids.raw_value.length"/> atributos
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <!-- BÚSQUEDA MEJORADA PARA CATEGORÍAS -->
+  <record id="product_category_search_enhanced" model="ir.ui.view">
+    <field name="name">product.category.search.enhanced</field>
+    <field name="model">product.category</field>
+    <field name="inherit_id" ref="product.product_category_search_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//search" position="inside">
+        <filter name="web_categories" string="Visibles en Web" 
+                domain="[('show_in_website', '=', True)]"/>
+        <filter name="with_attributes" string="Con Atributos Técnicos" 
+                domain="[('attribute_ids', '!=', False)]"/>
+        <separator/>
+        <filter name="root_categories" string="Categorías Raíz" 
+                domain="[('parent_id', '=', False)]"/>
+        <filter name="deep_categories" string="Subcategorías (Nivel 3+)" 
+                domain="[('depth', '&gt;=', 3)]"/>
+        
+        <group expand="0" string="Agrupar por Estructura">
+          <filter name="group_depth" string="Nivel de Profundidad" 
+                  domain="[]" context="{'group_by': 'depth'}"/>
+          <filter name="group_web_status" string="Estado Web" 
+                  domain="[]" context="{'group_by': 'show_in_website'}"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- ACCIÓN MEJORADA PARA CATEGORÍAS -->
+  <record id="product_category_action_enhanced" model="ir.actions.act_window">
+    <field name="name">Categorías de Producto</field>
+    <field name="res_model">product.category</field>
+    <field name="view_mode">tree,kanban,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        ¡Crea tu primera categoría técnica!
+      </p>
+      <p>
+        Las categorías te permiten organizar productos y asignar atributos técnicos
+        específicos que luego podrás usar en las especificaciones de motocicletas.
+      </p>
     </field>
   </record>
 </odoo>
