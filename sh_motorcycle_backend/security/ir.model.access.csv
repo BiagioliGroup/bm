@@ -1,39 +1,32 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_motorcycle_service_user,motorcycle.service.user,model_motorcycle_service,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
-access_motorcycle_service_manager,motorcycle.service.manager,model_motorcycle_service,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
-access_motorcycle_service_step_user,motorcycle.service.step.user,model_motorcycle_service_step,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
-access_motorcycle_service_step_manager,motorcycle.service.step.manager,model_motorcycle_service_step,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_motorcycle_user,motorcycle.motorcycle.user,model_motorcycle_motorcycle,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_motorcycle_manager,motorcycle.motorcycle.manager,model_motorcycle_motorcycle,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_make_user,motorcycle.make.user,model_motorcycle_make,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_make_manager,motorcycle.make.manager,model_motorcycle_make,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
-access_motorcycle_mmodel_user,motorcycle.mmodel.user,model_motorcycle_mmodel,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
-access_motorcycle_mmodel_manager,motorcycle.mmodel.manager,model_motorcycle_mmodel,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_type_user,motorcycle.type.user,model_motorcycle_type,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_type_manager,motorcycle.type.manager,model_motorcycle_type,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
+access_motorcycle_mmodel_user,motorcycle.mmodel.user,model_motorcycle_mmodel,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
+access_motorcycle_mmodel_manager,motorcycle.mmodel.manager,model_motorcycle_mmodel,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_year_user,motorcycle.year.user,model_motorcycle_year,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_year_manager,motorcycle.year.manager,model_motorcycle_year,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_garage_user,motorcycle.garage.user,model_motorcycle_garage,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_garage_manager,motorcycle.garage.manager,model_motorcycle_garage,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
+access_motorcycle_service_user,motorcycle.service.user,model_motorcycle_service,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
+access_motorcycle_service_manager,motorcycle.service.manager,model_motorcycle_service,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_service_line_user,motorcycle.service.line.user,model_motorcycle_service_line,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_service_line_manager,motorcycle.service.line.manager,model_motorcycle_service_line,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
+access_motorcycle_service_step_user,motorcycle.service.step.user,model_motorcycle_service_step,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
+access_motorcycle_service_step_manager,motorcycle.service.step.manager,model_motorcycle_service_step,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
 access_motorcycle_technical_data_user,motorcycle.technical.data.user,model_motorcycle_technical_data,sh_motorcycle_backend.group_sh_motorcycle_user,1,1,1,0
 access_motorcycle_technical_data_manager,motorcycle.technical.data.manager,model_motorcycle_technical_data,sh_motorcycle_backend.group_sh_motorcycle_manager,1,1,1,1
-
-# PERMISOS PARA USUARIOS PÚBLICOS (solo lectura para modelos básicos necesarios para el frontend)
 access_motorcycle_type_public,motorcycle.type.public,model_motorcycle_type,base.group_public,1,0,0,0
 access_motorcycle_make_public,motorcycle.make.public,model_motorcycle_make,base.group_public,1,0,0,0
 access_motorcycle_mmodel_public,motorcycle.mmodel.public,model_motorcycle_mmodel,base.group_public,1,0,0,0
 access_motorcycle_year_public,motorcycle.year.public,model_motorcycle_year,base.group_public,1,0,0,0
 access_motorcycle_motorcycle_public,motorcycle.motorcycle.public,model_motorcycle_motorcycle,base.group_public,1,0,0,0
-
-# PERMISOS PARA USUARIOS DE PORTAL (solo lectura + acceso a garage propio)
 access_motorcycle_type_portal,motorcycle.type.portal,model_motorcycle_type,base.group_portal,1,0,0,0
 access_motorcycle_make_portal,motorcycle.make.portal,model_motorcycle_make,base.group_portal,1,0,0,0
 access_motorcycle_mmodel_portal,motorcycle.mmodel.portal,model_motorcycle_mmodel,base.group_portal,1,0,0,0
 access_motorcycle_year_portal,motorcycle.year.portal,model_motorcycle_year,base.group_portal,1,0,0,0
 access_motorcycle_motorcycle_portal,motorcycle.motorcycle.portal,model_motorcycle_motorcycle,base.group_portal,1,0,0,0
 access_motorcycle_garage_portal,motorcycle.garage.portal,model_motorcycle_garage,base.group_portal,1,1,1,1
-
-# PERMISOS PARA USUARIOS AUTENTICADOS (cualquier usuario logueado)
-access_motorcycle_garage_user_authenticated,motorcycle.garage.user.authenticated,model_motorcycle_garage,base.group_user,1,1,1,1
