@@ -103,7 +103,7 @@
     <record id="sh_motorcycle_motorcycle_action" model="ir.actions.act_window">
         <field name="name">Motocicletas</field>
         <field name="res_model">motorcycle.motorcycle</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 ¡Crea tu primera motocicleta!
@@ -160,7 +160,7 @@
     <record id="action_motorcycle_technical_data" model="ir.actions.act_window">
         <field name="name">Datos Técnicos de Motocicletas</field>
         <field name="res_model">motorcycle.technical.data</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <!-- Menu for Technical Data -->
