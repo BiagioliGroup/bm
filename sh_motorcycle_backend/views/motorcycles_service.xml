@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- VISTA KANBAN PARA SERVICIOS -->
+    <!-- VISTA KANBAN PREMIUM PARA SERVICIOS -->
     <record id="view_motorcycle_service_kanban" model="ir.ui.view">
         <field name="name">motorcycle.service.kanban</field>
         <field name="model">motorcycle.service</field>
@@ -13,50 +13,91 @@
                 <field name="total_parts_cost"/>
                 <field name="total_services_cost"/>
                 <field name="currency_id"/>
+                <field name="step_ids"/>
+                <field name="service_line_ids"/>
                 <templates>
                     <t t-name="card">
-                        <div class="oe_kanban_card oe_kanban_global_click">
-                            <div class="oe_kanban_content">
+                        <div class="oe_kanban_card oe_kanban_global_click" 
+                             style="border: 1px solid #e9ecef; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            
+                            <!-- Header con gradiente -->
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px;">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_headings">
-                                        <strong class="o_kanban_record_title">
+                                        <strong class="o_kanban_record_title" style="color: white; font-size: 1.1em;">
                                             <field name="name"/>
                                         </strong>
-                                        <small class="o_kanban_record_subtitle text-muted">
+                                        <div class="o_kanban_record_subtitle" style="color: rgba(255,255,255,0.8); margin-top: 5px;">
                                             <field name="motorcycle_ids" widget="many2many_tags"/>
-                                        </small>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Contenido principal -->
+                            <div class="oe_kanban_content" style="padding: 15px;">
                                 <div class="o_kanban_record_body">
+                                    <div class="row" t-if="record.description.raw_value">
+                                        <div class="col-12" style="margin-bottom: 10px;">
+                                            <small class="text-muted">
+                                                <i class="fa fa-comment-o"/> <field name="description"/>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Estadísticas visuales -->
                                     <div class="row">
-                                        <div class="col-12">
-                                            <field name="description"/>
+                                        <div class="col-6 text-center">
+                                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                                <small class="text-muted">Líneas</small><br/>
+                                                <strong style="color: #007bff;">
+                                                    <t t-esc="record.service_line_ids.raw_value.length"/>
+                                                </strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                                <small class="text-muted">Pasos</small><br/>
+                                                <strong style="color: #28a745;">
+                                                    <t t-esc="record.step_ids.raw_value.length"/>
+                                                </strong>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="o_kanban_record_bottom">
-                                    <div class="oe_kanban_bottom_left">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <span class="badge text-bg-success">
-                                                    Total: <field name="total_service_cost" widget="monetary" 
+                                
+                                <!-- Footer con costos -->
+                                <div class="o_kanban_record_bottom" style="border-top: 1px solid #e9ecef; padding-top: 15px; margin-top: 15px;">
+                                    <div class="row text-center">
+                                        <div class="col-12">
+                                            <div style="background: linear-gradient(45deg, #28a745, #20c997); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                                                <strong style="font-size: 1.2em;">
+                                                    <field name="total_service_cost" widget="monetary" 
                                                            options="{'currency_field': 'currency_id'}"/>
-                                                </span>
+                                                </strong>
+                                                <div style="font-size: 0.8em; opacity: 0.9;">Total del Servicio</div>
                                             </div>
                                         </div>
-                                        <div class="row mt-1">
-                                            <div class="col-6">
-                                                <small class="text-muted">
-                                                    Repuestos: <field name="total_parts_cost" widget="monetary" 
-                                                               options="{'currency_field': 'currency_id'}"/>
-                                                </small>
-                                            </div>
-                                            <div class="col-6">
-                                                <small class="text-muted">
-                                                    M.O.: <field name="total_services_cost" widget="monetary" 
-                                                          options="{'currency_field': 'currency_id'}"/>
-                                                </small>
-                                            </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-6 text-center">
+                                            <small class="text-muted">
+                                                <i class="fa fa-cube"/> Repuestos<br/>
+                                                <strong>
+                                                    <field name="total_parts_cost" widget="monetary" 
+                                                           options="{'currency_field': 'currency_id'}"/>
+                                                </strong>
+                                            </small>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <small class="text-muted">
+                                                <i class="fa fa-user"/> M.O.<br/>
+                                                <strong>
+                                                    <field name="total_services_cost" widget="monetary" 
+                                                           options="{'currency_field': 'currency_id'}"/>
+                                                </strong>
+                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -68,27 +109,35 @@
         </field>
     </record>
 
-    <!-- ACTION -->
+    <!-- ACCIÓN MEJORADA -->
     <record id="action_motorcycle_service" model="ir.actions.act_window">
-        <field name="name">Servicios de Motocicletas</field>
+        <field name="name">🔧 Servicios de Motocicletas</field>
         <field name="res_model">motorcycle.service</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">¡Crea tu primer servicio de motocicleta!</p>
-            <p>
-                Organiza y gestiona todos los servicios técnicos con seguimiento
-                completo de repuestos, mano de obra y procedimientos.
+            <p class="o_view_nocontent_smiling_face">
+                ¡Organiza tu primer servicio técnico!
             </p>
+            <p>
+                <strong>Gestión profesional de servicios</strong> con todas las herramientas que necesitas:
+            </p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>🔧 Organización por pasos operativos</li>
+                <li>💰 Control de costos automático</li>
+                <li>📦 Gestión de repuestos integrada</li>
+                <li>👨‍🔧 Seguimiento de mano de obra</li>
+                <li>📊 Reportes de rentabilidad</li>
+            </ul>
         </field>
     </record>
 
     <menuitem id="menu_motorcycle_service_root"
-              name="Servicios de Motos"
+              name="🔧 Servicios de Motos"
               parent="sh_motorcycle_menuitem_root"
               sequence="25"
               action="action_motorcycle_service"/>
 
-    <!-- LIST VIEW -->
+    <!-- LISTA MEJORADA CON INDICADORES VISUALES -->
     <record id="view_motorcycle_service_list" model="ir.ui.view">
         <field name="name">motorcycle.service.list</field>
         <field name="model">motorcycle.service</field>
@@ -97,30 +146,76 @@
                   decoration-info="total_service_cost &lt; 1000"
                   decoration-warning="total_service_cost &gt;= 1000 and total_service_cost &lt; 5000"
                   decoration-danger="total_service_cost &gt;= 5000"
-                  sample="1">
-                <field name="name"/>
+                  decoration-muted="not motorcycle_ids"
+                  decoration-bf="step_ids"
+                  sample="1"
+                  multi_edit="1"
+                  export_xlsx="1">
+                
+                <field name="name" string="Número de Servicio"/>
                 <field name="motorcycle_ids" widget="many2many_tags" 
-                       options="{'color_field': 'make_id'}"/>
-                <field name="description"/>
+                       options="{'color_field': 'make_id'}" string="Motocicletas"/>
+                <field name="description" optional="show"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="total_parts_cost" widget="monetary" 
-                       options="{'currency_field': 'currency_id'}"/>
+                       options="{'currency_field': 'currency_id'}" string="💰 Repuestos" 
+                       sum="Total Repuestos"/>
                 <field name="total_services_cost" widget="monetary" 
-                       options="{'currency_field': 'currency_id'}"/>
+                       options="{'currency_field': 'currency_id'}" string="👨‍🔧 Mano de Obra"
+                       sum="Total M.O."/>
                 <field name="total_service_cost" widget="monetary" 
-                       options="{'currency_field': 'currency_id'}"/>
-                <field name="step_ids" widget="many2many_tags" optional="hide" string="Pasos"/>
+                       options="{'currency_field': 'currency_id'}" string="🎯 Total"
+                       sum="Gran Total"/>
+                <field name="step_ids" widget="many2many_tags" optional="hide" 
+                       string="Pasos" options="{'color_field': 'is_done'}"/>
+                <field name="service_line_ids" column_invisible="1"/>
             </list>
         </field>
     </record>
 
-    <!-- FORM VIEW -->
+    <!-- FORMULARIO PREMIUM -->
     <record id="view_motorcycle_service_form" model="ir.ui.view">
         <field name="name">motorcycle.service.form</field>
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
             <form string="Servicio de Motocicleta">
+                <header>
+                    <!-- Botones de acción rápida -->
+                    <button name="action_duplicate_service" string="Duplicar Servicio" 
+                            type="object" class="btn-secondary" icon="fa-copy"/>
+                    <button name="action_generate_report" string="Generar Reporte" 
+                            type="object" class="btn-primary" icon="fa-file-pdf-o"/>
+                </header>
+                
                 <sheet>
+                    <!-- Botones estadísticos -->
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-motorcycle">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="motorcycle_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Motocicletas</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-list">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="service_line_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Líneas</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-check-square-o">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="step_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Pasos</span>
+                            </div>
+                        </button>
+                    </div>
+
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
                         <h1>
@@ -128,43 +223,130 @@
                         </h1>
                     </div>
                     
+                    <!-- Panel de información principal -->
+                    <div class="alert alert-info" role="alert" style="margin: 15px 0;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4><i class="fa fa-info-circle"/> Información del Servicio</h4>
+                                <p>Gestiona todos los aspectos técnicos y económicos del servicio.</p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #28a745;">
+                                    <field name="total_service_cost" widget="monetary" 
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <small class="text-muted">Costo Total del Servicio</small>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <group>
-                        <group string="Información General">
+                        <group string="🏍️ Información General" class="o_group_col_6">
                             <field name="motorcycle_ids" widget="many2many_tags" 
                                    options="{'color_field': 'make_id', 'no_create': True}"/>
-                            <field name="description" placeholder="Descripción del servicio..."/>
-                            <field name="labor_description"/>
+                            <field name="description" placeholder="Descripción general del servicio..."/>
+                            <field name="labor_description" placeholder="Detalle del trabajo a realizar..."/>
                         </group>
-                        <group string="Costos">
+                        <group string="💰 Resumen de Costos" class="o_group_col_6">
                             <field name="currency_id" invisible="1"/>
                             <field name="total_parts_cost" widget="monetary" 
-                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
+                                   options="{'currency_field': 'currency_id'}" readonly="1"
+                                   style="font-size: 1.1em;"/>
                             <field name="total_services_cost" widget="monetary" 
-                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
+                                   options="{'currency_field': 'currency_id'}" readonly="1"
+                                   style="font-size: 1.1em;"/>
                             <field name="total_service_cost" widget="monetary" 
                                    options="{'currency_field': 'currency_id'}" readonly="1"
                                    class="oe_subtotal_footer_separator"
-                                   style="font-weight: bold; font-size: 1.2em;"/>
+                                   style="font-weight: bold; font-size: 1.3em; color: #28a745;"/>
                         </group>
                     </group>
                     
-                    <field name="service_line_ids"
-                           context="{'default_display_type': 'line'}"
-                           widget="section_and_note_one2many"
-                           mode="list"
-                           options="{'no_create': False}"/>
+                    <!-- Líneas de servicio con diseño mejorado -->
+                    <group string="📋 Líneas del Servicio">
+                        <div class="alert alert-warning" role="alert">
+                            <strong><i class="fa fa-lightbulb-o"/> Tip:</strong> 
+                            Usa 'Sección' para agrupar elementos y 'Nota' para comentarios especiales.
+                        </div>
+                        <field name="service_line_ids"
+                               context="{'default_display_type': 'line'}"
+                               widget="section_and_note_one2many"
+                               mode="list"
+                               options="{'no_create': False}"/>
+                    </group>
                     
+                    <!-- Tabs organizados -->
                     <notebook>
-                        <page string="Pasos del Servicio">
+                        <page string="✅ Pasos Operativos" icon="fa-tasks">
+                            <div class="alert alert-success" role="alert" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-check-circle"/> Checklist:</strong> 
+                                Organiza el trabajo en pasos secuenciales para garantizar calidad.
+                            </div>
                             <field name="step_ids">
-                                <list string="Lista de Pasos" editable="bottom">
+                                <list string="Lista de Pasos" editable="bottom"
+                                      decoration-success="is_done == True"
+                                      decoration-muted="is_done == False">
                                     <field name="sequence" widget="handle"/>
-                                    <field name="name"/>
+                                    <field name="name" style="width: 40%;"/>
                                     <field name="is_done" widget="boolean_toggle"/>
-                                    <field name="note"/>
-                                    <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
+                                    <field name="note" optional="show" style="width: 30%;"/>
+                                    <field name="pdf_file" filename="pdf_filename" 
+                                           widget="binary" optional="hide"/>
                                 </list>
                             </field>
+                        </page>
+                        
+                        <page string="📊 Análisis de Costos" icon="fa-chart-pie">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">
+                                                <i class="fa fa-cube"/> Repuestos
+                                            </h3>
+                                        </div>
+                                        <div class="panel-body text-center">
+                                            <h2 style="color: #007bff; margin: 20px 0;">
+                                                <field name="total_parts_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </h2>
+                                            <small class="text-muted">Costo de materiales</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">
+                                                <i class="fa fa-user"/> Mano de Obra
+                                            </h3>
+                                        </div>
+                                        <div class="panel-body text-center">
+                                            <h2 style="color: #28a745; margin: 20px 0;">
+                                                <field name="total_services_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </h2>
+                                            <small class="text-muted">Costo de servicios</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">
+                                                <i class="fa fa-calculator"/> Total
+                                            </h3>
+                                        </div>
+                                        <div class="panel-body text-center">
+                                            <h2 style="color: #dc3545; margin: 20px 0;">
+                                                <field name="total_service_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </h2>
+                                            <small class="text-muted">Precio final</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </page>
                     </notebook>
                 </sheet>
@@ -172,22 +354,25 @@
         </field>
     </record>
 
-    <!-- SERVICE STEP LIST VIEW -->
+    <!-- VISTAS DE PASOS MEJORADAS -->
     <record id="view_motorcycle_service_step_list" model="ir.ui.view">
         <field name="name">motorcycle.service.step.list</field>
         <field name="model">motorcycle.service.step</field>
         <field name="arch" type="xml">
-            <list string="Pasos del Servicio" editable="bottom">
+            <list string="Pasos del Servicio" editable="bottom"
+                  decoration-success="is_done == True"
+                  decoration-muted="is_done == False"
+                  decoration-info="pdf_file">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="is_done" widget="boolean_toggle"/>
-                <field name="note"/>
-                <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
+                <field name="note" optional="show"/>
+                <field name="pdf_file" filename="pdf_filename" widget="binary" optional="hide"/>
             </list>
         </field>
     </record>
 
-    <!-- SERVICE LINE TREE VIEW -->
+    <!-- VISTAS DE LÍNEAS MEJORADAS -->
     <record id="view_motorcycle_service_line_tree" model="ir.ui.view">
         <field name="name">motorcycle.service.line.tree</field>
         <field name="model">motorcycle.service.line</field>
@@ -196,22 +381,25 @@
                   decoration-bf="display_type == 'section'"
                   decoration-it="display_type == 'note'"
                   decoration-info="product_id and product_id.type == 'service'"
-                  decoration-success="product_id and product_id.type == 'consu'">
+                  decoration-success="product_id and product_id.type == 'consu'"
+                  decoration-muted="display_type != 'line'">
                 <field name="sequence" widget="handle"/>
                 <field name="display_type" column_invisible="1"/>
                 <field name="product_id" 
                        options="{'no_create': True, 'no_open': True}"
-                       required="display_type == 'line'"/>
-                <field name="name"/>
-                <field name="quantity" readonly="display_type != 'line'"/>
-                <field name="price_unit" readonly="display_type != 'line'"/>
-                <field name="subtotal" readonly="display_type != 'line'" sum="Total"/>
+                       required="display_type == 'line'"
+                       style="width: 25%;"/>
+                <field name="name" style="width: 35%;"/>
+                <field name="quantity" readonly="display_type != 'line'" style="width: 10%;"/>
+                <field name="price_unit" readonly="display_type != 'line'" 
+                       widget="monetary" style="width: 15%;"/>
+                <field name="subtotal" readonly="display_type != 'line'" 
+                       sum="Total" widget="monetary" style="width: 15%;"/>
                 <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
     </record>
 
-    <!-- SERVICE LINE FORM VIEW -->
     <record id="view_motorcycle_service_line_form" model="ir.ui.view">
         <field name="name">motorcycle.service.line.form</field>
         <field name="model">motorcycle.service.line</field>
@@ -219,20 +407,28 @@
             <form string="Línea del Servicio">
                 <sheet>
                     <group>
-                        <group>
-                            <field name="display_type" widget="radio" options="{'horizontal': true}"/>
-                            <field name="product_id" 
-                                   invisible="display_type != 'line'"
-                                   required="display_type == 'line'"/>
-                            <field name="name" 
-                                   required="display_type in ['section', 'note']"/>
+                        <group string="Tipo de Línea">
+                            <field name="display_type" widget="radio" options="{'horizontal': false}"/>
                         </group>
-                        <group invisible="display_type != 'line'">
+                        <group string="Producto" invisible="display_type != 'line'">
+                            <field name="product_id" 
+                                   required="display_type == 'line'"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="Descripción">
+                            <field name="name" 
+                                   required="display_type in ['section', 'note']"
+                                   placeholder="Descripción detallada..."/>
+                        </group>
+                        <group string="Cantidades y Precios" invisible="display_type != 'line'">
                             <field name="quantity"/>
-                            <field name="price_unit"/>
+                            <field name="price_unit" widget="monetary"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="subtotal" widget="monetary" 
-                                   options="{'currency_field': 'currency_id'}"/>
+                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
                         </group>
                     </group>
                 </sheet>

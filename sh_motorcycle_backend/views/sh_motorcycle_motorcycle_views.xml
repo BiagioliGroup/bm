@@ -17,13 +17,144 @@
         groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
 
-    <!-- Form View BÁSICO -->
+    <!-- VISTA KANBAN PREMIUM -->
+    <record id="sh_motorcycle_motorcycle_kanban" model="ir.ui.view">
+        <field name="name">sh.motorcycle.motorcycle.kanban</field>
+        <field name="model">motorcycle.motorcycle</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" default_group_by="make_id">
+                <field name="name"/>
+                <field name="make_id"/>
+                <field name="mmodel_id"/>
+                <field name="type_id"/>
+                <field name="year"/>
+                <field name="market"/>
+                <field name="motorcycle_image"/>
+                <field name="product_ids"/>
+                <field name="service_ids"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click" style="position: relative; overflow: hidden;">
+                            <!-- Header con gradiente -->
+                            <div class="o_kanban_image" style="position: relative;">
+                                <img t-att-src="kanban_image('motorcycle.motorcycle', 'motorcycle_image', record.id.raw_value)" 
+                                     alt="Motocicleta" class="o_kanban_image_inner" 
+                                     style="height: 200px; object-fit: cover; width: 100%;"/>
+                                <div style="position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(45deg, rgba(0,0,0,0.7), transparent); padding: 10px;">
+                                    <span class="badge text-bg-primary" style="font-size: 0.8em;">
+                                        <field name="year"/>
+                                    </span>
+                                    <span class="badge text-bg-info ml-1" style="font-size: 0.8em;">
+                                        <field name="market"/>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Contenido principal -->
+                            <div class="oe_kanban_details" style="padding: 15px;">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title" style="font-size: 1.1em; color: #2C3E50;">
+                                            <field name="name"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle text-muted" style="margin-top: 5px;">
+                                            <i class="fa fa-industry"/> <field name="make_id"/> 
+                                            <span style="margin: 0 5px;">•</span>
+                                            <i class="fa fa-car"/> <field name="mmodel_id"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tipo con icono especializado -->
+                                <div class="o_kanban_record_body" style="margin: 10px 0;">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <span class="badge text-bg-success" style="font-size: 0.9em; padding: 5px 10px;">
+                                                <i class="fa fa-motorcycle"/> <field name="type_id"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer con estadísticas -->
+                                <div class="o_kanban_record_bottom" style="border-top: 1px solid #ecf0f1; padding-top: 10px; margin-top: 10px;">
+                                    <div class="row">
+                                        <div class="col-6 text-center">
+                                            <small class="text-muted">
+                                                <i class="fa fa-cube"/> 
+                                                <t t-esc="record.product_ids.raw_value.length"/> Productos
+                                            </small>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <small class="text-muted">
+                                                <i class="fa fa-wrench"/> 
+                                                <t t-esc="record.service_ids.raw_value.length"/> Servicios
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-12 text-center">
+                                            <button name="action_create_service" type="object" 
+                                                    class="btn btn-primary btn-sm" style="border-radius: 20px;">
+                                                <i class="fa fa-plus"/> Nuevo Servicio
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- FORMULARIO PREMIUM -->
     <record id="sh_motorcycle_motorcycle_form" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
             <form string="Motocicleta">
+                <header>
+                    <!-- Botones de acción rápida -->
+                    <button name="action_create_service" string="Crear Servicio" type="object" 
+                            class="btn-primary" icon="fa-wrench"/>
+                    <button name="%(sh_motorcycle_backend.action_motorcycle_technical_data)d" 
+                            string="Ver Datos Técnicos" type="action"
+                            context="{'default_motorcycle_id': active_id}"
+                            class="btn-secondary" icon="fa-cogs"/>
+                </header>
                 <sheet>
+                    <!-- Botones estadísticos mejorados -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(sh_motorcycle_backend.action_motorcycle_service)d" type="action" 
+                                class="oe_stat_button" icon="fa-wrench"
+                                context="{'default_motorcycle_ids': [(4, active_id)]}">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="service_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Servicios</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-cube">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="product_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Productos</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-cogs">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="technical_data_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Datos Técnicos</span>
+                            </div>
+                        </button>
+                    </div>
+
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
                         <h1>
@@ -31,28 +162,139 @@
                         </h1>
                     </div>
                     
+                    <!-- Imagen destacada -->
+                    <group string="Imagen Principal" class="o_group_col_6">
+                        <field name="motorcycle_image" widget="image" 
+                               options="{'size': [400, 300], 'preview_image': 'motorcycle_image'}"
+                               class="oe_avatar"/>
+                    </group>
+
+                    <!-- Información principal con diseño mejorado -->
                     <group>
-                        <group>
-                            <field name="mmodel_id"/>
-                            <field name="year"/>
-                            <field name="market"/>
+                        <group string="Especificaciones Básicas" class="o_group_col_6">
+                            <field name="mmodel_id" options="{'no_create': True}"/>
+                            <field name="year" widget="integer"/>
+                            <field name="market" widget="radio" options="{'horizontal': false}"/>
                         </group>
-                        <group>
-                            <field name="type_id"/>
-                            <field name="make_id"/>
+                        <group string="Clasificación" class="o_group_col_6">
+                            <field name="type_id" options="{'no_create': True}"/>
+                            <field name="make_id" options="{'no_create': True}"/>
                             <field name="company_id" invisible="1"/>
                         </group>
                     </group>
 
+                    <!-- Tabs con contenido organizado -->
                     <notebook>
-                        <page string="Servicios asignados">
-                            <field name="service_ids"/>
+                        <page string="📚 Documentación" icon="fa-book">
+                            <group string="Manuales Técnicos">
+                                <group string="Manual OEM" class="o_group_col_6">
+                                    <field name="oem_manual" filename="oem_manual_filename" 
+                                           widget="binary" options="{'accepted_file_extensions': '.pdf'}"/>
+                                    <div class="text-muted">
+                                        <small><i class="fa fa-info-circle"/> Manual del fabricante original</small>
+                                    </div>
+                                </group>
+                                <group string="Manual de Usuario" class="o_group_col_6">
+                                    <field name="user_manual" filename="user_manual_filename" 
+                                           widget="binary" options="{'accepted_file_extensions': '.pdf'}"/>
+                                    <div class="text-muted">
+                                        <small><i class="fa fa-info-circle"/> Manual de mantenimiento y uso</small>
+                                    </div>
+                                </group>
+                            </group>
                         </page>
-                        <page string="Productos equivalentes">
-                            <field name="product_ids"/>
+                        
+                        <page string="🔧 Servicios" icon="fa-wrench">
+                            <div class="alert alert-info" role="alert" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-lightbulb-o"/> Tip:</strong> 
+                                Aquí puedes ver todos los servicios técnicos asociados a esta motocicleta.
+                            </div>
+                            <field name="service_ids" mode="kanban,list,form">
+                                <kanban>
+                                    <field name="name"/>
+                                    <field name="total_service_cost"/>
+                                    <field name="currency_id"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="oe_kanban_card">
+                                                <div class="oe_kanban_content">
+                                                    <div class="o_kanban_record_title">
+                                                        <field name="name"/>
+                                                    </div>
+                                                    <div class="o_kanban_record_bottom">
+                                                        <span class="badge text-bg-success">
+                                                            <field name="total_service_cost" widget="monetary" 
+                                                                   options="{'currency_field': 'currency_id'}"/>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                                <list>
+                                    <field name="name"/>
+                                    <field name="total_service_cost" widget="monetary" 
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </list>
+                            </field>
                         </page>
-                        <page string="Datos Técnicos">
-                            <field name="technical_data_ids"/>
+                        
+                        <page string="📊 Datos Técnicos" icon="fa-tachometer">
+                            <div class="alert alert-warning" role="alert" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-cogs"/> Especificaciones:</strong> 
+                                Define las características técnicas detalladas por categorías.
+                            </div>
+                            <field name="technical_data_ids" mode="list">
+                                <list editable="bottom" decoration-info="category_id" 
+                                      decoration-muted="not value_id">
+                                    <field name="category_id" widget="badge" 
+                                           options="{'color_field': 'name'}"/>
+                                    <field name="attribute_id" domain="[('categ_ids','=', category_id)]" 
+                                           options="{'no_create': True}"/>
+                                    <field name="value_id" domain="[('attribute_id','=',attribute_id)]" 
+                                           widget="badge" options="{'color_field': 'name'}"/>
+                                    <field name="note" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="📦 Productos" icon="fa-cube">
+                            <div class="alert alert-success" role="alert" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-cubes"/> Repuestos:</strong> 
+                                Productos y repuestos compatibles con esta motocicleta.
+                            </div>
+                            <field name="product_ids" mode="kanban,list">
+                                <kanban>
+                                    <field name="name"/>
+                                    <field name="default_code"/>
+                                    <field name="lst_price"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="oe_kanban_card">
+                                                <div class="oe_kanban_content">
+                                                    <div class="o_kanban_record_title">
+                                                        <field name="name"/>
+                                                    </div>
+                                                    <div class="o_kanban_record_subtitle">
+                                                        Ref: <field name="default_code"/>
+                                                    </div>
+                                                    <div class="o_kanban_record_bottom">
+                                                        <span class="badge text-bg-primary">
+                                                            <field name="lst_price" widget="monetary"/>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                                <list>
+                                    <field name="default_code"/>
+                                    <field name="name"/>
+                                    <field name="lst_price" widget="monetary"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
@@ -60,113 +302,204 @@
         </field>
     </record>
 
-    <!-- List View BÁSICO -->
+    <!-- LISTA PREMIUM CON DECORACIONES AVANZADAS -->
     <record id="sh_motorcycle_motorcycle_tree" model="ir.ui.view">
         <field name="name">sh_motorcycle_motorcycle</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
-            <list string="Motocicletas">
-                <field name="name"/>
-                <field name="type_id"/>
+            <list string="Motocicletas" 
+                  decoration-info="market == 'EUR'"
+                  decoration-success="market == 'USA'"
+                  decoration-warning="market == 'ARG'"
+                  decoration-muted="market == 'JP'"
+                  decoration-danger="year &lt; 2015"
+                  decoration-bf="service_ids"
+                  sample="1"
+                  multi_edit="1"
+                  export_xlsx="1">
+                
+                <field name="motorcycle_image" widget="image" options="{'size': [64, 64]}"/>
+                <field name="name" string="Motocicleta"/>
+                <field name="type_id" widget="badge" options="{'color_field': 'name'}"/>
                 <field name="make_id"/>
                 <field name="mmodel_id"/>
-                <field name="year"/>
-                <field name="market"/>
+                <field name="year" widget="badge"/>
+                <field name="market" widget="selection_badge"/>
+                <field name="product_ids" widget="many2many_tags" optional="hide" 
+                       options="{'color_field': 'categ_id'}"/>
+                <field name="service_ids" widget="many2many_tags" optional="hide" 
+                       options="{'color_field': 'total_service_cost'}"/>
+                
+                <!-- Campos para filtros pero ocultos -->
+                <field name="company_id" column_invisible="1"/>
             </list>
         </field>
     </record>
 
-    <!-- Search View BÁSICO -->
+    <!-- BÚSQUEDA AVANZADA -->
     <record id="sh_motorcycle_motorcycle_search" model="ir.ui.view">
         <field name="name">sh.motorcycle.motorcycle.search</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
-            <search string="Motocicletas">
-                <field name="name"/>
-                <field name="type_id"/>
-                <field name="make_id"/>
-                <field name="mmodel_id"/>
-                <field name="year"/>
-                <field name="market"/>
+            <search string="Búsqueda Avanzada de Motocicletas">
+                <!-- Búsqueda principal mejorada -->
+                <field name="name" string="Motocicleta"
+                       filter_domain="['|','|','|','|',('name','ilike',self),('type_id','ilike',self),('make_id','ilike',self),('mmodel_id','ilike',self),('year','ilike',self)]"/>
                 
-                <group expand="0" string="Agrupar por">
-                    <filter name="group_make_id" string="Marca" domain="[]" context="{'group_by':'make_id'}"/>
-                    <filter name="group_type_id" string="Tipo" domain="[]" context="{'group_by':'type_id'}"/>
-                    <filter name="group_year" string="Año" domain="[]" context="{'group_by':'year'}"/>
-                    <filter name="group_market" string="Mercado" domain="[]" context="{'group_by':'market'}"/>
+                <!-- Campos de búsqueda específicos -->
+                <field name="type_id" string="Tipo" filter_domain="[('type_id','ilike',self)]"/>
+                <field name="make_id" string="Marca" filter_domain="[('make_id','ilike',self)]"/>
+                <field name="mmodel_id" string="Modelo" filter_domain="[('mmodel_id','ilike',self)]"/>
+                <field name="year" string="Año"/>
+                <field name="market" string="Mercado"/>
+                
+                <!-- Separador visual -->
+                <separator/>
+                
+                <!-- Filtros rápidos por mercado -->
+                <filter name="filter_eur" string="🇪🇺 Europa" domain="[('market', '=', 'EUR')]"/>
+                <filter name="filter_usa" string="🇺🇸 Estados Unidos" domain="[('market', '=', 'USA')]"/>
+                <filter name="filter_arg" string="🇦🇷 Argentina" domain="[('market', '=', 'ARG')]"/>
+                <filter name="filter_aus" string="🇦🇺 Australia" domain="[('market', '=', 'AUS')]"/>
+                <filter name="filter_jp" string="🇯🇵 Japón" domain="[('market', '=', 'JP')]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por año -->
+                <filter name="filter_recent" string="🆕 Recientes (2020+)" 
+                        domain="[('year', '&gt;=', 2020)]"/>
+                <filter name="filter_vintage" string="🏛️ Vintage (Pre-2000)" 
+                        domain="[('year', '&lt;', 2000)]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por contenido -->
+                <filter name="filter_with_services" string="🔧 Con Servicios" 
+                        domain="[('service_ids', '!=', False)]"/>
+                <filter name="filter_with_products" string="📦 Con Productos" 
+                        domain="[('product_ids', '!=', False)]"/>
+                <filter name="filter_with_tech_data" string="📊 Con Datos Técnicos" 
+                        domain="[('technical_data_ids', '!=', False)]"/>
+                <filter name="filter_with_manuals" string="📚 Con Manuales" 
+                        domain="['|', ('oem_manual', '!=', False), ('user_manual', '!=', False)]"/>
+                
+                <!-- Agrupaciones avanzadas -->
+                <group expand="0" string="📊 Agrupar por">
+                    <filter name="group_make_id" string="🏭 Marca" domain="[]" 
+                            context="{'group_by':'make_id'}"/>
+                    <filter name="group_type_id" string="🏍️ Tipo" domain="[]" 
+                            context="{'group_by':'type_id'}"/>
+                    <filter name="group_market" string="🌍 Mercado" domain="[]" 
+                            context="{'group_by':'market'}"/>
+                    <filter name="group_year" string="📅 Año" domain="[]" 
+                            context="{'group_by':'year'}"/>
+                    <filter name="group_decade" string="📊 Década" domain="[]" 
+                            context="{'group_by':'year:decade'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <!-- Action -->
+    <!-- ACCIÓN MEJORADA -->
     <record id="sh_motorcycle_motorcycle_action" model="ir.actions.act_window">
-        <field name="name">Motocicletas</field>
+        <field name="name">🏍️ Gestión de Motocicletas</field>
         <field name="res_model">motorcycle.motorcycle</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="sh_motorcycle_motorcycle_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                ¡Crea tu primera motocicleta!
+                ¡Comienza tu gestión de motocicletas!
             </p>
             <p>
-                Gestiona tu catálogo de motocicletas con información técnica completa.
+                <strong>Crea tu primera motocicleta</strong> y aprovecha todas las funciones avanzadas:
             </p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>📊 Gestión técnica completa con especificaciones detalladas</li>
+                <li>🔧 Servicios y mantenimiento organizados</li>
+                <li>📦 Control de repuestos y compatibilidad</li>
+                <li>📚 Biblioteca de manuales digitales</li>
+                <li>🎯 Búsquedas avanzadas y filtros inteligentes</li>
+            </ul>
         </field>
+        <field name="context">{
+            'search_default_filter_recent': 1
+        }</field>
     </record>
 
     <!-- Menu Item -->
     <menuitem
         id="sh_motorcycle_menuitem_sub"
         sequence="1"
-        name="Motocicleta"
+        name="🏍️ Motocicletas"
         parent="sh_motorcycle_menuitem_root"
         action="sh_motorcycle_motorcycle_action"
         groups="sh_motorcycle_backend.group_sh_motorcycle_user,sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
 
-    <!-- Technical Data Tree View -->
+    <!-- VISTAS DE DATOS TÉCNICOS MEJORADAS -->
     <record id="view_motorcycle_technical_data_tree" model="ir.ui.view">
         <field name="name">motorcycle.technical.data.tree</field>
         <field name="model">motorcycle.technical.data</field>
         <field name="arch" type="xml">
-            <list string="Especificaciones Técnicas" editable="bottom">
+            <list string="Especificaciones Técnicas" editable="bottom"
+                  decoration-info="category_id"
+                  decoration-muted="not value_id"
+                  decoration-success="note"
+                  sample="1"
+                  default_order="category_id, attribute_id">
                 <field name="motorcycle_id" column_invisible="1"/>
-                <field name="category_id"/>
-                <field name="attribute_id" domain="[('categ_ids','=', category_id)]"/>
-                <field name="value_id" domain="[('attribute_id','=',attribute_id)]"/>
-                <field name="note"/>
+                <field name="category_id" widget="badge" options="{'color_field': 'name'}"/>
+                <field name="attribute_id" domain="[('categ_ids','=', category_id)]" 
+                       options="{'no_create': True}"/>
+                <field name="value_id" domain="[('attribute_id','=',attribute_id)]" 
+                       widget="badge" options="{'color_field': 'name'}"/>
+                <field name="note" widget="text" optional="show"/>
             </list>
         </field>
     </record>
 
-    <!-- Technical Data Form View -->
     <record id="view_motorcycle_technical_data_form" model="ir.ui.view">
         <field name="name">motorcycle.technical.data.form</field>
         <field name="model">motorcycle.technical.data</field>
         <field name="arch" type="xml">
             <form string="Especificación Técnica">
-                <group>
-                    <field name="motorcycle_id" invisible="1"/>
-                    <field name="category_id"/>
-                    <field name="attribute_id" domain="[('categ_ids','=', category_id)]"/>
-                    <field name="value_id" domain="[('attribute_id','=',attribute_id)]"/>
-                    <field name="note"/>
-                </group>
+                <sheet>
+                    <group>
+                        <group string="Clasificación">
+                            <field name="motorcycle_id" invisible="1"/>
+                            <field name="category_id"/>
+                            <field name="attribute_id" domain="[('categ_ids','=', category_id)]"/>
+                        </group>
+                        <group string="Valor">
+                            <field name="value_id" domain="[('attribute_id','=',attribute_id)]"/>
+                            <field name="note" placeholder="Observaciones adicionales..."/>
+                        </group>
+                    </group>
+                </sheet>
             </form>
         </field>
     </record>
 
-    <!-- Action for Technical Data -->
+    <!-- ACCIÓN DE DATOS TÉCNICOS -->
     <record id="action_motorcycle_technical_data" model="ir.actions.act_window">
-        <field name="name">Datos Técnicos de Motocicletas</field>
+        <field name="name">📊 Datos Técnicos</field>
         <field name="res_model">motorcycle.technical.data</field>
         <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Define especificaciones técnicas!
+            </p>
+            <p>
+                Crea un catálogo técnico completo organizando las características
+                de cada motocicleta por categorías y atributos específicos.
+            </p>
+        </field>
     </record>
 
-    <!-- Menu for Technical Data -->
+    <!-- Menu técnico -->
     <menuitem
         id="menu_motorcycle_technical_data"
-        name="Datos Técnicos"
+        name="📊 Datos Técnicos"
         parent="sh_motorcycle_menuitem_config"
         action="action_motorcycle_technical_data"
         sequence="5"
