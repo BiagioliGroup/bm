@@ -32,7 +32,7 @@
                 <field name="market"/>
                 <field name="motorcycle_image"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div class="oe_kanban_card oe_kanban_global_click">
                             <div class="o_kanban_image">
                                 <img t-att-src="kanban_image('motorcycle.motorcycle', 'motorcycle_image', record.id.raw_value)" 
@@ -93,7 +93,7 @@
         <field name="arch" type="xml">
             <form string="Motocicleta">
                 <sheet>
-                    <!-- Botones estadísticos -->
+                    <!-- Botones estadísticos simplificados -->
                     <div class="oe_button_box" name="button_box">
                         <button name="%(sh_motorcycle_backend.action_motorcycle_service)d" type="action" 
                                 class="oe_stat_button" icon="fa-wrench"
@@ -103,24 +103,6 @@
                                     <field name="service_ids" widget="statinfo"/>
                                 </span>
                                 <span class="o_stat_text">Servicios</span>
-                            </div>
-                        </button>
-                        <button name="action_view_products" type="object" 
-                                class="oe_stat_button" icon="fa-cube">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value">
-                                    <field name="product_ids" widget="statinfo"/>
-                                </span>
-                                <span class="o_stat_text">Productos</span>
-                            </div>
-                        </button>
-                        <button name="action_view_technical_data" type="object" 
-                                class="oe_stat_button" icon="fa-cogs">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value">
-                                    <field name="technical_data_ids" widget="statinfo"/>
-                                </span>
-                                <span class="o_stat_text">Datos Técnicos</span>
                             </div>
                         </button>
                     </div>
@@ -345,7 +327,7 @@
                 <field name="value_id"/>
                 <field name="note"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div class="oe_kanban_card oe_kanban_global_click">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">
