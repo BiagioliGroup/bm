@@ -131,8 +131,7 @@
                     <group>
                         <group string="Información General">
                             <field name="motorcycle_ids" widget="many2many_tags" 
-                                   options="{'color_field': 'make_id', 'no_create': True}"
-                                   context="{'tree_view_ref': 'sh_motorcycle_backend.sh_motorcycle_motorcycle_tree'}"/>
+                                   options="{'color_field': 'make_id', 'no_create': True}"/>
                             <field name="description" placeholder="Descripción del servicio..."/>
                             <field name="labor_description"/>
                         </group>
@@ -152,7 +151,7 @@
                     <field name="service_line_ids"
                            context="{'default_display_type': 'line'}"
                            widget="section_and_note_one2many"
-                           mode="tree"
+                           mode="list"
                            options="{'no_create': False}"/>
                     
                     <notebook>
