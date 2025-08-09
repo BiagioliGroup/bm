@@ -42,7 +42,7 @@
     <field name="model">product.category</field>
     <field name="inherit_id" ref="product.product_category_list_view"/>
     <field name="arch" type="xml">
-      <xpath expr="//tree" position="attributes">
+      <xpath expr="//list" position="attributes">
         <attribute name="decoration-success">show_in_website == True</attribute>
         <attribute name="decoration-info">attribute_ids</attribute>
         <attribute name="decoration-muted">depth &gt; 3</attribute>
