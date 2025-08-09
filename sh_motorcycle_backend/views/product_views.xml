@@ -11,27 +11,18 @@
                         <group string="Configuración General">
                             <field name="sh_is_common_product"/>
                         </group>
-                        <group string="Información Visual" 
-                               invisible="sh_is_common_product == True">
-                            <div class="alert alert-info" role="alert">
-                                <strong>Tip:</strong> Si es un producto común, no necesita asignar motocicletas específicas.
-                            </div>
-                        </group>
                     </group>
                     
                     <div invisible="sh_is_common_product == True">
                         <separator string="Motocicletas Compatibles"/>
                         <field name="motorcycle_ids">
-                            <tree editable="bottom" 
-                                  decoration-info="market == 'EUR'"
-                                  decoration-success="market == 'USA'"
-                                  decoration-warning="market == 'ARG'">
+                            <list editable="bottom">
                                 <field name="make_id"/>
                                 <field name="mmodel_id"/>
                                 <field name="year"/>
-                                <field name="market" widget="badge"/>
-                                <field name="type_id" widget="badge" options="{'color_field': 'name'}"/>
-                            </tree>
+                                <field name="market"/>
+                                <field name="type_id"/>
+                            </list>
                             <form>
                                 <group>
                                     <group>
@@ -56,48 +47,6 @@
                         </div>
                     </div>
                 </page>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- VISTA MEJORADA PARA LISTA DE PRODUCTOS CON MOTOCICLETAS -->
-    <record id="sh_motorcycle_product_tree_view" model="ir.ui.view">
-        <field name="name">sh.motorcycle.product.tree</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_product_tree_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//tree" position="attributes">
-                <attribute name="decoration-success">sh_is_common_product == True</attribute>
-                <attribute name="decoration-info">motorcycle_ids</attribute>
-            </xpath>
-            
-            <xpath expr="//field[@name='lst_price']" position="after">
-                <field name="sh_is_common_product" widget="boolean_toggle" optional="hide"/>
-                <field name="motorcycle_ids" widget="many2many_tags" 
-                       options="{'color_field': 'make_id'}" optional="hide"/>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- BÚSQUEDA MEJORADA PARA PRODUCTOS -->
-    <record id="sh_motorcycle_product_search_view" model="ir.ui.view">
-        <field name="name">sh.motorcycle.product.search</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_search_form_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <filter name="common_products" string="Productos Comunes" 
-                        domain="[('sh_is_common_product', '=', True)]"/>
-                <filter name="specific_products" string="Productos Específicos" 
-                        domain="[('sh_is_common_product', '=', False)]"/>
-                <separator/>
-                <filter name="with_motorcycles" string="Con Motocicletas Asignadas" 
-                        domain="[('motorcycle_ids', '!=', False)]"/>
-                
-                <group expand="0" string="Agrupar por Vehículos">
-                    <filter name="group_common" string="Tipo (Común/Específico)" 
-                            domain="[]" context="{'group_by': 'sh_is_common_product'}"/>
-                </group>
             </xpath>
         </field>
     </record>
