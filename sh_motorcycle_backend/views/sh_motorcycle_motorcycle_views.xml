@@ -65,14 +65,14 @@
         <field name="name">sh_motorcycle_motorcycle</field>
         <field name="model">motorcycle.motorcycle</field>
         <field name="arch" type="xml">
-            <tree string="Motocicletas">
+            <list string="Motocicletas">
                 <field name="name"/>
                 <field name="type_id"/>
                 <field name="make_id"/>
                 <field name="mmodel_id"/>
                 <field name="year"/>
                 <field name="market"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -110,7 +110,6 @@
             </p>
             <p>
                 Gestiona tu catálogo de motocicletas con información técnica completa.
-                
             </p>
         </field>
     </record>
@@ -130,13 +129,13 @@
         <field name="name">motorcycle.technical.data.tree</field>
         <field name="model">motorcycle.technical.data</field>
         <field name="arch" type="xml">
-            <tree string="Especificaciones Técnicas" editable="bottom">
+            <list string="Especificaciones Técnicas" editable="bottom">
                 <field name="motorcycle_id" column_invisible="1"/>
                 <field name="category_id"/>
                 <field name="attribute_id" domain="[('categ_ids','=', category_id)]"/>
                 <field name="value_id" domain="[('attribute_id','=',attribute_id)]"/>
                 <field name="note"/>
-            </tree>
+            </list>
         </field>
     </record>
 
