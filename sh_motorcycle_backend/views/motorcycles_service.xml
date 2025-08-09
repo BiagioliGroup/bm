@@ -93,7 +93,7 @@
         <field name="name">motorcycle.service.list</field>
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
-            <tree string="Servicios de Motocicleta"
+            <list string="Servicios de Motocicleta"
                   decoration-info="total_service_cost &lt; 1000"
                   decoration-warning="total_service_cost &gt;= 1000 and total_service_cost &lt; 5000"
                   decoration-danger="total_service_cost &gt;= 5000"
@@ -110,7 +110,7 @@
                 <field name="total_service_cost" widget="monetary" 
                        options="{'currency_field': 'currency_id'}"/>
                 <field name="step_ids" widget="many2many_tags" optional="hide" string="Pasos"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -158,13 +158,13 @@
                     <notebook>
                         <page string="Pasos del Servicio">
                             <field name="step_ids">
-                                <tree string="Lista de Pasos" editable="bottom">
+                                <list string="Lista de Pasos" editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="is_done" widget="boolean_toggle"/>
                                     <field name="note"/>
                                     <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -178,13 +178,13 @@
         <field name="name">motorcycle.service.step.list</field>
         <field name="model">motorcycle.service.step</field>
         <field name="arch" type="xml">
-            <tree string="Pasos del Servicio" editable="bottom">
+            <list string="Pasos del Servicio" editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="is_done" widget="boolean_toggle"/>
                 <field name="note"/>
                 <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -193,7 +193,7 @@
         <field name="name">motorcycle.service.line.tree</field>
         <field name="model">motorcycle.service.line</field>
         <field name="arch" type="xml">
-            <tree string="Líneas del Servicio" editable="bottom"
+            <list string="Líneas del Servicio" editable="bottom"
                   decoration-bf="display_type == 'section'"
                   decoration-it="display_type == 'note'"
                   decoration-info="product_id and product_id.type == 'service'"
@@ -208,7 +208,7 @@
                 <field name="price_unit" readonly="display_type != 'line'"/>
                 <field name="subtotal" readonly="display_type != 'line'" sum="Total"/>
                 <field name="currency_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 
