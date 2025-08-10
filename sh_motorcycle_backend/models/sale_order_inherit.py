@@ -89,6 +89,26 @@ class SaleOrder(models.Model):
         # Limpiar el campo de plantilla para evitar aplicarla nuevamente
         self.motorcycle_service_template_id = False
 
+    def action_clear_order_lines(self):
+        """Borrar todas las líneas del pedido"""
+        self.ensure_one()
+        if self.state not in ['draft', 'sent']:
+            raise UserError(_("No puedes borrar líneas de un pedido confirmado."))
+        
+        # Confirmar acción con el usuario
+        self.order_line = [(5, 0, 0)]
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Líneas borradas'),
+                'message': _('Todas las líneas del pedido han sido eliminadas.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     def action_open_service_template_wizard(self):
         """Abrir wizard para seleccionar plantilla de servicio"""
         self.ensure_one()

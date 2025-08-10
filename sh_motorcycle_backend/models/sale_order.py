@@ -7,7 +7,6 @@ from odoo.fields import Command
 
 class SaleOrderServiceTemplate(models.Model):
     _inherit = 'sale.order'
-    _inherit = 'sale.order'
 
     motorcycle_service_template_id = fields.Many2one(
         'motorcycle.service',
