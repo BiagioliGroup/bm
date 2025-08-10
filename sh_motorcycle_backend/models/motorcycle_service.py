@@ -136,9 +136,10 @@ class MotorcycleService(models.Model):
     def action_open_workflow_designer(self):
         """Abrir el diseñador de workflow en ventana separada"""
         self.ensure_one()
+        window_name = self.description or self.name
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Diseñador de Workflow - %s' % self.name,
+            'name': 'Workflow: %s' % window_name,
             'res_model': 'motorcycle.service',
             'res_id': self.id,
             'view_mode': 'form',

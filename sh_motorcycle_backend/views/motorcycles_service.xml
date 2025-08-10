@@ -322,11 +322,11 @@
                                                 border-radius: 20px; display: flex; align-items: center; justify-content: center;">
                                         <i class="fa fa-sitemap fa-lg"></i>
                                     </div>
-                                    <div>
-                                        <h1 style="margin: 0; color: #212529; font-size: 24px; font-weight: 600;">
-                                            Diseñador de Workflow
+                                    <div style="overflow: hidden;">
+                                        <h1 style="margin: 0; color: #212529; font-size: 24px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <field name="description" readonly="1" style="background: none; border: none; color: #212529;"/>
                                         </h1>
-                                        <h5 style="margin: 2px 0 0 0; color: #6c757d; font-weight: 400;">
+                                        <h5 style="margin: 2px 0 0 0; color: #6c757d; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                             <field name="name" readonly="1" style="background: none; border: none; color: #6c757d;"/>
                                         </h5>
                                     </div>
