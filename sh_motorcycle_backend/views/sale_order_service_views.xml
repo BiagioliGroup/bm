@@ -13,8 +13,7 @@
                        string="Plantilla de Servicios"
                        placeholder="Seleccionar Plantilla de Servicio..." 
                        options="{'no_create': True, 'no_open': True}"
-                       readonly="state in ['cancel', 'sale']"
-                       domain="[('company_id', '=', company_id)]"/>
+                       readonly="state in ['cancel', 'sale']"/>
             </xpath>
 
             <!-- Agregar campo de motocicletas relacionadas -->
