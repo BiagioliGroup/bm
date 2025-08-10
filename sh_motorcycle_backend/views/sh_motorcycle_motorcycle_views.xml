@@ -185,6 +185,7 @@
                             <field name="service_ids" mode="kanban,list,form">
                                 <kanban>
                                     <field name="name"/>
+                                    <field name="description"/>
                                     <field name="total_service_cost"/>
                                     <field name="currency_id"/>
                                     <templates>
@@ -194,7 +195,10 @@
                                                     <div class="o_kanban_record_title">
                                                         <field name="name"/>
                                                     </div>
-                                                    <div class="o_kanban_record_bottom">
+                                                    <div class="o_kanban_record_subtitle" style="margin-top: 5px; color: #666;">
+                                                        <field name="description"/>
+                                                    </div>
+                                                    <div class="o_kanban_record_bottom" style="margin-top: 10px;">
                                                         <span class="badge text-bg-success">
                                                             <field name="total_service_cost" widget="monetary" 
                                                                    options="{'currency_field': 'currency_id'}"/>
@@ -207,6 +211,7 @@
                                 </kanban>
                                 <list>
                                     <field name="name"/>
+                                    <field name="description"/>
                                     <field name="total_service_cost" widget="monetary" 
                                            options="{'currency_field': 'currency_id'}"/>
                                 </list>
@@ -227,11 +232,11 @@
                                 <list editable="bottom" decoration-info="category_id" 
                                       decoration-muted="not value_id">
                                     <field name="category_id" 
-                                           options="{'no_create': True, 'no_open': True}"
+                                           options="{'no_create': True}"
                                            domain="[('attribute_ids', '!=', False)]"/>
                                     <field name="attribute_id" 
                                            domain="[('categ_ids', '=', category_id)]" 
-                                           options="{'no_create': True, 'no_open': True}"/>
+                                           options="{'no_create': True}"/>
                                     <field name="value_id" 
                                            domain="[('attribute_id', '=', attribute_id)]" 
                                            options="{'no_open': True}"
@@ -430,11 +435,11 @@
                   default_order="category_id, attribute_id">
                 <field name="motorcycle_id" column_invisible="1"/>
                 <field name="category_id" 
-                       options="{'no_create': True, 'no_open': True}"
+                       options="{'no_create': True}"
                        domain="[('attribute_ids', '!=', False)]"/>
                 <field name="attribute_id" 
                        domain="[('categ_ids', '=', category_id)]" 
-                       options="{'no_create': True, 'no_open': True}"
+                       options="{'no_create': True}"
                        context="{'default_categ_ids': [(4, category_id)]}"/>
                 <field name="value_id" 
                        domain="[('attribute_id', '=', attribute_id)]" 
@@ -455,11 +460,11 @@
                         <group string="Clasificación">
                             <field name="motorcycle_id" invisible="1"/>
                             <field name="category_id" 
-                                   options="{'no_create': True, 'no_open': True}"
+                                   options="{'no_create': True}"
                                    domain="[('attribute_ids', '!=', False)]"/>
                             <field name="attribute_id" 
                                    domain="[('categ_ids', '=', category_id)]"
-                                   options="{'no_create': True, 'no_open': True}"/>
+                                   options="{'no_create': True}"/>
                         </group>
                         <group string="Valor">
                             <field name="value_id" 
