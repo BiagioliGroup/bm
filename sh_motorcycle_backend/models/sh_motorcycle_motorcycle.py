@@ -33,25 +33,43 @@ class MotorcycleTechnicalData(models.Model):
 
     @api.onchange('category_id')
     def _onchange_category_id(self):
-        self.attribute_id = False
-        self.value_id = False
-        return {
-            'domain': {
-                # Solo atributos que tengan esta categoría
-                'attribute_id': [('categ_ids', '=', self.category_id.id)],
-                # Y por defecto, ningún valor hasta elegir atributo
-                'value_id': [('attribute_id', '=', False)],
+        """Cuando cambia la categoría, limpia atributo y valor, y actualiza dominios"""
+        if self.category_id:
+            self.attribute_id = False
+            self.value_id = False
+            return {
+                'domain': {
+                    'attribute_id': [('categ_ids', 'in', [self.category_id.id])],
+                    'value_id': [('id', '=', 0)]  # No values until attribute is selected
+                }
             }
-        }
+        else:
+            self.attribute_id = False
+            self.value_id = False
+            return {
+                'domain': {
+                    'attribute_id': [('id', '=', 0)],
+                    'value_id': [('id', '=', 0)]
+                }
+            }
 
     @api.onchange('attribute_id')
     def _onchange_attribute_id(self):
-        self.value_id = False
-        return {
-            'domain': {
-                'value_id': [('attribute_id', '=', self.attribute_id.id)]
+        """Cuando cambia el atributo, limpia el valor y actualiza dominio"""
+        if self.attribute_id:
+            self.value_id = False
+            return {
+                'domain': {
+                    'value_id': [('attribute_id', '=', self.attribute_id.id)]
+                }
             }
-        }
+        else:
+            self.value_id = False
+            return {
+                'domain': {
+                    'value_id': [('id', '=', 0)]
+                }
+            }
 
     @api.constrains('attribute_id', 'value_id')
     def _check_value_belongs_to_attribute(self):
@@ -118,9 +136,7 @@ class Motorcycle(models.Model):
         'motorcycle_service_rel',
         'motorcycle_id',
         'service_id',
-        string='Servicios asignados',
-        compute='_compute_service_ids',
-        store=False
+        string='Servicios asignados'
     )
 
     technical_data_ids = fields.One2many(
@@ -128,12 +144,6 @@ class Motorcycle(models.Model):
         'motorcycle_id',
         string='Datos Técnicos'
     )
-
-    def _compute_service_ids(self):
-        for moto in self:
-            moto.service_ids = self.env['motorcycle.service'].search([
-                ('motorcycle_ids', 'in', moto.id)
-            ])
 
     @api.depends("type_id", "make_id", "mmodel_id", "year")
     def _compute_complete_name(self):
