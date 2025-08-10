@@ -202,29 +202,7 @@
                                 ('service_line_ids.product_id.name', 'ilike', 'filtro'),
                                 ('service_line_ids.name', 'ilike', 'aceite')]"/>
                 
-                <!-- Agrupaciones -->
-                <group expand="0" string="Agrupar por">
-                    <filter name="group_by_motorcycle_make"
-                            string="Marca de Motocicleta"
-                            domain="[]"
-                            context="{'group_by': 'motorcycle_ids.make_id'}"/>
-                    <filter name="group_by_motorcycle_model"
-                            string="Modelo de Motocicleta"
-                            domain="[]"
-                            context="{'group_by': 'motorcycle_ids.mmodel_id'}"/>
-                    <filter name="group_by_motorcycle_year"
-                            string="Año de Motocicleta"
-                            domain="[]"
-                            context="{'group_by': 'motorcycle_ids.year'}"/>
-                    <filter name="group_by_date"
-                            string="Fecha de Creación"
-                            domain="[]"
-                            context="{'group_by': 'create_date:month'}"/>
-                    <filter name="group_by_cost_range"
-                            string="Rango de Costo"
-                            domain="[]"
-                            context="{'group_by': 'total_service_cost'}"/>
-                </group>
+                
             </search>
         </field>
     </record>
