@@ -132,7 +132,8 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" icon="fa-motorcycle">
+                        <button name="action_view_motorcycles" type="object" 
+                                class="oe_stat_button" icon="fa-motorcycle">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="motorcycle_ids" widget="statinfo"/>
@@ -140,7 +141,8 @@
                                 <span class="o_stat_text">Motocicletas</span>
                             </div>
                         </button>
-                        <button class="oe_stat_button" icon="fa-list">
+                        <button name="action_view_service_lines" type="object" 
+                                class="oe_stat_button" icon="fa-list">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="service_line_ids" widget="statinfo"/>
@@ -192,12 +194,12 @@
                                 <field name="market"/>
                                 <templates>
                                     <t t-name="card">
-                                        <div class="oe_kanban_card" style="margin: 2px; min-height: 60px;">
-                                            <div class="oe_kanban_content" style="padding: 8px;">
-                                                <div style="font-weight: bold; font-size: 12px;">
+                                        <div class="oe_kanban_card" style="margin: 2px; min-height: 40px; max-width: 200px;">
+                                            <div class="oe_kanban_content" style="padding: 4px 8px;">
+                                                <div style="font-weight: bold; font-size: 11px; line-height: 1.2;">
                                                     <field name="make_id"/> <field name="mmodel_id"/>
                                                 </div>
-                                                <div style="font-size: 11px; color: #666;">
+                                                <div style="font-size: 9px; color: #666; line-height: 1;">
                                                     <field name="year"/> • <field name="market"/>
                                                 </div>
                                             </div>
@@ -231,23 +233,107 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="✅ Pasos del Servicio" icon="fa-tasks">
-                            <div class="alert alert-success" style="margin-bottom: 15px;">
-                                <strong><i class="fa fa-check-square-o"/> Checklist:</strong> 
-                                Define los pasos operativos y marca como completados.
+                        <page string="🔧 Workflow del Servicio" icon="fa-sitemap">
+                            <div class="alert alert-primary" style="margin-bottom: 20px; border-left: 4px solid #007bff;">
+                                <strong><i class="fa fa-sitemap"/> Plantilla de Proceso:</strong> 
+                                Define el flujo operativo del servicio. Esta plantilla se reutilizará en reparaciones futuras.
                             </div>
-                            <field name="step_ids">
-                                <list string="Lista de Pasos" editable="bottom"
-                                      decoration-success="is_done"
-                                      decoration-muted="not is_done">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="name" required="1"/>
-                                    <field name="is_done" widget="boolean_toggle"/>
-                                    <field name="note" optional="show"/>
-                                    <field name="pdf_file" filename="pdf_filename" 
-                                           widget="pdf_viewer" optional="hide"/>
-                                </list>
-                            </field>
+                            
+                            <!-- Vista de Workflow Innovadora -->
+                            <div class="workflow-container" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 8px; min-height: 400px;">
+                                <field name="step_ids" mode="kanban" options="{'no_create': False}">
+                                    <kanban default_group_by="is_done" class="o_kanban_small_column" 
+                                            on_create="quick_create" quick_create_view="view_motorcycle_service_step_form_quick">
+                                        <field name="name"/>
+                                        <field name="is_done"/>
+                                        <field name="note"/>
+                                        <field name="sequence"/>
+                                        <templates>
+                                            <t t-name="card">
+                                                <div class="oe_kanban_card workflow-step-card" 
+                                                     t-att-class="record.is_done.raw_value ? 'step-completed' : 'step-pending'"
+                                                     style="margin: 8px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease; position: relative; overflow: hidden;">
+                                                    
+                                                    <!-- Indicador de Estado -->
+                                                    <div class="step-indicator" 
+                                                         t-att-style="record.is_done.raw_value ? 'background: linear-gradient(45deg, #28a745, #20c997);' : 'background: linear-gradient(45deg, #ffc107, #fd7e14);'"
+                                                         style="height: 4px; width: 100%;"></div>
+                                                    
+                                                    <div class="oe_kanban_content" style="padding: 12px;">
+                                                        <!-- Header con ícono de estado -->
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <div class="status-icon me-2" 
+                                                                 t-att-style="record.is_done.raw_value ? 'color: #28a745;' : 'color: #ffc107;'">
+                                                                <i t-att-class="record.is_done.raw_value ? 'fa fa-check-circle' : 'fa fa-clock-o'" 
+                                                                   style="font-size: 16px;"></i>
+                                                            </div>
+                                                            <div class="step-number" 
+                                                                 style="background: #6c757d; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">
+                                                                <t t-esc="record.sequence.raw_value"/>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Contenido del paso -->
+                                                        <div class="step-content">
+                                                            <div class="step-title" style="font-weight: 600; font-size: 13px; line-height: 1.3; margin-bottom: 6px; color: #212529;">
+                                                                <field name="name"/>
+                                                            </div>
+                                                            <div class="step-note" style="font-size: 11px; color: #6c757d; line-height: 1.2;" t-if="record.note.raw_value">
+                                                                <i class="fa fa-sticky-note-o me-1"></i>
+                                                                <field name="note"/>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Footer con toggle -->
+                                                        <div class="step-footer mt-2 pt-2" style="border-top: 1px solid #e9ecef;">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <small class="text-muted" style="font-size: 10px;">
+                                                                    <t t-if="record.is_done.raw_value">✅ Completado</t>
+                                                                    <t t-else="">⏳ Pendiente</t>
+                                                                </small>
+                                                                <field name="is_done" widget="boolean_toggle" 
+                                                                       options="{'terminology': 'switch'}"
+                                                                       style="transform: scale(0.8);"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Conector visual (solo para pendientes) -->
+                                                    <div t-if="!record.is_done.raw_value" class="step-connector" 
+                                                         style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #6c757d; opacity: 0.3;"></div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </div>
+                            
+                            <!-- Leyenda del Workflow -->
+                            <div class="workflow-legend mt-3" style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6;">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="legend-item">
+                                            <i class="fa fa-clock-o" style="color: #ffc107; font-size: 18px;"></i>
+                                            <div style="font-size: 12px; margin-top: 4px;"><strong>Pendiente</strong></div>
+                                            <div style="font-size: 10px; color: #6c757d;">Pasos por ejecutar</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="legend-item">
+                                            <i class="fa fa-check-circle" style="color: #28a745; font-size: 18px;"></i>
+                                            <div style="font-size: 12px; margin-top: 4px;"><strong>Completado</strong></div>
+                                            <div style="font-size: 10px; color: #6c757d;">Pasos finalizados</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="legend-item">
+                                            <i class="fa fa-plus-circle" style="color: #007bff; font-size: 18px;"></i>
+                                            <div style="font-size: 12px; margin-top: 4px;"><strong>Agregar</strong></div>
+                                            <div style="font-size: 10px; color: #6c757d;">Nuevos pasos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </page>
                     </notebook>
                 </sheet>
@@ -280,6 +366,21 @@
                 <field name="price_unit"/>
                 <field name="subtotal"/>
             </list>
+        </field>
+    </record>
+
+    <!-- Vista rápida para crear pasos del servicio -->
+    <record id="view_motorcycle_service_step_form_quick" model="ir.ui.view">
+        <field name="name">motorcycle.service.step.form.quick</field>
+        <field name="model">motorcycle.service.step</field>
+        <field name="arch" type="xml">
+            <form string="Nuevo Paso">
+                <group>
+                    <field name="sequence" invisible="1"/>
+                    <field name="name" placeholder="Ej: Cambiar aceite del motor"/>
+                    <field name="note" placeholder="Instrucciones específicas..." widget="text"/>
+                </group>
+            </form>
         </field>
     </record>
 </odoo>

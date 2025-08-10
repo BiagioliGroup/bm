@@ -93,3 +93,42 @@ class MotorcycleService(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    def action_view_motorcycles(self):
+        """Método para ver las motocicletas del servicio"""
+        self.ensure_one()
+        motorcycles = self.motorcycle_ids
+        
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': _('Motocicletas del Servicio %s') % self.name,
+            'res_model': 'motorcycle.motorcycle',
+            'domain': [('id', 'in', motorcycles.ids)],
+            'context': {},
+        }
+        
+        if len(motorcycles) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': motorcycles.id,
+            })
+        else:
+            action.update({
+                'view_mode': 'kanban,list,form',
+            })
+            
+        return action
+
+    def action_view_service_lines(self):
+        """Método para ver las líneas del servicio"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Líneas del Servicio %s') % self.name,
+            'res_model': 'motorcycle.service.line',
+            'view_mode': 'list,form',
+            'domain': [('service_id', '=', self.id)],
+            'context': {
+                'default_service_id': self.id,
+            },
+        }
