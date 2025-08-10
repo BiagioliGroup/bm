@@ -148,3 +148,33 @@ class SaleOrder(models.Model):
                 'sticky': False,
             }
         }
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    # Agregar campos personalizados para líneas de venta
+    motorcycle_id = fields.Many2one(
+        'motorcycle.motorcycle',
+        string='Motocicleta'
+    )
+    
+    # Relación con servicios de motocicleta si es necesario
+    service_line_ids = fields.One2many(
+        'motorcycle.service.line',
+        'sale_line_id',
+        string='Líneas de Servicio'
+    )
+
+    @api.onchange('motorcycle_id')
+    def _onchange_motorcycle_id(self):
+        """Filtrar productos compatibles con la motocicleta seleccionada"""
+        if self.motorcycle_id:
+            compatible_products = self.env['product.product'].search([
+                ('motorcycle_ids', 'in', self.motorcycle_id.id)
+            ])
+            return {'domain': {'product_id': [('id', 'in', compatible_products.ids)]}}
+        return {'domain': {'product_id': []}}
+
+    def action_clear_order_lines(self):
+        """Método para limpiar líneas de pedido desde la línea"""
+        return self.order_id.action_clear_order_lines()
