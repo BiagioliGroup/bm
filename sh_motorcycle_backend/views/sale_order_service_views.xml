@@ -16,24 +16,19 @@
                        readonly="state in ['cancel', 'sale']"/>
             </xpath>
 
-            <!-- Agregar campo de motocicletas relacionadas -->
-            <xpath expr="//field[@name='motorcycle_service_template_id']" position="after">
-                <field name="motorcycle_ids" 
-                       widget="many2many_tags" 
-                       string="Motocicletas Relacionadas"
-                       placeholder="Seleccionar motocicletas..."
-                       readonly="state in ['cancel', 'sale']"/>
-            </xpath>
-
-            <!-- Agregar botón de borrar líneas FUERA del contexto de order_line -->
+            
+            <!-- Botón discreto para borrar líneas -->
             <xpath expr="//field[@name='order_line']" position="before">
                 <div class="d-flex justify-content-end mb-2">
                     <button name="action_clear_order_lines" 
-                            string="🗑️ Borrar Todas las Líneas" 
+                            string="" 
                             type="object" 
-                            class="btn-danger btn-sm" 
+                            class="btn btn-outline-secondary btn-sm" 
+                            title="Borrar todas las líneas" 
                             confirm="¿Estás seguro de que quieres borrar todas las líneas?" 
-                            invisible="state not in ['draft', 'sent']"/>
+                            invisible="state not in ['draft', 'sent']">
+                        <i class="fa fa-trash-o"/>
+                    </button>
                 </div>
             </xpath>
         </field>

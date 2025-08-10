@@ -14,14 +14,7 @@ class SaleOrder(models.Model):
         help='Seleccionar una plantilla de servicio para agregar líneas automáticamente'
     )
 
-    # Agregar campos personalizados para motocicletas
-    motorcycle_ids = fields.Many2many(
-        'motorcycle.motorcycle',
-        'sale_order_motorcycle_rel',
-        'order_id', 'motorcycle_id',
-        string='Motocicletas Relacionadas'
-    )
-
+    
     def action_clear_order_lines(self):
         """Método para limpiar todas las líneas de pedido"""
         self.ensure_one()
