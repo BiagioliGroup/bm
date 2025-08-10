@@ -121,6 +121,52 @@ class SaleOrderServiceTemplate(models.Model):
         return [
             ('service_line_ids', '!=', False),  # Solo servicios con líneas
         ]
+    
+    @api.onchange('service_template_id')
+    def _onchange_service_template_id(self):
+        """Aplicar plantilla de servicio al presupuesto"""
+        if self.service_template_id:
+            # Limpiar líneas existentes si hay
+            self.order_line = [(5, 0, 0)]
+            
+            # Crear nuevas líneas basadas en la plantilla
+            line_vals = []
+            for line in self.service_template_id.service_line_ids:
+                vals = {
+                    'product_id': line.product_id.id,
+                    'name': line.name,
+                    'product_uom_qty': line.quantity,
+                    'price_unit': line.price_unit,
+                    'product_uom': line.product_id.uom_id.id,
+                    'discount': 0.0,
+                    'sequence': line.sequence,
+                }
+                line_vals.append((0, 0, vals))
+            
+            self.order_line = line_vals
+            
+            # Limpiar el campo después de aplicar la plantilla
+            self.service_template_id = False
+
+    def action_clear_order_lines(self):
+        """Borrar todas las líneas del pedido"""
+        self.ensure_one()
+        if self.state not in ['draft', 'sent']:
+            raise UserError(_("No puedes borrar líneas de un pedido confirmado."))
+        
+        # Confirmar acción con el usuario
+        self.order_line = [(5, 0, 0)]
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Líneas borradas'),
+                'message': _('Todas las líneas del pedido han sido eliminadas.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
 
 class SaleOrderLineServiceTemplate(models.Model):

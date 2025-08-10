@@ -120,6 +120,38 @@
         </field>
     </record>
 
+    <!-- Vista de búsqueda actualizada -->
+    <record id="view_motorcycle_service_search" model="ir.ui.view">
+        <field name="name">motorcycle.service.search</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Servicios">
+                <field name="description" string="Descripción"
+                       filter_domain="[('description', 'ilike', self)]"/>
+                <field name="labor_description" string="Descripción del Trabajo"
+                       filter_domain="[('labor_description', 'ilike', self)]"/>
+                <field name="motorcycle_ids" string="Motocicletas"
+                       filter_domain="['|','|','|','|',
+                                      ('motorcycle_ids.make_id.name', 'ilike', self),
+                                      ('motorcycle_ids.mmodel_id.name', 'ilike', self),
+                                      ('motorcycle_ids.year', 'ilike', self),
+                                      ('motorcycle_ids.name', 'ilike', self)]"/>
+                <field name="name" string="Número de Servicio"/>
+
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_by_description"
+                            string="Descripción"
+                            domain="[]"
+                            context="{'group_by': 'description'}"/>
+                    <filter name="group_by_motorcycles"
+                            string="Motocicletas"
+                            domain="[]"
+                            context="{'group_by': 'motorcycle_ids'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="view_motorcycle_service_form" model="ir.ui.view">
         <field name="name">motorcycle.service.form</field>
         <field name="model">motorcycle.service</field>

@@ -66,6 +66,31 @@ class MotorcycleService(models.Model):
         string='Pasos del Servicio'
     )
 
+    @api.depends('description', 'labor_description')
+    def _compute_display_name(self):
+        for record in self:
+            if record.description and record.labor_description:
+                record.display_name = f"{record.description} [{record.labor_description}]"
+            elif record.description:
+                record.display_name = record.description
+            elif record.labor_description:
+                record.display_name = f"[{record.labor_description}]"
+            else:
+                record.display_name = record.name or "Nuevo Servicio"
+
+    @api.depends('motorcycle_ids')
+    def _compute_motorcycles_display(self):
+        for record in self:
+            if record.motorcycle_ids:
+                moto_names = ', '.join(record.motorcycle_ids.mapped('name'))
+                # Truncar a 100 caracteres
+                if len(moto_names) > 100:
+                    record.motorcycles_display = moto_names[:97] + "..."
+                else:
+                    record.motorcycles_display = moto_names
+            else:
+                record.motorcycles_display = ""
+
     @api.depends('service_line_ids.subtotal', 'service_line_ids.product_id.type')
     def _compute_totals(self):
         for service in self:
