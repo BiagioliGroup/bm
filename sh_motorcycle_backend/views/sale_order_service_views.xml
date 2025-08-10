@@ -25,16 +25,17 @@
                        readonly="state in ['cancel', 'sale']"/>
             </xpath>
 
-            <!-- Agregar botón de borrar líneas en el control -->
-            <xpath expr="//field[@name='order_line']//control" position="inside">
-                <button name="action_clear_order_lines" 
-                        string="🗑️ Borrar Todo" 
-                        type="object" 
-                        class="btn-danger btn-sm" 
-                        confirm="¿Estás seguro de que quieres borrar todas las líneas?" 
-                        invisible="state not in ['draft', 'sent']"/>
+            <!-- Agregar botón de borrar líneas FUERA del contexto de order_line -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <div class="d-flex justify-content-end mb-2">
+                    <button name="action_clear_order_lines" 
+                            string="🗑️ Borrar Todas las Líneas" 
+                            type="object" 
+                            class="btn-danger btn-sm" 
+                            confirm="¿Estás seguro de que quieres borrar todas las líneas?" 
+                            invisible="state not in ['draft', 'sent']"/>
+                </div>
             </xpath>
-
         </field>
     </record>
 </odoo>
