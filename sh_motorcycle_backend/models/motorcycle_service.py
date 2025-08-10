@@ -148,6 +148,11 @@ class MotorcycleService(models.Model):
                 'default_service_id': self.id,
                 'workflow_mode': True,
             },
+            'flags': {
+                'mode': 'readonly',
+            },
+            # Hacer la ventana más ancha
+            'dialog_size': 'large',
         }
 
     def action_save_workflow(self):
