@@ -129,6 +129,8 @@
                     <!-- Botones de acción -->
                     <button name="action_print_service_report" string="Imprimir Reporte" 
                             type="object" class="btn-primary" icon="fa-print"/>
+                    <button name="create_workflow_template" string="Crear Plantilla Workflow" 
+                            type="object" class="btn-secondary" icon="fa-magic"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -234,306 +236,211 @@
                             </field>
                         </page>
                         
-                        <page string="🔧 Workflow Visual" icon="fa-sitemap">
+                        <page string="🔧 Workflow del Servicio" icon="fa-sitemap">
                             <!-- Header del Workflow -->
                             <div class="workflow-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                                 <div class="row align-items-center">
                                     <div class="col-8">
-                                        <h3 style="margin: 0; color: white;"><i class="fa fa-sitemap"/> Diagrama de Flujo del Servicio</h3>
-                                        <p style="margin: 5px 0 0 0; opacity: 0.9;">Diseña el proceso operativo con tarjetas conectables</p>
+                                        <h3 style="margin: 0; color: white;"><i class="fa fa-sitemap"/> Proceso del Servicio</h3>
+                                        <p style="margin: 5px 0 0 0; opacity: 0.9;">Gestiona el flujo operativo paso a paso</p>
                                     </div>
                                     <div class="col-4 text-end">
                                         <button name="create_workflow_template" type="object" 
-                                                class="btn btn-light btn-sm" icon="fa-magic">
-                                            <i class="fa fa-magic"/> Crear Plantilla
-                                        </button>
+                                                string="Crear Plantilla" 
+                                                class="btn btn-light btn-sm" icon="fa-magic"/>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Controles del Workflow -->
-                            <div class="workflow-controls" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #dee2e6;">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-outline-primary btn-sm" 
-                                                    onclick="addWorkflowStep('start')" title="Agregar Inicio">
-                                                <i class="fa fa-play-circle"/> Inicio
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success btn-sm" 
-                                                    onclick="addWorkflowStep('action')" title="Agregar Acción">
-                                                <i class="fa fa-cog"/> Acción
-                                            </button>
-                                            <button type="button" class="btn btn-outline-warning btn-sm" 
-                                                    onclick="addWorkflowStep('decision')" title="Agregar Decisión">
-                                                <i class="fa fa-question-circle"/> Decisión
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger btn-sm" 
-                                                    onclick="addWorkflowStep('end')" title="Agregar Fin">
-                                                <i class="fa fa-stop-circle"/> Fin
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" 
-                                                onclick="autoArrangeWorkflow()" title="Auto-organizar">
-                                            <i class="fa fa-align-center"/> Auto-organizar
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info btn-sm" 
-                                                onclick="zoomToFit()" title="Ajustar zoom">
-                                            <i class="fa fa-search"/> Zoom
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Canvas del Workflow -->
-                            <div id="workflow-canvas" class="workflow-canvas" 
-                                 style="position: relative; min-height: 600px; border: 2px dashed #dee2e6; border-radius: 8px; background: 
-                                        radial-gradient(circle at 25% 25%, #f8f9fa 0%, #ffffff 50%); 
-                                        overflow: hidden; cursor: crosshair;">
-                                
-                                <!-- SVG para las conexiones -->
-                                <svg id="workflow-connections" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
-                                    <defs>
-                                        <!-- Marcadores para las flechas -->
-                                        <marker id="arrowhead-normal" markerWidth="10" markerHeight="7" 
-                                                refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#28a745" />
-                                        </marker>
-                                        <marker id="arrowhead-yes" markerWidth="10" markerHeight="7" 
-                                                refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#007bff" />
-                                        </marker>
-                                        <marker id="arrowhead-no" markerWidth="10" markerHeight="7" 
-                                                refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#dc3545" />
-                                        </marker>
-                                    </defs>
-                                </svg>
-
-                                <!-- Tarjetas del Workflow -->
-                                <field name="step_ids" mode="kanban" 
-                                       options="{'no_create': False, 'no_edit': False}"
-                                       context="{'kanban_view_ref': 'sh_motorcycle_backend.view_motorcycle_service_step_workflow_kanban'}">
-                                    <kanban class="workflow-steps-kanban" create="false">
-                                        <field name="name"/>
-                                        <field name="step_type"/>
-                                        <field name="is_done"/>
-                                        <field name="step_icon"/>
-                                        <field name="step_color"/>
-                                        <field name="step_class"/>
-                                        <field name="position_x"/>
-                                        <field name="position_y"/>
-                                        <field name="decision_question"/>
-                                        <field name="next_step_id"/>
-                                        <field name="next_step_yes_id"/>
-                                        <field name="next_step_no_id"/>
-                                        <field name="note"/>
-                                        <templates>
-                                            <t t-name="card">
-                                                <div class="workflow-step-card" 
-                                                     t-att-data-step-id="record.id.raw_value"
-                                                     t-att-data-step-type="record.step_type.raw_value"
-                                                     t-att-style="'position: absolute; left: ' + record.position_x.raw_value + 'px; top: ' + record.position_y.raw_value + 'px; z-index: 10;'"
-                                                     style="width: 200px; cursor: move; transition: all 0.3s ease;">
+                            <!-- Vista de Workflow como Kanban -->
+                            <field name="step_ids" mode="kanban" options="{'no_create': False}">
+                                <kanban default_group_by="step_type" class="o_kanban_small_column" 
+                                        on_create="quick_create" quick_create_view="view_motorcycle_service_step_form_quick">
+                                    <field name="name"/>
+                                    <field name="step_type"/>
+                                    <field name="is_done"/>
+                                    <field name="note"/>
+                                    <field name="sequence"/>
+                                    <field name="step_icon"/>
+                                    <field name="step_color"/>
+                                    <field name="decision_question"/>
+                                    <field name="next_step_id"/>
+                                    <field name="next_step_yes_id"/>
+                                    <field name="next_step_no_id"/>
+                                    <field name="position_x"/>
+                                    <field name="position_y"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="oe_kanban_card workflow-step-card" 
+                                                 t-att-class="record.is_done.raw_value ? 'step-completed' : 'step-pending'"
+                                                 style="margin: 8px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+                                                        border-left: 4px solid" 
+                                                 t-att-style="'border-left-color: ' + record.step_color.raw_value + ';'">
+                                                
+                                                <div class="oe_kanban_content" style="padding: 12px;">
+                                                    <!-- Header con ícono -->
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <div class="step-type-icon me-2" 
+                                                             t-att-style="'color: ' + record.step_color.raw_value + ';'">
+                                                            <i t-att-class="'fa ' + record.step_icon.raw_value" 
+                                                               style="font-size: 18px;"></i>
+                                                        </div>
+                                                        <div class="step-number badge text-bg-secondary" 
+                                                             style="font-size: 10px;">
+                                                            <t t-esc="record.sequence.raw_value"/>
+                                                        </div>
+                                                        <div class="ms-auto">
+                                                            <span class="badge text-bg-light" style="font-size: 9px;">
+                                                                <t t-if="record.step_type.raw_value == 'action'">⚙️</t>
+                                                                <t t-if="record.step_type.raw_value == 'decision'">❓</t>
+                                                                <t t-if="record.step_type.raw_value == 'start'">▶️</t>
+                                                                <t t-if="record.step_type.raw_value == 'end'">⏹️</t>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                     
-                                                    <!-- Tarjeta Principal -->
-                                                    <div class="card workflow-card shadow-sm" 
-                                                         t-att-class="'border-' + (record.step_type.raw_value === 'start' ? 'primary' : 
-                                                                                  record.step_type.raw_value === 'action' ? 'success' : 
-                                                                                  record.step_type.raw_value === 'decision' ? 'warning' : 'danger')"
-                                                         style="border-width: 2px !important; background: white; min-height: 120px;">
-                                                        
-                                                        <!-- Header de la Tarjeta -->
-                                                        <div class="card-header workflow-card-header d-flex align-items-center justify-content-between" 
-                                                             t-att-class="'bg-' + (record.step_type.raw_value === 'start' ? 'primary' : 
-                                                                                   record.step_type.raw_value === 'action' ? 'success' : 
-                                                                                   record.step_type.raw_value === 'decision' ? 'warning' : 'danger')"
-                                                             style="padding: 8px 12px; color: white; font-size: 12px;">
-                                                            <div class="d-flex align-items-center">
-                                                                <i t-att-class="'fa ' + record.step_icon.raw_value + ' me-2'"></i>
-                                                                <span t-esc="record.step_type.raw_value.toUpperCase()"/>
-                                                            </div>
-                                                            <div class="workflow-controls">
-                                                                <!-- Toggle para completado -->
-                                                                <field name="is_done" widget="boolean_toggle" 
-                                                                       options="{'terminology': 'switch'}"
-                                                                       style="transform: scale(0.7);"/>
-                                                            </div>
+                                                    <!-- Contenido del paso -->
+                                                    <div class="step-content">
+                                                        <div class="step-title" style="font-weight: 600; font-size: 12px; margin-bottom: 6px;">
+                                                            <field name="name"/>
                                                         </div>
                                                         
-                                                        <!-- Cuerpo de la Tarjeta -->
-                                                        <div class="card-body" style="padding: 12px;">
-                                                            <!-- Título del paso -->
-                                                            <h6 class="card-title workflow-step-title" 
-                                                                style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; line-height: 1.3;">
-                                                                <field name="name"/>
-                                                            </h6>
-                                                            
-                                                            <!-- Pregunta de decisión -->
-                                                            <div t-if="record.step_type.raw_value === 'decision' and record.decision_question.raw_value" 
-                                                                 class="decision-question" 
-                                                                 style="font-size: 11px; color: #f57c00; margin-bottom: 8px; font-style: italic; padding: 4px 8px; background: #fff3e0; border-radius: 4px;">
-                                                                <i class="fa fa-question-circle me-1"></i>
-                                                                <field name="decision_question"/>
-                                                            </div>
-                                                            
-                                                            <!-- Nota -->
-                                                            <div t-if="record.note.raw_value" 
-                                                                 class="step-note" 
-                                                                 style="font-size: 10px; color: #6c757d; line-height: 1.3; margin-bottom: 8px;">
-                                                                <i class="fa fa-sticky-note-o me-1"></i>
-                                                                <field name="note"/>
-                                                            </div>
+                                                        <!-- Pregunta de decisión -->
+                                                        <div t-if="record.step_type.raw_value == 'decision' and record.decision_question.raw_value" 
+                                                             class="decision-question" style="font-size: 10px; color: #f57c00; margin-bottom: 4px; font-style: italic;">
+                                                            <i class="fa fa-question-circle me-1"></i>
+                                                            <field name="decision_question"/>
                                                         </div>
                                                         
-                                                        <!-- Footer con conexiones -->
-                                                        <div class="card-footer workflow-card-footer" 
-                                                             style="padding: 6px 12px; background: #f8f9fa; border-top: 1px solid #dee2e6; font-size: 10px;">
-                                                            
-                                                            <!-- Conexión normal -->
-                                                            <div t-if="record.step_type.raw_value !== 'decision' and record.next_step_id.raw_value" 
-                                                                 class="connection-info" style="color: #28a745;">
-                                                                <i class="fa fa-arrow-right me-1"></i>
-                                                                <field name="next_step_id"/>
-                                                            </div>
-                                                            
-                                                            <!-- Conexiones de decisión -->
-                                                            <div t-if="record.step_type.raw_value === 'decision'">
-                                                                <div t-if="record.next_step_yes_id.raw_value" 
-                                                                     class="connection-yes" style="color: #007bff; margin-bottom: 2px;">
-                                                                    <i class="fa fa-check me-1"></i>SÍ: <field name="next_step_yes_id"/>
-                                                                </div>
-                                                                <div t-if="record.next_step_no_id.raw_value" 
-                                                                     class="connection-no" style="color: #dc3545;">
-                                                                    <i class="fa fa-times me-1"></i>NO: <field name="next_step_no_id"/>
-                                                                </div>
-                                                            </div>
+                                                        <div class="step-note" style="font-size: 10px; color: #6c757d;" t-if="record.note.raw_value">
+                                                            <i class="fa fa-sticky-note-o me-1"></i>
+                                                            <field name="note"/>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Conexiones -->
+                                                    <div class="workflow-connections" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e9ecef;">
+                                                        <!-- Conexión normal -->
+                                                        <div t-if="record.step_type.raw_value != 'decision' and record.next_step_id.raw_value" 
+                                                             style="font-size: 9px; color: #28a745;">
+                                                            <i class="fa fa-arrow-right me-1"></i>Siguiente: 
+                                                            <field name="next_step_id"/>
                                                         </div>
                                                         
-                                                        <!-- Conectores visuales -->
-                                                        <div class="workflow-connectors">
-                                                            <!-- Conector superior -->
-                                                            <div class="connector connector-top" 
-                                                                 style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); 
-                                                                        width: 16px; height: 16px; border-radius: 50%; background: #28a745; 
-                                                                        border: 3px solid white; cursor: crosshair; z-index: 20;"
-                                                                 title="Conector de entrada"></div>
-                                                            
-                                                            <!-- Conector inferior -->
-                                                            <div class="connector connector-bottom" 
-                                                                 style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); 
-                                                                        width: 16px; height: 16px; border-radius: 50%; background: #dc3545; 
-                                                                        border: 3px solid white; cursor: crosshair; z-index: 20;"
-                                                                 title="Conector de salida"></div>
-                                                            
-                                                            <!-- Conectores laterales para decisiones -->
-                                                            <div t-if="record.step_type.raw_value === 'decision'" 
-                                                                 class="connector connector-right" 
-                                                                 style="position: absolute; top: 50%; right: -8px; transform: translateY(-50%); 
-                                                                        width: 16px; height: 16px; border-radius: 50%; background: #007bff; 
-                                                                        border: 3px solid white; cursor: crosshair; z-index: 20;"
-                                                                 title="Conector SÍ"></div>
-                                                            
-                                                            <div t-if="record.step_type.raw_value === 'decision'" 
-                                                                 class="connector connector-left" 
-                                                                 style="position: absolute; top: 50%; left: -8px; transform: translateY(-50%); 
-                                                                        width: 16px; height: 16px; border-radius: 50%; background: #ffc107; 
-                                                                        border: 3px solid white; cursor: crosshair; z-index: 20;"
-                                                                 title="Conector NO"></div>
+                                                        <!-- Conexiones de decisión -->
+                                                        <div t-if="record.step_type.raw_value == 'decision'">
+                                                            <div t-if="record.next_step_yes_id.raw_value" style="font-size: 9px; color: #28a745;">
+                                                                <i class="fa fa-check me-1"></i>SÍ: <field name="next_step_yes_id"/>
+                                                            </div>
+                                                            <div t-if="record.next_step_no_id.raw_value" style="font-size: 9px; color: #dc3545;">
+                                                                <i class="fa fa-times me-1"></i>NO: <field name="next_step_no_id"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Footer con toggle -->
+                                                    <div class="step-footer mt-2 pt-2" style="border-top: 1px solid #e9ecef;">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <small class="text-muted" style="font-size: 9px;">
+                                                                <t t-if="record.is_done.raw_value">✅ Completado</t>
+                                                                <t t-else="">⏳ Pendiente</t>
+                                                            </small>
+                                                            <field name="is_done" widget="boolean_toggle" 
+                                                                   options="{'terminology': 'switch'}"
+                                                                   style="transform: scale(0.7);"/>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </t>
-                                        </templates>
-                                    </kanban>
-                                </field>
-                            </div>
-
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                            
                             <!-- Leyenda del Workflow -->
-                            <div class="workflow-legend mt-4" 
-                                 style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                <h5 style="margin-bottom: 15px; color: #495057;"><i class="fa fa-info-circle"/> Leyenda del Workflow</h5>
-                                <div class="row">
-                                    <div class="col-md-3 col-6 mb-3">
-                                        <div class="legend-item text-center">
-                                            <div class="legend-icon mb-2" style="color: #007bff;">
-                                                <i class="fa fa-play-circle fa-2x"></i>
-                                            </div>
-                                            <strong style="font-size: 12px;">INICIO</strong>
-                                            <div style="font-size: 10px; color: #6c757d;">Punto de partida</div>
+                            <div class="workflow-legend mt-4" style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6;">
+                                <div class="row text-center">
+                                    <div class="col-3">
+                                        <div class="legend-item">
+                                            <i class="fa fa-play-circle" style="color: #007bff; font-size: 16px;"></i>
+                                            <div style="font-size: 11px; margin-top: 4px;"><strong>Inicio</strong></div>
+                                            <div style="font-size: 9px; color: #6c757d;">Punto de partida</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-6 mb-3">
-                                        <div class="legend-item text-center">
-                                            <div class="legend-icon mb-2" style="color: #28a745;">
-                                                <i class="fa fa-cog fa-2x"></i>
-                                            </div>
-                                            <strong style="font-size: 12px;">ACCIÓN</strong>
-                                            <div style="font-size: 10px; color: #6c757d;">Paso operativo</div>
+                                    <div class="col-3">
+                                        <div class="legend-item">
+                                            <i class="fa fa-cog" style="color: #28a745; font-size: 16px;"></i>
+                                            <div style="font-size: 11px; margin-top: 4px;"><strong>Acción</strong></div>
+                                            <div style="font-size: 9px; color: #6c757d;">Paso operativo</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-6 mb-3">
-                                        <div class="legend-item text-center">
-                                            <div class="legend-icon mb-2" style="color: #ffc107;">
-                                                <i class="fa fa-question-circle fa-2x"></i>
-                                            </div>
-                                            <strong style="font-size: 12px;">DECISIÓN</strong>
-                                            <div style="font-size: 10px; color: #6c757d;">Punto de decisión</div>
+                                    <div class="col-3">
+                                        <div class="legend-item">
+                                            <i class="fa fa-question-circle" style="color: #ffc107; font-size: 16px;"></i>
+                                            <div style="font-size: 11px; margin-top: 4px;"><strong>Decisión</strong></div>
+                                            <div style="font-size: 9px; color: #6c757d;">Punto de decisión</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-6 mb-3">
-                                        <div class="legend-item text-center">
-                                            <div class="legend-icon mb-2" style="color: #dc3545;">
-                                                <i class="fa fa-stop-circle fa-2x"></i>
-                                            </div>
-                                            <strong style="font-size: 12px;">FIN</strong>
-                                            <div style="font-size: 10px; color: #6c757d;">Punto final</div>
+                                    <div class="col-3">
+                                        <div class="legend-item">
+                                            <i class="fa fa-stop-circle" style="color: #dc3545; font-size: 16px;"></i>
+                                            <div style="font-size: 11px; margin-top: 4px;"><strong>Fin</strong></div>
+                                            <div style="font-size: 9px; color: #6c757d;">Punto final</div>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <!-- Instrucciones -->
-                                <div class="workflow-instructions mt-3 pt-3" style="border-top: 1px solid #dee2e6;">
-                                    <h6 style="color: #495057;"><i class="fa fa-lightbulb-o"/> Instrucciones:</h6>
-                                    <ul style="font-size: 11px; color: #6c757d; margin: 0; padding-left: 20px;">
-                                        <li><strong>Arrastrar:</strong> Mueve las tarjetas por el canvas</li>
-                                        <li><strong>Conectar:</strong> Usa los conectores circulares para unir pasos</li>
-                                        <li><strong>Editar:</strong> Haz clic en una tarjeta para editarla</li>
-                                        <li><strong>Completar:</strong> Usa el switch para marcar pasos como completados</li>
-                                    </ul>
                                 </div>
                             </div>
                         </page>
                     </notebook>
                 </sheet>
-                
-                <!-- JavaScript para el Workflow -->
-                <script type="text/javascript">
-                    <![CDATA[
-                    // Funciones para el workflow visual
-                    function addWorkflowStep(stepType) {
-                        // Placeholder para agregar pasos
-                        console.log('Adding step of type:', stepType);
-                    }
-                    
-                    function autoArrangeWorkflow() {
-                        // Placeholder para auto-organizar
-                        console.log('Auto-arranging workflow');
-                    }
-                    
-                    function zoomToFit() {
-                        // Placeholder para zoom
-                        console.log('Zooming to fit');
-                    }
-                    ]]>
-                </script>
             </form>
         </field>
     </record>
 
-    <!-- Vista de formulario para editar pasos individuales -->
+    <!-- Vista rápida para crear pasos del servicio -->
+    <record id="view_motorcycle_service_step_form_quick" model="ir.ui.view">
+        <field name="name">motorcycle.service.step.form.quick</field>
+        <field name="model">motorcycle.service.step</field>
+        <field name="arch" type="xml">
+            <form string="Nuevo Paso del Workflow">
+                <group>
+                    <group>
+                        <field name="step_type" widget="selection"/>
+                        <field name="sequence" column_invisible="1"/>
+                        <field name="name" placeholder="Ej: Cambiar aceite del motor" required="1"/>
+                    </group>
+                    <group>
+                        <field name="decision_question" 
+                               placeholder="¿Qué pregunta necesita responderse?"
+                               invisible="step_type != 'decision'"
+                               required="step_type == 'decision'"/>
+                        <field name="note" placeholder="Instrucciones específicas..." widget="text"/>
+                    </group>
+                </group>
+                
+                <!-- Sección de conexiones -->
+                <group string="Conexiones del Flujo" invisible="step_type in ['start', 'end']">
+                    <group invisible="step_type == 'decision'">
+                        <field name="next_step_id" 
+                               domain="[('service_id', '=', parent.service_id), ('id', '!=', id)]"
+                               options="{'no_create': True}"/>
+                    </group>
+                    <group invisible="step_type != 'decision'" colspan="2">
+                        <field name="next_step_yes_id" 
+                               string="Si la respuesta es SÍ"
+                               domain="[('service_id', '=', parent.service_id), ('id', '!=', id)]"
+                               options="{'no_create': True}"/>
+                        <field name="next_step_no_id" 
+                               string="Si la respuesta es NO"
+                               domain="[('service_id', '=', parent.service_id), ('id', '!=', id)]"
+                               options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de formulario completa para editar pasos -->
     <record id="view_motorcycle_service_step_form" model="ir.ui.view">
         <field name="name">motorcycle.service.step.form</field>
         <field name="model">motorcycle.service.step</field>
@@ -556,8 +463,7 @@
                             <field name="sequence"/>
                             <field name="decision_question" 
                                    invisible="step_type != 'decision'"
-                                   required="step_type == 'decision'"
-                                   placeholder="¿Qué pregunta necesita responderse?"/>
+                                   required="step_type == 'decision'"/>
                         </group>
                         <group string="Posición y Display">
                             <field name="position_x"/>
@@ -568,7 +474,7 @@
                     </group>
 
                     <group string="Documentación" colspan="2">
-                        <field name="note" widget="text" placeholder="Instrucciones específicas..."/>
+                        <field name="note" widget="text"/>
                         <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
                     </group>
 
