@@ -170,12 +170,6 @@
                             <div class="alert alert-info" role="alert" style="margin-bottom: 15px;">
                                 <strong><i class="fa fa-lightbulb-o"/> Tip:</strong> 
                                 Aquí puedes ver todos los servicios técnicos asociados a esta motocicleta.
-                                <div class="mt-2">
-                                    <button name="action_create_service" string="Crear Servicio" type="object" 
-                                            class="btn btn-primary btn-sm" accesskey="s">
-                                        <i class="fa fa-plus"/> Nuevo Servicio (Alt+S)
-                                    </button>
-                                </div>
                             </div>
                             <field name="service_ids" mode="kanban,list,form">
                                 <kanban>
@@ -214,7 +208,7 @@
                                 Define las características técnicas detalladas por categorías.
                                 <div class="mt-2">
                                     <small class="text-muted">
-                                        <strong>Pasos:</strong> 1) Selecciona Categoría → 2) Elige Atributo → 3) Define Valor
+                                        <strong>Pasos:</strong> 1) Selecciona Categoría → 2) Elige Atributo → 3) Define o Crea Valor
                                     </small>
                                 </div>
                             </div>
@@ -229,7 +223,8 @@
                                            options="{'no_create': True, 'no_open': True}"/>
                                     <field name="value_id" 
                                            domain="[('attribute_id', '=', attribute_id)]" 
-                                           options="{'no_create': True, 'no_open': True}"/>
+                                           options="{'no_open': True}"
+                                           context="{'default_attribute_id': attribute_id}"/>
                                     <field name="note" optional="show"/>
                                 </list>
                             </field>
@@ -432,7 +427,7 @@
                        context="{'default_categ_ids': [(4, category_id)]}"/>
                 <field name="value_id" 
                        domain="[('attribute_id', '=', attribute_id)]" 
-                       options="{'no_create': True, 'no_open': True}"
+                       options="{'no_open': True}"
                        context="{'default_attribute_id': attribute_id}"/>
                 <field name="note" widget="text" optional="show"/>
             </list>
@@ -458,7 +453,8 @@
                         <group string="Valor">
                             <field name="value_id" 
                                    domain="[('attribute_id', '=', attribute_id)]"
-                                   options="{'no_create': True, 'no_open': True}"/>
+                                   options="{'no_open': True}"
+                                   context="{'default_attribute_id': attribute_id}"/>
                             <field name="note" placeholder="Observaciones adicionales..."/>
                         </group>
                     </group>
