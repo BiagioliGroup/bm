@@ -7,7 +7,7 @@
     "support": "support@softhealer.com",
     "license": "OPL-1",
     "category": "Industries",
-    "summary": "Auto Parts Base Odoo Auto Parts Management Manage Auto Parts Variants Find High Quality Auto Parts Handle Auto Parts By Make Model Year Type Find Vehicle Details Module Odoo Equipment Maintenance Repair Operation Assets Maintenance Equipment Repair Maintenance Request Auto Parts Repair Auto Parts Maintenance Machine Maintenance Machine Repair Product Repair Assets Repair Car Repair Maintenance Product Maintenance Service Templates Sale Order Integration",
+    "summary": "Auto Parts Base Odoo Auto Parts Management Manage Auto Parts Variants Find High Quality Auto Parts Handle Auto Parts By Make Model Year Type Find Vehicle Details Module Odoo Equipment Maintenance Repair Operation Assets Maintenance Equipment Repair Maintenance Request Auto Parts Repair Auto Parts Maintenance Machine Maintenance Machine Repair Product Repair Assets Repair Car Repair Maintenance Product Maintenance",
     "description": """
 In automobile shops have numerous auto parts there is no count for
 parts and it's variants that's the way it is quite difficult to
@@ -19,14 +19,6 @@ the product using vehicle details. In this module provide two groups
 for user and manager so you can easily apply access rights
 for user and manager. This is very clean and transparent
 so the user can easily understand how it works.
-
-New Features:
-- Service Templates integration in Sale Orders
-- Quick service template application
-- Service line management with automatic calculations
-- Wizard for service template selection with preview
-- Compatible with quotation templates functionality
-
 Auto Parts Base Odoo, Auto Parts And Variants Management Odoo
 Manage Auto Parts And Variants Module, Find High Quality Auto Parts,
 Feature Of Maintain Auto Parts By Make, Model, Year, Type Odoo, Help
@@ -37,7 +29,7 @@ Manage Auto Parts & Variants App, Find High Quality Auto Parts,
 Handle Auto Parts By Make, Model, Year, Type,
 Find Vehicle Details Module Odoo.
 """,
-    "version": "0.0.2",
+    "version": "0.0.1",
     "depends": ["sale_management"],
     "data": [
             "security/sh_motorcycle_backend_groups.xml",
@@ -54,6 +46,7 @@ Find Vehicle Details Module Odoo.
             "views/product_attribute_views.xml",
             "views/sale_order_service_views.xml",
             "views/service_template_wizard_views.xml",
+
             ],
     "images": ["static/description/background.png", ],
     "application": True,
