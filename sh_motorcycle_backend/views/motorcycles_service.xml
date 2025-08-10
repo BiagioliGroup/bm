@@ -131,11 +131,7 @@
                 <field name="labor_description" string="Descripción del Trabajo"
                        filter_domain="[('labor_description', 'ilike', self)]"/>
                 <field name="motorcycle_ids" string="Motocicletas"
-                       filter_domain="['|','|','|','|',
-                                      ('motorcycle_ids.make_id.name', 'ilike', self),
-                                      ('motorcycle_ids.mmodel_id.name', 'ilike', self),
-                                      ('motorcycle_ids.year', 'ilike', self),
-                                      ('motorcycle_ids.name', 'ilike', self)]"/>
+                    filter_domain="['|','|','|',('motorcycle_ids.make_id.name','ilike',self),('motorcycle_ids.mmodel_id.name','ilike',self),('motorcycle_ids.year','ilike',self),('motorcycle_ids.name','ilike',self)]"/>
                 <field name="name" string="Número de Servicio"/>
 
                 <group expand="0" string="Agrupar por">
