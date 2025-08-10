@@ -49,9 +49,6 @@ class SaleOrder(models.Model):
     def _onchange_motorcycle_service_template_id(self):
         """Agregar líneas automáticamente desde la plantilla seleccionada"""
         if self.motorcycle_service_template_id:
-            # Limpiar líneas existentes primero (opcional)
-            # self.order_line = [(5, 0, 0)]  # Descomentar si quieres limpiar automáticamente
-            
             lines_to_add = []
             template = self.motorcycle_service_template_id
             
@@ -79,12 +76,12 @@ class SaleOrderLine(models.Model):
         string='Motocicleta'
     )
     
-    # Relación con servicios de motocicleta si es necesario
-    service_line_ids = fields.One2many(
-        'motorcycle.service.line',
-        'sale_line_id',
-        string='Líneas de Servicio'
-    )
+    # ❌ COMENTADO - Campo problemático eliminado temporalmente
+    # service_line_ids = fields.One2many(
+    #     'motorcycle.service.line',
+    #     'sale_line_id',  # Este campo no existe
+    #     string='Líneas de Servicio'
+    # )
 
     @api.onchange('motorcycle_id')
     def _onchange_motorcycle_id(self):
