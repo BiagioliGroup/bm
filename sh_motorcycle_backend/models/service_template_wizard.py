@@ -23,13 +23,6 @@ class ServiceTemplateWizard(models.TransientModel):
         domain="[('service_line_ids', '!=', False)]"
     )
     
-    preview_line_ids = fields.One2many(
-        'service.template.wizard.line',
-        'wizard_id',
-        string='Vista Previa de Líneas',
-        readonly=True
-    )
-    
     add_section_header = fields.Boolean(
         string='Agregar Encabezado de Sección',
         default=True,
@@ -43,48 +36,9 @@ class ServiceTemplateWizard(models.TransientModel):
 
     @api.onchange('service_template_id')
     def _onchange_service_template_id(self):
-        """Actualizar vista previa cuando cambia la plantilla"""
-        self.preview_line_ids = False
-        
-        if not self.service_template_id:
-            return
-            
-        # Establecer nombre de sección por defecto
-        if not self.section_name:
+        """Establecer nombre de sección por defecto"""
+        if self.service_template_id and not self.section_name:
             self.section_name = self.service_template_id.name
-        
-        # Crear líneas de vista previa
-        preview_lines = []
-        
-        # Agregar encabezado de sección si está marcado
-        if self.add_section_header:
-            preview_lines.append(Command.create({
-                'display_type': 'line_section',
-                'name': self.section_name or self.service_template_id.name,
-                'product_name': '',
-                'quantity': 0,
-                'price_unit': 0,
-                'subtotal': 0,
-            }))
-        
-        # Agregar líneas del servicio
-        for line in self.service_template_id.service_line_ids:
-            preview_lines.append(Command.create({
-                'display_type': line.display_type,
-                'name': line.name,
-                'product_name': line.product_id.name if line.product_id else '',
-                'quantity': line.quantity,
-                'price_unit': line.price_unit,
-                'subtotal': line.subtotal,
-            }))
-        
-        self.preview_line_ids = preview_lines
-
-    @api.onchange('add_section_header', 'section_name')
-    def _onchange_section_settings(self):
-        """Actualizar vista previa cuando cambian configuraciones de sección"""
-        if self.service_template_id:
-            self._onchange_service_template_id()
 
     def action_apply_template(self):
         """Aplicar la plantilla seleccionada a la orden de venta"""
@@ -167,29 +121,3 @@ class ServiceTemplateWizard(models.TransientModel):
                 'sticky': False,
             }
         }
-
-
-class ServiceTemplateWizardLine(models.TransientModel):
-    _name = 'service.template.wizard.line'
-    _description = 'Línea de Vista Previa de Plantilla de Servicio'
-    _order = 'sequence, id'
-
-    wizard_id = fields.Many2one(
-        'service.template.wizard',
-        string='Wizard',
-        required=True,
-        ondelete='cascade'
-    )
-    
-    display_type = fields.Selection([
-        ('line_section', 'Sección'),
-        ('line_note', 'Nota'),
-        ('line', 'Producto'),
-    ], string='Tipo', default='line')
-    
-    name = fields.Text(string='Descripción')
-    product_name = fields.Char(string='Producto')
-    quantity = fields.Float(string='Cantidad', default=1.0)
-    price_unit = fields.Float(string='Precio Unitario')
-    subtotal = fields.Float(string='Subtotal')
-    sequence = fields.Integer(string='Secuencia', default=10)

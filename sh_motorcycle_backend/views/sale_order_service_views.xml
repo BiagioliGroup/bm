@@ -1,87 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Herencia de la vista formulario de orden de venta -->
+    <!-- Herencia SIMPLE de la vista formulario de orden de venta -->
     <record id="sale_order_form_inherit_service_template" model="ir.ui.view">
         <field name="name">sale.order.form.inherit.service.template</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Agregar el campo de plantilla de servicios después del campo de plantilla de cotización -->
-            <xpath expr="//field[@name='sale_order_template_id']" position="after">
-                <field name="motorcycle_service_template_id" 
-                       domain="[('service_line_ids', '!=', False)]"
-                       placeholder="Seleccionar Plantilla de Servicio..."
-                       options="{'no_create': True, 'no_edit': True}"
-                       invisible="state in ['sale', 'cancel']"/>
+            <!-- Agregar después de las líneas de orden -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <group string="Plantillas de Servicio" invisible="state in ['sale', 'cancel']">
+                    <field name="motorcycle_service_template_id" 
+                           domain="[('service_line_ids', '!=', False)]"
+                           placeholder="Seleccionar Plantilla de Servicio..."
+                           options="{'no_create': True, 'no_edit': True}"/>
+                </group>
             </xpath>
         </field>
     </record>
 
-    <!-- Vista alternativa con botón para aplicar plantilla -->
-    <record id="sale_order_form_service_template_with_button" model="ir.ui.view">
+    <!-- Botón en el header para wizard -->
+    <record id="sale_order_form_service_template_button" model="ir.ui.view">
         <field name="name">sale.order.form.service.template.button</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
-        <field name="arch" type="xml">
-            <!-- Agregar en el grupo de order_details -->
-            <xpath expr="//group[@name='order_details']" position="inside">
-                <label for="motorcycle_service_template_id" 
-                       string="Plantilla de Servicios"
-                       invisible="state in ['sale', 'cancel']"/>
-                <div invisible="state in ['sale', 'cancel']">
-                    <div class="o_row">
-                        <field name="motorcycle_service_template_id" 
-                               domain="[('service_line_ids', '!=', False)]"
-                               placeholder="Seleccionar Plantilla..."
-                               options="{'no_create': True, 'no_edit': True}"
-                               class="oe_inline"/>
-                        <button name="action_apply_service_template" 
-                                type="object" 
-                                string="Aplicar" 
-                                class="btn-link"
-                                icon="fa-plus"
-                                invisible="not motorcycle_service_template_id"/>
-                    </div>
-                </div>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Vista de lista de servicios para selección -->
-    <record id="motorcycle_service_template_list" model="ir.ui.view">
-        <field name="name">motorcycle.service.template.list</field>
-        <field name="model">motorcycle.service</field>
-        <field name="arch" type="xml">
-            <list string="Plantillas de Servicios" create="false" edit="false">
-                <field name="name"/>
-                <field name="description"/>
-                <field name="total_service_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="currency_id" column_invisible="1"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Acción para abrir selector de plantillas -->
-    <record id="action_service_template_selector" model="ir.actions.act_window">
-        <field name="name">Seleccionar Plantilla de Servicio</field>
-        <field name="res_model">motorcycle.service</field>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="motorcycle_service_template_list"/>
-        <field name="domain">[('service_line_ids', '!=', False)]</field>
-        <field name="target">new</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No hay plantillas de servicios disponibles
-            </p>
-            <p>
-                Las plantillas de servicios deben tener al menos una línea configurada.
-            </p>
-        </field>
-    </record>
-
-    <!-- Botón en el header de orden de venta para selector de plantillas -->
-    <record id="sale_order_form_service_template_header_button" model="ir.ui.view">
-        <field name="name">sale.order.form.service.template.header</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">

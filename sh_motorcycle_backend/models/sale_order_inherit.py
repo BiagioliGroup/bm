@@ -5,8 +5,7 @@ from odoo import models, fields, api, _
 from odoo.fields import Command
 
 
-class SaleOrderServiceTemplate(models.Model):
-    _inherit = 'sale.order'
+class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     motorcycle_service_template_id = fields.Many2one(
@@ -90,6 +89,21 @@ class SaleOrderServiceTemplate(models.Model):
         # Limpiar el campo de plantilla para evitar aplicarla nuevamente
         self.motorcycle_service_template_id = False
 
+    def action_open_service_template_wizard(self):
+        """Abrir wizard para seleccionar plantilla de servicio"""
+        self.ensure_one()
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Agregar Plantilla de Servicio'),
+            'res_model': 'service.template.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_sale_order_id': self.id,
+            },
+        }
+
     def action_apply_service_template(self):
         """Método alternativo para aplicar plantilla desde botón"""
         self.ensure_one()
@@ -114,35 +128,3 @@ class SaleOrderServiceTemplate(models.Model):
                 'sticky': False,
             }
         }
-
-    @api.model
-    def _get_service_template_domain(self):
-        """Dominio para filtrar plantillas de servicio disponibles"""
-        return [
-            ('service_line_ids', '!=', False),  # Solo servicios con líneas
-        ]
-
-
-class SaleOrderLineServiceTemplate(models.Model):
-    _inherit = 'sale.order.line'
-
-    @api.model
-    def _prepare_service_template_line(self, service_line, sequence):
-        """Preparar valores para línea desde plantilla de servicio"""
-        if service_line.display_type in ['line_section', 'line_note']:
-            return {
-                'display_type': service_line.display_type,
-                'name': service_line.name,
-                'sequence': sequence,
-            }
-        
-        # Línea de producto
-        vals = {
-            'product_id': service_line.product_id.id,
-            'name': service_line.name,
-            'product_uom_qty': service_line.quantity,
-            'price_unit': service_line.price_unit,
-            'sequence': sequence,
-        }
-        
-        return vals

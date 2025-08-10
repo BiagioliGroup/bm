@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista formulario del wizard -->
+    <!-- Vista formulario del wizard SIMPLIFICADA -->
     <record id="service_template_wizard_form" model="ir.ui.view">
         <field name="name">service.template.wizard.form</field>
         <field name="model">service.template.wizard</field>
@@ -13,33 +13,9 @@
                            options="{'no_create': True}"/>
                 </group>
                 
-                <group string="Configuración de Sección" invisible="not service_template_id">
+                <group string="Configuración" invisible="not service_template_id">
                     <field name="add_section_header"/>
                     <field name="section_name" invisible="not add_section_header"/>
-                </group>
-                
-                <group string="Vista Previa" invisible="not preview_line_ids">
-                    <field name="preview_line_ids" nolabel="1">
-                        <list string="Líneas a Agregar" create="false" edit="false" delete="false">
-                            <field name="display_type" column_invisible="1"/>
-                            <field name="name" 
-                                   string="Descripción"
-                                   decoration-bf="display_type == 'line_section'"
-                                   decoration-it="display_type == 'line_note'"/>
-                            <field name="product_name" string="Producto"/>
-                            <field name="quantity" 
-                                   string="Cantidad"
-                                   invisible="display_type != 'line'"/>
-                            <field name="price_unit" 
-                                   string="Precio Unit."
-                                   widget="monetary"
-                                   invisible="display_type != 'line'"/>
-                            <field name="subtotal" 
-                                   string="Subtotal"
-                                   widget="monetary"
-                                   invisible="display_type != 'line'"/>
-                        </list>
-                    </field>
                 </group>
                 
                 <footer>
