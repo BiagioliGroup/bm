@@ -150,6 +150,37 @@ class MotorcycleService(models.Model):
             },
         }
 
+    def action_save_workflow(self):
+        """Guardar el workflow actual"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Workflow Guardado',
+                'message': 'El workflow ha sido guardado correctamente.',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+    def action_refresh_workflow(self):
+        """Refrescar la vista del workflow"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Diseñador de Workflow - %s' % self.name,
+            'res_model': 'motorcycle.service',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('sh_motorcycle_backend.view_motorcycle_service_workflow_designer').id,
+            'target': 'new',
+            'context': {
+                'default_service_id': self.id,
+                'workflow_mode': True,
+            },
+        }
+
     def create_workflow_template(self):
         """Crear plantilla básica de workflow"""
         self.ensure_one()
