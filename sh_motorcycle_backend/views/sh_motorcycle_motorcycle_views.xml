@@ -308,7 +308,6 @@
                   decoration-warning="market == 'ARG'"
                   decoration-muted="market == 'JP'"
                   decoration-danger="year &lt; 2015"
-                  decoration-bf="service_ids"
                   sample="1"
                   multi_edit="1"
                   export_xlsx="1">
@@ -322,8 +321,7 @@
                 <field name="market" widget="selection_badge"/>
                 <field name="product_ids" widget="many2many_tags" optional="hide" 
                        options="{'color_field': 'categ_id'}"/>
-                <field name="service_ids" widget="many2many_tags" optional="hide" 
-                       options="{'color_field': 'total_service_cost'}"/>
+                <field name="service_ids" widget="many2many_tags" optional="hide"/>
                 
                 <!-- Campos para filtros pero ocultos -->
                 <field name="company_id" column_invisible="1"/>
@@ -370,7 +368,8 @@
                 
                 <!-- Filtros por contenido -->
                 <filter name="filter_with_services" string="🔧 Con Servicios" 
-                        domain="[('service_ids', '!=', False)]"/>
+                        domain="[('id', 'in', [])]"
+                        context="{'search_services': True}"/>
                 <filter name="filter_with_products" string="📦 Con Productos" 
                         domain="[('product_ids', '!=', False)]"/>
                 <filter name="filter_with_tech_data" string="📊 Con Datos Técnicos" 
