@@ -120,42 +120,110 @@
         </field>
     </record>
 
-    <!-- SEARCH VIEW MEJORADO PARA BÚSQUEDA INTELIGENTE -->
+    <!-- Vista de búsqueda mejorada -->
     <record id="view_motorcycle_service_search" model="ir.ui.view">
         <field name="name">motorcycle.service.search</field>
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
-            <search string="Buscar Servicios">
-                <!-- Campo de búsqueda principal SUPER FLEXIBLE -->
-                <field name="name" string="Buscar Servicio"
-                       filter_domain="['|','|','|','|','|','|','|','|','|',
-                                      ('name','ilike',self),
-                                      ('description','ilike',self),
-                                      ('labor_description','ilike',self),
-                                      ('motorcycle_ids.name','ilike',self),
-                                      ('motorcycle_ids.make_id.name','ilike',self),
-                                      ('motorcycle_ids.mmodel_id.name','ilike',self),
-                                      ('motorcycle_ids.type_id.name','ilike',self),
-                                      ('motorcycle_ids.year','ilike',self),
-                                      ('service_line_ids.name','ilike',self),
-                                      ('service_line_ids.product_id.name','ilike',self)]"/>
+            <search string="Búsqueda de Servicios">
+                <!-- Campo de búsqueda principal con búsqueda inteligente -->
+                <field name="name" 
+                       string="Búsqueda Inteligente" 
+                       filter_domain="['|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                                      ('name', 'ilike', self),
+                                      ('description', 'ilike', self),
+                                      ('labor_description', 'ilike', self),
+                                      ('motorcycle_ids.make_id.name', 'ilike', self),
+                                      ('motorcycle_ids.mmodel_id.name', 'ilike', self),
+                                      ('motorcycle_ids.type_id.name', 'ilike', self),
+                                      ('motorcycle_ids.year', 'ilike', self),
+                                      ('service_line_ids.product_id.name', 'ilike', self),
+                                      ('service_line_ids.name', 'ilike', self),
+                                      ('step_ids.name', 'ilike', self)]"/>
                 
-                <!-- Campos específicos para búsquedas más precisas -->
-                <field name="motorcycle_ids" string="Motocicletas"/>
+                <!-- Campos de búsqueda específicos -->
                 <field name="description" string="Descripción"/>
+                <field name="motorcycle_ids" string="Motocicletas"/>
+                <field name="service_line_ids" string="Productos/Servicios"/>
                 
-                <!-- Filtros útiles -->
-                <filter string="Con Motocicletas" name="with_motorcycles" 
-                        domain="[('motorcycle_ids','!=',False)]"/>
-                <filter string="Servicios Recientes" name="recent" 
-                        domain="[('create_date','&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <!-- Filtros rápidos -->
+                <separator/>
+                <filter string="Servicios de Hoy" name="today"
+                        domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter string="Esta Semana" name="this_week"
+                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Este Mes" name="this_month"
+                        domain="[('create_date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
+                
+                <separator/>
+                <filter string="Con Repuestos" name="has_parts"
+                        domain="[('total_parts_cost', '&gt;', 0)]"/>
+                <filter string="Solo Mano de Obra" name="labor_only"
+                        domain="[('total_parts_cost', '=', 0), ('total_services_cost', '&gt;', 0)]"/>
+                <filter string="Servicios Grandes" name="expensive"
+                        domain="[('total_service_cost', '&gt;', 1000)]"/>
+                
+                <!-- Filtros por marca -->
+                <separator/>
+                <filter string="KTM" name="ktm"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'ktm')]"/>
+                <filter string="BMW" name="bmw"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'bmw')]"/>
+                <filter string="Yamaha" name="yamaha"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'yamaha')]"/>
+                <filter string="Honda" name="honda"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'honda')]"/>
+                <filter string="Husqvarna" name="husqvarna"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'husqvarna')]"/>
+                
+                <!-- Filtros por tipo de servicio -->
+                <separator/>
+                <filter string="Amortiguadores" name="suspension"
+                        domain="['|', '|', 
+                                ('description', 'ilike', 'amortiguador'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'amortiguador'),
+                                ('service_line_ids.name', 'ilike', 'amortiguador')]"/>
+                <filter string="Motor" name="engine"
+                        domain="['|', '|', 
+                                ('description', 'ilike', 'motor'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'motor'),
+                                ('service_line_ids.name', 'ilike', 'motor')]"/>
+                <filter string="Frenos" name="brakes"
+                        domain="['|', '|', '|',
+                                ('description', 'ilike', 'freno'), 
+                                ('description', 'ilike', 'brake'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'freno'),
+                                ('service_line_ids.name', 'ilike', 'freno')]"/>
+                <filter string="Aceite/Filtros" name="oil_filters"
+                        domain="['|', '|', '|', '|',
+                                ('description', 'ilike', 'aceite'), 
+                                ('description', 'ilike', 'filtro'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'aceite'),
+                                ('service_line_ids.product_id.name', 'ilike', 'filtro'),
+                                ('service_line_ids.name', 'ilike', 'aceite')]"/>
                 
                 <!-- Agrupaciones -->
                 <group expand="0" string="Agrupar por">
-                    <filter name="group_by_motorcycle" string="Motocicleta" 
-                            context="{'group_by':'motorcycle_ids'}"/>
-                    <filter name="group_by_month" string="Mes de Creación" 
-                            context="{'group_by':'create_date:month'}"/>
+                    <filter name="group_by_motorcycle_make"
+                            string="Marca de Motocicleta"
+                            domain="[]"
+                            context="{'group_by': 'motorcycle_ids.make_id'}"/>
+                    <filter name="group_by_motorcycle_model"
+                            string="Modelo de Motocicleta"
+                            domain="[]"
+                            context="{'group_by': 'motorcycle_ids.mmodel_id'}"/>
+                    <filter name="group_by_motorcycle_year"
+                            string="Año de Motocicleta"
+                            domain="[]"
+                            context="{'group_by': 'motorcycle_ids.year'}"/>
+                    <filter name="group_by_date"
+                            string="Fecha de Creación"
+                            domain="[]"
+                            context="{'group_by': 'create_date:month'}"/>
+                    <filter name="group_by_cost_range"
+                            string="Rango de Costo"
+                            domain="[]"
+                            context="{'group_by': 'total_service_cost'}"/>
                 </group>
             </search>
         </field>
