@@ -168,6 +168,7 @@ class MotorcycleService(models.Model):
         except (ValueError, TypeError):
             return 0
 
+
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
         """Override para mejorar el orden de resultados"""
