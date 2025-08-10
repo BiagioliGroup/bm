@@ -119,17 +119,12 @@
                     <!-- Botones de acción rápida -->
                     <button name="action_create_service" string="Crear Servicio" type="object" 
                             class="btn-primary" icon="fa-wrench"/>
-                    <button name="%(sh_motorcycle_backend.action_motorcycle_technical_data)d" 
-                            string="Ver Datos Técnicos" type="action"
-                            context="{'default_motorcycle_id': active_id}"
-                            class="btn-secondary" icon="fa-cogs"/>
                 </header>
                 <sheet>
                     <!-- Botones estadísticos mejorados -->
                     <div class="oe_button_box" name="button_box">
-                        <button name="%(sh_motorcycle_backend.action_motorcycle_service)d" type="action" 
-                                class="oe_stat_button" icon="fa-wrench"
-                                context="{'default_motorcycle_ids': [(4, active_id)]}">
+                        <button name="action_view_services" type="object" 
+                                class="oe_stat_button" icon="fa-wrench">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="service_ids" widget="statinfo"/>

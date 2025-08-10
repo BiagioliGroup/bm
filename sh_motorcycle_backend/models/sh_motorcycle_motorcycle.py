@@ -156,6 +156,7 @@ class Motorcycle(models.Model):
                 )
 
     def action_create_service(self):
+        """Método para crear un nuevo servicio asociado a esta motocicleta"""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -164,6 +165,49 @@ class Motorcycle(models.Model):
             'view_mode': 'form',
             'target': 'current',
             'context': {
-                'default_motorcycle_ids': [self.id],
+                'default_motorcycle_ids': [(4, self.id)],
+            },
+        }
+
+    def action_view_services(self):
+        """Método para ver los servicios asociados a esta motocicleta"""
+        self.ensure_one()
+        services = self.env['motorcycle.service'].search([
+            ('motorcycle_ids', 'in', self.id)
+        ])
+        
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': _('Servicios de %s') % self.name,
+            'res_model': 'motorcycle.service',
+            'domain': [('motorcycle_ids', 'in', self.id)],
+            'context': {
+                'default_motorcycle_ids': [(4, self.id)],
+            },
+        }
+        
+        if len(services) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': services.id,
+            })
+        else:
+            action.update({
+                'view_mode': 'list,form',
+            })
+            
+        return action
+
+    def action_view_technical_data(self):
+        """Método para ver los datos técnicos de esta motocicleta"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Datos Técnicos de %s') % self.name,
+            'res_model': 'motorcycle.technical.data',
+            'view_mode': 'list,form',
+            'domain': [('motorcycle_id', '=', self.id)],
+            'context': {
+                'default_motorcycle_id': self.id,
             },
         }
