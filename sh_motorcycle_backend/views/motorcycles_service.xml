@@ -116,6 +116,7 @@
                 <field name="total_service_cost" widget="monetary" 
                        options="{'currency_field': 'currency_id'}" 
                        decoration-bf="1"/>
+                       
             </list>
         </field>
     </record>
