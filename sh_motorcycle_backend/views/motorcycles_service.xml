@@ -451,7 +451,7 @@
             <form string="Nuevo Paso del Workflow">
                 <group>
                     <group>
-                        <field name="step_type" widget="radio" options="{'horizontal': false}"/>
+                        <field name="step_type" widget="selection"/>
                         <field name="sequence" invisible="1"/>
                         <field name="name" placeholder="Ej: Cambiar aceite del motor" required="1"/>
                     </group>
