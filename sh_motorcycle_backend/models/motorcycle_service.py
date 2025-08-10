@@ -2,54 +2,94 @@
 # Part of Softhealer Technologies.
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
-class MotorcycleServiceLine(models.Model):
-    _name = 'motorcycle.service.line'
-    _description = 'Línea del Servicio de Motocicleta'
-    _order = 'sequence, id'
+class MotorcycleService(models.Model):
+    _name = 'motorcycle.service'
+    _description = 'Servicio de Motocicleta'
+    _rec_name = 'name'
 
-    service_id = fields.Many2one(
-        'motorcycle.service', string='Servicio de Motocicleta', required=True, ondelete='cascade'
+    name = fields.Char(
+        string='Número de Servicio',
+        required=True,
+        copy=False,
+        readonly=True,
+        default=lambda self: self.env['ir.sequence'].next_by_code('motorcycle.service.sequence') or 'Nuevo'
     )
-    sequence = fields.Integer(string='Secuencia', default=10)
-    display_type = fields.Selection(
-        [('line', 'Producto'), ('section', 'Sección'), ('note', 'Nota')],
-        string='Tipo de línea', default='line', required=True
+    motorcycle_ids = fields.Many2many(
+        'motorcycle.motorcycle',
+        'motorcycle_service_rel',  # misma tabla relacional
+        'service_id', 'motorcycle_id',
+        string='Motocicletas',
+        required=True
     )
-    product_id = fields.Many2one('product.product', string='Producto')
-    name = fields.Text(string='Descripción')
-    quantity = fields.Float(string='Cantidad', default=1.0)
-    price_unit = fields.Float(string='Precio unitario')
-    subtotal = fields.Monetary(
-        string='Subtotal', compute='_compute_subtotal', store=True, currency_field='currency_id'
-    )
+    description = fields.Text(string='Descripción')
+    labor_description = fields.Text(string='Descripción del Trabajo')
+
     currency_id = fields.Many2one(
-        related='service_id.currency_id', string='Moneda', readonly=True
+        'res.currency',
+        string='Moneda',
+        default=lambda self: self.env.company.currency_id
     )
 
-    @api.depends('display_type', 'quantity', 'price_unit')
-    def _compute_subtotal(self):
-        for line in self:
-            line.subtotal = line.quantity * line.price_unit if line.display_type == 'line' else 0.0
-
-    @api.onchange('product_id')
-    def _onchange_product_id(self):
-        if self.product_id:
-            self.name = self.product_id.name
-            self.price_unit = self.product_id.list_price
-
-
-class MotorcycleServiceStep(models.Model):
-    _name = 'motorcycle.service.step'
-    _description = 'Paso operativo del servicio técnico'
-    _order = 'sequence, id'
-
-    service_id = fields.Many2one(
-        'motorcycle.service', string='Servicio de Motocicleta', required=True, ondelete='cascade'
+    service_line_ids = fields.One2many(
+        'motorcycle.service.line',
+        'service_id',
+        string='Líneas del Servicio'
     )
-    sequence = fields.Integer(string='Secuencia', default=10)
-    name = fields.Char(string='Descripción del paso', required=True)
-    is_done = fields.Boolean(string='Completado')
-    note = fields.Text(string='Nota o instrucción especial')
-    pdf_file = fields.Binary(string='Archivo PDF', attachment=True)
-    pdf_filename = fields.Char(string='Nombre del archivo')
+
+    total_parts_cost = fields.Monetary(
+        string='Costo de Repuestos',
+        currency_field='currency_id',
+        compute='_compute_totals',
+        store=True,
+        default=0.0
+    )
+    total_services_cost = fields.Monetary(
+        string='Costo de Mano de Obra',
+        currency_field='currency_id',
+        compute='_compute_totals',
+        store=True,
+        default=0.0
+    )
+    total_service_cost = fields.Monetary(
+        string='Costo Total',
+        currency_field='currency_id',
+        compute='_compute_totals',
+        store=True,
+        default=0.0
+    )
+
+    step_ids = fields.One2many(
+        'motorcycle.service.step',
+        'service_id',
+        string='Pasos del Servicio'
+    )
+
+    @api.depends('service_line_ids.subtotal', 'service_line_ids.product_id.type')
+    def _compute_totals(self):
+        for service in self:
+            parts_total = 0.0
+            services_total = 0.0
+            for line in service.service_line_ids:
+                if line.display_type == 'line' and line.product_id:
+                    if line.product_id.type == 'consu':
+                        parts_total += line.subtotal
+                    elif line.product_id.type == 'service':
+                        services_total += line.subtotal
+            service.total_parts_cost = parts_total
+            service.total_services_cost = services_total
+            service.total_service_cost = parts_total + services_total
+
+    def action_print_service_report(self):
+        """Método para imprimir reporte del servicio"""
+        self.ensure_one()
+        # Placeholder para futuro reporte personalizado
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reporte de Servicio',
+            'res_model': 'motorcycle.service',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
