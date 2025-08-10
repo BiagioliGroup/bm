@@ -69,96 +69,69 @@ class MotorcycleService(models.Model):
     @api.model
     def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
         """
-        Búsqueda inteligente sin mapeos hardcodeados que busca por:
-        - Coincidencias parciales (ejemplo: 'amort' encuentra 'amortiguador')
-        - Múltiples campos simultáneamente
-        - Años como números enteros
-        - Palabras en cualquier orden
-        
-        Ejemplo: "amort tras ktm 300 2022" encontrará servicios que contengan
-        palabras que empiecen con "amort" y "tras" en KTM 300 del año 2022
+        Búsqueda inteligente que funciona con palabras parciales
+        Ejemplo: "amort tras ktm 300 2022" encuentra servicios con esas palabras
         """
         if args is None:
             args = []
         
         if name and operator in ('ilike', '=ilike'):
-            # Limpiar y dividir la búsqueda en palabras individuales
-            search_words = []
-            for word in name.split():
-                word = word.strip()
-                if len(word) >= 2:  # Palabras de al menos 2 caracteres
-                    search_words.append(word)
+            # Dividir en palabras (mínimo 2 caracteres)
+            words = [word.strip() for word in name.split() if len(word.strip()) >= 2]
             
-            if search_words:
-                # Crear dominios para cada palabra usando búsqueda por prefijo
-                domain_parts = []
+            if words:
+                # Crear dominio para cada palabra
+                word_domains = []
                 
-                for word in search_words:
-                    # Para cada palabra, buscar como prefijo en múltiples campos
-                    year_value = self._try_parse_int(word)
+                for word in words:
+                    # Intentar como año si es número
+                    try:
+                        year_val = int(word)
+                        if year_val < 1900 or year_val > 2030:
+                            year_val = 0
+                    except:
+                        year_val = 0
                     
-                    # Crear dominio que busque la palabra como prefijo o contenido
+                    # Buscar la palabra en múltiples campos
                     word_domain = [
-                        '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
-                        ('name', 'ilike', f'%{word}%'),
-                        ('description', 'ilike', f'%{word}%'),
-                        ('labor_description', 'ilike', f'%{word}%'),
-                        ('motorcycle_ids.name', 'ilike', f'%{word}%'),
-                        ('motorcycle_ids.make_id.name', 'ilike', f'%{word}%'),
-                        ('motorcycle_ids.mmodel_id.name', 'ilike', f'%{word}%'),
-                        ('motorcycle_ids.type_id.name', 'ilike', f'%{word}%'),
-                        ('motorcycle_ids.market', 'ilike', f'%{word}%'),
-                        ('service_line_ids.product_id.name', 'ilike', f'%{word}%'),
-                        ('service_line_ids.name', 'ilike', f'%{word}%'),
-                        ('step_ids.name', 'ilike', f'%{word}%'),
-                        ('step_ids.note', 'ilike', f'%{word}%'),
-                        # Si es un número válido, buscar como año exacto
-                        ('motorcycle_ids.year', '=', year_value) if year_value > 1900 and year_value <= 2030 
-                            else ('motorcycle_ids.year', 'ilike', f'%{word}%'),
-                        # Búsqueda adicional en categorías de productos técnicos
-                        ('motorcycle_ids.technical_data_ids.value_id.name', 'ilike', f'%{word}%'),
+                        '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                        ('name', 'ilike', word),
+                        ('description', 'ilike', word),
+                        ('labor_description', 'ilike', word),
+                        ('motorcycle_ids.name', 'ilike', word),
+                        ('motorcycle_ids.make_id.name', 'ilike', word),
+                        ('motorcycle_ids.mmodel_id.name', 'ilike', word),
+                        ('motorcycle_ids.type_id.name', 'ilike', word),
+                        ('service_line_ids.product_id.name', 'ilike', word),
+                        ('service_line_ids.name', 'ilike', word),
+                        ('step_ids.name', 'ilike', word),
+                        ('step_ids.note', 'ilike', word),
+                        ('motorcycle_ids.year', '=', year_val) if year_val > 0 else ('name', 'ilike', '___NEVER_MATCH___'),
                     ]
-                    domain_parts.append(word_domain)
+                    word_domains.append(word_domain)
                 
-                # Combinar dominios: TODAS las palabras deben encontrarse (AND)
-                if len(domain_parts) == 1:
-                    search_domain = domain_parts[0]
+                # Combinar: TODAS las palabras deben encontrarse
+                if len(word_domains) == 1:
+                    search_domain = word_domains[0]
                 else:
                     search_domain = []
-                    # Usar AND entre diferentes palabras para que todas sean requeridas
-                    for i, domain_part in enumerate(domain_parts):
+                    for i, domain in enumerate(word_domains):
                         if i > 0:
                             search_domain.append('&')
-                        search_domain.extend(domain_part)
+                        search_domain.extend(domain)
                 
-                # Combinar con args existentes
+                # Combinar con args
                 final_domain = expression.AND([args, search_domain])
                 
-                # Ejecutar búsqueda
+                # Buscar
                 try:
                     service_ids = self._search(final_domain, limit=limit, access_rights_uid=name_get_uid)
-                    results = self.browse(service_ids)
-                    
-                    # Si hay pocos resultados, probar búsqueda más flexible (OR en lugar de AND)
-                    if len(results) < 3 and len(search_words) > 1:
-                        # Búsqueda alternativa: al menos una palabra debe coincidir
-                        flexible_domain = []
-                        for i, domain_part in enumerate(domain_parts):
-                            if i > 0:
-                                flexible_domain.append('|')
-                            flexible_domain.extend(domain_part)
-                        
-                        flexible_final_domain = expression.AND([args, flexible_domain])
-                        flexible_service_ids = self._search(flexible_final_domain, limit=limit, access_rights_uid=name_get_uid)
-                        results = self.browse(flexible_service_ids)
-                    
-                    return results.name_get()
-                    
-                except Exception:
-                    # Si hay error en la búsqueda compleja, hacer búsqueda simple
+                    return self.browse(service_ids).name_get()
+                except:
+                    # Si falla, usar búsqueda simple
                     pass
         
-        # Fallback a búsqueda normal
+        # Búsqueda normal como fallback
         return super()._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
     def _try_parse_int(self, value):
@@ -169,33 +142,25 @@ class MotorcycleService(models.Model):
             return 0
 
 
-    @api.model
-    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
-        """Override para mejorar el orden de resultados"""
-        # Si hay un contexto de búsqueda específico, ordenar por relevancia
-        if self.env.context.get('search_relevance'):
-            if not order:
-                order = 'name desc, id desc'
-        
-        return super()._search(args, offset=offset, limit=limit, order=order, 
-                             count=count, access_rights_uid=access_rights_uid)
+    
 
     def name_get(self):
-        """Mostrar información más descriptiva en el name_get"""
+        """Mostrar información más descriptiva"""
         result = []
         for record in self:
-            # Obtener nombres de motocicletas
+            # Obtener nombres de hasta 2 motocicletas
             motorcycle_names = []
-            for moto in record.motorcycle_ids[:3]:  # Máximo 3 para no hacer muy largo
+            for moto in record.motorcycle_ids[:2]:
                 motorcycle_names.append(f"{moto.make_id.name} {moto.mmodel_id.name} {moto.year}")
             
-            if len(record.motorcycle_ids) > 3:
-                motorcycle_names.append(f"... +{len(record.motorcycle_ids) - 3} más")
+            if len(record.motorcycle_ids) > 2:
+                motorcycle_names.append(f"... +{len(record.motorcycle_ids) - 2} más")
             
-            moto_str = " | ".join(motorcycle_names)
+            moto_str = " | ".join(motorcycle_names) if motorcycle_names else "Sin motocicletas"
             
             if record.description:
-                name = f"{record.name} - {record.description[:50]}... ({moto_str})"
+                desc = record.description[:30] + "..." if len(record.description) > 30 else record.description
+                name = f"{record.name} - {desc} ({moto_str})"
             else:
                 name = f"{record.name} ({moto_str})"
             
