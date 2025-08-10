@@ -132,25 +132,49 @@ class SaleOrderServiceTemplate(models.Model):
             # Crear nuevas líneas basadas en la plantilla
             line_vals = []
             for line in self.service_template_id.service_line_ids:
-                # Asegurar que tenemos una descripción válida
-                description = line.name
-                if not description and line.product_id:
-                    description = line.product_id.name
-                elif not description:
-                    description = "Servicio"
+                # Asegurar que tenemos una descripción válida SIEMPRE
+                description = None
                 
+                # Prioridad 1: Si hay descripción en la línea de servicio
+                if line.name and line.name.strip():
+                    description = line.name.strip()
+                
+                # Prioridad 2: Si hay producto, usar su nombre
+                elif line.product_id and line.product_id.name:
+                    description = line.product_id.name
+                
+                # Prioridad 3: Descripción por defecto según tipo
+                else:
+                    if line.display_type == 'section':
+                        description = 'Sección de Servicio'
+                    elif line.display_type == 'note':
+                        description = 'Nota de Servicio'
+                    else:
+                        description = 'Línea de Servicio'
+                
+                # Crear valores para la línea
                 vals = {
-                    'product_id': line.product_id.id if line.product_id else False,
-                    'name': description,
+                    'name': description,  # SIEMPRE asignar descripción
                     'product_uom_qty': line.quantity or 1.0,
                     'price_unit': line.price_unit or 0.0,
-                    'product_uom': line.product_id.uom_id.id if line.product_id else False,
                     'discount': 0.0,
                     'sequence': line.sequence or 10,
                 }
+                
+                # Solo agregar producto y UoM si existen
+                if line.product_id:
+                    vals['product_id'] = line.product_id.id
+                    vals['product_uom'] = line.product_id.uom_id.id
+                
+                # Agregar tipo de display si es sección o nota
+                if line.display_type in ['section', 'note']:
+                    vals['display_type'] = line.display_type
+                
                 line_vals.append((0, 0, vals))
             
-            self.order_line = line_vals
+            # Solo aplicar si hay líneas para crear
+            if line_vals:
+                self.order_line = line_vals
             
             # Limpiar el campo después de aplicar la plantilla
             self.service_template_id = False

@@ -278,47 +278,7 @@
                             </field>
                         </page>
                         
-                        <!-- Vista previa del Workflow en pestaña -->
-                        <page string="🔧 Vista Previa Workflow" icon="fa-eye">
-                            <div class="workflow-preview" style="padding: 20px;">
-                                <!-- Banner llamativo para abrir el diseñador -->
-                                <div class="workflow-banner" 
-                                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                            color: white; padding: 30px; border-radius: 12px; 
-                                            text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                                    <i class="fa fa-sitemap fa-3x" style="margin-bottom: 15px; opacity: 0.9;"></i>
-                                    <h2 style="margin: 0 0 10px 0; color: white;">Diseñador de Workflow Visual</h2>
-                                    <p style="margin: 0 0 20px 0; opacity: 0.9; font-size: 16px;">
-                                        Crea y gestiona el flujo operativo de tu servicio con tarjetas interactivas
-                                    </p>
-                                    <button name="action_open_workflow_designer" type="object" 
-                                            string="🚀 Abrir Diseñador de Workflow" 
-                                            class="btn btn-light btn-lg" 
-                                            style="padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 25px;"/>
-                                </div>
-
-                                <!-- Acciones rápidas -->
-                                <div class="quick-actions" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
-                                    <h4 style="margin-bottom: 15px; color: #495057;">
-                                        <i class="fa fa-bolt"/> Acciones Rápidas
-                                    </h4>
-                                    <div class="btn-group" role="group">
-                                        <button name="create_workflow_template" type="object" 
-                                                string="🎨 Crear Plantilla" 
-                                                class="btn btn-primary btn-lg me-3"/>
-                                        <button name="action_open_workflow_designer" type="object" 
-                                                string="✏️ Editar Workflow" 
-                                                class="btn btn-secondary btn-lg"/>
-                                    </div>
-                                    <div class="mt-3">
-                                        <small class="text-muted">
-                                            <i class="fa fa-lightbulb-o"/> 
-                                            Crea una plantilla básica de workflow o edita los pasos existentes en el diseñador visual.
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </page>
+                        
                     </notebook>
                 </sheet>
             </form>

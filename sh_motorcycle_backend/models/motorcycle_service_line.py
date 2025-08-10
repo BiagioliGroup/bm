@@ -49,11 +49,34 @@ class MotorcycleServiceLine(models.Model):
         for line in self:
             line.subtotal = line.quantity * line.price_unit if line.display_type == 'line' else 0.0
 
+    @api.model
+    def create(self, vals):
+        """Asegurar que siempre hay una descripción al crear"""
+        if not vals.get('name') or not vals['name'].strip():
+            if vals.get('display_type') == 'section':
+                vals['name'] = 'Nueva Sección'
+            elif vals.get('display_type') == 'note':
+                vals['name'] = 'Nueva Nota'
+            elif vals.get('product_id'):
+                product = self.env['product.product'].browse(vals['product_id'])
+                vals['name'] = product.name or 'Línea de Servicio'
+            else:
+                vals['name'] = 'Línea de Servicio'
+        return super().create(vals)
+
     @api.onchange('product_id')
     def _onchange_product_id(self):
-        if self.product_id:
+        """Actualizar descripción cuando cambie el producto"""
+        if self.product_id and not self.name:
             self.name = self.product_id.name
-            self.price_unit = self.product_id.list_price
+
+    @api.onchange('display_type')
+    def _onchange_display_type(self):
+        """Actualizar descripción cuando cambie el tipo"""
+        if self.display_type == 'section' and not self.name:
+            self.name = 'Nueva Sección'
+        elif self.display_type == 'note' and not self.name:
+            self.name = 'Nueva Nota'
 
     def add_line_product(self):
         self.ensure_one()
