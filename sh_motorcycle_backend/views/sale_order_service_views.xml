@@ -1,41 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Herencia SIMPLE de la vista formulario de orden de venta -->
-    <record id="sale_order_form_inherit_service_template" model="ir.ui.view">
-        <field name="name">sale.order.form.inherit.service.template</field>
+    <!-- Herencia de la vista formulario de Sale Order -->
+    <record id="view_order_form_inherit_service_templates" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.service.templates</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Agregar después de las líneas de orden -->
-            <xpath expr="//field[@name='order_line']" position="before">
-                <group string="Plantillas de Servicio" invisible="state in ['sale', 'cancel']">
-                    <field name="motorcycle_service_template_id" 
-                           domain="[('service_line_ids', '!=', False)]"
-                           placeholder="Seleccionar Plantilla de Servicio..."
-                           options="{'no_create': True, 'no_edit': True}"/>
-                </group>
+            
+            <!-- Agregar campo de plantilla de servicios después de payment_term_id -->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="service_template_id" 
+                       string="Plantilla de Servicios"
+                       placeholder="Seleccionar Plantilla de Servicio..." 
+                       options="{'no_create': True, 'no_open': True}"
+                       readonly="state in ['cancel', 'sale']"/>
             </xpath>
-        </field>
-    </record>
 
-    <!-- Botón en el header para wizard -->
-    <record id="sale_order_form_service_template_button" model="ir.ui.view">
-        <field name="name">sale.order.form.service.template.button</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button class="oe_stat_button" 
-                        name="action_open_service_template_wizard"
-                        type="object"
-                        icon="fa-wrench"
-                        invisible="state in ['sale', 'cancel']">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_text">Plantillas</span>
-                        <span class="o_stat_text">Servicios</span>
-                    </div>
-                </button>
+            <!-- Agregar botón de borrar líneas en el control -->
+            <xpath expr="//field[@name='order_line']//control" position="inside">
+                <button name="action_clear_order_lines" 
+                        string="🗑️ Borrar Todo" 
+                        type="object" 
+                        class="btn-danger btn-sm" 
+                        confirm="¿Estás seguro de que quieres borrar todas las líneas?" 
+                        invisible="state not in ['draft', 'sent']"/>
             </xpath>
+
         </field>
     </record>
 </odoo>
