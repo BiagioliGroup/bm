@@ -9,7 +9,7 @@
             
             <!-- Agregar campo de plantilla de servicios después de payment_term_id -->
             <xpath expr="//field[@name='payment_term_id']" position="after">
-                <field name="service_template_id" 
+                <field name="motorcycle_service_template_id" 
                        string="Plantilla de Servicios"
                        placeholder="Seleccionar Plantilla de Servicio..." 
                        options="{'no_create': True, 'no_open': True}"
