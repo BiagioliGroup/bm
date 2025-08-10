@@ -174,7 +174,7 @@
                         <group string="Especificaciones Básicas" class="o_group_col_6">
                             <field name="mmodel_id" options="{'no_create': True}"/>
                             <field name="year" widget="integer"/>
-                            <field name="market" widget="radio" options="{'horizontal': false}"/>
+                            <field name="market" widget="selection"/>
                         </group>
                         <group string="Clasificación" class="o_group_col_6">
                             <field name="type_id" options="{'no_create': True}"/>
@@ -505,4 +505,21 @@
         sequence="5"
         groups="sh_motorcycle_backend.group_sh_motorcycle_manager"
     />
+
+    <!-- HERENCIA PARA DATOS TÉCNICOS EN FORMULARIO PRINCIPAL -->
+    <record id="sh_motorcycle_motorcycle_form_inherit_technical_data" model="ir.ui.view">
+        <field name="name">sh.motorcycle.motorcycle.form.technical.data</field>
+        <field name="model">motorcycle.motorcycle</field>
+        <field name="inherit_id" ref="sh_motorcycle_backend.sh_motorcycle_motorcycle_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Datos Técnicos">
+                    <field name="technical_data_ids"
+                           widget="one2many_list"
+                           views="[(ref('sh_motorcycle_backend.view_motorcycle_technical_data_tree'), 'list'),
+                                   (ref('sh_motorcycle_backend.view_motorcycle_technical_data_form'), 'form')]"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
 </odoo>
