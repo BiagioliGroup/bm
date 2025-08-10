@@ -32,31 +32,11 @@ class MotorcycleServiceLine(models.Model):
         for line in self:
             line.subtotal = line.quantity * line.price_unit if line.display_type == 'line' else 0.0
 
-    def add_line_product(self):
-        self.ensure_one()
-        self.env['motorcycle.service.line'].create({
-            'service_id': self.id,
-            'display_type': 'line',
-            'name': '',
-            'quantity': 1,
-            'price_unit': 0,
-        })
-
-    def add_line_section(self):
-        self.ensure_one()
-        self.env['motorcycle.service.line'].create({
-            'service_id': self.id,
-            'display_type': 'section',
-            'name': 'Nueva sección',
-        })
-
-    def add_line_note(self):
-        self.ensure_one()
-        self.env['motorcycle.service.line'].create({
-            'service_id': self.id,
-            'display_type': 'note',
-            'name': 'Nueva nota',
-        })
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        if self.product_id:
+            self.name = self.product_id.name
+            self.price_unit = self.product_id.list_price
 
 
 class MotorcycleServiceStep(models.Model):
