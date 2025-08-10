@@ -54,9 +54,9 @@ class MotorcycleServiceStep(models.Model):
     sequence = fields.Integer(string='Secuencia', default=10)
     name = fields.Char(string='Descripción del paso', required=True)
     step_type = fields.Selection([
+        ('start', 'Inicio'),
         ('action', 'Acción'),
         ('decision', 'Punto de Decisión'),
-        ('start', 'Inicio'),
         ('end', 'Fin')
     ], string='Tipo de Paso', default='action', required=True)
     is_done = fields.Boolean(string='Completado')
@@ -64,51 +64,146 @@ class MotorcycleServiceStep(models.Model):
     pdf_file = fields.Binary(string='Archivo PDF', attachment=True)
     pdf_filename = fields.Char(string='Nombre del archivo')
     
+    # Campos para posicionamiento en el diagrama
+    position_x = fields.Float(string='Posición X', default=100)
+    position_y = fields.Float(string='Posición Y', default=100)
+    
     # Campos para puntos de decisión
     decision_question = fields.Text(string='Pregunta de Decisión')
     next_step_yes_id = fields.Many2one(
         'motorcycle.service.step', 
         string='Siguiente Paso (SÍ)',
-        help="Paso a seguir si la respuesta es SÍ"
+        help="Paso a seguir si la respuesta es SÍ",
+        domain="[('service_id', '=', service_id), ('id', '!=', id)]"
     )
     next_step_no_id = fields.Many2one(
         'motorcycle.service.step', 
         string='Siguiente Paso (NO)',
-        help="Paso a seguir si la respuesta es NO"
+        help="Paso a seguir si la respuesta es NO",
+        domain="[('service_id', '=', service_id), ('id', '!=', id)]"
     )
     
     # Campo para conexiones de pasos normales
     next_step_id = fields.Many2one(
         'motorcycle.service.step',
         string='Siguiente Paso',
-        help="Siguiente paso en el flujo normal"
+        help="Siguiente paso en el flujo normal",
+        domain="[('service_id', '=', service_id), ('id', '!=', id)]"
     )
     
     # Campos computados para el display
-    step_icon = fields.Char(string='Ícono', compute='_compute_step_icon')
-    step_color = fields.Char(string='Color', compute='_compute_step_color')
-    
-    @api.depends('step_type')
-    def _compute_step_icon(self):
-        icon_map = {
-            'action': 'fa-cog',
-            'decision': 'fa-question-circle',
-            'start': 'fa-play',
-            'end': 'fa-stop'
-        }
-        for step in self:
-            step.step_icon = icon_map.get(step.step_type, 'fa-cog')
+    step_icon = fields.Char(string='Ícono', compute='_compute_step_display', store=True)
+    step_color = fields.Char(string='Color', compute='_compute_step_display', store=True)
+    step_class = fields.Char(string='Clase CSS', compute='_compute_step_display', store=True)
     
     @api.depends('step_type', 'is_done')
-    def _compute_step_color(self):
+    def _compute_step_display(self):
         for step in self:
-            if step.is_done:
-                step.step_color = '#28a745'  # Verde para completado
+            if step.step_type == 'start':
+                step.step_icon = 'fa-play-circle'
+                step.step_color = '#007bff'
+                step.step_class = 'workflow-start'
+            elif step.step_type == 'action':
+                step.step_icon = 'fa-cog'
+                step.step_color = '#28a745' if step.is_done else '#6c757d'
+                step.step_class = 'workflow-action'
             elif step.step_type == 'decision':
-                step.step_color = '#ffc107'  # Amarillo para decisiones
-            elif step.step_type == 'start':
-                step.step_color = '#007bff'  # Azul para inicio
+                step.step_icon = 'fa-question-circle'
+                step.step_color = '#ffc107'
+                step.step_class = 'workflow-decision'
             elif step.step_type == 'end':
-                step.step_color = '#dc3545'  # Rojo para fin
+                step.step_icon = 'fa-stop-circle'
+                step.step_color = '#dc3545'
+                step.step_class = 'workflow-end'
             else:
-                step.step_color = '#6c757d'  # Gris para acciones normales
+                step.step_icon = 'fa-circle'
+                step.step_color = '#6c757d'
+                step.step_class = 'workflow-default'
+
+    def get_connections_data(self):
+        """Obtiene datos de conexiones para el frontend"""
+        connections = []
+        
+        # Conexión normal
+        if self.next_step_id:
+            connections.append({
+                'from': self.id,
+                'to': self.next_step_id.id,
+                'type': 'normal',
+                'label': ''
+            })
+        
+        # Conexiones de decisión
+        if self.step_type == 'decision':
+            if self.next_step_yes_id:
+                connections.append({
+                    'from': self.id,
+                    'to': self.next_step_yes_id.id,
+                    'type': 'yes',
+                    'label': 'SÍ'
+                })
+            if self.next_step_no_id:
+                connections.append({
+                    'from': self.id,
+                    'to': self.next_step_no_id.id,
+                    'type': 'no',
+                    'label': 'NO'
+                })
+        
+        return connections
+
+    @api.model
+    def create_workflow_template(self, service_id):
+        """Crear plantilla básica de workflow"""
+        steps_data = [
+            {
+                'service_id': service_id,
+                'name': 'Inicio del Servicio',
+                'step_type': 'start',
+                'sequence': 10,
+                'position_x': 100,
+                'position_y': 100,
+                'note': 'Punto de inicio del proceso'
+            },
+            {
+                'service_id': service_id,
+                'name': 'Inspección inicial',
+                'step_type': 'action',
+                'sequence': 20,
+                'position_x': 300,
+                'position_y': 100,
+                'note': 'Revisar estado general de la motocicleta'
+            },
+            {
+                'service_id': service_id,
+                'name': '¿Requiere repuestos?',
+                'step_type': 'decision',
+                'sequence': 30,
+                'position_x': 500,
+                'position_y': 100,
+                'decision_question': '¿La motocicleta necesita repuestos nuevos?'
+            },
+            {
+                'service_id': service_id,
+                'name': 'Fin del Servicio',
+                'step_type': 'end',
+                'sequence': 40,
+                'position_x': 700,
+                'position_y': 100,
+                'note': 'Servicio completado'
+            }
+        ]
+        
+        created_steps = []
+        for step_data in steps_data:
+            step = self.create(step_data)
+            created_steps.append(step)
+        
+        # Crear conexiones
+        if len(created_steps) >= 4:
+            created_steps[0].next_step_id = created_steps[1].id  # Inicio -> Inspección
+            created_steps[1].next_step_id = created_steps[2].id  # Inspección -> Decisión
+            created_steps[2].next_step_yes_id = created_steps[3].id  # Decisión SÍ -> Fin
+            created_steps[2].next_step_no_id = created_steps[3].id   # Decisión NO -> Fin
+        
+        return created_steps

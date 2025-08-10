@@ -252,10 +252,10 @@
                                 </div>
                             </div>
 
-                            <!-- Vista de Workflow como Kanban -->
+                            <!-- Vista de Workflow como Kanban simplificada -->
                             <field name="step_ids" mode="kanban" options="{'no_create': False}">
                                 <kanban default_group_by="step_type" class="o_kanban_small_column" 
-                                        on_create="quick_create" quick_create_view="view_motorcycle_service_step_form_quick">
+                                        on_create="quick_create">
                                     <field name="name"/>
                                     <field name="step_type"/>
                                     <field name="is_done"/>
@@ -267,8 +267,6 @@
                                     <field name="next_step_id"/>
                                     <field name="next_step_yes_id"/>
                                     <field name="next_step_no_id"/>
-                                    <field name="position_x"/>
-                                    <field name="position_y"/>
                                     <templates>
                                         <t t-name="card">
                                             <div class="oe_kanban_card workflow-step-card" 
@@ -397,50 +395,7 @@
         </field>
     </record>
 
-    <!-- Vista rápida para crear pasos del servicio -->
-    <record id="view_motorcycle_service_step_form_quick" model="ir.ui.view">
-        <field name="name">motorcycle.service.step.form.quick</field>
-        <field name="model">motorcycle.service.step</field>
-        <field name="arch" type="xml">
-            <form string="Nuevo Paso del Workflow">
-                <group>
-                    <group>
-                        <field name="step_type" widget="selection"/>
-                        <field name="sequence" column_invisible="1"/>
-                        <field name="name" placeholder="Ej: Cambiar aceite del motor" required="1"/>
-                    </group>
-                    <group>
-                        <field name="decision_question" 
-                               placeholder="¿Qué pregunta necesita responderse?"
-                               invisible="step_type != 'decision'"
-                               required="step_type == 'decision'"/>
-                        <field name="note" placeholder="Instrucciones específicas..." widget="text"/>
-                    </group>
-                </group>
-                
-                <!-- Sección de conexiones -->
-                <group string="Conexiones del Flujo" invisible="step_type in ['start', 'end']">
-                    <group invisible="step_type == 'decision'">
-                        <field name="next_step_id" 
-                               domain="[('service_id', '=', parent.service_id), ('id', '!=', id)]"
-                               options="{'no_create': True}"/>
-                    </group>
-                    <group invisible="step_type != 'decision'" colspan="2">
-                        <field name="next_step_yes_id" 
-                               string="Si la respuesta es SÍ"
-                               domain="[('service_id', '=', parent.service_id), ('id', '!=', id)]"
-                               options="{'no_create': True}"/>
-                        <field name="next_step_no_id" 
-                               string="Si la respuesta es NO"
-                               domain="[('service_id', '=', parent.service_id), ('id', '!=', id)]"
-                               options="{'no_create': True}"/>
-                    </group>
-                </group>
-            </form>
-        </field>
-    </record>
-
-    <!-- Vista de formulario completa para editar pasos -->
+    <!-- Vista de formulario para editar pasos individuales -->
     <record id="view_motorcycle_service_step_form" model="ir.ui.view">
         <field name="name">motorcycle.service.step.form</field>
         <field name="model">motorcycle.service.step</field>
