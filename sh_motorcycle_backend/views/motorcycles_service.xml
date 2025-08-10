@@ -3,9 +3,89 @@
     <record id="action_motorcycle_service" model="ir.actions.act_window">
         <field name="name">Servicios de Motocicletas</field>
         <field name="res_model">motorcycle.service</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Crea tu primer servicio de motocicleta</p>
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primer servicio de motocicleta!
+            </p>
+            <p>
+                Los servicios técnicos te permiten:
+            </p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>🔧 Gestionar múltiples motocicletas en un solo servicio</li>
+                <li>📋 Crear listas detalladas de repuestos y mano de obra</li>
+                <li>✅ Seguir el progreso con checklists operativos</li>
+                <li>💰 Calcular costos automáticamente</li>
+            </ul>
+        </field>
+    </record>
+
+    <!-- VISTA KANBAN PARA SERVICIOS -->
+    <record id="view_motorcycle_service_kanban" model="ir.ui.view">
+        <field name="name">motorcycle.service.kanban</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="total_service_cost" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="motorcycle_ids"/>
+                <field name="total_service_cost"/>
+                <field name="total_parts_cost"/>
+                <field name="total_services_cost"/>
+                <field name="currency_id"/>
+                <field name="description"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle">
+                                            <field name="description"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_manage_button_section">
+                                        <span class="badge text-bg-primary">
+                                            <i class="fa fa-motorcycle"/> 
+                                            <t t-esc="record.motorcycle_ids.raw_value.length"/> motos
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Repuestos:</small><br/>
+                                            <strong>
+                                                <field name="total_parts_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Mano de Obra:</small><br/>
+                                            <strong>
+                                                <field name="total_services_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="o_kanban_record_bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge text-bg-success">
+                                            Total: <field name="total_service_cost" widget="monetary" 
+                                                         options="{'currency_field': 'currency_id'}"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -19,14 +99,23 @@
         <field name="name">motorcycle.service.list</field>
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
-            <list string="Servicios de Motocicleta">
+            <list string="Servicios de Motocicleta" 
+                  decoration-info="total_service_cost &gt; 100000"
+                  decoration-success="total_service_cost &lt; 50000"
+                  sample="1"
+                  multi_edit="1">
                 <field name="name"/>
-                <field name="motorcycle_ids" widget="many2many_tags"/>
-                <field name="description"/>
+                <field name="motorcycle_ids" widget="many2many_tags" 
+                       options="{'color_field': 'make_id', 'no_create': True, 'limit': 3}"/>
+                <field name="description" optional="show"/>
                 <field name="currency_id" column_invisible="1"/>
-                <field name="total_parts_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="total_services_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="total_service_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_parts_cost" widget="monetary" 
+                       options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="total_services_cost" widget="monetary" 
+                       options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="total_service_cost" widget="monetary" 
+                       options="{'currency_field': 'currency_id'}" 
+                       decoration-bf="1"/>
             </list>
         </field>
     </record>
@@ -36,42 +125,127 @@
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
             <form string="Servicio de Motocicleta">
+                <header>
+                    <!-- Botones de acción -->
+                    <button name="action_print_service_report" string="Imprimir Reporte" 
+                            type="object" class="btn-primary" icon="fa-print"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <!-- Espacio reservado para botones futuros -->
+                        <button class="oe_stat_button" icon="fa-motorcycle">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="motorcycle_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Motocicletas</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-list">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="service_line_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Líneas</span>
+                            </div>
+                        </button>
                     </div>
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="Número de Servicio"/>
+                        </h1>
+                    </div>
+
+                    <!-- Información principal dividida -->
                     <group>
-                        <field name="name"/>
-                        <field name="motorcycle_ids" widget="many2many_tags"/>
-                        <field name="description"/>
-                        <field name="labor_description"/>
-                        <field name="currency_id" invisible="1"/>
-                        <field name="total_parts_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                        <field name="total_services_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                        <field name="total_service_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <group string="Información del Servicio">
+                            <field name="description" placeholder="Descripción del servicio técnico..."/>
+                            <field name="labor_description" placeholder="Detalles específicos del trabajo..."/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Resumen de Costos">
+                            <field name="total_parts_cost" widget="monetary" 
+                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="total_services_cost" widget="monetary" 
+                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="total_service_cost" widget="monetary" 
+                                   options="{'currency_field': 'currency_id'}" readonly="1"
+                                   class="oe_subtotal_footer_separator"/>
+                        </group>
                     </group>
+
+                    <!-- Motocicletas en sección separada -->
+                    <group string="🏍️ Motocicletas Asignadas" colspan="2">
+                        <div class="alert alert-info" style="margin-bottom: 10px;">
+                            <strong><i class="fa fa-info-circle"/> Selección:</strong> 
+                            Selecciona todas las motocicletas que requieren este servicio técnico.
+                        </div>
+                        <field name="motorcycle_ids" widget="many2many" 
+                               options="{'no_create': True}"
+                               mode="kanban">
+                            <kanban>
+                                <field name="name"/>
+                                <field name="make_id"/>
+                                <field name="mmodel_id"/>
+                                <field name="year"/>
+                                <field name="market"/>
+                                <templates>
+                                    <t t-name="card">
+                                        <div class="oe_kanban_card" style="margin: 2px; min-height: 60px;">
+                                            <div class="oe_kanban_content" style="padding: 8px;">
+                                                <div style="font-weight: bold; font-size: 12px;">
+                                                    <field name="make_id"/> <field name="mmodel_id"/>
+                                                </div>
+                                                <div style="font-size: 11px; color: #666;">
+                                                    <field name="year"/> • <field name="market"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                    </group>
+
                     <notebook>
-                        <page string="Líneas del Servicio">
+                        <page string="📋 Líneas del Servicio" icon="fa-list">
+                            <div class="alert alert-warning" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-cog"/> Componentes:</strong> 
+                                Agrega productos (repuestos) y servicios (mano de obra) necesarios.
+                            </div>
                             <field name="service_line_ids"
                                    context="{'default_display_type': 'line'}"
                                    options="{'no_create': False}">
-                                <list string="Líneas del Servicio" editable="bottom">
+                                <list string="Líneas del Servicio" editable="bottom"
+                                      decoration-info="product_id and product_id.type == 'service'"
+                                      decoration-success="product_id and product_id.type == 'consu'">
                                     <field name="sequence" widget="handle"/>
-                                    <field name="product_id"/>
-                                    <field name="name"/>
+                                    <field name="product_id" 
+                                           domain="['|', ('type', '=', 'service'), ('type', '=', 'consu')]"
+                                           options="{'no_create': True}"/>
+                                    <field name="name" required="1"/>
                                     <field name="quantity"/>
                                     <field name="price_unit"/>
-                                    <field name="subtotal"/>
+                                    <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>
                         </page>
-                        <page string="Pasos del Servicio">
+                        <page string="✅ Pasos del Servicio" icon="fa-tasks">
+                            <div class="alert alert-success" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-check-square-o"/> Checklist:</strong> 
+                                Define los pasos operativos y marca como completados.
+                            </div>
                             <field name="step_ids">
-                                <list string="Lista de Pasos" editable="bottom">
-                                    <field name="name"/>
-                                    <field name="is_done"/>
-                                    <field name="note"/>
-                                    <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
+                                <list string="Lista de Pasos" editable="bottom"
+                                      decoration-success="is_done"
+                                      decoration-muted="not is_done">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" required="1"/>
+                                    <field name="is_done" widget="boolean_toggle"/>
+                                    <field name="note" optional="show"/>
+                                    <field name="pdf_file" filename="pdf_filename" 
+                                           widget="pdf_viewer" optional="hide"/>
                                 </list>
                             </field>
                         </page>
