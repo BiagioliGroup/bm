@@ -3,6 +3,8 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from odoo.osv import expression  # ← ESTA LÍNEA FALTABA
+
 
 class MotorcycleService(models.Model):
     _name = 'motorcycle.service'
