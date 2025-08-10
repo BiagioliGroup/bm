@@ -105,7 +105,7 @@ class MotorcycleService(models.Model):
             service.total_parts_cost = parts_total
             service.total_services_cost = services_total
             service.total_service_cost = parts_total + services_total
-
+            
     def action_print_service_report(self):
         """Método para imprimir reporte del servicio"""
         self.ensure_one()

@@ -31,6 +31,19 @@ class MotorcycleServiceLine(models.Model):
         store=True
     )
 
+    @api.depends('product_id', 'display_type')
+    def _compute_name(self):
+        for line in self:
+            if not line.name:
+                if line.display_type == 'section':
+                    line.name = 'Nueva Sección'
+                elif line.display_type == 'note':
+                    line.name = 'Nueva Nota'
+                elif line.product_id:
+                    line.name = line.product_id.name
+                else:
+                    line.name = 'Línea de Servicio'
+
     @api.depends('display_type', 'quantity', 'price_unit')
     def _compute_subtotal(self):
         for line in self:
@@ -41,6 +54,32 @@ class MotorcycleServiceLine(models.Model):
         if self.product_id:
             self.name = self.product_id.name
             self.price_unit = self.product_id.list_price
+
+    def add_line_product(self):
+        self.ensure_one()
+        self.env['motorcycle.service.line'].create({
+            'service_id': self.id,
+            'display_type': 'line',
+            'name': 'Nueva línea de producto',
+            'quantity': 1,
+            'price_unit': 0,
+        })
+
+    def add_line_section(self):
+        self.ensure_one()
+        self.env['motorcycle.service.line'].create({
+            'service_id': self.id,
+            'display_type': 'section',
+            'name': 'Nueva sección',
+        })
+
+    def add_line_note(self):
+        self.ensure_one()
+        self.env['motorcycle.service.line'].create({
+            'service_id': self.id,
+            'display_type': 'note',
+            'name': 'Nueva nota',
+        })
 
 
 class MotorcycleServiceStep(models.Model):

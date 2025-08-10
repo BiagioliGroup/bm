@@ -132,14 +132,21 @@ class SaleOrderServiceTemplate(models.Model):
             # Crear nuevas líneas basadas en la plantilla
             line_vals = []
             for line in self.service_template_id.service_line_ids:
+                # Asegurar que tenemos una descripción válida
+                description = line.name
+                if not description and line.product_id:
+                    description = line.product_id.name
+                elif not description:
+                    description = "Servicio"
+                
                 vals = {
-                    'product_id': line.product_id.id,
-                    'name': line.name,
-                    'product_uom_qty': line.quantity,
-                    'price_unit': line.price_unit,
-                    'product_uom': line.product_id.uom_id.id,
+                    'product_id': line.product_id.id if line.product_id else False,
+                    'name': description,
+                    'product_uom_qty': line.quantity or 1.0,
+                    'price_unit': line.price_unit or 0.0,
+                    'product_uom': line.product_id.uom_id.id if line.product_id else False,
                     'discount': 0.0,
-                    'sequence': line.sequence,
+                    'sequence': line.sequence or 10,
                 }
                 line_vals.append((0, 0, vals))
             
