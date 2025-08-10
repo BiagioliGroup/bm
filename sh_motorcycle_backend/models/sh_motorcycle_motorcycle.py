@@ -221,3 +221,30 @@ class Motorcycle(models.Model):
                 'default_motorcycle_id': self.id,
             },
         }
+
+    def action_view_products(self):
+        """Método para ver los productos compatibles con esta motocicleta"""
+        self.ensure_one()
+        products = self.product_ids
+        
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': _('Productos Compatibles - %s') % self.name,
+            'res_model': 'product.product',
+            'domain': [('id', 'in', products.ids)],
+            'context': {
+                'default_motorcycle_ids': [(4, self.id)],
+            },
+        }
+        
+        if len(products) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': products.id,
+            })
+        else:
+            action.update({
+                'view_mode': 'list,form',
+            })
+            
+        return action

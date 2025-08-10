@@ -84,7 +84,7 @@
                             class="btn-primary" icon="fa-wrench"/>
                 </header>
                 <sheet>
-                    <!-- Botones estadísticos mejorados -->
+                    <!-- Botones estadísticos funcionales -->
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_services" type="object" 
                                 class="oe_stat_button" icon="fa-wrench">
@@ -95,7 +95,8 @@
                                 <span class="o_stat_text">Servicios</span>
                             </div>
                         </button>
-                        <button class="oe_stat_button" icon="fa-cube">
+                        <button name="action_view_products" type="object" 
+                                class="oe_stat_button" icon="fa-cube">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="product_ids" widget="statinfo"/>
@@ -103,7 +104,8 @@
                                 <span class="o_stat_text">Productos</span>
                             </div>
                         </button>
-                        <button class="oe_stat_button" icon="fa-cogs">
+                        <button name="action_view_technical_data" type="object" 
+                                class="oe_stat_button" icon="fa-cogs">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="technical_data_ids" widget="statinfo"/>
@@ -120,13 +122,22 @@
                         </h1>
                     </div>
                     
-                    <!-- Imagen destacada más grande y centrada -->
+                    <!-- Imagen dividida en 2 columnas -->
                     <div class="row">
-                        <div class="col-12 text-center">
-                            <group string="Imagen Principal" class="text-center">
+                        <div class="col-6">
+                            <group string="Imagen Principal">
                                 <field name="motorcycle_image" widget="image" 
-                                       options="{'size': [500, 400], 'preview_image': 'motorcycle_image'}"
-                                       class="d-block mx-auto"/>
+                                       options="{'size': [400, 300], 'preview_image': 'motorcycle_image'}"/>
+                            </group>
+                        </div>
+                        <div class="col-6">
+                            <group string="Información Adicional">
+                                <div class="alert alert-info" style="margin-top: 20px;">
+                                    <strong><i class="fa fa-info-circle"/> Resumen:</strong>
+                                    <br/>
+                                    <field name="name" readonly="1" style="border: none; background: transparent; font-weight: bold;"/>
+                                </div>
+                                <!-- Espacio reservado para futuras funcionalidades -->
                             </group>
                         </div>
                     </div>
@@ -151,14 +162,14 @@
                             <group string="Manuales Técnicos">
                                 <group string="Manual OEM" class="o_group_col_6">
                                     <field name="oem_manual" filename="oem_manual_filename" 
-                                           widget="binary" options="{'accepted_file_extensions': '.pdf'}"/>
+                                           widget="pdf_viewer" options="{'accepted_file_extensions': '.pdf'}"/>
                                     <div class="text-muted">
                                         <small><i class="fa fa-info-circle"/> Manual del fabricante original</small>
                                     </div>
                                 </group>
                                 <group string="Manual de Usuario" class="o_group_col_6">
                                     <field name="user_manual" filename="user_manual_filename" 
-                                           widget="binary" options="{'accepted_file_extensions': '.pdf'}"/>
+                                           widget="pdf_viewer" options="{'accepted_file_extensions': '.pdf'}"/>
                                     <div class="text-muted">
                                         <small><i class="fa fa-info-circle"/> Manual de mantenimiento y uso</small>
                                     </div>
