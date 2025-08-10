@@ -65,6 +65,53 @@ class MotorcycleService(models.Model):
         'service_id',
         string='Pasos del Servicio'
     )
+    
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        """Búsqueda inteligente por palabras desordenadas"""
+        if args is None:
+            args = []
+        
+        if name and operator in ('ilike', '=ilike'):
+            # Dividir la búsqueda en palabras individuales
+            search_words = [word.strip().lower() for word in name.split() if len(word.strip()) > 2]
+            
+            if search_words:
+                # Crear dominios para cada palabra
+                domain_parts = []
+                
+                for word in search_words:
+                    word_domain = [
+                        '|', '|', '|', '|', '|',
+                        ('name', 'ilike', word),
+                        ('description', 'ilike', word),
+                        ('motorcycle_ids.name', 'ilike', word),
+                        ('motorcycle_ids.make_id.name', 'ilike', word),
+                        ('motorcycle_ids.mmodel_id.name', 'ilike', word),
+                        ('motorcycle_ids.year', 'ilike', word),
+                    ]
+                    domain_parts.append(word_domain)
+                
+                # Combinar todos los dominios con AND
+                if len(domain_parts) == 1:
+                    search_domain = domain_parts[0]
+                else:
+                    search_domain = []
+                    for i, domain_part in enumerate(domain_parts):
+                        if i > 0:
+                            search_domain.append('&')
+                        search_domain.extend(domain_part)
+                
+                # Combinar con args existentes
+                final_domain = expression.AND([args, search_domain])
+                
+                # Buscar usando el dominio inteligente
+                service_ids = self._search(final_domain, limit=limit, access_rights_uid=name_get_uid)
+                return self.browse(service_ids).name_get()
+        
+        # Fallback a búsqueda normal
+        return super()._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
+
 
     @api.depends('description', 'labor_description')
     def _compute_display_name(self):
