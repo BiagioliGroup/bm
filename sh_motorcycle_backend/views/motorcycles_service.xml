@@ -3,9 +3,89 @@
     <record id="action_motorcycle_service" model="ir.actions.act_window">
         <field name="name">Servicios de Motocicletas</field>
         <field name="res_model">motorcycle.service</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Crea tu primer servicio de motocicleta</p>
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primer servicio de motocicleta!
+            </p>
+            <p>
+                Los servicios técnicos te permiten:
+            </p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>🔧 Gestionar múltiples motocicletas en un solo servicio</li>
+                <li>📋 Crear listas detalladas de repuestos y mano de obra</li>
+                <li>✅ Seguir el progreso con workflow visual</li>
+                <li>💰 Calcular costos automáticamente</li>
+            </ul>
+        </field>
+    </record>
+
+    <!-- VISTA KANBAN PARA SERVICIOS -->
+    <record id="view_motorcycle_service_kanban" model="ir.ui.view">
+        <field name="name">motorcycle.service.kanban</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="total_service_cost" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="motorcycle_ids"/>
+                <field name="total_service_cost"/>
+                <field name="total_parts_cost"/>
+                <field name="total_services_cost"/>
+                <field name="currency_id"/>
+                <field name="description"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle">
+                                            <field name="description"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_manage_button_section">
+                                        <span class="badge text-bg-primary">
+                                            <i class="fa fa-motorcycle"/> 
+                                            <t t-esc="record.motorcycle_ids.raw_value.length"/> motos
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Repuestos:</small><br/>
+                                            <strong>
+                                                <field name="total_parts_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Mano de Obra:</small><br/>
+                                            <strong>
+                                                <field name="total_services_cost" widget="monetary" 
+                                                       options="{'currency_field': 'currency_id'}"/>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="o_kanban_record_bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge text-bg-success">
+                                            Total: <field name="total_service_cost" widget="monetary" 
+                                                         options="{'currency_field': 'currency_id'}"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -19,14 +99,111 @@
         <field name="name">motorcycle.service.list</field>
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
-            <list string="Servicios de Motocicleta">
-                <field name="motorcycle_ids" widget="many2many_tags"/>
-                <field name="description"/>
-                <field name="currency_id" invisible="1"/>
-                <field name="total_parts_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="total_services_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="total_service_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+            <list string="Servicios de Motocicleta" 
+                  decoration-info="total_service_cost &gt; 100000"
+                  decoration-success="total_service_cost &lt; 50000"
+                  sample="1"
+                  multi_edit="1">
+                <field name="name"/>
+                <field name="motorcycle_ids" widget="many2many_tags" 
+                       options="{'color_field': 'make_id', 'no_create': True, 'limit': 3}"/>
+                <field name="description" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="total_parts_cost" widget="monetary" 
+                       options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="total_services_cost" widget="monetary" 
+                       options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="total_service_cost" widget="monetary" 
+                       options="{'currency_field': 'currency_id'}" 
+                       decoration-bf="1"/>
             </list>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda corregida -->
+    <record id="view_motorcycle_service_search" model="ir.ui.view">
+        <field name="name">motorcycle.service.search</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <search string="Búsqueda de Servicios">
+                <!-- Campo de búsqueda principal con búsqueda inteligente - CORREGIDO -->
+                <field name="name" 
+                       string="Búsqueda Inteligente" 
+                       filter_domain="['|', '|', '|', '|', '|', '|', '|', '|', '|',
+                                      ('name', 'ilike', self),
+                                      ('description', 'ilike', self),
+                                      ('labor_description', 'ilike', self),
+                                      ('motorcycle_ids.make_id.name', 'ilike', self),
+                                      ('motorcycle_ids.mmodel_id.name', 'ilike', self),
+                                      ('motorcycle_ids.type_id.name', 'ilike', self),
+                                      ('motorcycle_ids.year', 'ilike', self),
+                                      ('service_line_ids.product_id.name', 'ilike', self),
+                                      ('service_line_ids.name', 'ilike', self),
+                                      ('step_ids.name', 'ilike', self)]"/>
+                
+                <!-- Campos de búsqueda específicos -->
+                <field name="description" string="Descripción"/>
+                <field name="motorcycle_ids" string="Motocicletas"/>
+                <field name="service_line_ids" string="Productos/Servicios"/>
+                
+                <!-- Filtros rápidos -->
+                <separator/>
+                <filter string="Servicios de Hoy" name="today"
+                        domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter string="Esta Semana" name="this_week"
+                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Este Mes" name="this_month"
+                        domain="[('create_date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
+                
+                <separator/>
+                <filter string="Con Repuestos" name="has_parts"
+                        domain="[('total_parts_cost', '&gt;', 0)]"/>
+                <filter string="Solo Mano de Obra" name="labor_only"
+                        domain="[('total_parts_cost', '=', 0), ('total_services_cost', '&gt;', 0)]"/>
+                <filter string="Servicios Grandes" name="expensive"
+                        domain="[('total_service_cost', '&gt;', 1000)]"/>
+                
+                <!-- Filtros por marca -->
+                <separator/>
+                <filter string="KTM" name="ktm"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'ktm')]"/>
+                <filter string="BMW" name="bmw"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'bmw')]"/>
+                <filter string="Yamaha" name="yamaha"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'yamaha')]"/>
+                <filter string="Honda" name="honda"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'honda')]"/>
+                <filter string="Husqvarna" name="husqvarna"
+                        domain="[('motorcycle_ids.make_id.name', 'ilike', 'husqvarna')]"/>
+                
+                <!-- Filtros por tipo de servicio -->
+                <separator/>
+                <filter string="Amortiguadores" name="suspension"
+                        domain="['|', '|', 
+                                ('description', 'ilike', 'amortiguador'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'amortiguador'),
+                                ('service_line_ids.name', 'ilike', 'amortiguador')]"/>
+                <filter string="Motor" name="engine"
+                        domain="['|', '|', 
+                                ('description', 'ilike', 'motor'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'motor'),
+                                ('service_line_ids.name', 'ilike', 'motor')]"/>
+                <filter string="Frenos" name="brakes"
+                        domain="['|', '|', '|',
+                                ('description', 'ilike', 'freno'), 
+                                ('description', 'ilike', 'brake'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'freno'),
+                                ('service_line_ids.name', 'ilike', 'freno')]"/>
+                <filter string="Aceite/Filtros" name="oil_filters"
+                        domain="['|', '|', '|', '|',
+                                ('description', 'ilike', 'aceite'), 
+                                ('description', 'ilike', 'filtro'), 
+                                ('service_line_ids.product_id.name', 'ilike', 'aceite'),
+                                ('service_line_ids.product_id.name', 'ilike', 'filtro'),
+                                ('service_line_ids.name', 'ilike', 'aceite')]"/>
+                
+                
+            </search>
         </field>
     </record>
 
@@ -35,33 +212,426 @@
         <field name="model">motorcycle.service</field>
         <field name="arch" type="xml">
             <form string="Servicio de Motocicleta">
+                <header>
+                    <!-- Botones de acción -->
+                    <button name="action_print_service_report" string="Imprimir Reporte" 
+                            type="object" class="btn-primary" icon="fa-print"/>
+                    <!-- <button name="create_workflow_template" string="Crear Plantilla Workflow" 
+                            type="object" class="btn-secondary" icon="fa-magic"/> -->
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <!-- Espacio reservado para botones futuros -->
+                        <button name="action_view_motorcycles" type="object" 
+                                class="oe_stat_button" icon="fa-motorcycle">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="motorcycle_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Motocicletas</span>
+                            </div>
+                        </button>
+                        <button name="action_view_service_lines" type="object" 
+                                class="oe_stat_button" icon="fa-list">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="service_line_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Líneas</span>
+                            </div>
+                        </button>
+                        <!-- NUEVO BOTÓN PARA WORKFLOW -->
+                        <button name="action_open_workflow_designer" type="object" 
+                                class="oe_stat_button" icon="fa-sitemap">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="step_ids" widget="statinfo"/>
+                                </span>
+                                <span class="o_stat_text">Workflow</span>
+                            </div>
+                        </button>
                     </div>
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="Número de Servicio"/>
+                        </h1>
+                    </div>
+
+                    <!-- Información principal dividida -->
                     <group>
-                        <field name="motorcycle_ids" widget="many2many_tags"/>
-                        <field name="description"/>
-                        <field name="labor_description"/>
-                        <field name="service_line_ids"
-                               view_id="view_motorcycle_service_line_tree"
-                               context="{'default_display_type': 'line'}"
-                               options="{'no_create': False}"/>
-                        <field name="currency_id" invisible="1"/>
-                        <field name="total_parts_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                        <field name="total_services_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                        <field name="total_service_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <group string="Información del Servicio">
+                            <field name="description" placeholder="Descripción del servicio técnico..."/>
+                            <field name="labor_description" placeholder="Detalles específicos del trabajo..."/>
+                            <!-- <field name="currency_id" column_invisible="1"/> -->
+                        </group>
+                        <group string="Resumen de Costos">
+                            <field name="total_parts_cost" widget="monetary" 
+                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="total_services_cost" widget="monetary" 
+                                   options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="total_service_cost" widget="monetary" 
+                                   options="{'currency_field': 'currency_id'}" readonly="1"
+                                   class="oe_subtotal_footer_separator"/>
+                        </group>
                     </group>
+
+                    <!-- Motocicletas en sección separada -->
+                    <group string="🏍️ Motocicletas Asignadas" colspan="2">
+                        <div class="alert alert-info" style="margin-bottom: 10px;">
+                            <strong><i class="fa fa-info-circle"/> Selección:</strong> 
+                            Selecciona todas las motocicletas que requieren este servicio técnico.
+                        </div>
+                        <field name="motorcycle_ids" widget="many2many" 
+                               options="{'no_create': True}"
+                               mode="kanban">
+                            <kanban>
+                                <field name="name"/>
+                                <field name="make_id"/>
+                                <field name="mmodel_id"/>
+                                <field name="year"/>
+                                <field name="market"/>
+                                <templates>
+                                    <t t-name="card">
+                                        <div class="oe_kanban_card" style="margin: 2px; min-height: 40px; max-width: 200px;">
+                                            <div class="oe_kanban_content" style="padding: 4px 8px;">
+                                                <div style="font-weight: bold; font-size: 11px; line-height: 1.2;">
+                                                    <field name="make_id"/> <field name="mmodel_id"/>
+                                                </div>
+                                                <div style="font-size: 9px; color: #666; line-height: 1;">
+                                                    <field name="year"/> • <field name="market"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                    </group>
+
                     <notebook>
-                        <page string="Pasos del Servicio">
-                            <field name="step_ids">
-                                <list string="Lista de Pasos" editable="bottom">
-                                    <field name="name"/>
-                                    <field name="is_done"/>
-                                    <field name="note"/>
-                                    <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
+                        <page string="📋 Líneas del Servicio" icon="fa-list">
+                            <div class="alert alert-warning" style="margin-bottom: 15px;">
+                                <strong><i class="fa fa-cog"/> Componentes:</strong> 
+                                Agrega productos (repuestos) y servicios (mano de obra) necesarios.
+                            </div>
+                            <field name="service_line_ids"
+                                   context="{'default_display_type': 'line'}"
+                                   options="{'no_create': False}">
+                                <list string="Líneas del Servicio" editable="bottom"
+                                      decoration-info="product_id and product_id.type == 'service'"
+                                      decoration-success="product_id and product_id.type == 'consu'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id" 
+                                           domain="['|', ('type', '=', 'service'), ('type', '=', 'consu')]"
+                                           options="{'no_create': True}"/>
+                                    <field name="name" required="1"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>
+                        </page>
+                        
+                        
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- VISTA DEDICADA PARA EL DISEÑADOR DE WORKFLOW -->
+    <record id="view_motorcycle_service_workflow_designer" model="ir.ui.view">
+        <field name="name">motorcycle.service.workflow.designer</field>
+        <field name="model">motorcycle.service</field>
+        <field name="arch" type="xml">
+            <form string="Diseñador de Workflow" create="false">
+                <header>
+                    <!-- Barra de herramientas del workflow -->
+                    <button name="create_workflow_template" string="🎨 Plantilla default" 
+                            type="object" class="btn-primary"/>
+                    <button name="action_save_workflow" string="💾 Guardar" 
+                            type="object" class="btn-success"/>
+                    <button name="action_refresh_workflow" string="🔄 Editar" 
+                            type="object" class="btn-secondary"/>
+                </header>
+                
+                <sheet style="padding: 0; max-width: none;">
+                    <!-- Header estilo Odoo limpio -->
+                    <div class="workflow-designer-header o_form_sheet_bg" 
+                         style="background: #f9f9f9; border-bottom: 1px solid #dee2e6; 
+                                color: #212529; padding: 20px; margin: -24px -24px 20px -24px;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center">
+                                    <div class="o_field_widget o_field_char o_field_widget_char me-3" 
+                                         style="background: #875a7b; color: white; width: 40px; height: 40px; 
+                                                border-radius: 20px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-sitemap fa-lg"></i>
+                                    </div>
+                                    <div style="overflow: hidden;">
+                                        <h1 style="margin: 0; color: #212529; font-size: 24px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <field name="description" readonly="1" style="background: none; border: none; color: #212529;"/>
+                                        </h1>
+                                        <h5 style="margin: 2px 0 0 0; color: #6c757d; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <field name="name" readonly="1" style="background: none; border: none; color: #6c757d;"/>
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="o_field_widget o_field_many2one" 
+                                     style="background: #e9ecef; padding: 10px 15px; border-radius: 6px; display: inline-block;">
+                                    <span style="font-size: 18px; font-weight: 600; color: #495057;">
+                                        <field name="step_ids" widget="statinfo"/>
+                                    </span>
+                                    <div style="font-size: 12px; color: #6c757d;">Pasos Totales</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Área de diseño del workflow con más espacio -->
+                    <div class="workflow-design-area" style="padding: 30px; min-height: 800px; background: #f8f9fa;">
+                        
+                        <!-- Controles de herramientas mejorados -->
+                        <div class="workflow-toolbar" 
+                             style="background: white; padding: 20px; border-radius: 10px; 
+                                    margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                                    border: 1px solid #e9ecef;">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <h5 style="margin: 0 0 15px 0; color: #495057;">
+                                        <i class="fa fa-tools"/> Herramientas de Diseño
+                                    </h5>
+                                    <div class="alert alert-info" style="margin-bottom: 15px;">
+                                        <strong><i class="fa fa-info-circle"/> Instrucciones:</strong> 
+                                        Haz clic en "Crear Plantilla" para generar un workflow básico. Luego puedes agregar más pasos y personalizar las conexiones.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campo del workflow con vista expandida -->
+                        <field name="step_ids" mode="kanban" options="{'no_create': False}">
+                            <kanban default_group_by="step_type" class="o_kanban_small_column workflow-designer-kanban">
+                                <field name="name"/>
+                                <field name="step_type"/>
+                                <field name="is_done"/>
+                                <field name="note"/>
+                                <field name="sequence"/>
+                                <field name="step_icon"/>
+                                <field name="step_color"/>
+                                <field name="decision_question"/>
+                                <field name="next_step_id"/>
+                                <field name="next_step_yes_id"/>
+                                <field name="next_step_no_id"/>
+                                <field name="position_x"/>
+                                <field name="position_y"/>
+                                <templates>
+                                    <t t-name="card">
+                                        <div class="oe_kanban_card workflow-designer-card" 
+                                             style="margin: 12px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+                                                    border-left: 5px solid; min-height: 160px; width: 220px;
+                                                    transition: all 0.3s ease; cursor: move;" 
+                                             t-att-style="'border-left-color: ' + record.step_color.raw_value + ';'">
+                                            
+                                            <div class="oe_kanban_content" style="padding: 16px;">
+                                                <!-- Header mejorado -->
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="step-type-icon me-3" 
+                                                         style="width: 40px; height: 40px; border-radius: 50%; display: flex; 
+                                                                align-items: center; justify-content: center;"
+                                                         t-att-style="'background: ' + record.step_color.raw_value + '20; color: ' + record.step_color.raw_value + ';'">
+                                                        <i t-att-class="'fa ' + record.step_icon.raw_value" 
+                                                           style="font-size: 18px;"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="step-number badge" 
+                                                             t-att-style="'background: ' + record.step_color.raw_value + '; color: white;'"
+                                                             style="font-size: 11px;">
+                                                            #<t t-esc="record.sequence.raw_value"/>
+                                                        </div>
+                                                        <div style="font-size: 10px; color: #6c757d; text-transform: uppercase; font-weight: bold; margin-top: 2px;">
+                                                            <t t-esc="record.step_type.raw_value"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ms-auto">
+                                                        <field name="is_done" widget="boolean_toggle" 
+                                                               options="{'terminology': 'switch'}"
+                                                               style="transform: scale(0.8);"/>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Contenido principal -->
+                                                <div class="step-content">
+                                                    <h6 class="step-title" style="font-weight: 600; font-size: 13px; margin-bottom: 8px; line-height: 1.3;">
+                                                        <field name="name"/>
+                                                    </h6>
+                                                    
+                                                    <!-- Pregunta de decisión -->
+                                                    <div t-if="record.step_type.raw_value == 'decision' and record.decision_question.raw_value" 
+                                                         class="decision-question" 
+                                                         style="font-size: 11px; color: #f57c00; margin-bottom: 8px; 
+                                                                padding: 6px 10px; background: #fff3e0; border-radius: 6px; font-style: italic;">
+                                                        <i class="fa fa-question-circle me-1"></i>
+                                                        <field name="decision_question"/>
+                                                    </div>
+                                                    
+                                                    <div class="step-note" style="font-size: 10px; color: #6c757d; line-height: 1.3;" t-if="record.note.raw_value">
+                                                        <i class="fa fa-sticky-note-o me-1"></i>
+                                                        <field name="note"/>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Conexiones mejoradas -->
+                                                <div class="workflow-connections" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef;">
+                                                    <!-- Conexión normal -->
+                                                    <div t-if="record.step_type.raw_value != 'decision' and record.next_step_id.raw_value" 
+                                                         style="font-size: 10px; color: #28a745; background: #f8fff9; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px;">
+                                                        <i class="fa fa-arrow-right me-1"></i>
+                                                        <strong>Siguiente:</strong> <field name="next_step_id"/>
+                                                    </div>
+                                                    
+                                                    <!-- Conexiones de decisión -->
+                                                    <div t-if="record.step_type.raw_value == 'decision'">
+                                                        <div t-if="record.next_step_yes_id.raw_value" 
+                                                             style="font-size: 10px; color: #007bff; background: #f8f9ff; padding: 4px 8px; border-radius: 4px; margin-bottom: 2px;">
+                                                            <i class="fa fa-check me-1"></i>
+                                                            <strong>SÍ:</strong> <field name="next_step_yes_id"/>
+                                                        </div>
+                                                        <div t-if="record.next_step_no_id.raw_value" 
+                                                             style="font-size: 10px; color: #dc3545; background: #fff8f8; padding: 4px 8px; border-radius: 4px;">
+                                                            <i class="fa fa-times me-1"></i>
+                                                            <strong>NO:</strong> <field name="next_step_no_id"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+
+                        <!-- Leyenda expandida -->
+                        <div class="workflow-legend mt-4" 
+                             style="background: white; padding: 25px; border-radius: 10px; 
+                                    box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e9ecef;">
+                            <h5 style="margin-bottom: 20px; color: #495057;">
+                                <i class="fa fa-info-circle"/> Guía del Diseñador de Workflow
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="legend-item text-center p-3" style="background: #f8f9ff; border-radius: 8px; border: 1px solid #e3e6ff;">
+                                        <div class="legend-icon mb-3" style="color: #007bff;">
+                                            <i class="fa fa-play-circle fa-3x"></i>
+                                        </div>
+                                        <strong style="font-size: 14px; color: #007bff;">INICIO</strong>
+                                        <div style="font-size: 11px; color: #6c757d; margin-top: 5px;">
+                                            Punto de partida del proceso
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="legend-item text-center p-3" style="background: #f8fff9; border-radius: 8px; border: 1px solid #d4edda;">
+                                        <div class="legend-icon mb-3" style="color: #28a745;">
+                                            <i class="fa fa-cog fa-3x"></i>
+                                        </div>
+                                        <strong style="font-size: 14px; color: #28a745;">ACCIÓN</strong>
+                                        <div style="font-size: 11px; color: #6c757d; margin-top: 5px;">
+                                            Paso operativo a realizar
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="legend-item text-center p-3" style="background: #fffbf0; border-radius: 8px; border: 1px solid #ffeaa7;">
+                                        <div class="legend-icon mb-3" style="color: #ffc107;">
+                                            <i class="fa fa-question-circle fa-3x"></i>
+                                        </div>
+                                        <strong style="font-size: 14px; color: #ffc107;">DECISIÓN</strong>
+                                        <div style="font-size: 11px; color: #6c757d; margin-top: 5px;">
+                                            Punto de decisión con rutas
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="legend-item text-center p-3" style="background: #fff5f5; border-radius: 8px; border: 1px solid #feb2b2;">
+                                        <div class="legend-icon mb-3" style="color: #dc3545;">
+                                            <i class="fa fa-stop-circle fa-3x"></i>
+                                        </div>
+                                        <strong style="font-size: 14px; color: #dc3545;">FIN</strong>
+                                        <div style="font-size: 11px; color: #6c757d; margin-top: 5px;">
+                                            Finalización del proceso
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vistas auxiliares -->
+    <record id="view_motorcycle_service_step_form" model="ir.ui.view">
+        <field name="name">motorcycle.service.step.form</field>
+        <field name="model">motorcycle.service.step</field>
+        <field name="arch" type="xml">
+            <form string="Configurar Paso del Workflow">
+                <header>
+                    <field name="is_done" widget="boolean_toggle" options="{'terminology': 'archive'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="Descripción del paso"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Configuración del Paso">
+                            <field name="step_type"/>
+                            <field name="sequence"/>
+                            <field name="decision_question" 
+                                   invisible="step_type != 'decision'"
+                                   required="step_type == 'decision'"/>
+                        </group>
+                        <group string="Información Adicional">
+                            <field name="position_x" invisible="1"/>
+                            <field name="position_y" invisible="1"/>
+                            <field name="step_icon" readonly="1"/>
+                            <field name="step_color" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Documentación" colspan="2">
+                        <field name="note" widget="text"/>
+                        <field name="pdf_file" filename="pdf_filename" widget="pdf_viewer"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Flujo de Conexiones" icon="fa-share-alt">
+                            <div class="alert alert-info">
+                                <strong>Conexiones:</strong> Define cómo continúa el flujo después de este paso.
+                            </div>
+                            <group invisible="step_type == 'decision'">
+                                <field name="next_step_id" 
+                                       domain="[('service_id', '=', service_id), ('id', '!=', id)]"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <group invisible="step_type != 'decision'" string="Rutas de Decisión">
+                                <field name="next_step_yes_id" 
+                                       string="Ruta SÍ"
+                                       domain="[('service_id', '=', service_id), ('id', '!=', id)]"
+                                       options="{'no_create': True}"/>
+                                <field name="next_step_no_id" 
+                                       string="Ruta NO"
+                                       domain="[('service_id', '=', service_id), ('id', '!=', id)]"
+                                       options="{'no_create': True}"/>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>
@@ -74,6 +644,8 @@
         <field name="model">motorcycle.service.step</field>
         <field name="arch" type="xml">
             <list string="Pasos del Servicio">
+                <field name="sequence" widget="handle"/>
+                <field name="step_type"/>
                 <field name="name"/>
                 <field name="is_done"/>
                 <field name="note"/>

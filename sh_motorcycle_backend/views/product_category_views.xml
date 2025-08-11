@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <!-- VISTA MEJORADA PARA CATEGORÍAS DE PRODUCTO -->
   <record id="view_product_category_form_inherit_webshop" model="ir.ui.view">
     <field name="name">product.category.form.inherit.webshop</field>
     <field name="model">product.category</field>
@@ -7,12 +8,29 @@
     <field name="arch" type="xml">
       <!-- Después del grupo principal con parent_id -->
       <xpath expr="//group[@name='first']" position="after">
-        <group string="Web y Clasificación" col="2">
-          <field name="show_in_website"/>
-          <field name="depth" readonly="1"/>
+        <group string="Configuración Web y Clasificación" col="2">
+          <field name="show_in_website" widget="boolean_toggle"/>
+          <field name="depth" readonly="1" 
+                 help="Profundidad en la jerarquía de categorías (calculado automáticamente)"/>
         </group>
-        <group string="Atributos Técnicos" colspan="2">
-          <field name="attribute_ids" widget="many2many_tags"/>
+        
+        <separator string="Atributos Técnicos"/>
+        <group colspan="2">
+          <field name="attribute_ids" widget="many2many_tags" 
+                 options="{'color_field': 'name', 'no_create': True}"
+                 placeholder="Selecciona los atributos técnicos disponibles para esta categoría..."/>
+        </group>
+        
+        <group string="Información de Ayuda" colspan="2">
+          <div class="alert alert-info" role="alert">
+            <h4>Atributos Técnicos</h4>
+            <p><strong>¿Qué son?</strong> Los atributos técnicos permiten definir especificaciones 
+               detalladas para los productos de esta categoría.</p>
+            <p><strong>Ejemplo:</strong> Para la categoría "Motor", puedes asignar atributos como 
+               "Cilindrada", "Potencia", "Torque", etc.</p>
+            <p><strong>Beneficio:</strong> Al crear datos técnicos de motocicletas, solo aparecerán 
+               los atributos relevantes para cada categoría.</p>
+          </div>
         </group>
       </xpath>
     </field>

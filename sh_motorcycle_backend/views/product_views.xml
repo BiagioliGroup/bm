@@ -10,20 +10,18 @@
                     <group>
                         <field name="sh_is_common_product"/>
                     </group>
-                    <field name="motorcycle_ids">
-                        <list editable="bottom">
-                            <field name="make_id"/>
-                            <field name="mmodel_id"/>
-                            <field name="year"/>
-                        </list>
-                        <form>
-                            <group>
-                                <field name="make_id"/>
-                                <field name="mmodel_id"/>
-                                <field name="year"/>
-                            </group>
-                        </form>
-                    </field>
+                    
+                    <div invisible="sh_is_common_product == True">
+                        <separator string="Motocicletas Compatibles"/>
+                        <field name="motorcycle_ids"/>
+                    </div>
+                    
+                    <div invisible="sh_is_common_product == False">
+                        <div class="alert alert-success" role="alert">
+                            <h4>Producto Común</h4>
+                            <p>Este producto es compatible con todas las motocicletas.</p>
+                        </div>
+                    </div>
                 </page>
             </xpath>
         </field>

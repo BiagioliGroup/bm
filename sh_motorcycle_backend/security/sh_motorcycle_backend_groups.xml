@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     
-
- 	<record model="ir.module.category" id="module_category_sh_motorcycle">
+    <record model="ir.module.category" id="module_category_sh_motorcycle">
         <field name="name">Auto Parts</field>
         <field name="sequence">103</field>
     </record>
@@ -22,39 +21,110 @@
         <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
     </record>
     
+    <!-- REGLAS MULTI-EMPRESA SOLO PARA USUARIOS INTERNOS -->
     <record id="rule_sh_motorcycle_backend_vehicle" model="ir.rule">
         <field name="name">Vehicle multi-company</field>
         <field name="model_id" ref="model_motorcycle_motorcycle" />
         <field name="domain_force"> ['|', ('company_id', 'in', company_ids), ('company_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="rule_sh_motorcycle_backend_garage" model="ir.rule">
         <field name="name">Garage multi-company</field>
         <field name="model_id" ref="model_motorcycle_garage" />
         <field name="domain_force"> ['|', ('company_id', 'in', company_ids), ('company_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="rule_sh_motorcycle_backend_make" model="ir.rule">
         <field name="name">Make multi-company</field>
         <field name="model_id" ref="model_motorcycle_make" />
         <field name="domain_force"> ['|', ('company_id', 'in', company_ids), ('company_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="rule_sh_motorcycle_backend_mmodel" model="ir.rule">
         <field name="name">Model multi-company</field>
         <field name="model_id" ref="model_motorcycle_mmodel" />
         <field name="domain_force"> ['|', ('company_id', 'in', company_ids), ('company_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="rule_sh_motorcycle_backend_type" model="ir.rule">
         <field name="name">Motorcycle Type multi-company</field>
         <field name="model_id" ref="model_motorcycle_type" />
         <field name="domain_force"> ['|', ('company_id', 'in', company_ids), ('company_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="rule_sh_motorcycle_backend_year" model="ir.rule">
         <field name="name">Motorcycle Year multi-company</field>
         <field name="model_id" ref="model_motorcycle_year" />
         <field name="domain_force"> ['|', ('company_id', 'in', company_ids), ('company_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- REGLAS ESPECÍFICAS PARA USUARIOS PÚBLICOS Y PORTAL -->
+    <record id="rule_sh_motorcycle_backend_vehicle_public" model="ir.rule">
+        <field name="name">Vehicle public access</field>
+        <field name="model_id" ref="model_motorcycle_motorcycle" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_public')), (4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sh_motorcycle_backend_make_public" model="ir.rule">
+        <field name="name">Make public access</field>
+        <field name="model_id" ref="model_motorcycle_make" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_public')), (4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sh_motorcycle_backend_mmodel_public" model="ir.rule">
+        <field name="name">Model public access</field>
+        <field name="model_id" ref="model_motorcycle_mmodel" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_public')), (4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sh_motorcycle_backend_type_public" model="ir.rule">
+        <field name="name">Type public access</field>
+        <field name="model_id" ref="model_motorcycle_type" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_public')), (4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sh_motorcycle_backend_year_public" model="ir.rule">
+        <field name="name">Year public access</field>
+        <field name="model_id" ref="model_motorcycle_year" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_public')), (4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- REGLA ESPECIAL PARA GARAGE DE USUARIOS PORTAL -->
+    <record id="rule_sh_motorcycle_backend_garage_portal" model="ir.rule">
+        <field name="name">Garage portal own access</field>
+        <field name="model_id" ref="model_motorcycle_garage" />
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
     </record>
 </odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Herencia de la vista formulario de Sale Order -->
+    <record id="view_order_form_inherit_service_templates" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.service.templates</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Agregar campo de plantilla de servicios después de payment_term_id -->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="motorcycle_service_template_id" 
+                       string="Plantilla de Servicios"
+                       placeholder="Seleccionar Plantilla de Servicio..." 
+                       options="{'no_create': True}"
+                       readonly="state in ['cancel', 'sale']"/>
+            </xpath>
+
+            
+            <!-- Botón discreto para borrar líneas -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <div class="d-flex justify-content-end mb-2">
+                    <button name="action_clear_order_lines" 
+                            string="" 
+                            type="object" 
+                            class="btn btn-outline-secondary btn-sm" 
+                            title="Borrar todas las líneas" 
+                            confirm="¿Estás seguro de que quieres borrar todas las líneas?" 
+                            invisible="state not in ['draft', 'sent']">
+                        <i class="fa fa-trash-o"/>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

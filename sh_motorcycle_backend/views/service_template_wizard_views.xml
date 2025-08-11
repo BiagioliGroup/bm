@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario del wizard SIMPLIFICADA -->
+    <record id="service_template_wizard_form" model="ir.ui.view">
+        <field name="name">service.template.wizard.form</field>
+        <field name="model">service.template.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seleccionar Plantilla de Servicio">
+                <group>
+                    <field name="sale_order_id" invisible="1"/>
+                    <field name="service_template_id" 
+                           placeholder="Seleccionar plantilla de servicio..."
+                           options="{'no_create': True}"/>
+                </group>
+                
+                <group string="Configuración" invisible="not service_template_id">
+                    <field name="add_section_header"/>
+                    <field name="section_name" invisible="not add_section_header"/>
+                </group>
+                
+                <footer>
+                    <button string="Aplicar Plantilla" 
+                            name="action_apply_template" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="not service_template_id"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del wizard -->
+    <record id="action_service_template_wizard" model="ir.actions.act_window">
+        <field name="name">Agregar Plantilla de Servicio</field>
+        <field name="res_model">service.template.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{
+            'default_sale_order_id': active_id,
+        }</field>
+    </record>
+</odoo>
