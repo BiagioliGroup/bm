@@ -263,7 +263,7 @@
                         <group string="Información del Servicio">
                             <field name="description" placeholder="Descripción del servicio técnico..."/>
                             <field name="labor_description" placeholder="Detalles específicos del trabajo..."/>
-                            <field name="currency_id" column_invisible="1"/>
+                            <!-- <field name="currency_id" column_invisible="1"/> -->
                         </group>
                         <group string="Resumen de Costos">
                             <field name="total_parts_cost" widget="monetary" 
