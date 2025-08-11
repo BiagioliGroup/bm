@@ -216,8 +216,8 @@
                     <!-- Botones de acción -->
                     <button name="action_print_service_report" string="Imprimir Reporte" 
                             type="object" class="btn-primary" icon="fa-print"/>
-                    <button name="create_workflow_template" string="Crear Plantilla Workflow" 
-                            type="object" class="btn-secondary" icon="fa-magic"/>
+                    <!-- <button name="create_workflow_template" string="Crear Plantilla Workflow" 
+                            type="object" class="btn-secondary" icon="fa-magic"/> -->
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -348,11 +348,11 @@
             <form string="Diseñador de Workflow" create="false">
                 <header>
                     <!-- Barra de herramientas del workflow -->
-                    <button name="create_workflow_template" string="🎨 Crear Plantilla" 
+                    <button name="create_workflow_template" string="🎨 Plantilla default" 
                             type="object" class="btn-primary"/>
                     <button name="action_save_workflow" string="💾 Guardar" 
                             type="object" class="btn-success"/>
-                    <button name="action_refresh_workflow" string="🔄 Refrescar" 
+                    <button name="action_refresh_workflow" string="🔄 Editar" 
                             type="object" class="btn-secondary"/>
                 </header>
                 
