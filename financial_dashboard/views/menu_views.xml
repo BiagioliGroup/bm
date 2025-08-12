@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- MENÚ PRINCIPAL BÁSICO -->
+    <!-- MENÚ PRINCIPAL EN ACCOUNTING -->
     <menuitem id="menu_financial_dashboard_root"
               name="Dashboard Financiero"
-              parent="account.menu_finance"
-              sequence="5"/>
+              parent="accountant.menu_accounting"
+              sequence="90"/>
 </odoo>
