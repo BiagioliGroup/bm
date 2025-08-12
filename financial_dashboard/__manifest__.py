@@ -75,8 +75,8 @@
         # ========================================== #
         # PASO 4: DATOS MAESTROS
         # ========================================== #
-        # 'data/expense_category_data.xml',
-        # 'data/cashflow_category_data.xml',
+        'data/expense_category_data.xml',
+        'data/cashflow_category_data.xml',
         
         # ========================================== #
         # PASO 5: WIZARDS (comentado hasta verificar existencia)
@@ -102,10 +102,10 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'financial_dashboard/static/src/css/dashboard_style.scss',
-            'financial_dashboard/static/src/js/dashboard_widgets.js',
-            'financial_dashboard/static/src/js/cashflow_grid.js',
-            'financial_dashboard/static/src/xml/dashboard_templates.xml',
+            # 'financial_dashboard/static/src/css/dashboard_style.scss',
+            # 'financial_dashboard/static/src/js/dashboard_widgets.js',
+            # 'financial_dashboard/static/src/js/cashflow_grid.js',
+            # 'financial_dashboard/static/src/xml/dashboard_templates.xml',
         ],
     },
     'demo': [
