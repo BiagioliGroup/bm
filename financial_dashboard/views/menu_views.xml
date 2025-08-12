@@ -2,16 +2,59 @@
 <odoo>
     <!-- MENÚ PRINCIPAL CON GRUPOS DE ACCESO -->
     <menuitem id="menu_financial_dashboard_root"
-          name="Dashboard Financiero"
-          parent="accountant.menu_accounting"
-          groups="base.group_user"
-          sequence="95"/>
+              name="Dashboard Financiero"
+              parent="accountant.menu_accounting"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="95"/>
 
-    <!-- SUBMENÚ CON GRUPOS DE ACCESO -->
-    <menuitem id="menu_cashflow_categories"
-              name="Categorías de Cashflow"
+    <!-- DASHBOARD PRINCIPAL -->
+    <menuitem id="menu_financial_dashboard_main"
+              name="Dashboard Principal"
               parent="menu_financial_dashboard_root"
-              action="action_cashflow_category"
+              action="action_financial_dashboard"
               groups="account.group_account_user,account.group_account_manager"
               sequence="10"/>
+
+    <!-- GESTIÓN DE GASTOS -->
+    <menuitem id="menu_expenses_management"
+              name="Gestión de Gastos"
+              parent="menu_financial_dashboard_root"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_periodic_expenses"
+              name="Gastos Periódicos"
+              parent="menu_expenses_management"
+              action="action_periodic_expense_list"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="10"/>
+
+    <menuitem id="menu_expense_categories"
+              name="Categorías de Gastos"
+              parent="menu_expenses_management"
+              action="action_expense_category"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="20"/>
+
+    <!-- CASHFLOW -->
+    <menuitem id="menu_cashflow_management"
+              name="Cashflow"
+              parent="menu_financial_dashboard_root"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="30"/>
+
+    <menuitem id="menu_cashflow_projection"
+              name="Proyección de Cashflow"
+              parent="menu_cashflow_management"
+              action="action_cashflow_projection"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="10"/>
+
+    <menuitem id="menu_cashflow_categories"
+              name="Categorías de Cashflow"
+              parent="menu_cashflow_management"
+              action="action_cashflow_category"
+              groups="account.group_account_user,account.group_account_manager"
+              sequence="20"/>
+
 </odoo>
