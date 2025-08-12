@@ -48,8 +48,8 @@
     ],
     'data': [
         # Seguridad
-        # 'security/security.xml',
-        # 'security/ir.model.access.csv',
+        'security/security.xml',
+        'security/ir.model.access.csv',
         
         # Datos maestros
         'data/expense_category_data.xml',

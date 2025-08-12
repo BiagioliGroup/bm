@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ========================================== -->
+        <!-- CATEGORÍAS DE GASTOS PERIÓDICOS -->
+        <!-- ========================================== -->
+        
+        <!-- CATEGORÍA: IMPUESTOS -->
+        <record id="expense_category_taxes" model="expense.category">
+            <field name="name">Impuestos</field>
+            <field name="code">TAX</field>
+            <field name="description">Impuestos nacionales, provinciales y municipales</field>
+            <field name="color">1</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">10</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: HONORARIOS PROFESIONALES -->
+        <record id="expense_category_professional_fees" model="expense.category">
+            <field name="name">Honorarios Profesionales</field>
+            <field name="code">PROF</field>
+            <field name="description">Contador, abogado, consultor, etc.</field>
+            <field name="color">2</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">20</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: SERVICIOS BÁSICOS -->
+        <record id="expense_category_utilities" model="expense.category">
+            <field name="name">Servicios Básicos</field>
+            <field name="code">UTIL</field>
+            <field name="description">Luz, gas, agua, teléfono, internet</field>
+            <field name="color">3</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">30</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: ALQUILERES -->
+        <record id="expense_category_rent" model="expense.category">
+            <field name="name">Alquileres</field>
+            <field name="code">RENT</field>
+            <field name="description">Alquiler de oficina, depósito, local comercial</field>
+            <field name="color">4</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">40</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: SEGUROS -->
+        <record id="expense_category_insurance" model="expense.category">
+            <field name="name">Seguros</field>
+            <field name="code">INS</field>
+            <field name="description">Seguro de vida, auto, oficina, RC</field>
+            <field name="color">5</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">50</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: SUELDOS Y CARGAS SOCIALES -->
+        <record id="expense_category_payroll" model="expense.category">
+            <field name="name">Sueldos y Cargas Sociales</field>
+            <field name="code">PAYROLL</field>
+            <field name="description">Sueldos, ART, obra social, aportes patronales</field>
+            <field name="color">6</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">60</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: MANTENIMIENTO -->
+        <record id="expense_category_maintenance" model="expense.category">
+            <field name="name">Mantenimiento</field>
+            <field name="code">MAINT</field>
+            <field name="description">Mantenimiento de equipos, vehículos, inmuebles</field>
+            <field name="color">7</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">70</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: SERVICIOS TECNOLÓGICOS -->
+        <record id="expense_category_technology" model="expense.category">
+            <field name="name">Servicios Tecnológicos</field>
+            <field name="code">TECH</field>
+            <field name="description">Software, hosting, licencias, soporte técnico</field>
+            <field name="color">8</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">80</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: MARKETING Y PUBLICIDAD -->
+        <record id="expense_category_marketing" model="expense.category">
+            <field name="name">Marketing y Publicidad</field>
+            <field name="code">MKT</field>
+            <field name="description">Publicidad, marketing digital, promociones</field>
+            <field name="color">9</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">90</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: VIÁTICOS Y TRASLADOS -->
+        <record id="expense_category_travel" model="expense.category">
+            <field name="name">Viáticos y Traslados</field>
+            <field name="code">TRAVEL</field>
+            <field name="description">Combustible, viáticos, peajes, viajes</field>
+            <field name="color">10</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">100</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: GASTOS BANCARIOS -->
+        <record id="expense_category_banking" model="expense.category">
+            <field name="name">Gastos Bancarios</field>
+            <field name="code">BANK</field>
+            <field name="description">Comisiones, mantenimiento de cuenta, transferencias</field>
+            <field name="color">11</field>
+            <field name="is_tax_deductible">False</field>
+            <field name="sequence">110</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: OTROS GASTOS -->
+        <record id="expense_category_other" model="expense.category">
+            <field name="name">Otros Gastos</field>
+            <field name="code">OTHER</field>
+            <field name="description">Gastos diversos no categorizados</field>
+            <field name="color">0</field>
+            <field name="is_tax_deductible">False</field>
+            <field name="sequence">999</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- DATOS ESPECÍFICOS PARA ARGENTINA -->
+        <!-- ========================================== -->
+        
+        <!-- CATEGORÍA: IMPUESTOS ESPECÍFICOS ARGENTINOS -->
+        <record id="expense_category_iva" model="expense.category">
+            <field name="name">IVA</field>
+            <field name="code">IVA</field>
+            <field name="description">Impuesto al Valor Agregado mensual</field>
+            <field name="color">1</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">11</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="expense_category_ganancias" model="expense.category">
+            <field name="name">Ganancias</field>
+            <field name="code">GCIAS</field>
+            <field name="description">Impuesto a las Ganancias</field>
+            <field name="color">1</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">12</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="expense_category_ingresos_brutos" model="expense.category">
+            <field name="name">Ingresos Brutos</field>
+            <field name="code">IIBB</field>
+            <field name="description">Impuesto a los Ingresos Brutos provincial</field>
+            <field name="color">1</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">13</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="expense_category_afip_autonomos" model="expense.category">
+            <field name="name">Autónomos AFIP</field>
+            <field name="code">AUT</field>
+            <field name="description">Régimen de trabajadores autónomos</field>
+            <field name="color">1</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">14</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CATEGORÍA: SERVICIOS ESPECÍFICOS ARGENTINA -->
+        <record id="expense_category_gas_natural" model="expense.category">
+            <field name="name">Gas Natural</field>
+            <field name="code">GAS</field>
+            <field name="description">Servicio de gas natural</field>
+            <field name="color">3</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">31</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="expense_category_edesur" model="expense.category">
+            <field name="name">Energía Eléctrica</field>
+            <field name="code">ELEC</field>
+            <field name="description">Edesur, Edenor u otra distribuidora</field>
+            <field name="color">3</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">32</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="expense_category_aysa" model="expense.category">
+            <field name="name">Agua y Cloacas</field>
+            <field name="code">WATER</field>
+            <field name="description">AySA u otra prestadora de agua</field>
+            <field name="color">3</field>
+            <field name="is_tax_deductible">True</field>
+            <field name="sequence">33</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- CONFIGURACIÓN DE PERÍODOS POR DEFECTO -->
+        <!-- ========================================== -->
+        
+        <!-- Para facilitar la creación automática, se pueden agregar configuraciones -->
+        <record id="config_default_expense_period" model="ir.config_parameter">
+            <field name="key">financial_dashboard.default_expense_period</field>
+            <field name="value">monthly</field>
+        </record>
+
+        <record id="config_default_fiscal_type" model="ir.config_parameter">
+            <field name="key">financial_dashboard.default_fiscal_type</field>
+            <field name="value">fiscal</field>
+        </record>
+
+    </data>
+</odoo>
