@@ -47,31 +47,53 @@
         'web',
     ],
     'data': [
-        # Seguridad
+        # ========================================== #
+        # PASO 1: SEGURIDAD BÁSICA (grupos)
+        # ========================================== #
         'security/security.xml',
+        
+        # ========================================== #
+        # PASO 2: PERMISOS DE ACCESO BÁSICOS
+        # ========================================== #
         'security/ir.model.access.csv',
         
-        # Datos maestros
+        # ========================================== #
+        # PASO 3: DATOS MAESTROS
+        # ========================================== #
         'data/expense_category_data.xml',
         'data/cashflow_category_data.xml',
         
-        # Vistas principales
+        # ========================================== #
+        # PASO 4: VISTAS PRINCIPALES
+        # ========================================== #
         'views/dashboard_main_views.xml',
         'views/periodic_expense_views.xml',
         'views/cashflow_projection_views.xml',
         'views/financial_analysis_views.xml',
         'views/account_move_integration_views.xml',
         
-        # Wizards
+        # ========================================== #
+        # PASO 5: WIZARDS
+        # ========================================== #
         'wizard/cashflow_report_wizard_views.xml',
         'wizard/invoice_import_wizard_views.xml',
         
-        # Menús
+        # ========================================== #
+        # PASO 6: MENÚS
+        # ========================================== #
         'views/menu_views.xml',
         
-        # Reportes
+        # ========================================== #
+        # PASO 7: REPORTES
+        # ========================================== #
         'reports/cashflow_reports.xml',
         'reports/expense_analysis_reports.xml',
+        
+        # ========================================== #
+        # PASO 8: REGLAS AVANZADAS DE SEGURIDAD
+        # (Se cargan al final cuando todos los modelos existen)
+        # ========================================== #
+        'security/security_rules.xml',
     ],
     'assets': {
         'web.assets_backend': [

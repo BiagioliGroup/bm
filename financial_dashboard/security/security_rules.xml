@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- REGLAS DE ACCESO POR COMPAÑÍA -->
+    <!-- NOTA: Este archivo se carga después de los modelos -->
+    <!-- ========================================== -->
+    
+    <!-- Regla: Dashboard solo de la compañía del usuario -->
+    <record id="rule_financial_dashboard_multi_company" model="ir.rule">
+        <field name="name">Dashboard Financiero: Multicompañía</field>
+        <field name="model_id" ref="model_financial_dashboard"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Regla: Gastos periódicos solo de la compañía del usuario -->
+    <record id="rule_periodic_expense_multi_company" model="ir.rule">
+        <field name="name">Gastos Periódicos: Multicompañía</field>
+        <field name="model_id" ref="model_periodic_expense"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+    <!-- Regla: Cashflow solo de la compañía del usuario -->
+    <record id="rule_cashflow_projection_multi_company" model="ir.rule">
+        <field name="name">Cashflow: Multicompañía</field>
+        <field name="model_id" ref="model_cashflow_projection"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+    <!-- Regla: Categorías de gastos - acceso global para usuarios -->
+    <record id="rule_expense_category_user" model="ir.rule">
+        <field name="name">Categorías de Gastos: Usuarios</field>
+        <field name="model_id" ref="model_expense_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Regla: Categorías de cashflow - acceso global para usuarios -->
+    <record id="rule_cashflow_category_user" model="ir.rule">
+        <field name="name">Categorías de Cashflow: Usuarios</field>
+        <field name="model_id" ref="model_cashflow_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- REGLAS ESPECIALES PARA MANAGERS -->
+    <!-- ========================================== -->
+    
+    <!-- Managers pueden modificar categorías -->
+    <record id="rule_expense_category_manager" model="ir.rule">
+        <field name="name">Categorías de Gastos: Managers</field>
+        <field name="model_id" ref="model_expense_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_cashflow_category_manager" model="ir.rule">
+        <field name="name">Categorías de Cashflow: Managers</field>
+        <field name="model_id" ref="model_cashflow_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- REGLAS DE AUDITORÍA Y CONTROL -->
+    <!-- ========================================== -->
+    
+    <!-- Regla de auditoría para cambios críticos -->
+    <record id="rule_audit_financial_changes" model="ir.rule">
+        <field name="name">Auditoría: Cambios Financieros</field>
+        <field name="model_id" ref="model_periodic_expense"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Regla para control de acceso a analisis financiero -->
+    <record id="rule_financial_analysis_multi_company" model="ir.rule">
+        <field name="name">Análisis Financiero: Multicompañía</field>
+        <field name="model_id" ref="model_financial_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+    <!-- Regla para gastos mensuales -->
+    <record id="rule_periodic_expense_monthly_multi_company" model="ir.rule">
+        <field name="name">Gastos Mensuales: Multicompañía</field>
+        <field name="model_id" ref="model_periodic_expense_monthly"/>
+        <field name="domain_force">[('expense_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+</odoo>
