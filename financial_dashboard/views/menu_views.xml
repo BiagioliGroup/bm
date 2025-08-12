@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- MENÚ PRINCIPAL EN ACCOUNTING -->
+    <!-- MENÚ PRINCIPAL SIN ACCIÓN (como tu ejemplo ARCA) -->
     <menuitem id="menu_financial_dashboard_root"
               name="Dashboard Financiero"
               parent="accountant.menu_accounting"
-              sequence="100"/>
+              sequence="95"/>
 
-    <!-- SUBMENÚ -->
+    <!-- SUBMENÚ CON ACCIÓN (como tu ejemplo) -->
     <menuitem id="menu_cashflow_categories"
               name="Categorías de Cashflow"
               parent="menu_financial_dashboard_root"
+              action="action_cashflow_category"
               sequence="10"/>
 </odoo>
