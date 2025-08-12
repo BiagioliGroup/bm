@@ -11,7 +11,7 @@
             <field name="code">TAX</field>
             <field name="description">Impuestos nacionales, provinciales y municipales</field>
             <field name="color">1</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">10</field>
             <field name="active">True</field>
         </record>
@@ -22,7 +22,7 @@
             <field name="code">PROF</field>
             <field name="description">Contador, abogado, consultor, etc.</field>
             <field name="color">2</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">20</field>
             <field name="active">True</field>
         </record>
@@ -33,7 +33,7 @@
             <field name="code">UTIL</field>
             <field name="description">Luz, gas, agua, teléfono, internet</field>
             <field name="color">3</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">30</field>
             <field name="active">True</field>
         </record>
@@ -44,7 +44,7 @@
             <field name="code">RENT</field>
             <field name="description">Alquiler de oficina, depósito, local comercial</field>
             <field name="color">4</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">40</field>
             <field name="active">True</field>
         </record>
@@ -55,7 +55,7 @@
             <field name="code">INS</field>
             <field name="description">Seguro de vida, auto, oficina, RC</field>
             <field name="color">5</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">50</field>
             <field name="active">True</field>
         </record>
@@ -66,7 +66,7 @@
             <field name="code">PAYROLL</field>
             <field name="description">Sueldos, ART, obra social, aportes patronales</field>
             <field name="color">6</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">60</field>
             <field name="active">True</field>
         </record>
@@ -77,7 +77,7 @@
             <field name="code">MAINT</field>
             <field name="description">Mantenimiento de equipos, vehículos, inmuebles</field>
             <field name="color">7</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">70</field>
             <field name="active">True</field>
         </record>
@@ -88,7 +88,7 @@
             <field name="code">TECH</field>
             <field name="description">Software, hosting, licencias, soporte técnico</field>
             <field name="color">8</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">80</field>
             <field name="active">True</field>
         </record>
@@ -99,7 +99,7 @@
             <field name="code">MKT</field>
             <field name="description">Publicidad, marketing digital, promociones</field>
             <field name="color">9</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">90</field>
             <field name="active">True</field>
         </record>
@@ -110,7 +110,7 @@
             <field name="code">TRAVEL</field>
             <field name="description">Combustible, viáticos, peajes, viajes</field>
             <field name="color">10</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">100</field>
             <field name="active">True</field>
         </record>
@@ -147,7 +147,7 @@
             <field name="code">IVA</field>
             <field name="description">Impuesto al Valor Agregado mensual</field>
             <field name="color">1</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">11</field>
             <field name="active">True</field>
         </record>
@@ -157,7 +157,7 @@
             <field name="code">GCIAS</field>
             <field name="description">Impuesto a las Ganancias</field>
             <field name="color">1</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">12</field>
             <field name="active">True</field>
         </record>
@@ -167,7 +167,7 @@
             <field name="code">IIBB</field>
             <field name="description">Impuesto a los Ingresos Brutos provincial</field>
             <field name="color">1</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">13</field>
             <field name="active">True</field>
         </record>
@@ -177,7 +177,7 @@
             <field name="code">AUT</field>
             <field name="description">Régimen de trabajadores autónomos</field>
             <field name="color">1</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">14</field>
             <field name="active">True</field>
         </record>
@@ -188,7 +188,7 @@
             <field name="code">GAS</field>
             <field name="description">Servicio de gas natural</field>
             <field name="color">3</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">31</field>
             <field name="active">True</field>
         </record>
@@ -198,7 +198,7 @@
             <field name="code">ELEC</field>
             <field name="description">Edesur, Edenor u otra distribuidora</field>
             <field name="color">3</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">32</field>
             <field name="active">True</field>
         </record>
@@ -208,7 +208,7 @@
             <field name="code">WATER</field>
             <field name="description">AySA u otra prestadora de agua</field>
             <field name="color">3</field>
-            <field name="is_tax_deductible">True</field>
+
             <field name="sequence">33</field>
             <field name="active">True</field>
         </record>
