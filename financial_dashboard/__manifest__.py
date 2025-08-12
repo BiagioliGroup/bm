@@ -6,34 +6,34 @@
     Módulo completo para control financiero empresarial:
     
     CARACTERÍSTICAS PRINCIPALES:
-    • Dashboard principal con KPIs financieros en tiempo real
-    • Control de gastos periódicos (impuestos, honorarios, servicios)
-    • Seguimiento individual por mes: pagado/no pagado/factura cargada
-    • Integración automática con facturas de proveedores y clientes desde account.move
-    • Cashflow avanzado con divisiones blanco/negro
-    • Visualización diaria, semanal, mensual
-    • Proyecciones vs gastos reales
-    • Integración completa con contabilidad de Odoo
+    Dashboard principal con KPIs financieros en tiempo real
+    Control de gastos periódicos (impuestos, honorarios, servicios)
+    Seguimiento individual por mes: pagado/no pagado/factura cargada
+    Integración automática con facturas de proveedores y clientes desde account.move
+    Cashflow avanzado con divisiones blanco/negro
+    Visualización diaria, semanal, mensual
+    Proyecciones vs gastos reales
+    Integración completa con contabilidad de Odoo
     
     INTEGRACIÓN CON FACTURAS:
-    • Importa automáticamente facturas de proveedores (in_invoice, in_receipt)
-    • Importa automáticamente facturas de clientes (out_invoice, out_receipt)
-    • Estados soportados: draft, posted, paid, not_paid, partial
-    • Clasificación por estado de pago (payment_state)
-    • Proyección automática basada en fechas de vencimiento
+    Importa automáticamente facturas de proveedores (in_invoice, in_receipt)
+    Importa automáticamente facturas de clientes (out_invoice, out_receipt)
+    Estados soportados: draft, posted, paid, not_paid, partial
+    Clasificación por estado de pago (payment_state)
+    Proyección automática basada en fechas de vencimiento
     
     VISTAS INCLUIDAS:
-    • Dashboard Kanban con tarjetas informativas
-    • Grid view para cashflow temporal
-    • Listas y formularios optimizados para V18
-    • Gráficos interactivos de evolución
+    Dashboard Kanban con tarjetas informativas
+    Grid view para cashflow temporal
+    Listas y formularios optimizados para V18
+    Gráficos interactivos de evolución
     
     REPORTES:
-    • Estado de caja diario/semanal/mensual
-    • Comparativas blanco vs negro
-    • Proyecciones vs realizaciones
-    • Análisis por proveedor y categoría
-    • Estado de facturas pendientes de pago
+    Estado de caja diario/semanal/mensual
+    Comparativas blanco vs negro
+    Proyecciones vs realizaciones
+    Análisis por proveedor y categoría
+    Estado de facturas pendientes de pago
     """,
     'author': 'Biagioli Dev Team',
     'website': 'https://www.yourcompany.com',
