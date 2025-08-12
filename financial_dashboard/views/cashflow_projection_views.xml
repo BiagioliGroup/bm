@@ -57,7 +57,7 @@
                 <field name="type"/>
                 <field name="fiscal_type"/>
                 <field name="source_type"/>
-                <field name="amount" widget="monetary" sum="Total"/>
+                <field name="amount" sum="Total"/>
                 <field name="state" widget="badge" 
                        decoration-success="state == 'realized'"
                        decoration-info="state == 'confirmed'"
@@ -66,8 +66,8 @@
                 <field name="payment_state" 
                        column_invisible="source_type not in ('supplier_invoice', 'customer_invoice')"/>
                 <field name="actual_date" optional="hide"/>
-                <field name="actual_amount" widget="monetary" optional="hide"/>
-                <field name="variance" widget="monetary" optional="hide"/>
+                <field name="actual_amount" optional="hide"/>
+                <field name="variance" optional="hide"/>
                 <field name="account_move_id" optional="hide"/>
             </list>
         </field>
