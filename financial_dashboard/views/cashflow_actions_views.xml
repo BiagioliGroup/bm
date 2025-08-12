@@ -86,14 +86,17 @@
     </record>
 
     <!-- ========================================== -->
-    <!-- WIZARD DE REPORTES DE CASHFLOW -->
+    <!-- ACCIONES DE REPORTES DE CASHFLOW -->
     <!-- ========================================== -->
+    <!-- TODO: Crear modelo cashflow.report.wizard cuando sea necesario -->
+    <!--
     <record id="action_cashflow_report_wizard" model="ir.actions.act_window">
         <field name="name">Generar Reporte de Cashflow</field>
         <field name="res_model">cashflow.report.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
+    -->
 
     <!-- ========================================== -->
     <!-- CONFIGURACIÓN DE INFORMES -->
