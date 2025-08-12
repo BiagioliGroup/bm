@@ -3,36 +3,29 @@
     <!-- ========================================== -->
     <!-- VISTA GRID PRINCIPAL DE CASHFLOW - V18 COMPATIBLE -->
     <!-- ========================================== -->
-    <record id="view_cashflow_projection_grid" model="ir.ui.view">
-        <field name="name">cashflow.projection.grid</field>
+    
+    <record id="view_cashflow_projection_grid_v18" model="ir.ui.view">
+        <field name="name">cashflow.projection.grid.v18</field>
         <field name="model">cashflow.projection</field>
         <field name="arch" type="xml">
-            <grid string="Cashflow Proyectado - Vista Temporal"
-                  create="true" edit="true" delete="true"
-                  create_inline="true" display_empty="true"
-                  editable="bottom">
-
-                <!-- AGRUPACIÓN POR FILAS -->
+            <grid string="Cashflow Proyectado" 
+                create="true" edit="true" delete="true">
+                
+                <!-- FILAS: Agrupación principal -->
                 <field name="fiscal_type" type="row"/>
                 <field name="type" type="row"/>
                 <field name="partner_id" type="row"/>
-                <field name="category_id" type="row"/>
-                <field name="source_type" type="row"/>
-
-                <!-- COLUMNAS TEMPORALES MEJORADAS -->
+                
+                <!-- COLUMNAS: Tiempo -->
                 <field name="date" type="col">
-                    <!-- Vista diaria por defecto -->
-                    <range name="day" string="Diario" span="day" step="day" default="1"/>
-                    <!-- Vista semanal -->
-                    <range name="week" string="Semanal" span="week" step="day"/>
-                    <!-- Vista mensual -->
+                    <range name="day" string="Diario" span="day" step="day"/>
+                    <range name="week" string="Semanal" span="week" step="day" default="1"/>
                     <range name="month" string="Mensual" span="month" step="day"/>
-                    <!-- Vista trimestral -->
-                    <range name="quarter" string="Trimestral" span="quarter" step="week"/>
                 </field>
-
-                <!-- MEDIDA PRINCIPAL -->
+                
+                <!-- MEDIDA: Solo el importe sin widgets -->
                 <field name="amount" type="measure"/>
+                
             </grid>
         </field>
     </record>
@@ -376,28 +369,27 @@
     <!-- ACCIÓN PRINCIPAL DE CASHFLOW -->
     <!-- ========================================== -->
     <record id="action_cashflow_projection" model="ir.actions.act_window">
-        <field name="name">Proyección de Cashflow</field>
-        <field name="res_model">cashflow.projection</field>
-    <field name="view_mode">list,kanban,pivot,graph,form</field>  <!-- ✅ SIN GRID -->
-    <!-- <field name="view_id" ref="view_cashflow_projection_list"/> -->  <!-- ✅ SIN VIEW_ID FIJO -->
-        <field name="domain">[]</field>
-        <field name="context">{
-            'search_default_current_month': 1,
-            'default_state': 'projected'
-        }</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                ¡Planifica tu flujo de caja!
-            </p>
-            <p>
-                Visualiza ingresos y egresos proyectados por día, semana o mes.<br/>
-                • Separa movimientos en blanco y negro para un control completo<br/>
-                • Importa automáticamente desde facturas de proveedores y clientes<br/>
-                • Integra gastos periódicos automáticamente<br/>
-                • Analiza variaciones entre proyectado y real<br/>
-            </p>
-        </field>
-    </record>
+    <field name="name">Proyección de Cashflow</field>
+    <field name="res_model">cashflow.projection</field>
+    <field name="view_mode">list,grid,kanban,pivot,graph,form</field>  <!-- GRID AGREGADO OTRA VEZ -->
+    <field name="domain">[]</field>
+    <field name="context">{
+        'search_default_current_month': 1,
+        'default_state': 'projected'
+    }</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+            ¡Planifica tu flujo de caja!
+        </p>
+        <p>
+            Visualiza ingresos y egresos proyectados por día, semana o mes.<br/>
+            • Separa movimientos en blanco y negro para un control completo<br/>
+            • Importa automáticamente desde facturas de proveedores y clientes<br/>
+            • Integra gastos periódicos automáticamente<br/>
+            • Analiza variaciones entre proyectado y real
+        </p>
+    </field>
+</record>C
 
     <!-- ========================================== -->
     <!-- ACCIÓN PARA CASHFLOW DESDE FACTURAS -->
