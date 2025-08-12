@@ -51,6 +51,12 @@
         'data/cashflow_category_data.xml', 
         'views/cashflow_minimal_views.xml', 
         'views/menu_views.xml',
+
+
+        'views/dashboard_main_views.xml',
+        'views/periodic_expense_views.xml',
+        'views/cashflow_projection_views.xml',
+
     ],
     'assets': {
         'web.assets_backend': [
