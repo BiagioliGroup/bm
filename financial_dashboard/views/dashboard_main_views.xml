@@ -18,15 +18,13 @@
                 <field name="customer_amount_due"/>
                 <field name="supplier_invoices_not_paid"/>
                 <field name="customer_invoices_not_paid"/>
-                <!-- NUEVOS CAMPOS FISCALES -->
-                <field name="total_cash_fiscal"/>
-                <field name="total_cash_nofiscal"/>
-                <field name="total_bank_fiscal"/>
-                <field name="total_bank_nofiscal"/>
-                <field name="supplier_amount_due_fiscal"/>
-                <field name="supplier_amount_due_nofiscal"/>
-                <field name="customer_amount_due_fiscal"/>
-                <field name="customer_amount_due_nofiscal"/>
+                <!-- CAMPOS EXISTENTES EN EL MODELO -->
+                <field name="total_cash_white"/>
+                <field name="total_cash_black"/>
+                <field name="total_bank_white"/>
+                <field name="total_bank_black"/>
+                <field name="supplier_amount_due"/>
+                <field name="customer_amount_due"/>
                 <templates>
                     <t t-name="card">
                         <div class="o_kanban_card p-3">
@@ -78,11 +76,11 @@
                                             <div class="small">
                                                 <div class="mb-1">
                                                     <strong>Efectivo:</strong> 
-                                                    <field name="total_cash_fiscal" widget="monetary"/>
+                                                    <field name="total_cash_white" widget="monetary"/>
                                                 </div>
                                                 <div class="mb-2">
                                                     <strong>Bancos:</strong> 
-                                                    <field name="total_bank_fiscal" widget="monetary"/>
+                                                    <field name="total_bank_white" widget="monetary"/>
                                                 </div>
                                                 <hr class="my-2"/>
                                                 <div>
@@ -106,11 +104,11 @@
                                             <div class="small">
                                                 <div class="mb-1">
                                                     <strong>Efectivo:</strong> 
-                                                    <field name="total_cash_nofiscal" widget="monetary"/>
+                                                    <field name="total_cash_black" widget="monetary"/>
                                                 </div>
                                                 <div class="mb-2">
                                                     <strong>Bancos:</strong> 
-                                                    <field name="total_bank_nofiscal" widget="monetary"/>
+                                                    <field name="total_bank_black" widget="monetary"/>
                                                 </div>
                                                 <hr class="my-2"/>
                                                 <div>
@@ -144,15 +142,15 @@
                                                 </div>
                                                 <div class="col-4 text-center">
                                                     <h6 class="text-success">
-                                                        <field name="supplier_amount_due_fiscal" widget="monetary"/>
+                                                        <field name="supplier_amount_due" widget="monetary"/>
                                                     </h6>
-                                                    <small>Fiscal</small>
+                                                    <small>Total</small>
                                                 </div>
                                                 <div class="col-4 text-center">
                                                     <h6 class="text-secondary">
-                                                        <field name="supplier_amount_due_nofiscal" widget="monetary"/>
+                                                        --
                                                     </h6>
-                                                    <small>No Fiscal</small>
+                                                    <small>Desglose fiscal próximamente</small>
                                                 </div>
                                             </div>
                                             <div class="mt-2 text-center">
@@ -191,15 +189,15 @@
                                                 </div>
                                                 <div class="col-4 text-center">
                                                     <h6 class="text-success">
-                                                        <field name="customer_amount_due_fiscal" widget="monetary"/>
+                                                        <field name="customer_amount_due" widget="monetary"/>
                                                     </h6>
-                                                    <small>Fiscal</small>
+                                                    <small>Total</small>
                                                 </div>
                                                 <div class="col-4 text-center">
                                                     <h6 class="text-secondary">
-                                                        <field name="customer_amount_due_nofiscal" widget="monetary"/>
+                                                        --
                                                     </h6>
-                                                    <small>No Fiscal</small>
+                                                    <small>Desglose fiscal próximamente</small>
                                                 </div>
                                             </div>
                                             <div class="mt-2 text-center">
@@ -314,15 +312,13 @@
                 <field name="display_name"/>
                 <field name="company_id"/>
                 <field name="total_cash_bank" widget="monetary"/>
-                <field name="total_cash_fiscal" widget="monetary" string="Efectivo Fiscal"/>
-                <field name="total_cash_nofiscal" widget="monetary" string="Efectivo No Fiscal"/>
-                <field name="total_bank_fiscal" widget="monetary" string="Bancos Fiscal"/>
-                <field name="total_bank_nofiscal" widget="monetary" string="Bancos No Fiscal"/>
+                <field name="total_cash_white" widget="monetary" string="Efectivo Fiscal"/>
+                <field name="total_cash_black" widget="monetary" string="Efectivo No Fiscal"/>
+                <field name="total_bank_white" widget="monetary" string="Bancos Fiscal"/>
+                <field name="total_bank_black" widget="monetary" string="Bancos No Fiscal"/>
                 <field name="pending_expenses_count"/>
-                <field name="supplier_amount_due_fiscal" widget="monetary"/>
-                <field name="supplier_amount_due_nofiscal" widget="monetary"/>
-                <field name="customer_amount_due_fiscal" widget="monetary"/>
-                <field name="customer_amount_due_nofiscal" widget="monetary"/>
+                <field name="supplier_amount_due" widget="monetary"/>
+                <field name="customer_amount_due" widget="monetary"/>
                 <field name="monthly_projection" widget="monetary"/>
             </list>
         </field>
