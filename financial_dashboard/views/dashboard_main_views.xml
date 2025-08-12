@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ========================================== -->
-    <!-- VISTA KANBAN DASHBOARD - CON SISTEMA FISCAL -->
+    <!-- VISTA KANBAN PRINCIPAL (SIN REFERENCIAS EXTERNAS) -->
     <!-- ========================================== -->
     <record id="view_financial_dashboard_kanban" model="ir.ui.view">
         <field name="name">financial.dashboard.kanban</field>
         <field name="model">financial.dashboard</field>
         <field name="arch" type="xml">
-            <kanban create="false" can_open="0" class="o_financial_dashboard_kanban" 
-                    js_class="financial_dashboard_kanban">
+            <kanban create="false" can_open="0" class="o_financial_dashboard_kanban">
                 <field name="id"/>
                 <field name="company_id"/>
                 <field name="currency_id"/>
-                <field name="kanban_dashboard"/>
-                <field name="dashboard_graph"/>
                 <field name="total_cash_bank"/>
                 <field name="pending_expenses_count"/>
                 <field name="overdue_expenses_count"/>
@@ -22,15 +19,18 @@
                 <field name="supplier_invoices_not_paid"/>
                 <field name="customer_invoices_not_paid"/>
                 <!-- NUEVOS CAMPOS FISCALES -->
+                <field name="total_cash_fiscal"/>
+                <field name="total_cash_nofiscal"/>
+                <field name="total_bank_fiscal"/>
+                <field name="total_bank_nofiscal"/>
                 <field name="supplier_amount_due_fiscal"/>
                 <field name="supplier_amount_due_nofiscal"/>
                 <field name="customer_amount_due_fiscal"/>
                 <field name="customer_amount_due_nofiscal"/>
                 <templates>
                     <t t-name="card">
-                        <t t-value="JSON.parse(record.kanban_dashboard.raw_value)" t-set="dashboard"/>
                         <div class="o_kanban_card p-3">
-                            <!-- ENCABEZADO CON SU EMPRESA -->
+                            <!-- ENCABEZADO -->
                             <div class="o_kanban_card_header mb-3">
                                 <div class="o_kanban_card_header_title">
                                     <h3 class="mb-0">
@@ -42,8 +42,7 @@
                                         <span class="ms-2 badge text-bg-info">Sistema Fiscal Integrado</span>
                                     </small>
                                     <div class="float-end">
-                                        <button type="object" name="action_refresh_dashboard" 
-                                                class="btn btn-sm btn-light" title="Actualizar">
+                                        <button type="object" name="action_refresh_dashboard" class="btn btn-sm btn-light" title="Actualizar">
                                             <i class="fa fa-refresh"/>
                                         </button>
                                     </div>
@@ -65,7 +64,7 @@
                                 </div>
                             </div>
 
-                            <!-- DESGLOSE FISCAL VS NO FISCAL (SU SISTEMA) -->
+                            <!-- DESGLOSE FISCAL VS NO FISCAL -->
                             <div class="row mb-3">
                                 <div class="col-6">
                                     <div class="card bg-success text-white">
@@ -79,18 +78,15 @@
                                             <div class="small">
                                                 <div class="mb-1">
                                                     <strong>Efectivo:</strong> 
-                                                    <span t-esc="dashboard.cash_breakdown.fiscal.cash" 
-                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                    <field name="total_cash_fiscal" widget="monetary"/>
                                                 </div>
                                                 <div class="mb-2">
                                                     <strong>Bancos:</strong> 
-                                                    <span t-esc="dashboard.cash_breakdown.fiscal.bank" 
-                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                    <field name="total_bank_fiscal" widget="monetary"/>
                                                 </div>
                                                 <hr class="my-2"/>
                                                 <div>
-                                                    <button type="object" name="action_view_fiscal_accounts" 
-                                                            class="btn btn-sm btn-light w-100">
+                                                    <button type="object" name="action_view_fiscal_accounts" class="btn btn-sm btn-light w-100">
                                                         Ver Cuentas Fiscales
                                                     </button>
                                                 </div>
@@ -110,18 +106,15 @@
                                             <div class="small">
                                                 <div class="mb-1">
                                                     <strong>Efectivo:</strong> 
-                                                    <span t-esc="dashboard.cash_breakdown.nofiscal.cash" 
-                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                    <field name="total_cash_nofiscal" widget="monetary"/>
                                                 </div>
                                                 <div class="mb-2">
                                                     <strong>Bancos:</strong> 
-                                                    <span t-esc="dashboard.cash_breakdown.nofiscal.bank" 
-                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                    <field name="total_bank_nofiscal" widget="monetary"/>
                                                 </div>
                                                 <hr class="my-2"/>
                                                 <div>
-                                                    <button type="object" name="action_view_nofiscal_accounts" 
-                                                            class="btn btn-sm btn-light w-100">
+                                                    <button type="object" name="action_view_nofiscal_accounts" class="btn btn-sm btn-light w-100">
                                                         Ver Cuentas No Fiscales
                                                     </button>
                                                 </div>
@@ -169,8 +162,7 @@
                                                 </span>
                                             </div>
                                             <div class="mt-2 text-center">
-                                                <button type="object" name="action_view_supplier_invoices_not_paid" 
-                                                        class="btn btn-sm btn-warning">
+                                                <button type="object" name="action_view_supplier_invoices_not_paid" class="btn btn-sm btn-warning">
                                                     <i class="fa fa-eye me-1"/>Ver Todas las Facturas
                                                 </button>
                                             </div>
@@ -217,8 +209,7 @@
                                                 </span>
                                             </div>
                                             <div class="mt-2 text-center">
-                                                <button type="object" name="action_view_customer_invoices_not_paid" 
-                                                        class="btn btn-sm btn-info">
+                                                <button type="object" name="action_view_customer_invoices_not_paid" class="btn btn-sm btn-info">
                                                     <i class="fa fa-eye me-1"/>Ver Todas las Facturas
                                                 </button>
                                             </div>
@@ -237,8 +228,7 @@
                                             </h5>
                                             <small>Gastos Próximos</small>
                                             <div class="mt-2">
-                                                <button type="object" name="action_view_pending_expenses" 
-                                                       class="btn btn-sm btn-primary">
+                                                <button type="object" name="action_view_pending_expenses" class="btn btn-sm btn-primary">
                                                     Ver Detalles
                                                 </button>
                                             </div>
@@ -252,7 +242,7 @@
                                                 <field name="overdue_expenses_count"/>
                                             </h5>
                                             <small>Gastos Vencidos</small>
-                                            <div class="mt-2" t-if="record.overdue_expenses_count.raw_value > 0">
+                                            <div class="mt-2" t-if="record.overdue_expenses_count.raw_value &gt; 0">
                                                 <span class="badge text-bg-danger">¡URGENTE!</span>
                                             </div>
                                         </div>
@@ -260,81 +250,28 @@
                                 </div>
                             </div>
 
-                            <!-- PROYECCIONES (INCLUYE FACTURAS) -->
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <div class="card bg-info text-white">
-                                        <div class="card-body text-center">
-                                            <h6>Proyección Semanal</h6>
-                                            <h5>
-                                                <span t-esc="dashboard.projections.weekly" 
-                                                      t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
-                                            </h5>
-                                            <small>Incluye facturas pendientes</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="card bg-secondary text-white">
-                                        <div class="card-body text-center">
-                                            <h6>Proyección Mensual</h6>
-                                            <h5>
-                                                <span t-esc="dashboard.projections.monthly" 
-                                                      t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
-                                            </h5>
-                                            <small>Incluye facturas pendientes</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- GRÁFICO DE EVOLUCIÓN FISCAL -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h6 class="mb-0">
-                                                <i class="fa fa-line-chart me-1"/>
-                                                Evolución Fiscal vs No Fiscal (30 días)
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <field name="dashboard_graph" widget="dashboard_graph" 
-                                                   graph_type="line" class="o_dashboard_graph"/>
-                                            <small class="text-muted">
-                                                Verde: Fiscal | Gris: No Fiscal
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ACCIONES RÁPIDAS MEJORADAS -->
+                            <!-- ACCIONES RÁPIDAS USANDO MÉTODOS OBJECT -->
                             <div class="row">
                                 <div class="col-3">
-                                    <button type="object" name="action_view_cashflow_projection" 
-                                           class="btn btn-primary btn-sm w-100">
+                                    <button type="object" name="action_view_cashflow_projection" class="btn btn-primary btn-sm w-100">
                                         <i class="fa fa-line-chart me-1"/>
                                         Cashflow
                                     </button>
                                 </div>
                                 <div class="col-3">
-                                    <button type="object" name="action_import_invoices_to_cashflow" 
-                                           class="btn btn-warning btn-sm w-100">
+                                    <button type="object" name="action_import_invoices_to_cashflow" class="btn btn-warning btn-sm w-100">
                                         <i class="fa fa-download me-1"/>
                                         Importar
                                     </button>
                                 </div>
                                 <div class="col-3">
-                                    <button type="action" name="%(action_periodic_expense_list)d" 
-                                           class="btn btn-info btn-sm w-100">
+                                    <button type="object" name="action_view_periodic_expenses" class="btn btn-info btn-sm w-100">
                                         <i class="fa fa-calendar me-1"/>
                                         Gastos
                                     </button>
                                 </div>
                                 <div class="col-3">
-                                    <button type="action" name="%(action_financial_analysis)d" 
-                                           class="btn btn-success btn-sm w-100">
+                                    <button type="object" name="action_view_financial_analysis" class="btn btn-success btn-sm w-100">
                                         <i class="fa fa-bar-chart me-1"/>
                                         Análisis
                                     </button>
@@ -407,26 +344,17 @@
                 ¡Bienvenido a su Dashboard Financiero Integrado!
             </p>
             <p>
-                Su dashboard está configurado con su sistema de clasificación fiscal:<br/>
+                Su herramienta completa para control financiero con clasificación Fiscal/No Fiscal:
+                <br/><br/>
+                • <strong>Control de Efectivo y Bancos</strong> separados por tipo fiscal<br/>
+                • <strong>Seguimiento de Facturas</strong> de proveedores y clientes<br/>
+                • <strong>Gastos Periódicos</strong> con alertas de vencimiento<br/>
+                • <strong>Proyecciones de Cashflow</strong> automáticas<br/>
+                • <strong>Integración completa</strong> con contabilidad de Odoo<br/>
                 <br/>
-                <strong>FISCAL (Blanco):</strong><br/>
-                • CLV (CLOVER), BCIUD (Banco Ciudad), MP (Mercado Pago)<br/>
-                • 00010/00011 (Facturas de Ventas), COMPR (Proveedores Fiscal)<br/>
-                • CCD1/CCD2 (Tarjetas Corporativas), SLR-F (Salarios Fiscal)<br/>
-                <br/>
-                <strong>NO FISCAL (Negro):</strong><br/>
-                • EFE1/EFE2 (Efectivo Caja), CSH4 (Dólares Caja Fuerte)<br/>
-                • STRIP (Stripe), BofA (Bank of America)<br/>
-                • X (Comprobantes Ventas), CCOMP (Comprobantes Compra)<br/>
-                • SLR-N (Salarios No Fiscal)<br/>
-                <br/>
-                <strong>Funcionalidades disponibles:</strong><br/>
-                • Separación automática fiscal vs no fiscal<br/>
-                • Importación de facturas con clasificación automática<br/>
-                • Gastos periódicos con control mensual<br/>
-                • Proyecciones de cashflow integradas<br/>
-                • Análisis comparativo por clasificación fiscal<br/>
+                <em>El dashboard se actualiza automáticamente con datos en tiempo real.</em>
             </p>
         </field>
     </record>
+
 </odoo>

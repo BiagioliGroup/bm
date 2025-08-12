@@ -53,13 +53,16 @@
         'security/security.xml',
         
         # ========================================== #
-        # PASO 2: VISTAS (aquí se registran los modelos)
+        # PASO 2: VISTAS Y ACCIONES (orden correcto)
         # ========================================== #
-        'views/dashboard_main_views.xml',
+        # Primero las vistas que DEFINEN acciones
         'views/periodic_expense_views.xml',
         'views/cashflow_projection_views.xml',
         'views/financial_analysis_views.xml',
         'views/account_move_integration_views.xml',
+        
+        # Después el dashboard que REFERENCIA acciones
+        'views/dashboard_main_views.xml',
         
         # ========================================== #
         # PASO 3: PERMISOS (después de que modelos existan)
