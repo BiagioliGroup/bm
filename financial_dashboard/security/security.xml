@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- GRUPOS DE SEGURIDAD -->
+    <!-- ========================================== -->
+    
+    <!-- Categoría principal del módulo -->
+    <record id="module_category_financial_dashboard" model="ir.module.category">
+        <field name="name">Dashboard Financiero</field>
+        <field name="description">Gestión de dashboards financieros y control de cashflow</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Grupo básico: Usuario del Dashboard -->
+    <record id="group_financial_dashboard_user" model="res.groups">
+        <field name="name">Usuario Dashboard Financiero</field>
+        <field name="category_id" ref="module_category_financial_dashboard"/>
+        <field name="comment">Acceso básico para ver dashboards y consultar datos financieros</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Grupo avanzado: Manager del Dashboard -->
+    <record id="group_financial_dashboard_manager" model="res.groups">
+        <field name="name">Manager Dashboard Financiero</field>
+        <field name="category_id" ref="module_category_financial_dashboard"/>
+        <field name="comment">Gestión completa: crear, modificar y eliminar gastos periódicos, cashflow y configuraciones</field>
+        <field name="implied_ids" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+    <!-- Grupo administrador: Admin del Dashboard -->
+    <record id="group_financial_dashboard_admin" model="res.groups">
+        <field name="name">Administrador Dashboard Financiero</field>
+        <field name="category_id" ref="module_category_financial_dashboard"/>
+        <field name="comment">Control total: configuración de categorías, reglas fiscales y parámetros del sistema</field>
+        <field name="implied_ids" eval="[(4, ref('group_financial_dashboard_manager'))]"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- REGLAS DE ACCESO POR COMPAÑÍA -->
+    <!-- ========================================== -->
+    
+    <!-- Regla: Dashboard solo de la compañía del usuario -->
+    <record id="rule_financial_dashboard_multi_company" model="ir.rule">
+        <field name="name">Dashboard Financiero: Multicompañía</field>
+        <field name="model_id" ref="model_financial_dashboard"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Regla: Gastos periódicos solo de la compañía del usuario -->
+    <record id="rule_periodic_expense_multi_company" model="ir.rule">
+        <field name="name">Gastos Periódicos: Multicompañía</field>
+        <field name="model_id" ref="model_periodic_expense"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+    <!-- Regla: Cashflow solo de la compañía del usuario -->
+    <record id="rule_cashflow_projection_multi_company" model="ir.rule">
+        <field name="name">Cashflow: Multicompañía</field>
+        <field name="model_id" ref="model_cashflow_projection"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+    </record>
+
+    <!-- Regla: Categorías de gastos - acceso global para usuarios -->
+    <record id="rule_expense_category_user" model="ir.rule">
+        <field name="name">Categorías de Gastos: Usuarios</field>
+        <field name="model_id" ref="model_expense_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Regla: Categorías de cashflow - acceso global para usuarios -->
+    <record id="rule_cashflow_category_user" model="ir.rule">
+        <field name="name">Categorías de Cashflow: Usuarios</field>
+        <field name="model_id" ref="model_cashflow_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- REGLAS ESPECIALES PARA MANAGERS -->
+    <!-- ========================================== -->
+    
+    <!-- Managers pueden modificar categorías -->
+    <record id="rule_expense_category_manager" model="ir.rule">
+        <field name="name">Categorías de Gastos: Managers</field>
+        <field name="model_id" ref="model_expense_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_cashflow_category_manager" model="ir.rule">
+        <field name="name">Categorías de Cashflow: Managers</field>
+        <field name="model_id" ref="model_cashflow_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN ADICIONAL -->
+    <!-- ========================================== -->
+    
+    <!-- Parámetro del sistema: habilitar clasificación fiscal -->
+    <record id="config_fiscal_classification_enabled" model="ir.config_parameter">
+        <field name="key">financial_dashboard.fiscal_classification_enabled</field>
+        <field name="value">True</field>
+    </record>
+
+    <!-- Parámetro del sistema: códigos de journals fiscales por defecto -->
+    <record id="config_fiscal_journal_codes" model="ir.config_parameter">
+        <field name="key">financial_dashboard.fiscal_journal_codes</field>
+        <field name="value">CLV,BCIUD,MP,BNK1,CASH1,CRED1</field>
+    </record>
+
+    <!-- Parámetro del sistema: códigos de journals no fiscales por defecto -->
+    <record id="config_nonfiscal_journal_codes" model="ir.config_parameter">
+        <field name="key">financial_dashboard.nonfiscal_journal_codes</field>
+        <field name="value">BLACK,CRYPTO,CASH2,BTC,ETH</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- REGLAS DE AUDITORÍA Y LOGGING -->
+    <!-- ========================================== -->
+    
+    <!-- Regla de auditoría para cambios críticos -->
+    <record id="rule_audit_financial_changes" model="ir.rule">
+        <field name="name">Auditoría: Cambios Financieros</field>
+        <field name="model_id" ref="model_periodic_expense"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_financial_dashboard_user'))]"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>
