@@ -282,6 +282,46 @@ class PeriodicExpense(models.Model):
             'domain': [('id', 'in', invoices.ids)],
             'context': {'create': False}
         }
+    
+    def action_view_cashflow_projections(self):
+        """Ver proyecciones de cashflow relacionadas con este gasto periódico"""
+        self.ensure_one()
+        
+        # Buscar proyecciones existentes para este gasto
+        projections = self.env['cashflow.projection'].search([
+            ('source_type', '=', 'periodic'),
+            ('source_id', '=', self.id)
+        ])
+        
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': _('Proyecciones de Cashflow: %s') % self.name,
+            'res_model': 'cashflow.projection',
+            'domain': [('source_type', '=', 'periodic'), ('source_id', '=', self.id)],
+            'context': {
+                'default_source_type': 'periodic',
+                'default_source_id': self.id,
+                'default_name': f'[Periódico] {self.name}',
+                'default_partner_id': self.partner_id.id,
+                'default_type': 'egreso',
+                'default_fiscal_type': self.fiscal_type,
+                'search_default_from_periodic': 1
+            },
+        }
+        
+        if len(projections) == 1:
+            # Si hay solo una proyección, abrir directamente en vista formulario
+            action.update({
+                'view_mode': 'form',
+                'res_id': projections.id,
+            })
+        else:
+            # Si hay múltiples o ninguna, mostrar vista lista
+            action.update({
+                'view_mode': 'list,form',
+            })
+            
+        return action
 
     # ====================================================================
     # MÉTODOS PRIVADOS

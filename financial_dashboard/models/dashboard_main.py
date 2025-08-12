@@ -443,6 +443,84 @@ class FinancialDashboard(models.Model):
                 'default_company_id': self.company_id.id
             }
         }
+    
+    def action_view_fiscal_accounts(self):
+        """Ver cuentas fiscales (blanco)"""
+        self.ensure_one()
+        
+        fiscal_codes = self.env['ir.config_parameter'].sudo().get_param(
+            'financial_dashboard.fiscal_journal_codes', 
+            'CLV,BCIUD,MP,BNK1,CASH1,CRED1'
+        ).split(',')
+        
+        journals = self.env['account.journal'].search([
+            ('company_id', '=', self.company_id.id),
+            ('type', 'in', ['cash', 'bank']),
+            ('code', 'in', fiscal_codes)
+        ])
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Cuentas Fiscales (Blanco)'),
+            'res_model': 'account.journal',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', journals.ids)],
+            'context': {'create': False}
+        }
+
+    def action_view_nofiscal_accounts(self):
+        """Ver cuentas no fiscales (negro)"""
+        self.ensure_one()
+        
+        nofiscal_codes = self.env['ir.config_parameter'].sudo().get_param(
+            'financial_dashboard.nonfiscal_journal_codes', 
+            'BLACK,CRYPTO,CASH2,BTC,ETH,EFE1,STRIP'
+        ).split(',')
+        
+        journals = self.env['account.journal'].search([
+            ('company_id', '=', self.company_id.id),
+            ('type', 'in', ['cash', 'bank']),
+            ('code', 'in', nofiscal_codes)
+        ])
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Cuentas No Fiscales (Negro)'),
+            'res_model': 'account.journal',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', journals.ids)],
+            'context': {'create': False}
+        }
+
+    def action_view_periodic_expenses(self):
+        """Ver gastos periódicos desde el dashboard"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Gastos Periódicos'),
+            'res_model': 'periodic.expense',
+            'view_mode': 'kanban,list,form',
+            'domain': [('company_id', '=', self.company_id.id)],
+            'context': {
+                'search_default_active': 1,
+                'default_company_id': self.company_id.id
+            }
+        }
+
+    def action_view_financial_analysis(self):
+        """Ver análisis financiero desde el dashboard"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Análisis Financiero'),
+            'res_model': 'financial.analysis',
+            'view_mode': 'list,form',
+            'domain': [('company_id', '=', self.company_id.id)],
+            'context': {
+                'default_company_id': self.company_id.id,
+                'search_default_current_month': 1
+            }
+        }
 
     def action_view_cashflow_projection(self):
         """Acción para ver proyección de cashflow"""
