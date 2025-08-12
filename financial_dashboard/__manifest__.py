@@ -66,6 +66,8 @@
         
         # Al final el dashboard (depende de todos)
         'views/dashboard_main_views.xml',
+        'views/cashflow_actions_views.xml',  
+
         
         # ========================================== #
         # PASO 3: PERMISOS (después de que modelos existan)
