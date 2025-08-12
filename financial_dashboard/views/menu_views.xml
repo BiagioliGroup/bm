@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- MENÚ PRINCIPAL SIN ACCIÓN (como tu ejemplo ARCA) -->
+    <!-- MENÚ PRINCIPAL CON GRUPOS DE ACCESO -->
     <menuitem id="menu_financial_dashboard_root"
-              name="Dashboard Financiero"
-              parent="accountant.menu_accounting"
-              sequence="95"/>
+          name="Dashboard Financiero"
+          parent="accountant.menu_accounting"
+          groups="base.group_user"
+          sequence="95"/>
 
-    <!-- SUBMENÚ CON ACCIÓN (como tu ejemplo) -->
+    <!-- SUBMENÚ CON GRUPOS DE ACCESO -->
     <menuitem id="menu_cashflow_categories"
               name="Categorías de Cashflow"
               parent="menu_financial_dashboard_root"
               action="action_cashflow_category"
+              groups="account.group_account_user,account.group_account_manager"
               sequence="10"/>
 </odoo>
