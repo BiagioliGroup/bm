@@ -75,8 +75,8 @@
         # ========================================== #
         # PASO 4: DATOS MAESTROS
         # ========================================== #
-        'data/expense_category_data.xml',
-        'data/cashflow_category_data.xml',
+        # 'data/expense_category_data.xml',
+        # 'data/cashflow_category_data.xml',
         
         # ========================================== #
         # PASO 5: WIZARDS (comentado hasta verificar existencia)
