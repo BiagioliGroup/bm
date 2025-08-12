@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- VISTA KANBAN DASHBOARD - CON SISTEMA FISCAL -->
+    <!-- ========================================== -->
+    <record id="view_financial_dashboard_kanban" model="ir.ui.view">
+        <field name="name">financial.dashboard.kanban</field>
+        <field name="model">financial.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban create="false" can_open="0" class="o_financial_dashboard_kanban" 
+                    js_class="financial_dashboard_kanban">
+                <field name="id"/>
+                <field name="company_id"/>
+                <field name="currency_id"/>
+                <field name="kanban_dashboard"/>
+                <field name="dashboard_graph"/>
+                <field name="total_cash_bank"/>
+                <field name="pending_expenses_count"/>
+                <field name="overdue_expenses_count"/>
+                <field name="supplier_amount_due"/>
+                <field name="customer_amount_due"/>
+                <field name="supplier_invoices_not_paid"/>
+                <field name="customer_invoices_not_paid"/>
+                <!-- NUEVOS CAMPOS FISCALES -->
+                <field name="supplier_amount_due_fiscal"/>
+                <field name="supplier_amount_due_nofiscal"/>
+                <field name="customer_amount_due_fiscal"/>
+                <field name="customer_amount_due_nofiscal"/>
+                <templates>
+                    <t t-name="card">
+                        <t t-value="JSON.parse(record.kanban_dashboard.raw_value)" t-set="dashboard"/>
+                        <div class="o_kanban_card p-3">
+                            <!-- ENCABEZADO CON SU EMPRESA -->
+                            <div class="o_kanban_card_header mb-3">
+                                <div class="o_kanban_card_header_title">
+                                    <h3 class="mb-0">
+                                        <i class="fa fa-dashboard text-primary me-2"/>
+                                        Dashboard Financiero
+                                    </h3>
+                                    <small class="text-muted">
+                                        <field name="company_id"/>
+                                        <span class="ms-2 badge text-bg-info">Sistema Fiscal Integrado</span>
+                                    </small>
+                                    <div class="float-end">
+                                        <button type="object" name="action_refresh_dashboard" 
+                                                class="btn btn-sm btn-light" title="Actualizar">
+                                            <i class="fa fa-refresh"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RESUMEN TOTAL -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="card bg-primary text-white">
+                                        <div class="card-body text-center">
+                                            <h4 class="card-title">Total Disponible</h4>
+                                            <h2>
+                                                <field name="total_cash_bank" widget="monetary"/>
+                                            </h2>
+                                            <small>Efectivo + Bancos (Fiscal + No Fiscal)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DESGLOSE FISCAL VS NO FISCAL (SU SISTEMA) -->
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="fa fa-check-circle me-1"/>
+                                                FISCAL (Blanco)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="small">
+                                                <div class="mb-1">
+                                                    <strong>Efectivo:</strong> 
+                                                    <span t-esc="dashboard.cash_breakdown.fiscal.cash" 
+                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <strong>Bancos:</strong> 
+                                                    <span t-esc="dashboard.cash_breakdown.fiscal.bank" 
+                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                </div>
+                                                <hr class="my-2"/>
+                                                <div>
+                                                    <button type="object" name="action_view_fiscal_accounts" 
+                                                            class="btn btn-sm btn-light w-100">
+                                                        Ver Cuentas Fiscales
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card bg-dark text-white">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="fa fa-eye-slash me-1"/>
+                                                NO FISCAL (Negro)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="small">
+                                                <div class="mb-1">
+                                                    <strong>Efectivo:</strong> 
+                                                    <span t-esc="dashboard.cash_breakdown.nofiscal.cash" 
+                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <strong>Bancos:</strong> 
+                                                    <span t-esc="dashboard.cash_breakdown.nofiscal.bank" 
+                                                          t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                                </div>
+                                                <hr class="my-2"/>
+                                                <div>
+                                                    <button type="object" name="action_view_nofiscal_accounts" 
+                                                            class="btn btn-sm btn-light w-100">
+                                                        Ver Cuentas No Fiscales
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FACTURAS PROVEEDORES CON DESGLOSE FISCAL -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="card border-warning">
+                                        <div class="card-header bg-warning text-white">
+                                            <h6 class="mb-0">
+                                                <i class="fa fa-file-text-o me-1"/>
+                                                Facturas de Proveedores Pendientes
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-4 text-center">
+                                                    <h5 class="text-danger">
+                                                        <field name="supplier_invoices_not_paid"/>
+                                                    </h5>
+                                                    <small>No Pagadas</small>
+                                                </div>
+                                                <div class="col-4 text-center">
+                                                    <h6 class="text-success">
+                                                        <field name="supplier_amount_due_fiscal" widget="monetary"/>
+                                                    </h6>
+                                                    <small>Fiscal</small>
+                                                </div>
+                                                <div class="col-4 text-center">
+                                                    <h6 class="text-secondary">
+                                                        <field name="supplier_amount_due_nofiscal" widget="monetary"/>
+                                                    </h6>
+                                                    <small>No Fiscal</small>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-center">
+                                                <strong>Total por Pagar: </strong>
+                                                <span class="h5 text-primary">
+                                                    <field name="supplier_amount_due" widget="monetary"/>
+                                                </span>
+                                            </div>
+                                            <div class="mt-2 text-center">
+                                                <button type="object" name="action_view_supplier_invoices_not_paid" 
+                                                        class="btn btn-sm btn-warning">
+                                                    <i class="fa fa-eye me-1"/>Ver Todas las Facturas
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FACTURAS CLIENTES CON DESGLOSE FISCAL -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="card border-info">
+                                        <div class="card-header bg-info text-white">
+                                            <h6 class="mb-0">
+                                                <i class="fa fa-file-o me-1"/>
+                                                Facturas de Clientes Pendientes
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-4 text-center">
+                                                    <h5 class="text-warning">
+                                                        <field name="customer_invoices_not_paid"/>
+                                                    </h5>
+                                                    <small>No Cobradas</small>
+                                                </div>
+                                                <div class="col-4 text-center">
+                                                    <h6 class="text-success">
+                                                        <field name="customer_amount_due_fiscal" widget="monetary"/>
+                                                    </h6>
+                                                    <small>Fiscal</small>
+                                                </div>
+                                                <div class="col-4 text-center">
+                                                    <h6 class="text-secondary">
+                                                        <field name="customer_amount_due_nofiscal" widget="monetary"/>
+                                                    </h6>
+                                                    <small>No Fiscal</small>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-center">
+                                                <strong>Total por Cobrar: </strong>
+                                                <span class="h5 text-success">
+                                                    <field name="customer_amount_due" widget="monetary"/>
+                                                </span>
+                                            </div>
+                                            <div class="mt-2 text-center">
+                                                <button type="object" name="action_view_customer_invoices_not_paid" 
+                                                        class="btn btn-sm btn-info">
+                                                    <i class="fa fa-eye me-1"/>Ver Todas las Facturas
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- GASTOS PERIÓDICOS -->
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="card border-primary">
+                                        <div class="card-body text-center">
+                                            <h5 class="text-primary">
+                                                <field name="pending_expenses_count"/>
+                                            </h5>
+                                            <small>Gastos Próximos</small>
+                                            <div class="mt-2">
+                                                <button type="object" name="action_view_pending_expenses" 
+                                                       class="btn btn-sm btn-primary">
+                                                    Ver Detalles
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-danger">
+                                        <div class="card-body text-center">
+                                            <h5 class="text-danger">
+                                                <field name="overdue_expenses_count"/>
+                                            </h5>
+                                            <small>Gastos Vencidos</small>
+                                            <div class="mt-2" t-if="record.overdue_expenses_count.raw_value > 0">
+                                                <span class="badge text-bg-danger">¡URGENTE!</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PROYECCIONES (INCLUYE FACTURAS) -->
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body text-center">
+                                            <h6>Proyección Semanal</h6>
+                                            <h5>
+                                                <span t-esc="dashboard.projections.weekly" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                            </h5>
+                                            <small>Incluye facturas pendientes</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card bg-secondary text-white">
+                                        <div class="card-body text-center">
+                                            <h6>Proyección Mensual</h6>
+                                            <h5>
+                                                <span t-esc="dashboard.projections.monthly" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                            </h5>
+                                            <small>Incluye facturas pendientes</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- GRÁFICO DE EVOLUCIÓN FISCAL -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="fa fa-line-chart me-1"/>
+                                                Evolución Fiscal vs No Fiscal (30 días)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <field name="dashboard_graph" widget="dashboard_graph" 
+                                                   graph_type="line" class="o_dashboard_graph"/>
+                                            <small class="text-muted">
+                                                Verde: Fiscal | Gris: No Fiscal
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACCIONES RÁPIDAS MEJORADAS -->
+                            <div class="row">
+                                <div class="col-3">
+                                    <button type="object" name="action_view_cashflow_projection" 
+                                           class="btn btn-primary btn-sm w-100">
+                                        <i class="fa fa-line-chart me-1"/>
+                                        Cashflow
+                                    </button>
+                                </div>
+                                <div class="col-3">
+                                    <button type="object" name="action_import_invoices_to_cashflow" 
+                                           class="btn btn-warning btn-sm w-100">
+                                        <i class="fa fa-download me-1"/>
+                                        Importar
+                                    </button>
+                                </div>
+                                <div class="col-3">
+                                    <button type="action" name="%(action_periodic_expense_list)d" 
+                                           class="btn btn-info btn-sm w-100">
+                                        <i class="fa fa-calendar me-1"/>
+                                        Gastos
+                                    </button>
+                                </div>
+                                <div class="col-3">
+                                    <button type="action" name="%(action_financial_analysis)d" 
+                                           class="btn btn-success btn-sm w-100">
+                                        <i class="fa fa-bar-chart me-1"/>
+                                        Análisis
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- INFORMACIÓN DEL SISTEMA FISCAL -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="alert alert-light" role="alert">
+                                        <h6 class="alert-heading">
+                                            <i class="fa fa-info-circle me-1"/>
+                                            Sistema de Clasificación Fiscal
+                                        </h6>
+                                        <p class="mb-1">
+                                            <strong>Fiscal (Blanco):</strong> CLV, BCIUD, MP, Facturas Ventas, etc.<br/>
+                                            <strong>No Fiscal (Negro):</strong> EFE1, STRIP, CSH4, Caja Fuerte, etc.
+                                        </p>
+                                        <small class="text-muted">
+                                            Clasificación automática basada en códigos de journals configurados.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA LISTA CON CAMPOS FISCALES -->
+    <!-- ========================================== -->
+    <record id="view_financial_dashboard_list" model="ir.ui.view">
+        <field name="name">financial.dashboard.list</field>
+        <field name="model">financial.dashboard</field>
+        <field name="arch" type="xml">
+            <list string="Dashboards Financieros" create="false" delete="false">
+                <field name="display_name"/>
+                <field name="company_id"/>
+                <field name="total_cash_bank" widget="monetary"/>
+                <field name="total_cash_fiscal" widget="monetary" string="Efectivo Fiscal"/>
+                <field name="total_cash_nofiscal" widget="monetary" string="Efectivo No Fiscal"/>
+                <field name="total_bank_fiscal" widget="monetary" string="Bancos Fiscal"/>
+                <field name="total_bank_nofiscal" widget="monetary" string="Bancos No Fiscal"/>
+                <field name="pending_expenses_count"/>
+                <field name="supplier_amount_due_fiscal" widget="monetary"/>
+                <field name="supplier_amount_due_nofiscal" widget="monetary"/>
+                <field name="customer_amount_due_fiscal" widget="monetary"/>
+                <field name="customer_amount_due_nofiscal" widget="monetary"/>
+                <field name="monthly_projection" widget="monetary"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACCIÓN PRINCIPAL -->
+    <!-- ========================================== -->
+    <record id="action_financial_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard Financiero</field>
+        <field name="res_model">financial.dashboard</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="view_id" ref="view_financial_dashboard_kanban"/>
+        <field name="target">current</field>
+        <field name="domain">[]</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Bienvenido a su Dashboard Financiero Integrado!
+            </p>
+            <p>
+                Su dashboard está configurado con su sistema de clasificación fiscal:<br/>
+                <br/>
+                <strong>FISCAL (Blanco):</strong><br/>
+                • CLV (CLOVER), BCIUD (Banco Ciudad), MP (Mercado Pago)<br/>
+                • 00010/00011 (Facturas de Ventas), COMPR (Proveedores Fiscal)<br/>
+                • CCD1/CCD2 (Tarjetas Corporativas), SLR-F (Salarios Fiscal)<br/>
+                <br/>
+                <strong>NO FISCAL (Negro):</strong><br/>
+                • EFE1/EFE2 (Efectivo Caja), CSH4 (Dólares Caja Fuerte)<br/>
+                • STRIP (Stripe), BofA (Bank of America)<br/>
+                • X (Comprobantes Ventas), CCOMP (Comprobantes Compra)<br/>
+                • SLR-N (Salarios No Fiscal)<br/>
+                <br/>
+                <strong>Funcionalidades disponibles:</strong><br/>
+                • Separación automática fiscal vs no fiscal<br/>
+                • Importación de facturas con clasificación automática<br/>
+                • Gastos periódicos con control mensual<br/>
+                • Proyecciones de cashflow integradas<br/>
+                • Análisis comparativo por clasificación fiscal<br/>
+            </p>
+        </field>
+    </record>
+</odoo>

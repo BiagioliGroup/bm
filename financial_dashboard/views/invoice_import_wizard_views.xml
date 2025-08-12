@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- WIZARD PARA IMPORTAR FACTURAS AL CASHFLOW -->
+    <!-- ========================================== -->
+    <record id="view_invoice_import_wizard" model="ir.ui.view">
+        <field name="name">invoice.import.wizard.form</field>
+        <field name="model">invoice.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar Facturas al Cashflow">
+                <!-- VISTA PRINCIPAL: CONFIGURACIÓN -->
+                <div invisible="import_executed">
+                    <group>
+                        <group name="period" string="Período">
+                            <field name="company_id"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group name="summary" string="Resumen">
+                            <field name="preview_count" readonly="1"/>
+                            <field name="preview_supplier_count" readonly="1"/>
+                            <field name="preview_customer_count" readonly="1"/>
+                            <field name="preview_amount_total" widget="monetary" readonly="1"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group name="invoice_types" string="Tipos de Facturas">
+                            <field name="import_supplier_invoices"/>
+                            <field name="import_customer_invoices"/>
+                        </group>
+                        <group name="payment_states" string="Estados de Pago">
+                            <field name="import_not_paid"/>
+                            <field name="import_partial"/>
+                            <field name="import_in_payment"/>
+                        </group>
+                    </group>
+
+                    <group name="filters" string="Filtros Adicionales">
+                        <group>
+                            <field name="partner_ids" widget="many2many_tags"/>
+                            <field name="default_fiscal_type"/>
+                        </group>
+                        <group>
+                            <field name="amount_min"/>
+                            <field name="amount_max"/>
+                            <field name="overwrite_existing"/>
+                        </group>
+                    </group>
+
+                    <!-- ALERTAS Y ADVERTENCIAS -->
+                    <div class="alert alert-info" role="alert" 
+                         invisible="preview_count == 0">
+                        <strong>Vista Previa:</strong> Se encontraron 
+                        <field name="preview_count" readonly="1"/> facturas que cumplen los criterios.
+                        <ul class="mb-0">
+                            <li invisible="preview_supplier_count == 0">
+                                <field name="preview_supplier_count"/> facturas de proveedores
+                            </li>
+                            <li invisible="preview_customer_count == 0">
+                                <field name="preview_customer_count"/> facturas de clientes
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert" 
+                         invisible="preview_count &gt; 0 or not (import_supplier_invoices or import_customer_invoices)">
+                        <strong>Sin resultados:</strong> No se encontraron facturas con los criterios seleccionados.
+                        Verifique las fechas, tipos de facturas y estados de pago seleccionados.
+                    </div>
+
+                    <div class="alert alert-danger" role="alert" 
+                         invisible="import_supplier_invoices or import_customer_invoices">
+                        <strong>Error:</strong> Debe seleccionar al menos un tipo de factura para importar.
+                    </div>
+
+                    <footer>
+                        <button name="action_preview_invoices" type="object" 
+                                string="Vista Previa" class="btn-info"
+                                invisible="preview_count == 0"/>
+                        <button name="action_import_invoices" type="object" 
+                                string="Importar Facturas" class="btn-primary"
+                                invisible="preview_count == 0 or not (import_supplier_invoices or import_customer_invoices)"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </div>
+
+                <!-- VISTA RESULTADOS: DESPUÉS DE LA IMPORTACIÓN -->
+                <div invisible="not import_executed">
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">
+                            <i class="fa fa-check-circle"/> ¡Importación Completada!
+                        </h4>
+                        <p>La importación de facturas al cashflow se ha ejecutado exitosamente.</p>
+                    </div>
+
+                    <group name="results" string="Resultados">
+                        <field name="import_summary" readonly="1" nolabel="1" 
+                               widget="text" height="200"/>
+                    </group>
+
+                    <footer>
+                        <button name="action_view_created_projections" type="object" 
+                                string="Ver Proyecciones Creadas" class="btn-primary"
+                                invisible="not import_result_ids"/>
+                        <button name="action_reset_wizard" type="object" 
+                                string="Nueva Importación" class="btn-info"/>
+                        <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACCIÓN DEL WIZARD -->
+    <!-- ========================================== -->
+    <record id="action_invoice_import_wizard" model="ir.actions.act_window">
+        <field name="name">Importar Facturas al Cashflow</field>
+        <field name="res_model">invoice.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_invoice_import_wizard"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- WIZARD SIMPLIFICADO PARA CRON/AUTOMÁTICO -->
+    <!-- ========================================== -->
+    <record id="view_invoice_import_wizard_simple" model="ir.ui.view">
+        <field name="name">invoice.import.wizard.simple</field>
+        <field name="model">invoice.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importación Rápida">
+                <group>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="date_to" string="Hasta"/>
+                        <field name="default_fiscal_type"/>
+                    </group>
+                    <group>
+                        <field name="import_supplier_invoices"/>
+                        <field name="import_customer_invoices"/>
+                        <field name="overwrite_existing"/>
+                    </group>
+                </group>
+                
+                <footer>
+                    <button name="action_import_invoices" type="object" 
+                            string="Importar" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_invoice_import_wizard_simple" model="ir.actions.act_window">
+        <field name="name">Importación Rápida de Facturas</field>
+        <field name="res_model">invoice.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_invoice_import_wizard_simple"/>
+        <field name="target">new</field>
+        <field name="context">{
+            'default_import_supplier_invoices': True,
+            'default_import_customer_invoices': True,
+            'default_import_not_paid': True,
+            'default_import_partial': True,
+            'default_overwrite_existing': True
+        }</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- INTEGRACIÓN CON ACCOUNT.MOVE -->
+    <!-- ========================================== -->
+    
+    <!-- Agregar botón en vista formulario de facturas -->
+    <record id="view_move_form_inherit_cashflow" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.cashflow</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <!-- Botón para ver proyecciones de cashflow -->
+                <button class="oe_stat_button" type="object" 
+                        name="action_view_cashflow_projections"
+                        icon="fa-line-chart" 
+                        invisible="cashflow_projection_count == 0 or move_type not in ['in_invoice', 'in_receipt', 'out_invoice', 'out_receipt']">
+                    <field string="Proyecciones" name="cashflow_projection_count" widget="statinfo"/>
+                </button>
+                
+                <!-- Botón para crear proyección -->
+                <button class="oe_stat_button" type="object" 
+                        name="action_create_cashflow_projection"
+                        icon="fa-plus" 
+                        string="Crear Proyección"
+                        invisible="cashflow_projection_count > 0 or state != 'posted' or payment_state == 'paid' or move_type not in ['in_invoice', 'in_receipt', 'out_invoice', 'out_receipt']">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Crear</span>
+                        <span class="o_stat_text">Cashflow</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Agregar campos a la vista lista de facturas -->
+    <record id="view_invoice_tree_inherit_cashflow" model="ir.ui.view">
+        <field name="name">account.move.tree.inherit.cashflow</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="cashflow_projection_count" optional="hide" string="Proyecciones"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACCIÓN DESDE MENÚ DE FACTURACIÓN -->
+    <!-- ========================================== -->
+    <record id="action_invoice_to_cashflow_from_menu" model="ir.actions.act_window">
+        <field name="name">Importar a Cashflow</field>
+        <field name="res_model">invoice.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_invoice_import_wizard"/>
+        <field name="target">new</field>
+        <field name="context">{
+            'default_import_supplier_invoices': True,
+            'default_import_customer_invoices': True,
+            'default_import_not_paid': True,
+            'default_import_partial': True
+        }</field>
+    </record>
+</odoo>

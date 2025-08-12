@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- MENÚ PRINCIPAL -->
+    <!-- ========================================== -->
+    <menuitem id="menu_financial_dashboard_root"
+              name="Dashboard Financiero"
+              parent="account.menu_finance"
+              sequence="5"/>
+
+    <!-- ========================================== -->
+    <!-- DASHBOARD PRINCIPAL -->
+    <!-- ========================================== -->
+    <menuitem id="menu_financial_dashboard_main"
+              name="Dashboard Principal"
+              parent="menu_financial_dashboard_root"
+              action="action_financial_dashboard"
+              sequence="10"/>
+
+    <!-- ========================================== -->
+    <!-- GESTIÓN DE GASTOS -->
+    <!-- ========================================== -->
+    <menuitem id="menu_expenses_management"
+              name="Gestión de Gastos"
+              parent="menu_financial_dashboard_root"
+              sequence="20"/>
+
+    <menuitem id="menu_periodic_expenses"
+              name="Gastos Periódicos"
+              parent="menu_expenses_management"
+              action="action_periodic_expense_list"
+              sequence="10"/>
+
+    <menuitem id="menu_expense_categories"
+              name="Categorías de Gastos"
+              parent="menu_expenses_management"
+              action="action_expense_category"
+              sequence="20"/>
+
+    <!-- ========================================== -->
+    <!-- CASHFLOW -->
+    <!-- ========================================== -->
+    <menuitem id="menu_cashflow_management"
+              name="Cashflow"
+              parent="menu_financial_dashboard_root"
+              sequence="30"/>
+
+    <menuitem id="menu_cashflow_projection"
+              name="Proyección de Cashflow"
+              parent="menu_cashflow_management"
+              action="action_cashflow_projection"
+              sequence="10"/>
+
+    <menuitem id="menu_cashflow_from_invoices"
+              name="Desde Facturas"
+              parent="menu_cashflow_management"
+              action="action_cashflow_from_invoices"
+              sequence="20"/>
+
+    <menuitem id="menu_cashflow_from_periodic"
+              name="Desde Gastos Periódicos"
+              parent="menu_cashflow_management"
+              action="action_cashflow_from_periodic"
+              sequence="30"/>
+
+    <menuitem id="menu_cashflow_categories"
+              name="Categorías de Cashflow"
+              parent="menu_cashflow_management"
+              action="action_cashflow_category"
+              sequence="40"/>
+
+    <!-- ========================================== -->
+    <!-- IMPORTACIÓN Y HERRAMIENTAS -->
+    <!-- ========================================== -->
+    <menuitem id="menu_tools"
+              name="Herramientas"
+              parent="menu_financial_dashboard_root"
+              sequence="40"/>
+
+    <menuitem id="menu_import_invoices"
+              name="Importar Facturas"
+              parent="menu_tools"
+              action="action_invoice_import_wizard"
+              sequence="10"/>
+
+    <menuitem id="menu_import_invoices_simple"
+              name="Importación Rápida"
+              parent="menu_tools"
+              action="action_invoice_import_wizard_simple"
+              sequence="20"/>
+
+    <!-- ========================================== -->
+    <!-- ANÁLISIS Y REPORTES -->
+    <!-- ========================================== -->
+    <menuitem id="menu_analysis"
+              name="Análisis"
+              parent="menu_financial_dashboard_root"
+              sequence="50"/>
+
+    <menuitem id="menu_financial_analysis"
+              name="Análisis Comparativo"
+              parent="menu_analysis"
+              action="action_financial_analysis"
+              sequence="10"/>
+
+    <menuitem id="menu_cashflow_reports"
+              name="Reportes de Cashflow"
+              parent="menu_analysis"
+              action="action_cashflow_report_wizard"
+              sequence="20"/>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN -->
+    <!-- ========================================== -->
+    <menuitem id="menu_config"
+              name="Configuración"
+              parent="menu_financial_dashboard_root"
+              sequence="60"/>
+
+    <menuitem id="menu_config_categories"
+              name="Todas las Categorías"
+              parent="menu_config"
+              sequence="10">
+        <menuitem id="menu_config_expense_categories"
+                  name="Categorías de Gastos"
+                  parent="menu_config_categories"
+                  action="action_expense_category"
+                  sequence="10"/>
+        <menuitem id="menu_config_cashflow_categories"
+                  name="Categorías de Cashflow"
+                  parent="menu_config_categories"
+                  action="action_cashflow_category"
+                  sequence="20"/>
+    </menuitem>
+
+    <!-- ========================================== -->
+    <!-- INTEGRACIÓN CON MENÚS DE CONTABILIDAD -->
+    <!-- ========================================== -->
+    
+    <!-- Agregar opción en menú de facturas de proveedores -->
+    <menuitem id="menu_supplier_invoice_cashflow"
+              name="Importar a Cashflow"
+              parent="account.menu_finance_payables"
+              action="action_invoice_to_cashflow_from_menu"
+              sequence="99"/>
+
+    <!-- Agregar opción en menú de facturas de clientes -->
+    <menuitem id="menu_customer_invoice_cashflow"
+              name="Importar a Cashflow"
+              parent="account.menu_finance_receivables"
+              action="action_invoice_to_cashflow_from_menu"
+              sequence="99"/>
+
+    <!-- ========================================== -->
+    <!-- ACCIONES ADICIONALES PARA CATEGORÍAS -->
+    <!-- ========================================== -->
+    
+    <!-- Acción para Categorías de Cashflow -->
+    <record id="action_cashflow_category" model="ir.actions.act_window">
+        <field name="name">Categorías de Cashflow</field>
+        <field name="res_model">cashflow.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define categorías para organizar tu cashflow
+            </p>
+            <p>
+                Las categorías te ayudan a clasificar y analizar mejor tus proyecciones:
+                • Operativo (ventas, compras, gastos corrientes)<br/>
+                • Inversión (compra de activos, inversiones)<br/>
+                • Financiamiento (préstamos, aportes de capital)<br/>
+            </p>
+        </field>
+    </record>
+
+    <!-- Vistas para Categorías de Cashflow -->
+    <record id="view_cashflow_category_list" model="ir.ui.view">
+        <field name="name">cashflow.category.list</field>
+        <field name="model">cashflow.category</field>
+        <field name="arch" type="xml">
+            <list string="Categorías de Cashflow">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category_type"/>
+                <field name="flow_type"/>
+                <field name="projection_count"/>
+                <field name="total_projected" widget="monetary"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cashflow_category_form" model="ir.ui.view">
+        <field name="name">cashflow.category.form</field>
+        <field name="model">cashflow.category</field>
+        <field name="arch" type="xml">
+            <form string="Categoría de Cashflow">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_projections"
+                                icon="fa-line-chart" invisible="projection_count == 0">
+                            <field string="Proyecciones" name="projection_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="color" widget="color"/>
+                            <field name="active"/>
+                            <field name="total_projected" readonly="1"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group name="classification" string="Clasificación">
+                            <field name="category_type"/>
+                            <field name="flow_type"/>
+                        </group>
+                        <group name="accounting" string="Configuración Contable">
+                            <field name="default_account_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- WIZARD DE REPORTES DE CASHFLOW -->
+    <!-- ========================================== -->
+    <record id="action_cashflow_report_wizard" model="ir.actions.act_window">
+        <field name="name">Generar Reporte de Cashflow</field>
+        <field name="res_model">cashflow.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CRON JOBS PARA AUTOMATIZACIÓN -->
+    <!-- ========================================== -->
+    
+    <!-- Cron para crear dashboards automáticamente -->
+    <record id="ir_cron_create_financial_dashboard" model="ir.cron">
+        <field name="name">Crear Dashboard Financiero Automático</field>
+        <field name="model_id" ref="model_financial_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+# Crear dashboard para compañías que no lo tengan
+companies = env['res.company'].search([])
+for company in companies:
+    existing = env['financial.dashboard'].search([('company_id', '=', company.id)], limit=1)
+    if not existing:
+        env['financial.dashboard'].create({'company_id': company.id})
+        </field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron para actualizar proyecciones desde facturas -->
+    <record id="ir_cron_update_cashflow_from_invoices" model="ir.cron">
+        <field name="name">Actualizar Cashflow desde Facturas</field>
+        <field name="model_id" ref="model_cashflow_projection"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_update_from_invoices()</field>
+        <field name="interval_number">6</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron para generar proyecciones desde gastos periódicos -->
+    <record id="ir_cron_generate_cashflow_from_periodic" model="ir.cron">
+        <field name="name">Generar Cashflow desde Gastos Periódicos</field>
+        <field name="model_id" ref="model_cashflow_projection"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_generate_from_periodic()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron para importación automática de facturas -->
+    <record id="ir_cron_auto_import_invoices" model="ir.cron">
+        <field name="name">Importación Automática de Facturas al Cashflow</field>
+        <field name="model_id" ref="model_invoice_import_wizard"/>
+        <field name="state">code</field>
+        <field name="code">model.auto_import_invoices(days_ahead=90)</field>
+        <field name="interval_number">12</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active">False</field>
+        <field name="priority">5</field>
+    </record>
+
+    <!-- Cron para limpiar proyecciones antiguas -->
+    <record id="ir_cron_clean_old_projections" model="ir.cron">
+        <field name="name">Limpiar Proyecciones Antiguas</field>
+        <field name="model_id" ref="model_cashflow_projection"/>
+        <field name="state">code</field>
+        <field name="code">model.clean_old_projections(days_old=365)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="priority">10</field>
+    </record>
+
+    <!-- Cron para actualizar todos los dashboards -->
+    <record id="ir_cron_update_all_dashboards" model="ir.cron">
+        <field name="name">Actualizar Todos los Dashboards</field>
+        <field name="model_id" ref="model_financial_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">model.update_all_dashboards()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- SERVER ACTIONS PARA AUTOMATIZACIÓN -->
+    <!-- ========================================== -->
+    
+    <!-- Server Action: Generar Proyecciones desde Facturas Seleccionadas -->
+    <record id="server_action_create_cashflow_from_invoices" model="ir.actions.server">
+        <field name="name">Crear Proyecciones de Cashflow</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+# Server Action para crear proyecciones desde facturas seleccionadas
+for record in records:
+    if record.move_type in ['in_invoice', 'in_receipt', 'out_invoice', 'out_receipt'] and record.state == 'posted' and record.payment_state in ['not_paid', 'partial']:
+        # Verificar que no exista ya una proyección
+        existing = env['cashflow.projection'].search([
+            ('account_move_id', '=', record.id),
+            ('source_type', 'in', ['supplier_invoice', 'customer_invoice'])
+        ])
+        
+        if not existing:
+            # Determinar tipo y monto
+            if record.move_type in ['in_invoice', 'in_receipt']:
+                projection_type = 'egreso'
+                source_type = 'supplier_invoice'
+                amount = -record.amount_residual
+            else:
+                projection_type = 'ingreso'
+                source_type = 'customer_invoice'
+                amount = record.amount_residual
+            
+            # Determinar clasificación fiscal basada en journal
+            fiscal_mapping = env['financial.dashboard'].FISCAL_MAPPING
+            fiscal_type = 'white' if fiscal_mapping.get(record.journal_id.code, 'white') == 'white' else 'black'
+            
+            # Crear proyección
+            env['cashflow.projection'].create({
+                'name': f"[{record.move_type.replace('_', ' ').title()}] {record.name}",
+                'partner_id': record.partner_id.id,
+                'date': record.invoice_date_due or record.invoice_date or record.date,
+                'type': projection_type,
+                'amount': amount,
+                'source_type': source_type,
+                'account_move_id': record.id,
+                'payment_state': record.payment_state,
+                'amount_residual': record.amount_residual,
+                'invoice_date_due': record.invoice_date_due,
+                'state': 'confirmed',
+                'company_id': record.company_id.id,
+                'fiscal_type': fiscal_type,
+                'source_reference': record.ref or record.name,
+            })
+        </field>
+    </record>
+
+    <!-- Server Action: Actualizar Proyecciones desde Facturas -->
+    <record id="server_action_update_cashflow_from_invoices" model="ir.actions.server">
+        <field name="name">Actualizar Proyecciones de Cashflow</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+# Server Action para actualizar proyecciones desde facturas
+for record in records:
+    projections = env['cashflow.projection'].search([
+        ('account_move_id', '=', record.id),
+        ('source_type', 'in', ['supplier_invoice', 'customer_invoice'])
+    ])
+    
+    for projection in projections:
+        if record.payment_state == 'paid':
+            projection.write({
+                'state': 'realized',
+                'actual_date': record.payment_id.payment_date if record.payment_id else fields.Date.today(),
+                'actual_amount': projection.amount,
+                'payment_state': 'paid'
+            })
+        else:
+            new_amount = -record.amount_residual if projection.type == 'egreso' else record.amount_residual
+            projection.write({
+                'amount': new_amount,
+                'amount_residual': record.amount_residual,
+                'payment_state': record.payment_state
+            })
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN DE SECUENCIAS -->
+    <!-- ========================================== -->
+    
+    <!-- Secuencia para gastos periódicos -->
+    <record id="seq_periodic_expense" model="ir.sequence">
+        <field name="name">Gastos Periódicos</field>
+        <field name="code">periodic.expense</field>
+        <field name="prefix">GPE</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Secuencia para proyecciones de cashflow -->
+    <record id="seq_cashflow_projection" model="ir.sequence">
+        <field name="name">Proyecciones de Cashflow</field>
+        <field name="code">cashflow.projection</field>
+        <field name="prefix">CF</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN DE NOTIFICACIONES -->
+    <!-- ========================================== -->
+    
+    <!-- Template para notificación de gastos vencidos -->
+    <record id="mail_template_expense_overdue" model="mail.template">
+        <field name="name">Gastos Periódicos Vencidos</field>
+        <field name="model_id" ref="model_periodic_expense"/>
+        <field name="subject">Alerta: Gastos Periódicos Vencidos - ${object.company_id.name}</field>
+        <field name="email_from">${(object.company_id.email or user.email)|safe}</field>
+        <field name="email_to">${user.partner_id.email}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0px;padding:0px;">
+                <p style="margin:0px;padding:0px;font-size:13px;">
+                    Estimado ${user.name},
+                    <br/><br/>
+                    Le informamos que hay gastos periódicos vencidos que requieren su atención:
+                    <br/><br/>
+                    <strong>Gasto:</strong> ${object.name}<br/>
+                    <strong>Proveedor:</strong> ${object.partner_id.name}<br/>
+                    <strong>Monto:</strong> ${object.amount} ${object.currency_id.name}<br/>
+                    <strong>Clasificación:</strong> ${object.fiscal_type == 'white' and 'Fiscal' or 'No Fiscal'}<br/>
+                    <strong>Fecha de vencimiento:</strong> ${object.next_payment_date}<br/>
+                    <strong>Días vencido:</strong> ${abs(object.days_until_due)} días<br/>
+                    <br/>
+                    Por favor, proceda con el pago correspondiente.
+                    <br/><br/>
+                    Saludos,<br/>
+                    Dashboard Financiero
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Server Action para enviar notificaciones de gastos vencidos -->
+    <record id="server_action_notify_overdue_expenses" model="ir.actions.server">
+        <field name="name">Notificar Gastos Vencidos</field>
+        <field name="model_id" ref="model_periodic_expense"/>
+        <field name="state">code</field>
+        <field name="code">
+# Buscar gastos vencidos
+overdue_expenses = env['periodic.expense'].search([
+    ('state', 'in', ['active', 'pending']),
+    ('is_overdue', '=', True)
+])
+
+# Enviar notificación por cada gasto vencido
+template = env.ref('financial_dashboard.mail_template_expense_overdue')
+for expense in overdue_expenses:
+    template.send_mail(expense.id, force_send=True)
+        </field>
+    </record>
+
+    <!-- Cron para notificaciones de gastos vencidos -->
+    <record id="ir_cron_notify_overdue_expenses" model="ir.cron">
+        <field name="name">Notificar Gastos Periódicos Vencidos</field>
+        <field name="model_id" ref="model_ir_actions_server"/>
+        <field name="state">object_write</field>
+        <field name="code">action = env.ref('financial_dashboard.server_action_notify_overdue_expenses')
+action.run()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">False</field>
+        <field name="priority">7</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN DE ACTIVIDADES AUTOMÁTICAS -->
+    <!-- ========================================== -->
+    
+    <!-- Tipo de actividad para seguimiento de gastos -->
+    <record id="activity_type_expense_followup" model="mail.activity.type">
+        <field name="name">Seguimiento de Gasto Periódico</field>
+        <field name="category">other</field>
+        <field name="summary">Revisar pago de gasto periódico</field>
+        <field name="delay_count">3</field>
+        <field name="delay_unit">days</field>
+        <field name="delay_from">date_deadline</field>
+        <field name="res_model_id" ref="model_periodic_expense"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN DE INFORMES -->
+    <!-- ========================================== -->
+    
+    <!-- Acción de reporte para imprimir dashboard -->
+    <record id="action_print_dashboard_summary" model="ir.actions.report">
+        <field name="name">Resumen Dashboard Financiero</field>
+        <field name="model">financial.dashboard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">financial_dashboard.report_dashboard_summary</field>
+        <field name="report_file">financial_dashboard.report_dashboard_summary</field>
+        <field name="binding_model_id" ref="model_financial_dashboard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACCESOS RÁPIDOS EN DASHBOARD DE CONTABILIDAD -->
+    <!-- ========================================== -->
+    
+    <!-- Agregar tarjeta en dashboard de contabilidad -->
+    <record id="account_journal_dashboard_inherit_financial" model="ir.ui.view">
+        <field name="name">account.journal.dashboard.inherit.financial</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="before">
+                <!-- Agregar botón de acceso rápido al dashboard financiero -->
+                <div class="alert alert-info mb-3" role="alert">
+                    <div class="row align-items-center">
+                        <div class="col-9">
+                            <strong><i class="fa fa-dashboard me-2"/>Dashboard Financiero Disponible</strong><br/>
+                            <small>Control completo con clasificación Fiscal/No Fiscal, cashflow y gastos periódicos</small>
+                        </div>
+                        <div class="col-3 text-end">
+                            <a href="/web#action=financial_dashboard.action_financial_dashboard" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fa fa-external-link me-1"/>Abrir Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN DE WEBHOOKS Y EVENTOS -->
+    <!-- ========================================== -->
+    
+    <!-- Server Action: Webhook para actualización en tiempo real -->
+    <record id="server_action_webhook_invoice_change" model="ir.actions.server">
+        <field name="name">Webhook: Cambio en Factura</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">
+# Webhook para detectar cambios en facturas y actualizar cashflow
+if record.move_type in ['in_invoice', 'in_receipt', 'out_invoice', 'out_receipt']:
+    # Buscar proyecciones relacionadas
+    projections = env['cashflow.projection'].search([
+        ('account_move_id', '=', record.id),
+        ('source_type', 'in', ['supplier_invoice', 'customer_invoice'])
+    ])
+    
+    # Actualizar proyecciones existentes
+    for projection in projections:
+        if record.payment_state == 'paid' and projection.state != 'realized':
+            projection.write({
+                'state': 'realized',
+                'actual_date': fields.Date.today(),
+                'actual_amount': projection.amount
+            })
+        elif record.payment_state in ['not_paid', 'partial']:
+            new_amount = -record.amount_residual if projection.type == 'egreso' else record.amount_residual
+            projection.write({
+                'amount': new_amount,
+                'payment_state': record.payment_state
+            })
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- DATOS DE CONFIGURACIÓN INICIAL -->
+    <!-- ========================================== -->
+    
+    <!-- Configuración de empresa por defecto -->
+    <record id="config_company_default" model="ir.config_parameter">
+        <field name="key">financial_dashboard.auto_create_dashboards</field>
+        <field name="value">True</field>
+    </record>
+
+    <record id="config_auto_import" model="ir.config_parameter">
+        <field name="key">financial_dashboard.auto_import_invoices</field>
+        <field name="value">True</field>
+    </record>
+
+    <record id="config_fiscal_mapping" model="ir.config_parameter">
+        <field name="key">financial_dashboard.fiscal_mapping_enabled</field>
+        <field name="value">True</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- PERMISOS ESPECIALES Y REGLAS DE ACCESO -->
+    <!-- ========================================== -->
+    
+    <!-- Regla para ver solo dashboards de la compañía del usuario -->
+    <record id="rule_financial_dashboard_company" model="ir.rule">
+        <field name="name">Dashboard Financiero: Solo Compañía del Usuario</field>
+        <field name="model_id" ref="model_financial_dashboard"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Regla para cashflow: solo de la compañía del usuario -->
+    <record id="rule_cashflow_projection_company" model="ir.rule">
+        <field name="name">Cashflow: Solo Compañía del Usuario</field>
+        <field name="model_id" ref="model_cashflow_projection"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- MENÚS DE AYUDA Y DOCUMENTACIÓN -->
+    <!-- ========================================== -->
+    
+    <menuitem id="menu_help"
+              name="Ayuda"
+              parent="menu_financial_dashboard_root"
+              sequence="70"/>
+
+    <!-- Acción para mostrar ayuda -->
+    <record id="action_help_fiscal_system" model="ir.actions.act_window">
+        <field name="name">Sistema de Clasificación Fiscal</field>
+        <field name="res_model">financial.dashboard</field>
+        <field name="view_mode">kanban</field>
+        <field name="domain">[('id', '=', 0)]</field>
+        <field name="help" type="html">
+            <div class="o_view_nocontent_neutral_face">
+                <h2>Sistema de Clasificación Fiscal</h2>
+                <p>Su Dashboard Financiero utiliza clasificación automática basada en códigos de journals:</p>
+                
+                <h3><span class="badge text-bg-success">FISCAL (Blanco)</span></h3>
+                <ul>
+                    <li><strong>Bancos:</strong> CLV (CLOVER), BCIUD (Banco Ciudad), MP (Mercado Pago), BNK1 (VIUMI)</li>
+                    <li><strong>Ventas:</strong> 00010, 00011 (Facturas de Ventas y Exportación)</li>
+                    <li><strong>Tarjetas:</strong> CCD1, CCD2 (Tarjetas Corporativas)</li>
+                    <li><strong>Compras/Gastos:</strong> COMPR (Proveedores Fiscal), SLR-F (Salarios Fiscal), Imp (Impuestos)</li>
+                </ul>
+                
+                <h3><span class="badge text-bg-dark">NO FISCAL (Negro)</span></h3>
+                <ul>
+                    <li><strong>Efectivo:</strong> EFE1 (Caja Diaria), EFE2 (Caja Fuerte), CSH4 (Dólares Caja Fuerte)</li>
+                    <li><strong>Bancos:</strong> STRIP (Stripe), BofA (Bank of America)</li>
+                    <li><strong>Ventas/Compras:</strong> X (Comprobantes Ventas), CCOMP (Comprobantes Compra)</li>
+                    <li><strong>Salarios:</strong> SLR-N (Salarios No Fiscal)</li>
+                </ul>
+                
+                <h3>Funcionalidades Automáticas</h3>
+                <ul>
+                    <li>✅ Separación automática de saldos por clasificación fiscal</li>
+                    <li>✅ Importación de facturas con clasificación automática</li>
+                    <li>✅ Proyecciones de cashflow integradas</li>
+                    <li>✅ Análisis comparativo fiscal vs no fiscal</li>
+                    <li>✅ Alertas y notificaciones contextuales</li>
+                </ul>
+            </div>
+        </field>
+    </record>
+
+    <menuitem id="menu_help_fiscal_system"
+              name="Sistema Fiscal"
+              parent="menu_help"
+              action="action_help_fiscal_system"
+              sequence="10"/>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN FINAL Y VERIFICACIONES -->
+    <!-- ========================================== -->
+    
+    <!-- Verificar configuración post-instalación -->
+    <record id="config_post_install" model="ir.actions.server">
+        <field name="name">Configuración Post-Instalación</field>
+        <field name="model_id" ref="model_financial_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+# Crear dashboards para todas las compañías
+model.create_dashboard_for_all_companies()
+
+# Verificar mapeo fiscal
+fiscal_mapping = model.FISCAL_MAPPING
+env.user.notify_success(f'Dashboard Financiero instalado correctamente. Mapeo fiscal: {len(fiscal_mapping)} journals configurados.')
+        </field>
+    </record>
+
+</odoo>
