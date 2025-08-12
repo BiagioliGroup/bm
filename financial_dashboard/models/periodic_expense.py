@@ -74,9 +74,9 @@ class PeriodicExpense(models.Model):
     auto_create_cashflow = fields.Boolean(string='Auto-crear Proyección Cashflow', default=True, 
                                           help="Crear automáticamente proyecciones en el cashflow")
     journal_id = fields.Many2one('account.journal', string='Diario Contable', 
-                                 domain="[('company_id', '=', company_id)]")
+                             domain="[('type', '=', 'purchase')]")
     account_id = fields.Many2one('account.account', string='Cuenta Contable',
-                                 domain="[('company_id', '=', company_id)]")
+                                domain="[('deprecated', '=', False)]")
     
     # Prioridad y alertas
     priority = fields.Selection([
