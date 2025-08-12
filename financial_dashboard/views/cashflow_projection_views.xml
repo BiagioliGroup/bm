@@ -448,12 +448,4 @@
             </p>
         </field>
     </record>
-</odoo>record.source_type.raw_value != 'manual'">
-                                            <i class="fa fa-tag me-1 text-muted"/>
-                                            Origen: <field name="source_type"/>
-                                        </div>
-                                        <div t-if="record.account_move_id.raw_value">
-                                            <i class="fa fa-file-text-o me-1 text-muted"/>
-                                            Factura: <field name="account_move_id"/>
-                                        </div>
-                                        <div t-if="
+</odoo>
