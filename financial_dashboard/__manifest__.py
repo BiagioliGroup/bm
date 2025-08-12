@@ -53,15 +53,19 @@
         'security/security.xml',
         
         # ========================================== #
-        # PASO 2: VISTAS Y ACCIONES (orden correcto)
+        # PASO 2: VISTAS Y ACCIONES (orden jerárquico correcto)
         # ========================================== #
-        # Primero las vistas que DEFINEN acciones
-        'views/periodic_expense_views.xml',
+        # Primero cashflow (no depende de nadie)
         'views/cashflow_projection_views.xml',
+        
+        # Después periodic_expense (depende de cashflow)
+        'views/periodic_expense_views.xml',
+        
+        # Después financial_analysis 
         'views/financial_analysis_views.xml',
         'views/account_move_integration_views.xml',
         
-        # Después el dashboard que REFERENCIA acciones
+        # Al final el dashboard (depende de todos)
         'views/dashboard_main_views.xml',
         
         # ========================================== #
