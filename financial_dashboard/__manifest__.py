@@ -61,9 +61,8 @@
         # Después periodic_expense (depende de cashflow)
         'views/periodic_expense_views.xml',
         
-        # Después financial_analysis 
-        'views/financial_analysis_views.xml',
-        'views/account_move_integration_views.xml',
+        # Después account_move_integration (si existe)
+        # 'views/account_move_integration_views.xml',  # ← Comentado hasta verificar existencia
         
         # Al final el dashboard (depende de todos)
         'views/dashboard_main_views.xml',
@@ -80,10 +79,10 @@
         'data/cashflow_category_data.xml',
         
         # ========================================== #
-        # PASO 5: WIZARDS
+        # PASO 5: WIZARDS (comentado hasta verificar existencia)
         # ========================================== #
-        'wizard/cashflow_report_wizard_views.xml',
-        'wizard/invoice_import_wizard_views.xml',
+        # 'wizard/cashflow_report_wizard_views.xml',
+        # 'wizard/invoice_import_wizard_views.xml',
         
         # ========================================== #
         # PASO 6: MENÚS
@@ -91,10 +90,10 @@
         'views/menu_views.xml',
         
         # ========================================== #
-        # PASO 7: REPORTES
+        # PASO 7: REPORTES (comentado hasta verificar existencia)
         # ========================================== #
-        'reports/cashflow_reports.xml',
-        'reports/expense_analysis_reports.xml',
+        # 'reports/cashflow_reports.xml',
+        # 'reports/expense_analysis_reports.xml',
         
         # ========================================== #
         # PASO 8: REGLAS AVANZADAS (al final)
