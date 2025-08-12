@@ -48,29 +48,29 @@
     ],
     'data': [
         # ========================================== #
-        # PASO 1: SEGURIDAD BÁSICA (grupos)
+        # PASO 1: SEGURIDAD BÁSICA (solo grupos)
         # ========================================== #
         'security/security.xml',
         
         # ========================================== #
-        # PASO 2: PERMISOS DE ACCESO BÁSICOS
-        # ========================================== #
-        'security/ir.model.access.csv',
-        
-        # ========================================== #
-        # PASO 3: DATOS MAESTROS
-        # ========================================== #
-        'data/expense_category_data.xml',
-        'data/cashflow_category_data.xml',
-        
-        # ========================================== #
-        # PASO 4: VISTAS PRINCIPALES
+        # PASO 2: VISTAS (aquí se registran los modelos)
         # ========================================== #
         'views/dashboard_main_views.xml',
         'views/periodic_expense_views.xml',
         'views/cashflow_projection_views.xml',
         'views/financial_analysis_views.xml',
         'views/account_move_integration_views.xml',
+        
+        # ========================================== #
+        # PASO 3: PERMISOS (después de que modelos existan)
+        # ========================================== #
+        'security/ir.model.access.csv',
+        
+        # ========================================== #
+        # PASO 4: DATOS MAESTROS
+        # ========================================== #
+        'data/expense_category_data.xml',
+        'data/cashflow_category_data.xml',
         
         # ========================================== #
         # PASO 5: WIZARDS
@@ -90,8 +90,7 @@
         'reports/expense_analysis_reports.xml',
         
         # ========================================== #
-        # PASO 8: REGLAS AVANZADAS DE SEGURIDAD
-        # (Se cargan al final cuando todos los modelos existen)
+        # PASO 8: REGLAS AVANZADAS (al final)
         # ========================================== #
         'security/security_rules.xml',
     ],
