@@ -9,10 +9,9 @@
         <record id="cashflow_category_sales" model="cashflow.category">
             <field name="name">Ventas de Productos</field>
             <field name="code">SALES</field>
-            <field name="type">income</field>
-            <field name="description">Ingresos por ventas de productos y mercaderías</field>
+            <field name="category_type">operating</field> 
+            <field name="flow_type">inflow</field>            <field name="description">Ingresos por ventas de productos y mercaderías</field>
             <field name="color">2</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">10</field>
             <field name="active">True</field>
         </record>
@@ -20,10 +19,10 @@
         <record id="cashflow_category_services" model="cashflow.category">
             <field name="name">Prestación de Servicios</field>
             <field name="code">SERVICES</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+        <field name="flow_type">inflow</field>
             <field name="description">Ingresos por servicios profesionales y técnicos</field>
             <field name="color">2</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">20</field>
             <field name="active">True</field>
         </record>
@@ -31,10 +30,10 @@
         <record id="cashflow_category_commission" model="cashflow.category">
             <field name="name">Comisiones</field>
             <field name="code">COMM</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+             <field name="flow_type">inflow</field>
             <field name="description">Ingresos por comisiones y representaciones</field>
             <field name="color">2</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">30</field>
             <field name="active">True</field>
         </record>
@@ -43,10 +42,10 @@
         <record id="cashflow_category_interest_income" model="cashflow.category">
             <field name="name">Intereses Ganados</field>
             <field name="code">INT_INC</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+            <field name="flow_type">inflow</field>
             <field name="description">Intereses de plazos fijos, inversiones</field>
             <field name="color">3</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">40</field>
             <field name="active">True</field>
         </record>
@@ -54,10 +53,10 @@
         <record id="cashflow_category_investment_income" model="cashflow.category">
             <field name="name">Ingresos por Inversiones</field>
             <field name="code">INV_INC</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+            <field name="flow_type">inflow</field>
             <field name="description">Dividendos, ganancias de capital</field>
             <field name="color">3</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">50</field>
             <field name="active">True</field>
         </record>
@@ -66,10 +65,10 @@
         <record id="cashflow_category_rental_income" model="cashflow.category">
             <field name="name">Ingresos por Alquiler</field>
             <field name="code">RENT_INC</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+            <field name="flow_type">inflow</field>
             <field name="description">Alquiler de propiedades o equipos</field>
             <field name="color">4</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">60</field>
             <field name="active">True</field>
         </record>
@@ -77,10 +76,10 @@
         <record id="cashflow_category_other_income" model="cashflow.category">
             <field name="name">Otros Ingresos</field>
             <field name="code">OTHER_INC</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+            <field name="flow_type">inflow</field>
             <field name="description">Ingresos diversos no categorizados</field>
             <field name="color">5</field>
-            <field name="is_fiscal">False</field>
             <field name="sequence">990</field>
             <field name="active">True</field>
         </record>
@@ -93,10 +92,10 @@
         <record id="cashflow_category_cost_of_goods" model="cashflow.category">
             <field name="name">Costo de Mercaderías</field>
             <field name="code">COGS</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Compra de productos para reventa</field>
             <field name="color">6</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">100</field>
             <field name="active">True</field>
         </record>
@@ -104,10 +103,10 @@
         <record id="cashflow_category_raw_materials" model="cashflow.category">
             <field name="name">Materias Primas</field>
             <field name="code">RAW_MAT</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Compra de materias primas para producción</field>
             <field name="color">6</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">110</field>
             <field name="active">True</field>
         </record>
@@ -116,10 +115,10 @@
         <record id="cashflow_category_salaries" model="cashflow.category">
             <field name="name">Sueldos y Jornales</field>
             <field name="code">SALARY</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Sueldos, aguinaldo, bonificaciones</field>
             <field name="color">7</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">200</field>
             <field name="active">True</field>
         </record>
@@ -127,10 +126,10 @@
         <record id="cashflow_category_social_charges" model="cashflow.category">
             <field name="name">Cargas Sociales</field>
             <field name="code">SOC_CHG</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Aportes patronales, ART, obra social</field>
             <field name="color">7</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">210</field>
             <field name="active">True</field>
         </record>
@@ -139,10 +138,10 @@
         <record id="cashflow_category_vat_payment" model="cashflow.category">
             <field name="name">Pago de IVA</field>
             <field name="code">VAT_PAY</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Pago mensual de IVA a AFIP</field>
             <field name="color">8</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">300</field>
             <field name="active">True</field>
         </record>
@@ -150,10 +149,10 @@
         <record id="cashflow_category_income_tax" model="cashflow.category">
             <field name="name">Impuesto a las Ganancias</field>
             <field name="code">INC_TAX</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Pagos a cuenta y saldo de ganancias</field>
             <field name="color">8</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">310</field>
             <field name="active">True</field>
         </record>
@@ -161,10 +160,10 @@
         <record id="cashflow_category_gross_income" model="cashflow.category">
             <field name="name">Ingresos Brutos</field>
             <field name="code">GROSS_INC</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Impuesto provincial sobre ingresos brutos</field>
             <field name="color">8</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">320</field>
             <field name="active">True</field>
         </record>
@@ -173,10 +172,10 @@
         <record id="cashflow_category_utilities_cf" model="cashflow.category">
             <field name="name">Servicios Públicos</field>
             <field name="code">UTIL_CF</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Luz, gas, agua, teléfono</field>
             <field name="color">9</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">400</field>
             <field name="active">True</field>
         </record>
@@ -184,10 +183,10 @@
         <record id="cashflow_category_rent_cf" model="cashflow.category">
             <field name="name">Alquileres Pagados</field>
             <field name="code">RENT_CF</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Alquiler de oficina, depósito, local</field>
             <field name="color">9</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">410</field>
             <field name="active">True</field>
         </record>
@@ -196,10 +195,10 @@
         <record id="cashflow_category_interest_expense" model="cashflow.category">
             <field name="name">Intereses Pagados</field>
             <field name="code">INT_EXP</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Intereses de préstamos, tarjetas de crédito</field>
             <field name="color">10</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">500</field>
             <field name="active">True</field>
         </record>
@@ -207,10 +206,10 @@
         <record id="cashflow_category_bank_fees" model="cashflow.category">
             <field name="name">Comisiones Bancarias</field>
             <field name="code">BANK_FEE</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Comisiones, mantenimiento, transferencias</field>
             <field name="color">10</field>
-            <field name="is_fiscal">False</field>
             <field name="sequence">510</field>
             <field name="active">True</field>
         </record>
@@ -219,10 +218,10 @@
         <record id="cashflow_category_equipment_purchase" model="cashflow.category">
             <field name="name">Compra de Equipos</field>
             <field name="code">EQUIP</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Maquinaria, equipos de oficina, vehículos</field>
             <field name="color">11</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">600</field>
             <field name="active">True</field>
         </record>
@@ -230,10 +229,10 @@
         <record id="cashflow_category_software_licenses" model="cashflow.category">
             <field name="name">Licencias de Software</field>
             <field name="code">SOFTWARE</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Software, SaaS, hosting, dominios</field>
             <field name="color">11</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">610</field>
             <field name="active">True</field>
         </record>
@@ -242,10 +241,10 @@
         <record id="cashflow_category_owner_drawings" model="cashflow.category">
             <field name="name">Retiros de Socios</field>
             <field name="code">DRAWINGS</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Retiros y distribuciones a socios</field>
             <field name="color">0</field>
-            <field name="is_fiscal">False</field>
             <field name="sequence">900</field>
             <field name="active">True</field>
         </record>
@@ -253,10 +252,10 @@
         <record id="cashflow_category_dividends" model="cashflow.category">
             <field name="name">Dividendos Pagados</field>
             <field name="code">DIVIDENDS</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Distribución de utilidades</field>
             <field name="color">0</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">910</field>
             <field name="active">True</field>
         </record>
@@ -269,10 +268,10 @@
         <record id="cashflow_category_export_income" model="cashflow.category">
             <field name="name">Ingresos por Exportación</field>
             <field name="code">EXPORT</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">inflow</field>
             <field name="description">Ventas al exterior con liquidación de divisas</field>
             <field name="color">2</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">35</field>
             <field name="active">True</field>
         </record>
@@ -281,10 +280,10 @@
         <record id="cashflow_category_import_payments" model="cashflow.category">
             <field name="name">Pagos de Importación</field>
             <field name="code">IMPORT</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Compras del exterior con pago en divisas</field>
             <field name="color">6</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">115</field>
             <field name="active">True</field>
         </record>
@@ -292,10 +291,10 @@
         <record id="cashflow_category_monotax" model="cashflow.category">
             <field name="name">Monotributo</field>
             <field name="code">MONOTAX</field>
-            <field name="type">expense</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">outflow</field>
             <field name="description">Pago mensual de monotributo</field>
             <field name="color">8</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">330</field>
             <field name="active">True</field>
         </record>
@@ -303,10 +302,10 @@
         <record id="cashflow_category_currency_exchange" model="cashflow.category">
             <field name="name">Diferencias de Cambio</field>
             <field name="code">FX_DIFF</field>
-            <field name="type">income</field>
+            <field name="category_type">operating</field>
+    <field name="flow_type">inflow</field>
             <field name="description">Ganancias/pérdidas por tipo de cambio</field>
             <field name="color">3</field>
-            <field name="is_fiscal">True</field>
             <field name="sequence">55</field>
             <field name="active">True</field>
         </record>
