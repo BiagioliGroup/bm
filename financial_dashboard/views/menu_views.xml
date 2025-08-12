@@ -6,10 +6,9 @@
               parent="accountant.menu_accounting"
               sequence="90"/>
 
-    <!-- SUBMENÚS BÁSICOS -->
+    <!-- SUBMENÚ SIN ACCIÓN (solo contenedor) -->
     <menuitem id="menu_cashflow_categories"
               name="Categorías de Cashflow"
               parent="menu_financial_dashboard_root"
-              action="action_cashflow_category"
               sequence="10"/>
 </odoo>
