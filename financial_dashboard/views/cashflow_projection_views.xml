@@ -63,8 +63,8 @@
                        decoration-info="state == 'confirmed'"
                        decoration-warning="state == 'projected'"
                        decoration-danger="state == 'cancelled'"/>
-                <field name="payment_state" 
-                       column_invisible="source_type not in ('supplier_invoice', 'customer_invoice')"/>
+                <field name="payment_state" optional="hide"/>
+
                 <field name="actual_date" optional="hide"/>
                 <field name="actual_amount" optional="hide"/>
                 <field name="variance" optional="hide"/>
