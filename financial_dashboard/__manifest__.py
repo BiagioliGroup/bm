@@ -50,29 +50,29 @@
         # ========================================== #
         # PASO 1: SEGURIDAD BÁSICA (solo grupos)
         # ========================================== #
-        'security/security.xml',
+        # 'security/security.xml',
         
         # ========================================== #
         # PASO 2: VISTAS Y ACCIONES (orden jerárquico correcto)
         # ========================================== #
         # Primero cashflow (no depende de nadie)
-        'views/cashflow_projection_views.xml',
+        # 'views/cashflow_projection_views.xml',
         
         # Después periodic_expense (depende de cashflow)
-        'views/periodic_expense_views.xml',
+        # 'views/periodic_expense_views.xml',
         
         # Después account_move_integration (si existe)
         # 'views/account_move_integration_views.xml',  # ← Comentado hasta verificar existencia
         
         # Al final el dashboard (depende de todos)
-        'views/dashboard_main_views.xml',
-        'views/cashflow_actions_views.xml',  
+        # 'views/dashboard_main_views.xml',
+        # 'views/cashflow_actions_views.xml',  
 
         
         # ========================================== #
         # PASO 3: PERMISOS (después de que modelos existan)
         # ========================================== #
-        'security/ir.model.access.csv',
+        # 'security/ir.model.access.csv',
         
         # ========================================== #
         # PASO 4: DATOS MAESTROS
@@ -100,7 +100,7 @@
         # ========================================== #
         # PASO 8: REGLAS AVANZADAS (al final)
         # ========================================== #
-        'security/security_rules.xml',
+        # 'security/security_rules.xml',
     ],
     'assets': {
         'web.assets_backend': [
