@@ -156,14 +156,14 @@
     <!-- ACCESOS RÁPIDOS EN DASHBOARD DE CONTABILIDAD -->
     <!-- ========================================== -->
     
-    <!-- Agregar tarjeta en dashboard de contabilidad -->
+    <!-- TODO: Verificar que la vista base existe en Odoo V18 antes de heredar -->
+    <!--
     <record id="account_journal_dashboard_inherit_financial" model="ir.ui.view">
         <field name="name">account.journal.dashboard.inherit.financial</field>
         <field name="model">account.journal</field>
         <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
         <field name="arch" type="xml">
             <xpath expr="//kanban" position="before">
-                <!-- Agregar botón de acceso rápido al dashboard financiero -->
                 <div class="alert alert-info mb-3" role="alert">
                     <div class="row align-items-center">
                         <div class="col-9">
@@ -181,5 +181,6 @@
             </xpath>
         </field>
     </record>
+    -->
 
 </odoo>
