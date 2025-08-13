@@ -1,91 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Archivo: sh_motorcycle_backend/views/guest_checkout_templates.xml -->
     
-    <!-- Template inheritance para mejorar el checkout guest -->
-    <template id="guest_checkout_address_fix" inherit_id="website_sale.address" name="Biagioli Guest Address Fix">
-        
-        <!-- Agregar datos debug para usuarios admin -->
-        <xpath expr="//div[@id='wrap']" position="before">
-            <t t-if="request.env.user.has_group('base.group_system') and biagioli_guest_fix_active">
-                <div class="alert alert-info d-none" id="biagioli_debug_info">
+    <!-- Template mínimo para debug info - visible para usuarios públicos -->
+    <template id="address_guest_debug" inherit_id="website_sale.address" name="Biagioli Guest Debug">
+        <!-- Agregar información de debugging para usuarios guest/públicos -->
+        <xpath expr="//form[@class='s_website_form']" position="before">
+            <t t-if="biagioli_guest_debug and user_is_guest">
+                <div class="alert alert-warning biagioli-debug mt-3">
+                    <strong>🔧 BIAGIOLI DEBUG (Modo Guest):</strong><br/>
                     <small>
-                        <strong>[BIAGIOLI DEBUG]</strong>
-                        Guest User: <span t-esc="is_guest_user"/>
-                        | Motorcycle Data: <span t-esc="motorcycle_data"/>
-                        | Fix Active: <span t-esc="biagioli_guest_fix_active"/>
+                        Usuario: <span t-esc="request.env.user.name"/><br/>
+                        Es Guest: <span t-esc="user_is_guest"/><br/>
+                        Order ID: <span t-esc="order.id if order else 'Sin orden'"/><br/>
+                        Partner: <span t-esc="order.partner_id.name if order and order.partner_id else 'Sin partner'"/><br/>
+                        URL: <span t-esc="request.httprequest.url"/>
                     </small>
                 </div>
             </t>
         </xpath>
-        
-        <!-- Agregar campos hidden para preservar datos de motorcycle -->
-        <xpath expr="//form[@action='/shop/address/submit']" position="inside">
-            <t t-if="motorcycle_data">
-                <input type="hidden" name="motorcycle_type" t-att-value="motorcycle_data.get('motorcycle_type', '')"/>
-                <input type="hidden" name="motorcycle_make" t-att-value="motorcycle_data.get('motorcycle_make', '')"/>
-                <input type="hidden" name="motorcycle_model" t-att-value="motorcycle_data.get('motorcycle_model', '')"/>
-                <input type="hidden" name="motorcycle_year" t-att-value="motorcycle_data.get('motorcycle_year', '')"/>
-            </t>
-        </xpath>
-        
-        <!-- Agregar meta tag para identificar que el fix está activo -->
-        <xpath expr="//head" position="inside">
-            <t t-if="biagioli_guest_fix_active">
-                <meta name="biagioli-guest-fix" content="active"/>
-            </t>
-        </xpath>
-        
     </template>
-    
-    <!-- Fix para el template de checkout principal -->
-    <template id="guest_checkout_main_fix" inherit_id="website_sale.checkout" name="Biagioli Guest Checkout Fix">
-        
-        <!-- Agregar información debug si está disponible -->
-        <xpath expr="//div[@id='shop_checkout']" position="before">
-            <t t-if="request.env.user.has_group('base.group_system') and biagioli_checkout_enhanced">
-                <div class="alert alert-success d-none" id="biagioli_checkout_debug">
-                    <small>
-                        <strong>[BIAGIOLI CHECKOUT]</strong>
-                        Enhanced checkout active | Motorcycle data restored
-                    </small>
-                </div>
-            </t>
+
+    <!-- Debug adicional para el formulario -->
+    <template id="address_form_debug" inherit_id="website_sale.address" name="Biagioli Form Debug">
+        <!-- Agregar clase CSS para checkout page -->
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class" add="biagioli-checkout-page" separator=" "/>
         </xpath>
         
-    </template>
-    
-    <!-- Error handling para redirecciones con errores -->
-    <template id="guest_error_messages" inherit_id="website_sale.layout" name="Biagioli Error Messages">
-        
-        <xpath expr="//main" position="before">
-            <!-- Error handling específico para problemas de checkout -->
-            <t t-set="error_param" t-value="request.params.get('error', '')"/>
-            
-            <t t-if="error_param == 'submit_failed'">
-                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-                    <strong>Error en el formulario</strong>
-                    <p class="mb-0">Hubo un problema al procesar tu información. Por favor, verifica los datos e intenta nuevamente.</p>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
-            </t>
-            
-            <t t-if="error_param == 'missing_fields'">
-                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-                    <strong>Campos requeridos</strong>
-                    <p class="mb-0">Por favor, completa todos los campos marcados como obligatorios.</p>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
-            </t>
-            
-            <t t-if="error_param == 'checkout_failed'">
-                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                    <strong>Error en el proceso de compra</strong>
-                    <p class="mb-0">Ocurrió un problema durante el checkout. Por favor, revisa tu carrito y vuelve a intentar.</p>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
-            </t>
+        <!-- Agregar atributos para debugging en el formulario -->
+        <xpath expr="//form[@class='s_website_form']" position="attributes">
+            <attribute name="data-biagioli-debug">true</attribute>
+            <attribute name="data-user-guest" t-att-data-user-guest="user_is_guest"/>
         </xpath>
         
+        <!-- Agregar debug al botón de submit -->
+        <xpath expr="//button[@id='save_address']" position="attributes">
+            <attribute name="data-biagioli-submit">guest-checkout</attribute>
+        </xpath>
     </template>
-    
+
+</odoo>
+
 </odoo>

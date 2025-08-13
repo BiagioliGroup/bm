@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Archivo: sh_motorcycle_backend/controllers/guest_checkout_fix.py
 
 from odoo import http, _
 from odoo.http import request
@@ -11,132 +12,74 @@ _logger = logging.getLogger(__name__)
 
 class BiagioliGuestCheckoutFix(MotorCycleWebsiteSale):
     """
-    Extensión específica para solucionar el bug de checkout guest
-    en el módulo sh_motorcycle_frontend
+    Parche para solucionar el bug de checkout de usuarios guest.
+    Extiende MotorCycleWebsiteSale manteniendo toda la funcionalidad existente.
     """
-
-    @http.route(['/shop/address/submit'], type='http', methods=['POST'], auth='public', website=True, sitemap=False)
-    def shop_address_submit(self, partner_id=None, address_type='billing', use_delivery_as_billing=None, 
-                           callback=None, required_fields=None, **form_data):
-        """
-        Override del shop_address_submit para manejar mejor los usuarios guest
-        Soluciona el problema específico donde usuarios guest se quedan atascados en /shop/address
-        """
-        _logger.info("[🔧 BIAGIOLI] Address submit - User: %s, Type: %s", 
-                    request.env.user.name, address_type)
-        _logger.info("[🔧 BIAGIOLI] Form data keys: %s", list(form_data.keys()))
-        
-        # Verificar que tenemos un carrito válido
-        order_sudo = request.website.sale_get_order()
-        if not order_sudo or not order_sudo.order_line:
-            _logger.warning("[🔧 BIAGIOLI] No valid cart found, redirecting to shop")
-            return json.dumps({'redirectUrl': '/shop'})
-        
-        # Preservar datos de motorcycle antes del submit
-        self._preserve_motorcycle_data(form_data)
-        
-        try:
-            # Llamar al método padre con manejo de errores mejorado
-            result = super(BiagioliGuestCheckoutFix, self).shop_address_submit(
-                partner_id=partner_id,
-                address_type=address_type,
-                use_delivery_as_billing=use_delivery_as_billing,
-                callback=callback,
-                required_fields=required_fields,
-                **form_data
-            )
-            
-            _logger.info("[🔧 BIAGIOLI] Address submit successful")
-            return result
-            
-        except Exception as e:
-            _logger.error("[🔧 BIAGIOLI] Error in address submit: %s", str(e), exc_info=True)
-            
-            # En caso de error, redirigir con mensaje
-            error_url = '/shop/address?error=submit_failed'
-            return json.dumps({'redirectUrl': error_url})
 
     @http.route(['/shop/address'], type='http', auth="public", website=True, sitemap=False)
     def shop_address(self, **post):
         """
-        Override para mejorar el manejo de la página de address para usuarios guest
+        Override mínimo para arreglar el problema con usuarios guest
         """
-        _logger.info("[🔧 BIAGIOLI] Address page - User: %s, Guest: %s", 
-                    request.env.user.name, request.env.user._is_public())
+        user_name = request.env.user.name
+        is_guest = request.env.user._is_public()
+        
+        _logger.info("[🔧 BIAGIOLI] shop_address - User: %s, Guest: %s", user_name, is_guest)
         
         try:
-            # Llamar al método padre
+            # Llamada al método padre original
             result = super(BiagioliGuestCheckoutFix, self).shop_address(**post)
             
-            # Agregar contexto adicional para debugging y mejoras
-            if hasattr(result, 'qcontext'):
+            # SIEMPRE agregar debug info para usuarios guest (para testing)
+            if hasattr(result, 'qcontext') and is_guest:
                 result.qcontext.update({
-                    'biagioli_guest_fix_active': True,
-                    'is_guest_user': request.env.user._is_public(),
-                    'motorcycle_data': self._get_motorcycle_session_data(),
-                    'debug_mode': request.env['ir.config_parameter'].sudo().get_param('website_sale.checkout_debug', False)
+                    'biagioli_guest_debug': True,  # Siempre True para guest users
+                    'user_is_guest': True,
                 })
-                
-                # Log para debugging
-                _logger.info("[🔧 BIAGIOLI] Address context updated with guest fix data")
+                _logger.info("[🔧 BIAGIOLI] Guest debug context added - Order: %s", 
+                           result.qcontext.get('order', {}).get('id', 'No Order'))
                 
             return result
             
         except Exception as e:
-            _logger.error("[🔧 BIAGIOLI] Error in address page: %s", str(e), exc_info=True)
-            
-            # Fallback al controlador base de website_sale
-            from odoo.addons.website_sale.controllers.main import WebsiteSale
-            base_controller = WebsiteSale()
-            return base_controller.shop_address(**post)
+            _logger.error("[🔧 BIAGIOLI] Error in shop_address: %s", str(e), exc_info=True)
+            # En caso de error crítico, redirigir al carrito
+            return request.redirect('/shop/cart?error=address_failed')
 
-    def _preserve_motorcycle_data(self, form_data):
+    @http.route(['/shop/address/submit'], type='http', auth="public", website=True, sitemap=False)
+    def shop_address_submit(self, **post):
         """
-        Preserva los datos de motorcycle en la sesión durante el checkout
+        Override con validación mejorada para usuarios guest
         """
-        session = request.session
+        user_name = request.env.user.name
+        _logger.info("[🔧 BIAGIOLI] shop_address_submit - User: %s", user_name)
         
-        # Guardar datos de motorcycle si están presentes en el form
-        motorcycle_fields = ['motorcycle_type', 'motorcycle_make', 'motorcycle_model', 'motorcycle_year']
-        for field in motorcycle_fields:
-            if form_data.get(field):
-                session[f'biagioli_{field}'] = form_data[field]
-                _logger.debug("[🔧 BIAGIOLI] Preserved %s: %s", field, form_data[field])
-
-    def _get_motorcycle_session_data(self):
-        """
-        Recupera datos de motorcycle guardados en la sesión
-        """
-        session = request.session
-        return {
-            'motorcycle_type': session.get('biagioli_motorcycle_type', ''),
-            'motorcycle_make': session.get('biagioli_motorcycle_make', ''),
-            'motorcycle_model': session.get('biagioli_motorcycle_model', ''),
-            'motorcycle_year': session.get('biagioli_motorcycle_year', ''),
-        }
-
-    @http.route(['/shop/checkout'], type='http', auth="public", website=True, sitemap=False)
-    def shop_checkout(self, **post):
-        """
-        Override para asegurar que el checkout funcione correctamente después del fix de address
-        """
-        _logger.info("[🔧 BIAGIOLI] Checkout page - User: %s", request.env.user.name)
+        # Log de los campos recibidos (sin datos sensibles)
+        received_fields = [k for k in post.keys() if k not in ['password', 'confirm_password']]
+        _logger.debug("[🔧 BIAGIOLI] Received fields: %s", received_fields)
         
         try:
-            result = super(BiagioliGuestCheckoutFix, self).shop_checkout(**post)
+            # Validación básica defensiva
+            essential_fields = ['name', 'email']
+            missing_essential = [f for f in essential_fields if not post.get(f, '').strip()]
             
-            if hasattr(result, 'qcontext'):
-                # Restaurar datos de motorcycle si es necesario
-                motorcycle_data = self._get_motorcycle_session_data()
-                if any(motorcycle_data.values()):
-                    result.qcontext.update({
-                        'motorcycle_data': motorcycle_data,
-                        'biagioli_checkout_enhanced': True
-                    })
-                    _logger.info("[🔧 BIAGIOLI] Motorcycle data restored in checkout")
-                    
+            if missing_essential:
+                _logger.warning("[🔧 BIAGIOLI] Missing essential fields: %s", missing_essential)
+                error_param = f"missing={','.join(missing_essential)}"
+                return request.redirect(f'/shop/address?error={error_param}')
+            
+            # Llamada al método padre original
+            result = super(BiagioliGuestCheckoutFix, self).shop_address_submit(**post)
+            _logger.info("[🔧 BIAGIOLI] shop_address_submit completed successfully")
             return result
             
         except Exception as e:
-            _logger.error("[🔧 BIAGIOLI] Error in checkout: %s", str(e), exc_info=True)
-            return request.redirect('/shop/cart?error=checkout_failed')
+            _logger.error("[🔧 BIAGIOLI] Error in shop_address_submit: %s", str(e), exc_info=True)
+            
+            # Manejo de diferentes tipos de errores
+            if "ValidationError" in str(type(e)):
+                return request.redirect('/shop/address?error=validation')
+            elif "AccessError" in str(type(e)):
+                return request.redirect('/shop/address?error=access')
+            else:
+                return request.redirect('/shop/address?error=unknown')
