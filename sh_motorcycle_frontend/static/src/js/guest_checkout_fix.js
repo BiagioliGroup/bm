@@ -28,6 +28,7 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
         
         return Promise.resolve();
     },
+    
 
     /**
      * Inicializa fixes para producción (sin debug)
