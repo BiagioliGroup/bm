@@ -260,151 +260,12 @@ class MotorCycleWebsiteSale(WebsiteSale):
         result.update(options_motorcycle)
         return result
 
-    # 🆕 AGREGAR ESTE MÉTODO EN LA CLASE MotorCycleWebsiteSale (SEPARADO DEL shop)
-
-    def _get_categories_with_products(self, motorcycle_filters=None):
-        """
-        🎯 MÉTODO AUXILIAR: Obtener categorías que tienen productos disponibles
-        Filtrado por vehículo seleccionado si aplica
-        """
-        try:
-            website = request.website
-            
-            # 1) Construir dominio base para productos
-            product_domain = [
-                ('is_published', '=', True),
-                ('sale_ok', '=', True),
-                '|', ('website_id', '=', False), ('website_id', '=', website.id)
-            ]
-            
-            # 2) Si hay filtros de vehículo, aplicarlos
-            if motorcycle_filters and all([
-                motorcycle_filters.get('type'),
-                motorcycle_filters.get('make'), 
-                motorcycle_filters.get('model'),
-                motorcycle_filters.get('year')
-            ]):
-                # Buscar el vehículo específico
-                vehicle_domain = [
-                    ('type_id', '=', int(motorcycle_filters['type'])),
-                    ('make_id', '=', int(motorcycle_filters['make'])),
-                    ('mmodel_id', '=', int(motorcycle_filters['model'])),
-                    ('year', '=', int(motorcycle_filters['year'])),
-                ]
-                motorcycles = request.env['motorcycle.motorcycle'].sudo().search(vehicle_domain)
-                
-                if motorcycles:
-                    # Obtener productos compatibles con este vehículo
-                    vehicle_product_ids = []
-                    for motorcycle in motorcycles:
-                        if motorcycle.product_ids:
-                            vehicle_product_ids.extend(motorcycle.product_ids.mapped('product_tmpl_id.id'))
-                    
-                    # Agregar productos universales
-                    universal_products = request.env['product.product'].sudo().search([
-                        ('sh_is_common_product', '=', True)
-                    ])
-                    vehicle_product_ids.extend(universal_products.mapped('product_tmpl_id.id'))
-                    
-                    # Filtrar solo productos compatibles
-                    if vehicle_product_ids:
-                        product_domain.append(('id', 'in', list(set(vehicle_product_ids))))
-                    else:
-                        # Si no hay productos compatibles, devolver categorías vacías
-                        return request.env['product.public.category'].sudo().browse([])
-            
-            # 3) Opcional: filtrar solo productos con stock
-            if getattr(website, 'sh_show_only_with_products', False):
-                # Buscar variantes con stock > 0
-                variants_with_stock = request.env['product.product'].sudo().search([
-                    ('qty_available', '>', 0)
-                ])
-                if variants_with_stock:
-                    template_ids_with_stock = variants_with_stock.mapped('product_tmpl_id.id')
-                    product_domain.append(('id', 'in', template_ids_with_stock))
-            
-            # 4) Buscar productos que cumplen criterios
-            products = request.env['product.template'].sudo().search(product_domain)
-            
-            # 5) Obtener categorías de estos productos
-            category_ids = products.mapped('public_categ_ids.id')
-            categories = request.env['product.public.category'].sudo().browse(list(set(category_ids)))
-            
-            # 6) Incluir categorías padre para mantener jerarquía
-            all_categories = categories
-            for category in categories:
-                parent = category.parent_id
-                while parent:
-                    all_categories |= parent
-                    parent = parent.parent_id
-            
-            _logger.info(
-                "[📂 _get_categories_with_products] vehicle_filters=%s, found_categories=%d", 
-                motorcycle_filters, len(all_categories)
-            )
-            
-            return all_categories
-            
-        except Exception as e:
-            _logger.error("[❌ _get_categories_with_products] Error: %s", e)
-            # En caso de error, devolver todas las categorías
-            return request.env['product.public.category'].sudo().search([
-                ('website_id', 'in', (False, request.website.id))
-            ])
-
-    @http.route(['/shop/categories/filtered'], type='json', auth='public', website=True)
-    def get_filtered_categories(self, **params):
-        """
-        🎯 NUEVA RUTA: API para obtener categorías filtradas por vehículo
-        Usada por JavaScript para actualizar dinámicamente las categorías
-        """
-        motorcycle_filters = {
-            'type': params.get('type'),
-            'make': params.get('make'),
-            'model': params.get('model'),
-            'year': params.get('year'),
-        }
-        
-        # Solo filtrar si todos los parámetros están presentes
-        if any(motorcycle_filters.values()):
-            categories = self._get_categories_with_products(motorcycle_filters)
-        else:
-            # Sin filtros, mostrar todas las categorías publicadas
-            categories = request.env['product.public.category'].sudo().search([
-                ('website_id', 'in', (False, request.website.id))
-            ])
-        
-        # Convertir a estructura jerárquica para el frontend
-        category_data = []
-        root_categories = categories.filtered(lambda c: not c.parent_id)
-        
-        def build_category_tree(category, all_categories):
-            children = all_categories.filtered(lambda c: c.parent_id == category)
-            return {
-                'id': category.id,
-                'name': category.name,
-                'slug': category.slug,
-                'url': f'/shop/category/{category.slug}-{category.id}',
-                'has_children': len(children) > 0,
-                'children': [build_category_tree(child, all_categories) for child in children]
-            }
-        
-        for root_category in root_categories:
-            category_data.append(build_category_tree(root_category, categories))
-        
-        return {
-            'categories': category_data,
-            'total_categories': len(categories),
-            'has_vehicle_filter': any(motorcycle_filters.values())
-        }
-
-
 
     @http.route()
     def shop(self, page=0, category=None, search='', min_price=0.0,
             max_price=0.0, ppg=False, **post):
         """
-        CORREGIDO: Debug recortado + CATEGORÍAS FILTRADAS
+        CORREGIDO: Debug recortado
         """
         # ✅ DEBUG RECORTADO
         _logger.info("[🔍 SHOP] ENTRADA - params: %s", {k: v for k, v in request.params.items() if k in ['type', 'make', 'model', 'year']})
@@ -437,38 +298,9 @@ class MotorCycleWebsiteSale(WebsiteSale):
             _logger.info("[🔍 SHOP] FINAL - qcontext updated with %d products", 
                         len(res.qcontext.get('products', [])))
             res.qcontext.update(moto_context)
-            
-            # 🆕 NUEVO: Agregar categorías filtradas (SOLO SI HAY VEHÍCULO)
-            try:
-                # Solo si hay vehículo completo seleccionado
-                if all([moto_context.get('motorcycle_type'), moto_context.get('motorcycle_make'), 
-                    moto_context.get('motorcycle_model'), moto_context.get('motorcycle_year')]):
-                    _logger.info("[📂 SHOP] Aplicando filtro de categorías para vehículo")
-                    
-                    # Llamar al método que ya tienes (si lo implementaste)
-                    if hasattr(self, '_get_categories_with_products'):
-                        motorcycle_filters = {
-                            'type': moto_context.get('motorcycle_type'),
-                            'make': moto_context.get('motorcycle_make'),
-                            'model': moto_context.get('motorcycle_model'),
-                            'year': moto_context.get('motorcycle_year'),
-                        }
-                        filtered_categories = self._get_categories_with_products(motorcycle_filters)
-                        res.qcontext['filtered_categories'] = filtered_categories
-                        res.qcontext['has_vehicle_filter'] = True
-                        _logger.info("[📂 SHOP] Categorías filtradas: %d", len(filtered_categories))
-                    else:
-                        _logger.warning("[📂 SHOP] Método _get_categories_with_products no implementado")
-                else:
-                    res.qcontext['filtered_categories'] = None
-                    res.qcontext['has_vehicle_filter'] = False
-                    
-            except Exception as e:
-                _logger.error("[❌ SHOP] Error al filtrar categorías: %s", e)
-                res.qcontext['filtered_categories'] = None
-                res.qcontext['has_vehicle_filter'] = False
 
         return res
+
 
 
 

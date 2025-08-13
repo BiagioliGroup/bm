@@ -413,48 +413,4 @@
     </xpath>
   </template>   
 
-
-<!-- TRABAJO SOBRE CATEGORIAS -->
-<!-- TRABAJO SOBRE CATEGORIAS -->
-<!-- TRABAJO SOBRE CATEGORIAS -->
-
-<!-- VERSIÓN MINIMALISTA - REEMPLAZAR EL ANTERIOR SI SIGUE DANDO ERROR -->
-<!-- Agregar SOLO esto a sh_motorcycle_frontend/views/website_sale_templates.xml -->
-
-<!-- 🛡️ Template ultra-seguro - Sin herencias complejas -->
-<template id="vehicle_filter_info_minimal" name="Vehicle Filter Info - Minimal">
-    <t t-name="VehicleFilterInfo">
-        <t t-if="has_vehicle_filter and motorcycle_heading">
-            <div class="alert alert-success text-center py-2 mb-3" style="border-left: 4px solid #007bff;">
-                <small>
-                    <i class="fa fa-motorcycle me-1"></i>
-                    <strong>Filtrado por vehículo:</strong> 
-                    <span t-esc="motorcycle_heading"/>
-                </small>
-            </div>
-        </t>
-    </t>
-</template>
-
-<!-- 🎨 CSS embebido ultra-simple -->
-<template id="vehicle_filter_css_minimal">
-    <t t-name="VehicleFilterCSS">
-        <style>
-            .category-filter-info {
-                animation: fadeIn 0.5s ease-in;
-                border-left: 4px solid #007bff !important;
-            }
-            
-            .no-categories-message {
-                border-left: 4px solid #ffc107 !important;
-            }
-            
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        </style>
-    </t>
-</template>
-
 </odoo>
