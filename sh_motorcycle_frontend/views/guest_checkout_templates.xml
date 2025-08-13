@@ -35,12 +35,9 @@
             <attribute name="data-user-guest" t-att-data-user-guest="user_is_guest"/>
         </xpath>
         
-        <!-- Buscar el botón de submit por su texto o clase común -->
+        <!-- Buscar el botón de submit pr su texto o clase común -->
         <xpath expr="//button[contains(@class, 'btn-primary')]" position="attributes">
             <attribute name="data-biagioli-submit">guest-checkout</attribute>
         </xpath>
     </template>
-
-</odoo>
-
 </odoo>
