@@ -1,15 +1,9 @@
 /* Archivo: sh_motorcycle_backend/static/src/scss/guest_checkout.scss */
-/* VERSIÓN PRODUCCIÓN - Solo estilos esenciales */
+/* VERSIÓN PRODUCCIÓN - SCSS Simplificado y Compatible */
 
-// Variables
-$error-color: #dc3545;
-$success-color: #198754;
-$warning-color: #ffc107;
-$primary-color: #007bff;
-
-// Estilos de validación para checkout
+/* Estilos de validación para checkout */
 .is-invalid {
-    border-color: $error-color !important;
+    border-color: #dc3545 !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 1.4 1.4 1.4-1.4'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right calc(0.375em + 0.1875rem) center;
@@ -17,29 +11,29 @@ $primary-color: #007bff;
 }
 
 .is-valid {
-    border-color: $success-color !important;
+    border-color: #198754 !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.5-.5L4 5.06l3.2-3.2.5.5L4 6.04z'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right calc(0.375em + 0.1875rem) center;
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 
-// Mensaje de error mejorado
+/* Mensaje de error mejorado */
 .biagioli-error-alert {
-    border-left: 4px solid $warning-color;
+    border-left: 4px solid #ffc107;
     animation: slideDown 0.3s ease-in-out;
 }
 
-// Feedback de validación
+/* Feedback de validación */
 .invalid-feedback {
     display: block;
     width: 100%;
     margin-top: 0.25rem;
     font-size: 0.875em;
-    color: $error-color;
+    color: #dc3545;
 }
 
-// Animación suave
+/* Animación suave */
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -51,13 +45,13 @@ $primary-color: #007bff;
     }
 }
 
-// Focus mejorado para campos de formulario
+/* Focus mejorado para campos de formulario */
 .form-control:focus {
-    border-color: $primary-color;
+    border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-// Responsivo para mobile
+/* Responsivo para mobile */
 @media (max-width: 768px) {
     .biagioli-error-alert {
         font-size: 0.9em;
@@ -69,7 +63,7 @@ $primary-color: #007bff;
     }
 }
 
-// Optimización para mejor performance
+/* Optimización para mejor performance */
 .is-invalid,
 .is-valid {
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
