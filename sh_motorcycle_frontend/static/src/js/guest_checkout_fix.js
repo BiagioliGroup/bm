@@ -1,17 +1,17 @@
 /** @odoo-module **/
 // Archivo: sh_motorcycle_backend/static/src/js/guest_checkout_fix.js
+// VERSIÓN PRODUCCIÓN - Sin debug visual, solo fixes esenciales
 
 import publicWidget from "@web/legacy/js/public/public_widget";
 
 /**
- * Widget defensivo para arreglar problemas de checkout con usuarios guest
- * Específicamente para el error de querySelector en /shop/address
+ * Fix defensivo para checkout de usuarios guest
+ * Versión optimizada para producción sin elementos de debug
  */
 publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
     selector: '.oe_website_sale',
     events: {
         'submit form[action*="/shop/address/submit"]': '_onAddressFormSubmit',
-        'click #save_address': '_onSaveAddressClick',
         'blur input[required], select[required]': '_onRequiredFieldBlur',
     },
 
@@ -19,158 +19,37 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
      * @override
      */
     start: function () {
-        console.log('[BIAGIOLI] Guest checkout fix widget started');
         this._super.apply(this, arguments);
-        this._initGuestCheckoutFixes();
+        
+        // Solo aplicar en páginas de checkout
+        if (window.location.pathname.includes('/shop/')) {
+            this._initProductionFixes();
+        }
+        
         return Promise.resolve();
     },
 
     /**
-     * Inicializa las correcciones defensivas para checkout guest
+     * Inicializa fixes para producción (sin debug)
      */
-    _initGuestCheckoutFixes: function () {
-        // Solo aplicar fixes en páginas de checkout
-        if (!window.location.pathname.includes('/shop/')) {
-            return;
-        }
-
-        // Verificar si estamos en modo guest
-        const isGuest = this._isGuestUser();
-        
-        console.log('[BIAGIOLI] Initializing guest checkout fixes');
-        console.log('[BIAGIOLI] User is guest:', isGuest);
-        console.log('[BIAGIOLI] Current URL:', window.location.href);
-        console.log('[BIAGIOLI] User agent:', navigator.userAgent);
-        
-        // Fix 1: Proteger querySelector calls
+    _initProductionFixes: function () {
+        // Fix 1: Protección de querySelector
         this._protectQuerySelectors();
         
-        // Fix 2: Validación de formulario defensiva
+        // Fix 2: Validación de formularios
         this._enhanceFormValidation();
         
-        // Fix 3: Manejo de errores de motorcycle frontend
+        // Fix 3: Protección de motorcycle frontend
         this._protectMotorcycleFrontend();
         
-        // Fix 4: Mostrar mensajes de error URL params
+        // Fix 4: Manejo de errores de URL
         this._handleUrlErrors();
-        
-        // Fix 5: Debug específico para guest users (ahora sin depender de template)
-        if (isGuest) {
-            this._initGuestDebugging();
-            this._createDebugInfo();
-        }
-        
-        // Fix 6: Agregar atributos a elementos dinámicamente
-        this._addDebugAttributes();
     },
 
     /**
-     * Detecta si el usuario es guest sin depender del template
-     */
-    _isGuestUser: function () {
-        // Múltiples formas de detectar usuario guest
-        const indicators = [
-            // Verificar si hay elementos de login en la página
-            document.querySelector('.fa-sign-in') !== null,
-            document.querySelector('a[href*="/web/login"]') !== null,
-            // Verificar si no hay menús de usuario autenticado
-            document.querySelector('.dropdown-menu a[href*="/my"]') === null,
-            // Verificar URL patterns típicos de guest
-            window.location.pathname.includes('/shop/') && !document.querySelector('a[href*="/my/account"]'),
-        ];
-        
-        const guestScore = indicators.filter(Boolean).length;
-        const isGuest = guestScore >= 2; // Si 2 o más indicadores sugieren guest
-        
-        console.log('[BIAGIOLI] Guest detection score:', guestScore, '/', indicators.length);
-        return isGuest;
-    },
-
-    /**
-     * Crea información de debug dinámicamente (sin template XML)
-     */
-    _createDebugInfo: function () {
-        console.log('[BIAGIOLI] Creating debug info for guest user');
-        
-        // Crear debug banner
-        const debugDiv = document.createElement('div');
-        debugDiv.className = 'alert alert-warning biagioli-debug mt-3';
-        debugDiv.style.cssText = 'margin: 15px; border-left: 4px solid #ffc107;';
-        
-        // Obtener información básica
-        const urlInfo = window.location.href;
-        const userAgent = navigator.userAgent.substring(0, 50) + '...';
-        const timestamp = new Date().toLocaleString();
-        
-        debugDiv.innerHTML = `
-            <strong>🔧 BIAGIOLI DEBUG (Modo Guest)</strong><br/>
-            <small style="font-family: monospace;">
-                URL: ${urlInfo}<br/>
-                Timestamp: ${timestamp}<br/>
-                User Agent: ${userAgent}<br/>
-                Local Storage available: ${typeof(Storage) !== "undefined"}<br/>
-                Session Storage available: ${typeof(sessionStorage) !== "undefined"}
-            </small>
-            <button type="button" class="btn-close float-end" onclick="this.parentElement.remove()"></button>
-        `;
-        
-        // Insertar al inicio del body o container principal
-        const insertTarget = document.querySelector('.container') || 
-                           document.querySelector('#wrap') || 
-                           document.body;
-        
-        if (insertTarget) {
-            insertTarget.insertBefore(debugDiv, insertTarget.firstChild);
-            console.log('[BIAGIOLI] Debug info banner created');
-        }
-    },
-
-    /**
-     * Agrega atributos de debug a elementos dinámicamente
-     */
-    _addDebugAttributes: function () {
-        // Agregar clase CSS principal
-        const mainWrap = document.querySelector('#wrap') || document.body;
-        if (mainWrap) {
-            mainWrap.classList.add('biagioli-checkout-page');
-        }
-        
-        // Agregar atributos a todos los formularios
-        const forms = document.querySelectorAll('form');
-        forms.forEach((form, index) => {
-            form.setAttribute('data-biagioli-debug', 'true');
-            form.setAttribute('data-user-guest', 'true');
-            form.setAttribute('data-form-index', index);
-            console.log('[BIAGIOLI] Debug attributes added to form', index);
-        });
-        
-        // Agregar atributos a botones de submit
-        const submitBtns = document.querySelectorAll('button[type="submit"], button.btn-primary, #save_address');
-        submitBtns.forEach((btn, index) => {
-            btn.setAttribute('data-biagioli-submit', 'guest-checkout');
-            btn.setAttribute('data-btn-index', index);
-            console.log('[BIAGIOLI] Debug attributes added to button', index);
-        });
-        
-        // Agregar info de debugging a campos requeridos
-        const requiredFields = document.querySelectorAll('input[required], select[required]');
-        requiredFields.forEach((field, index) => {
-            field.setAttribute('data-biagioli-required', 'true');
-            field.setAttribute('data-field-index', index);
-        });
-        
-        console.log('[BIAGIOLI] Debug attributes added to:', {
-            forms: forms.length,
-            buttons: submitBtns.length,
-            requiredFields: requiredFields.length
-        });
-    },
-
-    /**
-     * Protege las llamadas a querySelector que pueden fallar
+     * Protección defensiva para querySelector
      */
     _protectQuerySelectors: function () {
-        // Wrapper defensivo para querySelector
         const originalQS = document.querySelector;
         const originalQSA = document.querySelectorAll;
         
@@ -178,7 +57,7 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
             try {
                 return originalQS.call(this, selector);
             } catch (e) {
-                console.warn('[BIAGIOLI] querySelector protected:', selector, e);
+                // Silencioso en producción
                 return null;
             }
         };
@@ -187,28 +66,24 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
             try {
                 return originalQSA.call(this, selector);
             } catch (e) {
-                console.warn('[BIAGIOLI] querySelectorAll protected:', selector, e);
+                // Silencioso en producción
                 return [];
             }
         };
     },
 
     /**
-     * Mejora la validación del formulario de address
+     * Validación mejorada de formularios
      */
     _enhanceFormValidation: function () {
         const addressForm = document.querySelector('form[action*="/shop/address/submit"]');
         if (!addressForm) return;
 
-        console.log('[BIAGIOLI] Enhanced form validation applied');
-        
-        // Agregar indicadores visuales de validación
         const requiredFields = addressForm.querySelectorAll('input[required], select[required]');
         
         requiredFields.forEach(field => {
             if (!field) return;
             
-            // Validación en tiempo real
             field.addEventListener('input', () => {
                 this._validateField(field);
             });
@@ -220,152 +95,77 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
     },
 
     /**
-     * Protege el código del módulo motorcycle frontend
+     * Protección para motorcycle frontend
      */
     _protectMotorcycleFrontend: function () {
-        // Envolver funciones potencialmente problemáticas
-        if (window.sh_motorcycle) {
-            const originalFunctions = {};
-            
-            // Proteger funciones comunes que podrían fallar
-            ['get_type_list', 'get_make_list', 'get_model_list', 'get_year_list'].forEach(funcName => {
-                if (typeof window.sh_motorcycle[funcName] === 'function') {
-                    originalFunctions[funcName] = window.sh_motorcycle[funcName];
-                    
-                    window.sh_motorcycle[funcName] = function(...args) {
-                        try {
-                            return originalFunctions[funcName].apply(this, args);
-                        } catch (e) {
-                            console.warn(`[BIAGIOLI] Protected sh_motorcycle.${funcName}:`, e);
-                            return []; // Return empty array as fallback
-                        }
-                    };
-                }
-            });
-        }
-    },
+        if (!window.sh_motorcycle) return;
 
-    /**
-     * Debugging específico para usuarios guest
-     */
-    _initGuestDebugging: function () {
-        console.log('[BIAGIOLI] =================================');
-        console.log('[BIAGIOLI] GUEST DEBUGGING ACTIVATED');
-        console.log('[BIAGIOLI] =================================');
+        const protectedFunctions = ['get_type_list', 'get_make_list', 'get_model_list', 'get_year_list'];
         
-        // Log info del DOM
-        const form = document.querySelector('form[data-biagioli-debug]');
-        const submitBtn = document.querySelector('[data-biagioli-submit]');
-        const requiredFields = document.querySelectorAll('input[required], select[required]');
-        
-        console.log('[BIAGIOLI] Form found:', !!form);
-        console.log('[BIAGIOLI] Submit button found:', !!submitBtn);
-        console.log('[BIAGIOLI] Required fields count:', requiredFields.length);
-        
-        // Log info de motorcycle
-        console.log('[BIAGIOLI] sh_motorcycle available:', typeof window.sh_motorcycle !== 'undefined');
-        
-        // Log errores de JS si existen
-        window.addEventListener('error', (e) => {
-            console.error('[BIAGIOLI] JavaScript Error Detected:', {
-                message: e.message,
-                filename: e.filename,
-                lineno: e.lineno,
-                colno: e.colno,
-                error: e.error
-            });
+        protectedFunctions.forEach(funcName => {
+            if (typeof window.sh_motorcycle[funcName] === 'function') {
+                const originalFunc = window.sh_motorcycle[funcName];
+                
+                window.sh_motorcycle[funcName] = function(...args) {
+                    try {
+                        return originalFunc.apply(this, args);
+                    } catch (e) {
+                        // Retorno seguro en caso de error
+                        return [];
+                    }
+                };
+            }
         });
-        
-        // Log problemas de querySelector
-        const originalQS = document.querySelector;
-        document.querySelector = function(selector) {
-            try {
-                const result = originalQS.call(this, selector);
-                if (!result && selector.includes('motorcycle')) {
-                    console.warn('[BIAGIOLI] Motorcycle selector not found:', selector);
-                }
-                return result;
-            } catch (e) {
-                console.error('[BIAGIOLI] querySelector error for:', selector, e);
-                return null;
-            }
-        };
-        
-        // Mostrar banner de debugging
-        this._showGuestDebugBanner();
     },
 
     /**
-     * Muestra banner de debugging para guest users
+     * Manejo de errores en URL parameters
      */
-    _showGuestDebugBanner: function () {
-        const banner = document.createElement('div');
-        banner.className = 'biagioli-debug-banner';
-        banner.innerHTML = '🔧 BIAGIOLI DEBUG MODE - Guest Checkout Testing Active';
-        document.body.appendChild(banner);
-        
-        // Auto-remover después de 10 segundos con fade out
-        setTimeout(() => {
-            if (banner && banner.parentNode) {
-                banner.classList.add('fade-out');
-                setTimeout(() => {
-                    banner.remove();
-                }, 500);
-            }
-        }, 10000);
-    },
     _handleUrlErrors: function () {
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
         
-        if (error) {
-            let message = '';
-            
-            switch (error) {
-                case 'address_error':
-                    message = 'Hubo un problema cargando el formulario de dirección. Por favor, intenta nuevamente.';
-                    break;
-                case 'submit_validation':
-                    message = 'Error de validación en el formulario. Verifica que todos los campos estén completos.';
-                    break;
-                case 'submit_required_fields':
-                    message = 'Faltan campos obligatorios. Por favor, completa toda la información requerida.';
-                    break;
-                case 'checkout_failed':
-                    message = 'Error en el proceso de checkout. Por favor, revisa tu carrito e intenta nuevamente.';
-                    break;
-                default:
-                    if (error.startsWith('missing_fields=')) {
-                        const fields = error.replace('missing_fields=', '').split(',');
-                        message = `Faltan los siguientes campos: ${fields.join(', ')}`;
-                    } else {
-                        message = 'Ha ocurrido un error. Por favor, intenta nuevamente.';
-                    }
-            }
-            
-            if (message) {
-                this._showErrorMessage(message);
-            }
+        if (!error) return;
+
+        let message = '';
+        
+        switch (error) {
+            case 'address_error':
+                message = 'Hubo un problema cargando el formulario. Por favor, intenta nuevamente.';
+                break;
+            case 'validation':
+                message = 'Por favor, verifica que todos los campos estén completos.';
+                break;
+            case 'submit_failed':
+                message = 'Error al procesar el formulario. Intenta nuevamente.';
+                break;
+            default:
+                if (error.startsWith('missing=')) {
+                    const fields = error.replace('missing=', '').split(',');
+                    message = `Faltan campos obligatorios: ${fields.join(', ')}`;
+                }
+        }
+        
+        if (message) {
+            this._showErrorMessage(message);
         }
     },
 
     /**
-     * Valida un campo individual
+     * Validación individual de campos
      */
     _validateField: function (field) {
         if (!field) return;
 
         const isValid = field.checkValidity() && field.value.trim() !== '';
         
-        // Remover clases anteriores
         field.classList.remove('is-valid', 'is-invalid');
         
-        // Agregar clase apropiada
         if (field.value.trim() !== '') {
             field.classList.add(isValid ? 'is-valid' : 'is-invalid');
         }
         
-        // Manejar mensaje de error
+        // Manejo de mensaje de error
         const errorElement = field.parentNode.querySelector('.invalid-feedback');
         if (!isValid && field.value.trim() !== '') {
             if (!errorElement) {
@@ -380,15 +180,12 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
     },
 
     /**
-     * Maneja el submit del formulario de address
+     * Validación en submit del formulario
      */
     _onAddressFormSubmit: function (ev) {
-        console.log('[BIAGIOLI] Address form submit intercepted');
-        
         const form = ev.currentTarget;
         if (!form) return;
 
-        // Validación defensiva antes del submit
         const requiredFields = form.querySelectorAll('input[required], select[required]');
         let isValid = true;
         let firstInvalidField = null;
@@ -414,37 +211,27 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
                 firstInvalidField.focus();
             }
             
-            this._showErrorMessage('Por favor, completa todos los campos obligatorios antes de continuar.');
+            this._showErrorMessage('Por favor, completa todos los campos obligatorios.');
             return false;
         }
-
-        console.log('[BIAGIOLI] Form validation passed, allowing submit');
     },
 
     /**
-     * Maneja el click en el botón de guardar dirección
-     */
-    _onSaveAddressClick: function (ev) {
-        console.log('[BIAGIOLI] Save address clicked');
-        // El manejo se hace en _onAddressFormSubmit
-    },
-
-    /**
-     * Maneja blur en campos requeridos
+     * Validación en blur de campos requeridos
      */
     _onRequiredFieldBlur: function (ev) {
         this._validateField(ev.currentTarget);
     },
 
     /**
-     * Muestra un mensaje de error al usuario
+     * Mostrar mensaje de error (versión mínima para producción)
      */
     _showErrorMessage: function (message) {
         // Remover mensajes existentes
         const existingAlerts = document.querySelectorAll('.biagioli-error-alert');
         existingAlerts.forEach(alert => alert.remove());
 
-        // Crear nuevo mensaje
+        // Crear mensaje mínimo
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert alert-warning alert-dismissible fade show biagioli-error-alert mt-3';
         alertDiv.innerHTML = `
@@ -452,61 +239,22 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
 
-        // Insertar en el contenedor principal
+        // Insertar en contenedor principal
         const container = document.querySelector('.container-fluid') || 
                          document.querySelector('.container') || 
                          document.querySelector('#wrap');
         
         if (container) {
             container.insertBefore(alertDiv, container.firstElementChild);
-            
-            // Scroll al mensaje
-            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // Auto-remover después de 8 segundos
+        // Auto-remover después de 5 segundos
         setTimeout(() => {
             if (alertDiv && alertDiv.parentNode) {
                 alertDiv.remove();
             }
-        }, 8000);
+        }, 5000);
     },
 });
 
-// Funciones de debugging globales para testing en consola
-window.BiagioliDebug = {
-    checkElements: function() {
-        console.log('=== BIAGIOLI ELEMENT CHECK ===');
-        console.log('Form:', document.querySelector('form[data-biagioli-debug]'));
-        console.log('Submit button:', document.querySelector('[data-biagioli-submit]'));
-        console.log('Required fields:', document.querySelectorAll('input[required], select[required]').length);
-        console.log('Motorcycle available:', typeof window.sh_motorcycle !== 'undefined');
-    },
-    
-    triggerSubmit: function() {
-        const form = document.querySelector('form[data-biagioli-debug]');
-        if (form) {
-            console.log('[BIAGIOLI] Triggering form submit');
-            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-        } else {
-            console.error('[BIAGIOLI] Form not found');
-        }
-    },
-    
-    showFormData: function() {
-        const form = document.querySelector('form[data-biagioli-debug]');
-        if (form) {
-            const formData = new FormData(form);
-            console.log('=== FORM DATA ===');
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
-        }
-    }
-};
-
-// Export del widget para debugging
-window.BiagioliGuestCheckoutFix = publicWidget.registry.BiagioliGuestCheckoutFix;
-
-console.log('[BIAGIOLI] Guest checkout fix script loaded');
-console.log('[BIAGIOLI] Debug functions available: window.BiagioliDebug');
+// No exportar funciones de debug en producción
