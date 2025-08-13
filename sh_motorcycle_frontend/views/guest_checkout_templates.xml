@@ -4,8 +4,8 @@
     
     <!-- Template mínimo para debug info - visible para usuarios públicos -->
     <template id="address_guest_debug" inherit_id="website_sale.address" name="Biagioli Guest Debug">
-        <!-- Agregar información de debugging para usuarios guest/públicos -->
-        <xpath expr="//form[@class='s_website_form']" position="before">
+        <!-- Agregar información de debugging usando un XPath más simple -->
+        <xpath expr="//div[@class='container']" position="inside">
             <t t-if="biagioli_guest_debug and user_is_guest">
                 <div class="alert alert-warning biagioli-debug mt-3">
                     <strong>🔧 BIAGIOLI DEBUG (Modo Guest):</strong><br/>
@@ -28,13 +28,13 @@
             <attribute name="class" add="biagioli-checkout-page" separator=" "/>
         </xpath>
         
-        <!-- Agregar atributos para debugging en el formulario -->
-        <xpath expr="//form[@class='s_website_form']" position="attributes">
+        <!-- Agregar atributos para debugging en cualquier formulario -->
+        <xpath expr="//form" position="attributes">
             <attribute name="data-biagioli-debug">true</attribute>
             <attribute name="data-user-guest" t-att-data-user-guest="user_is_guest"/>
         </xpath>
         
-        <!-- Agregar debug al botón de submit -->
+        <!-- Agregar debug al botón de submit usando ID más específico -->
         <xpath expr="//button[@id='save_address']" position="attributes">
             <attribute name="data-biagioli-submit">guest-checkout</attribute>
         </xpath>
