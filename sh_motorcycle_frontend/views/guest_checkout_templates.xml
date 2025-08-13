@@ -4,10 +4,10 @@
     
     <!-- Template mínimo para debug info - visible para usuarios públicos -->
     <template id="address_guest_debug" inherit_id="website_sale.address" name="Biagioli Guest Debug">
-        <!-- Agregar información de debugging usando un XPath más simple -->
-        <xpath expr="//div[@class='container']" position="inside">
+        <!-- Agregar información de debugging al inicio del template -->
+        <xpath expr="//t[@t-call='website_sale.checkout_layout']" position="inside">
             <t t-if="biagioli_guest_debug and user_is_guest">
-                <div class="alert alert-warning biagioli-debug mt-3">
+                <div class="alert alert-warning biagioli-debug mt-3 mx-3">
                     <strong>🔧 BIAGIOLI DEBUG (Modo Guest):</strong><br/>
                     <small>
                         Usuario: <span t-esc="request.env.user.name"/><br/>
@@ -23,21 +23,24 @@
 
     <!-- Debug adicional para el formulario -->
     <template id="address_form_debug" inherit_id="website_sale.address" name="Biagioli Form Debug">
-        <!-- Agregar clase CSS para checkout page -->
-        <xpath expr="//div[@id='wrap']" position="attributes">
-            <attribute name="class" add="biagioli-checkout-page" separator=" "/>
+        <!-- Agregar clase CSS para checkout page al elemento raíz -->
+        <xpath expr="//t[@t-call='website_sale.checkout_layout']" position="attributes">
+            <attribute name="t-set" add="additional_classes" separator=" "/>
+            <attribute name="t-value" add="biagioli-checkout-page" separator=" "/>
         </xpath>
         
-        <!-- Agregar atributos para debugging en cualquier formulario -->
+        <!-- Buscar cualquier formulario y agregar atributos de debug -->
         <xpath expr="//form" position="attributes">
             <attribute name="data-biagioli-debug">true</attribute>
             <attribute name="data-user-guest" t-att-data-user-guest="user_is_guest"/>
         </xpath>
         
-        <!-- Agregar debug al botón de submit usando ID más específico -->
-        <xpath expr="//button[@id='save_address']" position="attributes">
+        <!-- Buscar el botón de submit por su texto o clase común -->
+        <xpath expr="//button[contains(@class, 'btn-primary')]" position="attributes">
             <attribute name="data-biagioli-submit">guest-checkout</attribute>
         </xpath>
     </template>
+
+</odoo>
 
 </odoo>
