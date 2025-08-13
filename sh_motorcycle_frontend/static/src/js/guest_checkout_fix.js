@@ -35,7 +35,7 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
         }
 
         // Verificar si estamos en modo guest
-        const isGuest = document.querySelector('[data-user-guest="True"]') !== null;
+        const isGuest = this._isGuestUser();
         
         console.log('[BIAGIOLI] Initializing guest checkout fixes');
         console.log('[BIAGIOLI] User is guest:', isGuest);
@@ -54,10 +54,116 @@ publicWidget.registry.BiagioliGuestCheckoutFix = publicWidget.Widget.extend({
         // Fix 4: Mostrar mensajes de error URL params
         this._handleUrlErrors();
         
-        // Fix 5: Debug específico para guest users
+        // Fix 5: Debug específico para guest users (ahora sin depender de template)
         if (isGuest) {
             this._initGuestDebugging();
+            this._createDebugInfo();
         }
+        
+        // Fix 6: Agregar atributos a elementos dinámicamente
+        this._addDebugAttributes();
+    },
+
+    /**
+     * Detecta si el usuario es guest sin depender del template
+     */
+    _isGuestUser: function () {
+        // Múltiples formas de detectar usuario guest
+        const indicators = [
+            // Verificar si hay elementos de login en la página
+            document.querySelector('.fa-sign-in') !== null,
+            document.querySelector('a[href*="/web/login"]') !== null,
+            // Verificar si no hay menús de usuario autenticado
+            document.querySelector('.dropdown-menu a[href*="/my"]') === null,
+            // Verificar URL patterns típicos de guest
+            window.location.pathname.includes('/shop/') && !document.querySelector('a[href*="/my/account"]'),
+        ];
+        
+        const guestScore = indicators.filter(Boolean).length;
+        const isGuest = guestScore >= 2; // Si 2 o más indicadores sugieren guest
+        
+        console.log('[BIAGIOLI] Guest detection score:', guestScore, '/', indicators.length);
+        return isGuest;
+    },
+
+    /**
+     * Crea información de debug dinámicamente (sin template XML)
+     */
+    _createDebugInfo: function () {
+        console.log('[BIAGIOLI] Creating debug info for guest user');
+        
+        // Crear debug banner
+        const debugDiv = document.createElement('div');
+        debugDiv.className = 'alert alert-warning biagioli-debug mt-3';
+        debugDiv.style.cssText = 'margin: 15px; border-left: 4px solid #ffc107;';
+        
+        // Obtener información básica
+        const urlInfo = window.location.href;
+        const userAgent = navigator.userAgent.substring(0, 50) + '...';
+        const timestamp = new Date().toLocaleString();
+        
+        debugDiv.innerHTML = `
+            <strong>🔧 BIAGIOLI DEBUG (Modo Guest)</strong><br/>
+            <small style="font-family: monospace;">
+                URL: ${urlInfo}<br/>
+                Timestamp: ${timestamp}<br/>
+                User Agent: ${userAgent}<br/>
+                Local Storage available: ${typeof(Storage) !== "undefined"}<br/>
+                Session Storage available: ${typeof(sessionStorage) !== "undefined"}
+            </small>
+            <button type="button" class="btn-close float-end" onclick="this.parentElement.remove()"></button>
+        `;
+        
+        // Insertar al inicio del body o container principal
+        const insertTarget = document.querySelector('.container') || 
+                           document.querySelector('#wrap') || 
+                           document.body;
+        
+        if (insertTarget) {
+            insertTarget.insertBefore(debugDiv, insertTarget.firstChild);
+            console.log('[BIAGIOLI] Debug info banner created');
+        }
+    },
+
+    /**
+     * Agrega atributos de debug a elementos dinámicamente
+     */
+    _addDebugAttributes: function () {
+        // Agregar clase CSS principal
+        const mainWrap = document.querySelector('#wrap') || document.body;
+        if (mainWrap) {
+            mainWrap.classList.add('biagioli-checkout-page');
+        }
+        
+        // Agregar atributos a todos los formularios
+        const forms = document.querySelectorAll('form');
+        forms.forEach((form, index) => {
+            form.setAttribute('data-biagioli-debug', 'true');
+            form.setAttribute('data-user-guest', 'true');
+            form.setAttribute('data-form-index', index);
+            console.log('[BIAGIOLI] Debug attributes added to form', index);
+        });
+        
+        // Agregar atributos a botones de submit
+        const submitBtns = document.querySelectorAll('button[type="submit"], button.btn-primary, #save_address');
+        submitBtns.forEach((btn, index) => {
+            btn.setAttribute('data-biagioli-submit', 'guest-checkout');
+            btn.setAttribute('data-btn-index', index);
+            console.log('[BIAGIOLI] Debug attributes added to button', index);
+        });
+        
+        // Agregar info de debugging a campos requeridos
+        const requiredFields = document.querySelectorAll('input[required], select[required]');
+        requiredFields.forEach((field, index) => {
+            field.setAttribute('data-biagioli-required', 'true');
+            field.setAttribute('data-field-index', index);
+        });
+        
+        console.log('[BIAGIOLI] Debug attributes added to:', {
+            forms: forms.length,
+            buttons: submitBtns.length,
+            requiredFields: requiredFields.length
+        });
     },
 
     /**

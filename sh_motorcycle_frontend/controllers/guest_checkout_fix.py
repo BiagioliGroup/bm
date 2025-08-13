@@ -20,6 +20,7 @@ class BiagioliGuestCheckoutFix(MotorCycleWebsiteSale):
     def shop_address(self, **post):
         """
         Override mínimo para arreglar el problema con usuarios guest
+        Sin depender de templates XML - todo se maneja via JavaScript
         """
         user_name = request.env.user.name
         is_guest = request.env.user._is_public()
@@ -30,14 +31,12 @@ class BiagioliGuestCheckoutFix(MotorCycleWebsiteSale):
             # Llamada al método padre original
             result = super(BiagioliGuestCheckoutFix, self).shop_address(**post)
             
-            # SIEMPRE agregar debug info para usuarios guest (para testing)
-            if hasattr(result, 'qcontext') and is_guest:
-                result.qcontext.update({
-                    'biagioli_guest_debug': True,  # Siempre True para guest users
-                    'user_is_guest': True,
-                })
-                _logger.info("[🔧 BIAGIOLI] Guest debug context added - Order: %s", 
-                           result.qcontext.get('order', {}).get('id', 'No Order'))
+            # Agregar datos en el contexto pero SIN depender de template XML
+            if hasattr(result, 'qcontext'):
+                # Solo log, no agregar variables que dependan de template
+                order_info = result.qcontext.get('order', {})
+                _logger.info("[🔧 BIAGIOLI] Context info - Order: %s, Guest: %s", 
+                           getattr(order_info, 'id', 'No ID'), is_guest)
                 
             return result
             

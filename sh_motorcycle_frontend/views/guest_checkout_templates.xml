@@ -1,43 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Archivo: sh_motorcycle_backend/views/guest_checkout_templates.xml -->
     
-    <!-- Template mínimo para debug info - visible para usuarios públicos -->
-    <template id="address_guest_debug" inherit_id="website_sale.address" name="Biagioli Guest Debug">
-        <!-- Agregar información de debugging al inicio del template -->
-        <xpath expr="//t[@t-call='website_sale.checkout_layout']" position="inside">
-            <t t-if="biagioli_guest_debug and user_is_guest">
-                <div class="alert alert-warning biagioli-debug mt-3 mx-3">
-                    <strong>🔧 BIAGIOLI DEBUG (Modo Guest):</strong><br/>
-                    <small>
-                        Usuario: <span t-esc="request.env.user.name"/><br/>
-                        Es Guest: <span t-esc="user_is_guest"/><br/>
-                        Order ID: <span t-esc="order.id if order else 'Sin orden'"/><br/>
-                        Partner: <span t-esc="order.partner_id.name if order and order.partner_id else 'Sin partner'"/><br/>
-                        URL: <span t-esc="request.httprequest.url"/>
-                    </small>
-                </div>
-            </t>
-        </xpath>
-    </template>
-
-    <!-- Debug adicional para el formulario -->
-    <template id="address_form_debug" inherit_id="website_sale.address" name="Biagioli Form Debug">
-        <!-- Agregar clase CSS para checkout page al elemento raíz -->
-        <xpath expr="//t[@t-call='website_sale.checkout_layout']" position="attributes">
-            <attribute name="t-set" add="additional_classes" separator=" "/>
-            <attribute name="t-value" add="biagioli-checkout-page" separator=" "/>
-        </xpath>
-        
-        <!-- Buscar cualquier formulario y agregar atributos de debug -->
-        <xpath expr="//form" position="attributes">
-            <attribute name="data-biagioli-debug">true</attribute>
-            <attribute name="data-user-guest" t-att-data-user-guest="user_is_guest"/>
-        </xpath>
-        
-        <!-- Buscar el botón de submit pr su texto o clase común -->
-        <xpath expr="//button[contains(@class, 'btn-primary')]" position="attributes">
-            <attribute name="data-biagioli-submit">guest-checkout</attribute>
-        </xpath>
-    </template>
 </odoo>
