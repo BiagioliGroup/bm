@@ -603,7 +603,8 @@ class sh_motorcycle(http.Controller):
     @http.route(['/sh_motorcycle/get_user_mayorista_info'], type='json', auth='public', website=True)
     def get_user_mayorista_info(self):
         """
-        Devuelve información sobre si el usuario es     mayorista
+        Devuelve información sobre si el usuario es mayorista
+        Usa el patrón estándar de Odoo para acceder a pricelists
         """
         if not request.session.uid or request.env.user._is_public():
             return {
@@ -612,18 +613,15 @@ class sh_motorcycle(http.Controller):
                 'show_badge': False,
             }
             
-        user = request.env.user
-        partner = user.partner_id
         website = request.website
         
         is_mayorista = False
         pricelist_name = ''
         
         try:
-            # Usar sudo() para acceder a los datos del partner de manera segura
-            # Solo accedemos a los datos del usuario actual, no de otros usuarios
-            partner_sudo = partner.sudo()
-            pricelist = partner_sudo.property_product_pricelist
+            # Usar el método estándar de Odoo para obtener la pricelist actual
+            # Este método maneja correctamente los permisos
+            pricelist = website._get_current_pricelist()
             
             if pricelist:
                 pricelist_name = pricelist.name
@@ -634,7 +632,7 @@ class sh_motorcycle(http.Controller):
             # Log del error para debugging
             import logging
             _logger = logging.getLogger(__name__)
-            _logger.warning("Error accessing pricelist for user %s: %s", user.id, str(e))
+            _logger.warning("Error accessing current pricelist: %s", str(e))
             
             # Valores por defecto en caso de error
             is_mayorista = False
