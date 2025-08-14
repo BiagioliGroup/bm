@@ -603,7 +603,7 @@ class sh_motorcycle(http.Controller):
     @http.route(['/sh_motorcycle/get_user_mayorista_info'], type='json', auth='public', website=True)
     def get_user_mayorista_info(self):
         """
-        Devuelve información sobre si el usuario es mayorista
+        Devuelve información sobre si el usuario es     mayorista
         """
         if not request.session.uid or request.env.user._is_public():
             return {
@@ -614,16 +614,31 @@ class sh_motorcycle(http.Controller):
             
         user = request.env.user
         partner = user.partner_id
-        pricelist = partner.property_product_pricelist
         website = request.website
         
         is_mayorista = False
         pricelist_name = ''
         
-        if pricelist:
-            pricelist_name = pricelist.name
-            # Verificar si es mayorista (tiene "mayorista" en el nombre de la lista)
-            is_mayorista = 'mayorista' in pricelist.name.lower()
+        try:
+            # Usar sudo() para acceder a los datos del partner de manera segura
+            # Solo accedemos a los datos del usuario actual, no de otros usuarios
+            partner_sudo = partner.sudo()
+            pricelist = partner_sudo.property_product_pricelist
+            
+            if pricelist:
+                pricelist_name = pricelist.name
+                # Verificar si es mayorista (tiene "mayorista" en el nombre de la lista)
+                is_mayorista = 'mayorista' in pricelist.name.lower()
+                
+        except Exception as e:
+            # Log del error para debugging
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.warning("Error accessing pricelist for user %s: %s", user.id, str(e))
+            
+            # Valores por defecto en caso de error
+            is_mayorista = False
+            pricelist_name = ''
         
         return {
             'is_mayorista': is_mayorista,
