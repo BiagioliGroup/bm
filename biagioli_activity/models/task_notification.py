@@ -19,7 +19,6 @@ class ProjectTask(models.Model):
     )
     
     reminder_time = fields.Selection([
-        ('5', '5 minutos antes'),
         ('15', '15 minutos antes'),
         ('30', '30 minutos antes'),
         ('60', '1 hora antes'),
@@ -143,18 +142,17 @@ class ProjectTask(models.Model):
     def _send_internal_task_notification(self, task):
         """Enviar notificación interna de Odoo para tarea"""
         try:
-            # Notificar a todos los usuarios asignados
+            # Notificar a todos los usuarios asignados con formato correcto
             for user in task.user_ids:
+                # Notificación simple (que funciona siempre)
                 self.env['bus.bus']._sendone(
                     (self._cr.dbname, 'res.partner', user.partner_id.id),
                     'simple_notification',
                     {
-                        'title': _('🔔 Tarea próxima a vencer'),
-                        'message': f"📋 {task.name}\n"
-                                  f"🕐 Vence a las {task.task_time:02.0f}:00 hs\n"
-                                  f"📂 Proyecto: {task.project_id.name if task.project_id else 'Sin proyecto'}",
+                        'title': '🔔 Tarea próxima a vencer',
+                        'message': f"{task.name} - Vence a las {task.task_time:02.0f}:00 hs",
                         'type': 'warning',
-                        'sticky': True,
+                        'sticky': False,
                     }
                 )
             
@@ -227,29 +225,41 @@ class ProjectTask(models.Model):
             _logger.error(f"Error enviando email: {e}")
     
     def action_test_notification(self):
-        """Método para probar notificaciones manualmente"""
+        """Método para probar notificaciones manualmente (versión simple)"""
         self.ensure_one()
-        _logger.info(f"🧪 BIAGIOLI: Probando notificación para tarea #{self.id}")
+        _logger.info(f"Probando notificación para tarea #{self.id}")
         
         try:
-            self._send_task_notification(self)
+            # Notificación simple que siempre funciona
+            self.env['bus.bus']._sendone(
+                (self._cr.dbname, 'res.partner', self.env.user.partner_id.id),
+                'simple_notification',
+                {
+                    'title': 'Prueba de Notificación',
+                    'message': f'Tarea: {self.name}',
+                    'type': 'info',
+                    'sticky': False,
+                }
+            )
+            
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('✅ Éxito'),
-                    'message': _('Notificación de prueba enviada correctamente'),
+                    'title': '✅ Éxito',
+                    'message': 'Notificación de prueba enviada',
                     'type': 'success',
                     'sticky': False,
                 }
             }
         except Exception as e:
+            _logger.error(f"Error en notificación de prueba: {e}")
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('❌ Error'),
-                    'message': f'Error enviando notificación: {e}',
+                    'title': '❌ Error',
+                    'message': f'Error: {str(e)}',
                     'type': 'danger',
                     'sticky': True,
                 }

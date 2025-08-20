@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- No necesitamos grupos adicionales, usamos los existentes de project -->
+    <data noupdate="0">
+        
+        <!-- Categoria de módulo -->
+        <record id="module_category_biagioli_activity" model="ir.module.category">
+            <field name="name">Biagioli Activity</field>
+            <field name="description">Gestión de actividades y proyectos</field>
+            <field name="sequence">10</field>
+        </record>
+        
+        <!-- Grupo de usuarios -->
+        <record id="group_activity_user" model="res.groups">
+            <field name="name">Usuario de Actividades</field>
+            <field name="category_id" ref="module_category_biagioli_activity"/>
+            <field name="comment">Puede crear y gestionar actividades con proyectos</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        
+        <!-- Grupo de administradores -->
+        <record id="group_activity_manager" model="res.groups">
+            <field name="name">Administrador de Actividades</field>
+            <field name="category_id" ref="module_category_biagioli_activity"/>
+            <field name="comment">Administración completa del módulo de actividades</field>
+            <field name="implied_ids" eval="[(4, ref('group_activity_user')), (4, ref('project.group_project_manager'))]"/>
+        </record>
+        
+    </data>
 </odoo>
