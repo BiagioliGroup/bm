@@ -102,7 +102,8 @@ class ScheduleActivityWizard(models.TransientModel):
             activity_vals['project_id'] = self.project_id.id
             
         activity = self.env['mail.activity'].sudo().create(activity_vals)
-        
+        self._send_push_notification(activity)
+
         # Mensaje de éxito
         message = _('✅ Actividad programada correctamente')
         if self.project_id and hasattr(activity, 'linked_task_id') and activity.linked_task_id:
@@ -119,3 +120,34 @@ class ScheduleActivityWizard(models.TransientModel):
                 'sticky': False,
             }
         }
+    
+    def _send_push_notification(self, activity):
+        """Enviar notificación push específica"""
+        try:
+            # Crear notificación en la bandeja de entrada del usuario
+            self.env['mail.message'].create({
+                'message_type': 'notification',
+                'body': f'Nueva actividad programada: {activity.summary}',
+                'subject': 'Actividad programada',
+                'author_id': self.env.user.partner_id.id,
+                'partner_ids': [(4, activity.user_id.partner_id.id)],
+                'needaction': True,
+            })
+            
+            # Forzar notificación específica
+            notification_values = {
+                'title': 'Actividad Programada',
+                'message': f'{activity.summary} - {activity.date_deadline}',
+                'type': 'success',
+                'sticky': False,
+            }
+            
+            # Enviar notificación al usuario asignado
+            self.env['bus.bus']._sendone(
+                f'res.partner_{activity.user_id.partner_id.id}',
+                'simple_notification',
+                notification_values
+            )
+            
+        except Exception as e:
+            _logger.warning(f"Error enviando notificación push: {e}")
