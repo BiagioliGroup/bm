@@ -93,4 +93,20 @@
         <field name="binding_model_id" ref="mail.model_mail_activity"/>
         <field name="binding_type">action</field>
     </record>
+
+    <!-- Acción para abrir el wizard desde menú -->
+    <record id="action_open_schedule_wizard" model="ir.actions.act_window">
+        <field name="name">Programar Actividad con Proyecto</field>
+        <field name="res_model">schedule.activity.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'active_model': 'project.task', 'active_ids': []}</field>
+    </record>
+
+    <!-- Menú para probar el wizard -->
+    <menuitem id="menu_test_schedule_wizard"
+            name="Test Wizard Actividades"
+            parent="project.menu_main_pm"
+            action="action_open_schedule_wizard"
+            sequence="50"/>
 </odoo>

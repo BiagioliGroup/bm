@@ -6,13 +6,12 @@
         <field name="model">project.task</field>
         <field name="inherit_id" ref="project.view_task_form2"/>
         <field name="arch" type="xml">
-            <!-- Agregar pestaña de información de origen -->
+            <!-- Agregar pestaña de información de origen - SIEMPRE VISIBLE para debug -->
             <xpath expr="//notebook" position="inside">
-                <page string="Información de Origen" 
-                      invisible="not is_from_activity">
+                <page string="📋 Info Actividad" name="activity_info">
                     <group>
                         <group string="Origen de Actividad">
-                            <field name="is_from_activity" invisible="1"/>
+                            <field name="is_from_activity"/>
                             <field name="activity_id" readonly="1"/>
                             <field name="resource_model" readonly="1"/>
                             <field name="resource_id" readonly="1"/>
@@ -28,6 +27,8 @@
                     </group>
                 </page>
             </xpath>
+        </field>
+    </record>
             
             <!-- Agregar indicador en el header -->
             <xpath expr="//div[@name='button_box']" position="inside">
