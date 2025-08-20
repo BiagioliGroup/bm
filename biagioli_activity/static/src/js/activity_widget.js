@@ -90,7 +90,7 @@ patch(ActivityMenuView.prototype, {
  */
 registry.category("quick_create").add("project_todo_quick_create", {
   Component: class TodoQuickCreate {
-    static template = "schedule_activity_project_integration.TodoQuickCreate";
+    static template = "biagioli_activity.TodoQuickCreate";
 
     setup() {
       this.orm = useService("orm");
@@ -125,8 +125,7 @@ registry.category("quick_create").add("project_todo_quick_create", {
  */
 registry.category("fields").add("activity_project_status", {
   component: class ActivityProjectStatus {
-    static template =
-      "schedule_activity_project_integration.ActivityProjectStatus";
+    static template = "biagioli_activity.ActivityProjectStatus";
 
     get statusInfo() {
       const record = this.props.record;

@@ -50,41 +50,6 @@
         </field>
     </record>
     
-    <!-- Vista kanban para actividades con indicador de proyecto -->
-    <record id="view_mail_activity_kanban_inherit" model="ir.ui.view">
-        <field name="name">mail.activity.kanban.inherit.project</field>
-        <field name="model">mail.activity</field>
-        <field name="inherit_id" ref="mail.mail_activity_view_kanban"/>
-        <field name="arch" type="xml">
-            <!-- Agregar campos necesarios -->
-            <xpath expr="//kanban" position="inside">
-                <field name="project_id"/>
-                <field name="linked_task_id"/>
-                <field name="linked_todo_id"/>
-            </xpath>
-            
-            <!-- Agregar indicador visual en las tarjetas -->
-            <xpath expr="//div[hasclass('oe_kanban_content')]" position="inside">
-                <div class="o_kanban_record_bottom">
-                    <div class="oe_kanban_bottom_left">
-                        <span invisible="not project_id" 
-                              class="badge text-bg-primary">
-                            <i class="fa fa-folder"/> <field name="project_id"/>
-                        </span>
-                        <span invisible="not linked_task_id" 
-                              class="badge text-bg-success">
-                            <i class="fa fa-tasks"/> Task
-                        </span>
-                        <span invisible="not linked_todo_id" 
-                              class="badge text-bg-info">
-                            <i class="fa fa-check-square-o"/> To-Do
-                        </span>
-                    </div>
-                </div>
-            </xpath>
-        </field>
-    </record>
-    
     <!-- Acción para ver actividades con proyectos -->
     <record id="action_mail_activity_with_project" model="ir.actions.act_window">
         <field name="name">Actividades con Proyectos</field>
