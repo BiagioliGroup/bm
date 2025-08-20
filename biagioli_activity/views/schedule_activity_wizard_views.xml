@@ -62,11 +62,4 @@
         <field name="binding_model_id" ref="mail.model_mail_activity"/>
         <field name="binding_type">action</field>
     </record>
-    
-    <!-- Menú de prueba -->
-    <menuitem id="menu_test_wizard"
-              name="🧪 Test Wizard Actividades"
-              parent="project.menu_main_pm"
-              action="action_schedule_activity_wizard"
-              sequence="99"/>
 </odoo>
