@@ -19,6 +19,7 @@ class ProjectTask(models.Model):
     )
     
     reminder_time = fields.Selection([
+        ('5', '5 minutos antes'),
         ('15', '15 minutos antes'),
         ('30', '30 minutos antes'),
         ('60', '1 hora antes'),
