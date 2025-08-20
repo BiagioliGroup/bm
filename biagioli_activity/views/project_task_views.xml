@@ -34,18 +34,6 @@
                     <group>
                         <field name="is_from_activity" invisible="1"/>
                         <field name="activity_id" readonly="1"/>
-                        
-                        <!-- Información adicional sobre el origen -->
-                        <group string="Detalles del Origen" invisible="not activity_id">
-                            <field name="activity_id" invisible="1"/>
-                            <!-- Estos campos se muestran mediante related -->
-                            <label for="source_document_info"/>
-                            <div name="source_document_info">
-                                <field name="source_document_model" readonly="1" nolabel="1"/>
-                                <span> - ID: </span>
-                                <field name="source_document_id" readonly="1" nolabel="1"/>
-                            </div>
-                        </group>
                     </group>
                 </page>
             </xpath>
