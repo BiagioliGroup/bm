@@ -2,6 +2,9 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ScheduleActivityWizard(models.TransientModel):
@@ -59,12 +62,19 @@ class ScheduleActivityWizard(models.TransientModel):
     def action_schedule(self):
         """Programar la actividad"""
         self.ensure_one()
+        _logger.info("🟪 BIAGIOLI WIZARD: Iniciando action_schedule()")
         
         # Obtener contexto
         active_model = self._context.get('active_model') or self._context.get('default_res_model')
         active_id = self._context.get('active_id') or self._context.get('default_res_id')
         
+        _logger.info(f"🟪 BIAGIOLI WIZARD: active_model: {active_model}")
+        _logger.info(f"🟪 BIAGIOLI WIZARD: active_id: {active_id}")
+        _logger.info(f"🟪 BIAGIOLI WIZARD: project_id: {self.project_id}")
+        _logger.info(f"🟪 BIAGIOLI WIZARD: project_id.id: {self.project_id.id if self.project_id else None}")
+        
         if not active_model or not active_id:
+            _logger.error("🟪 BIAGIOLI WIZARD: No se puede determinar el registro activo")
             raise UserError(_('No se puede determinar el registro activo'))
         
         # Crear la actividad
@@ -79,7 +89,16 @@ class ScheduleActivityWizard(models.TransientModel):
             'project_id': self.project_id.id if self.project_id else False,
         }
         
+        _logger.info(f"🟪 BIAGIOLI WIZARD: activity_vals: {activity_vals}")
+        
         activity = self.env['mail.activity'].create(activity_vals)
+        _logger.info(f"🟪 BIAGIOLI WIZARD: Actividad creada con ID: {activity.id}")
+        
+        # Verificar inmediatamente si se creó la tarea
+        if activity.linked_task_id:
+            _logger.info(f"🟪 BIAGIOLI WIZARD: ¡Tarea creada! ID: {activity.linked_task_id.id}")
+        else:
+            _logger.warning(f"🟪 BIAGIOLI WIZARD: No se creó tarea para actividad #{activity.id}")
         
         # Mensaje de confirmación
         if activity.linked_task_id:
@@ -89,6 +108,8 @@ class ScheduleActivityWizard(models.TransientModel):
             )
         else:
             message = _('✅ Actividad programada correctamente')
+        
+        _logger.info(f"🟪 BIAGIOLI WIZARD: Mensaje final: {message}")
         
         # Notificación
         return {
@@ -102,20 +123,3 @@ class ScheduleActivityWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
-    
-    def action_schedule_and_close(self):
-        """Programar y cerrar el wizard"""
-        self.action_schedule_activity()
-        return {'type': 'ir.actions.act_window_close'}
-    
-    def action_schedule_done_and_close(self):
-        """Programar, marcar como hecho y cerrar"""
-        self.action_type = 'schedule_done'
-        self.action_schedule_activity()
-        return {'type': 'ir.actions.act_window_close'}
-    
-    def action_done_schedule_next_and_close(self):
-        """Completar, programar siguiente y cerrar"""
-        self.action_type = 'done_schedule_next'
-        self.action_schedule_activity()
-        return {'type': 'ir.actions.act_window_close'}
