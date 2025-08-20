@@ -102,7 +102,9 @@ class ScheduleActivityWizard(models.TransientModel):
             activity_vals['project_id'] = self.project_id.id
             
         activity = self.env['mail.activity'].sudo().create(activity_vals)
-        self._send_push_notification(activity)
+        
+        # Forzar notificación móvil
+        self._force_mobile_notification(activity)
 
         # Mensaje de éxito
         message = _('✅ Actividad programada correctamente')
@@ -121,33 +123,59 @@ class ScheduleActivityWizard(models.TransientModel):
             }
         }
     
-    def _send_push_notification(self, activity):
-        """Enviar notificación push específica"""
+    def _force_mobile_notification(self, activity):
+        """Forzar notificación que llegue al móvil"""
         try:
-            # Crear notificación en la bandeja de entrada del usuario
-            self.env['mail.message'].create({
+            # 1. Crear mensaje en bandeja de entrada
+            message_body = f'''
+                <div style="padding: 12px; background: #e7f5ff; border-left: 4px solid #007bff; border-radius: 4px; margin: 8px 0;">
+                    <h4 style="margin: 0 0 8px 0; color: #007bff;">🎯 Nueva Actividad Programada</h4>
+                    <p style="margin: 4px 0;"><strong>Actividad:</strong> {activity.summary}</p>
+                    <p style="margin: 4px 0;"><strong>Fecha límite:</strong> {activity.date_deadline}</p>
+                    <p style="margin: 4px 0;"><strong>Asignado a:</strong> {activity.user_id.name}</p>
+                    {f'<p style="margin: 4px 0;"><strong>Proyecto:</strong> {activity.project_id.name}</p>' if activity.project_id else ''}
+                    {f'<p style="margin: 4px 0;"><strong>Tarea creada:</strong> #{activity.linked_task_id.id} - {activity.linked_task_id.name}</p>' if hasattr(activity, 'linked_task_id') and activity.linked_task_id else ''}
+                </div>
+            '''
+            
+            message = self.env['mail.message'].sudo().create({
                 'message_type': 'notification',
-                'body': f'Nueva actividad programada: {activity.summary}',
-                'subject': 'Actividad programada',
+                'body': message_body,
+                'subject': f'📋 Nueva Actividad: {activity.summary}',
                 'author_id': self.env.user.partner_id.id,
                 'partner_ids': [(4, activity.user_id.partner_id.id)],
                 'needaction': True,
+                'model': activity.res_model,
+                'res_id': activity.res_id,
             })
             
-            # Forzar notificación específica
-            notification_values = {
-                'title': 'Actividad Programada',
-                'message': f'{activity.summary} - {activity.date_deadline}',
-                'type': 'success',
-                'sticky': False,
-            }
-            
-            # Enviar notificación al usuario asignado
+            # 2. Enviar por bus para notificación inmediata
+            notification_message = f'{activity.summary}'
+            if activity.project_id:
+                notification_message += f' (Proyecto: {activity.project_id.name})'
+            if hasattr(activity, 'linked_task_id') and activity.linked_task_id:
+                notification_message += f' - Tarea #{activity.linked_task_id.id} creada'
+                
             self.env['bus.bus']._sendone(
                 f'res.partner_{activity.user_id.partner_id.id}',
                 'simple_notification',
-                notification_values
+                {
+                    'title': '🎯 Actividad Programada',
+                    'message': notification_message,
+                    'type': 'success',
+                    'sticky': True,
+                }
             )
             
+            # 3. Log para debug
+            _logger.info(f"📱 Notificación móvil enviada para actividad #{activity.id} a usuario {activity.user_id.name}")
+            
+            # 4. Commit para asegurar que se guarde
+            self.env.cr.commit()
+            
         except Exception as e:
-            _logger.warning(f"Error enviando notificación push: {e}")
+            _logger.warning(f"⚠️ Error enviando notificación móvil: {e}")
+    
+    def _send_push_notification(self, activity):
+        """Método legacy - usar _force_mobile_notification en su lugar"""
+        return self._force_mobile_notification(activity)
