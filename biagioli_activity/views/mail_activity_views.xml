@@ -14,14 +14,9 @@
             </xpath>
             
             <!-- Mostrar tarea vinculada si existe -->
-            <xpath expr="//group" position="after">
+            <xpath expr="//sheet/group[1]" position="after">
                 <group string="Tarea Vinculada" invisible="not linked_task_id">
-                    <field name="linked_task_id" readonly="1"/>
-                    <button name="action_view_task"
-                            type="object"
-                            string="Ver Tarea"
-                            class="btn-link"
-                            icon="fa-external-link"/>
+                    <field name="linked_task_id" readonly="1" nolabel="1"/>
                 </group>
             </xpath>
         </field>
@@ -36,32 +31,8 @@
             <!-- Agregar columna de proyecto -->
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="project_id" optional="show"/>
-                <field name="linked_task_id" optional="show"/>
+                <field name="linked_task_id" optional="hide"/>
             </xpath>
         </field>
     </record>
-    
-    <!-- Acción para ver actividades con proyectos -->
-    <record id="action_mail_activity_with_project" model="ir.actions.act_window">
-        <field name="name">Actividades con Proyectos</field>
-        <field name="res_model">mail.activity</field>
-        <field name="view_mode">list,form,calendar</field>
-        <field name="domain">[('project_id', '!=', False)]</field>
-        <field name="context">{'search_default_my_activities': 1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No hay actividades vinculadas a proyectos todavía
-            </p>
-            <p>
-                Programá actividades y vincularlas a proyectos para crear tareas automáticamente.
-            </p>
-        </field>
-    </record>
-    
-    <!-- Menú para actividades con proyectos -->
-    <menuitem id="menu_mail_activity_with_project"
-              name="Actividades con Proyectos"
-              parent="project.menu_main_pm"
-              action="action_mail_activity_with_project"
-              sequence="15"/>
 </odoo>

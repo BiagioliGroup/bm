@@ -53,11 +53,6 @@ class MailActivity(models.Model):
             'date_deadline': self.date_deadline,
             'description': self.note or '',
             'priority': '1',
-            # Campos de tracking
-            'activity_id': self.id,
-            'resource_model': self.res_model,
-            'resource_id': self.res_id,
-            'resource_name': resource_name,
         }
         
         task = self.env['project.task'].create(task_vals)
