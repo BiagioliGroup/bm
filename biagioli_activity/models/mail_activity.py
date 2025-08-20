@@ -86,19 +86,38 @@ class MailActivity(models.Model):
         # Preparar valores de la tarea - usar summary si existe, sino activity_type
         task_name = self.summary if self.summary else self.activity_type_id.name
         
-        # Usar solo la fecha por ahora (sin hora específica hasta resolver zona horaria)
+        # Combinar fecha y hora para la fecha límite de la tarea
         task_deadline = self.date_deadline
+        if self.deadline_time:
+            from datetime import datetime, time
+            import pytz
+            
+            hours = int(self.deadline_time)
+            minutes = int((self.deadline_time - hours) * 60)
+            
+            # Crear datetime en zona horaria del usuario
+            user_tz = pytz.timezone(self.env.user.tz or 'America/Argentina/Buenos_Aires')
+            
+            # Crear datetime naive
+            naive_datetime = datetime.combine(
+                self.date_deadline,
+                time(hours, minutes)
+            )
+            
+            # Convertir a zona horaria del usuario y luego a UTC para Odoo
+            localized_dt = user_tz.localize(naive_datetime)
+            task_deadline = localized_dt.astimezone(pytz.UTC).replace(tzinfo=None)
         
         task_vals = {
             'name': f"{task_name}: {resource_name}",
             'project_id': self.project_id.id,
             'user_ids': [(4, self.user_id.id)],
-            'date_deadline': task_deadline,
+            'date_deadline': task_deadline,  # Ahora incluye la hora corregida
             'description': f"""
                 <p><b>Actividad origen:</b> {self.activity_type_id.name}</p>
                 <p><b>Resumen:</b> {self.summary or 'Sin resumen'}</p>
                 <p><b>Recurso:</b> {resource_name}</p>
-                <p><b>Hora programada:</b> {self.deadline_time:02.0f}:00 hs</p>
+                <p><b>Fecha límite:</b> {self.date_deadline} a las {self.deadline_time:02.0f}:00</p>
                 <p><b>Notas:</b></p>
                 {self.note or '<p>Sin notas</p>'}
             """,
