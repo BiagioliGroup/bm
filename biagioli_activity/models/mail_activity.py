@@ -41,31 +41,23 @@ class MailActivity(models.Model):
     
     @api.depends('date_deadline', 'deadline_time')
     def _compute_full_deadline(self):
-        """Combinar fecha y hora en un datetime completo (zona horaria del usuario)"""
+        """Combinar fecha y hora en un datetime completo"""
         for activity in self:
             if activity.date_deadline and activity.deadline_time is not False:
                 # Convertir float a horas y minutos
                 hours = int(activity.deadline_time)
                 minutes = int((activity.deadline_time - hours) * 60)
                 
-                # Crear datetime combinando fecha + hora en zona horaria local
+                # Crear datetime combinando fecha + hora (naive datetime)
                 from datetime import datetime, time
-                import pytz
                 
-                # Obtener zona horaria del usuario o usar la del sistema
-                user_tz = pytz.timezone(self.env.user.tz or 'UTC')
-                
-                # Crear datetime naive (sin zona horaria)
-                naive_datetime = datetime.combine(
+                deadline_datetime = datetime.combine(
                     activity.date_deadline,
                     time(hours, minutes)
                 )
                 
-                # Localizar en zona horaria del usuario
-                localized_datetime = user_tz.localize(naive_datetime)
-                
-                # Convertir a UTC para almacenar en la base de datos
-                activity.full_deadline = localized_datetime.astimezone(pytz.UTC)
+                # Odoo maneja internamente las zonas horarias, solo guardamos naive datetime
+                activity.full_deadline = deadline_datetime
             else:
                 activity.full_deadline = False
     
