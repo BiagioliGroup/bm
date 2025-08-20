@@ -6,7 +6,27 @@
         <field name="model">project.task</field>
         <field name="inherit_id" ref="project.view_task_form2"/>
         <field name="arch" type="xml">
-            <!-- Agregar información de actividad origen -->
+            
+            <!-- Agregar botones en el button_box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_source_document" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-file-text-o"
+                        invisible="not activity_id"
+                        string="Documento Origen"
+                        help="Ver el documento desde el cual se creó esta tarea"/>
+                        
+                <button name="action_view_source_activity" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-bell-o"
+                        invisible="not activity_id"
+                        string="Actividad Origen"
+                        help="Ver la actividad que creó esta tarea"/>
+            </xpath>
+            
+            <!-- Agregar información de actividad origen en una pestaña -->
             <xpath expr="//notebook" position="inside">
                 <page string="Actividad Origen" 
                       invisible="not is_from_activity"
@@ -14,6 +34,18 @@
                     <group>
                         <field name="is_from_activity" invisible="1"/>
                         <field name="activity_id" readonly="1"/>
+                        
+                        <!-- Información adicional sobre el origen -->
+                        <group string="Detalles del Origen" invisible="not activity_id">
+                            <field name="activity_id" invisible="1"/>
+                            <!-- Estos campos se muestran mediante related -->
+                            <label for="source_document_info"/>
+                            <div name="source_document_info">
+                                <field name="source_document_model" readonly="1" nolabel="1"/>
+                                <span> - ID: </span>
+                                <field name="source_document_id" readonly="1" nolabel="1"/>
+                            </div>
+                        </group>
                     </group>
                 </page>
             </xpath>
@@ -28,8 +60,8 @@
         <field name="arch" type="xml">
             <!-- Agregar columna de actividad origen -->
             <xpath expr="//field[@name='project_id']" position="after">
-                <field name="is_from_activity" optional="hide"/>
-                <field name="activity_id" optional="hide"/>
+                <field name="is_from_activity" optional="hide" string="Desde Actividad"/>
+                <field name="activity_id" optional="hide" string="Actividad Origen"/>
             </xpath>
         </field>
     </record>
