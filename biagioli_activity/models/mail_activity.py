@@ -76,9 +76,10 @@ class MailActivity(models.Model):
         resource_name = self._get_resource_name()
         _logger.info(f"🔵 BIAGIOLI: resource_name obtenido: {resource_name}")
         
-        # Preparar valores de la tarea
+        # Preparar valores de la tarea - usar summary si existe, sino activity_type
+        task_name = self.summary if self.summary else self.activity_type_id.name
         task_vals = {
-            'name': f"{self.activity_type_id.name}: {resource_name}",
+            'name': f"{task_name}: {resource_name}",
             'project_id': self.project_id.id,
             'user_ids': [(4, self.user_id.id)],
             'date_deadline': self.date_deadline,
