@@ -8,10 +8,7 @@
         <field name="code">model._send_activity_notifications()</field>
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
-        <field name="doall">False</field>
         <field name="user_id" ref="base.user_admin"/>
-        <field name="nextcall" eval="(DateTime.now() + timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
     </record>
 </odoo>
