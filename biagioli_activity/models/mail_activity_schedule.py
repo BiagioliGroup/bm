@@ -35,9 +35,18 @@ class MailActivitySchedule(models.TransientModel):
                 from datetime import datetime, timedelta
                 recent_time = fields.Datetime.now() - timedelta(minutes=2)
                 
+                # Asegurar que res_ids sea una lista
+                res_ids = self.res_ids
+                if isinstance(res_ids, str):
+                    # Si es string, convertir a lista
+                    import ast
+                    res_ids = ast.literal_eval(res_ids)
+                elif not isinstance(res_ids, list):
+                    res_ids = [res_ids]
+                
                 domain = [
                     ('res_model', '=', self.res_model),
-                    ('res_id', 'in', self.res_ids),
+                    ('res_id', 'in', res_ids),
                     ('activity_type_id', '=', self.activity_type_id.id),
                     ('project_id', '=', False),  # Solo las que no tienen proyecto aún
                     ('create_date', '>=', recent_time)
