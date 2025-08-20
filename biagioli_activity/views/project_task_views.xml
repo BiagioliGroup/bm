@@ -6,7 +6,7 @@
         <field name="model">project.task</field>
         <field name="inherit_id" ref="project.view_task_form2"/>
         <field name="arch" type="xml">
-            <!-- Agregar pestaña de información de origen - SIEMPRE VISIBLE para debug -->
+            <!-- Agregar pestaña de información de origen -->
             <xpath expr="//notebook" position="inside">
                 <page string="📋 Info Actividad" name="activity_info">
                     <group>
@@ -27,8 +27,6 @@
                     </group>
                 </page>
             </xpath>
-        </field>
-    </record>
             
             <!-- Agregar indicador en el header -->
             <xpath expr="//div[@name='button_box']" position="inside">
