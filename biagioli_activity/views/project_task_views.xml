@@ -24,6 +24,33 @@
                         invisible="not activity_id"
                         string="Actividad Origen"
                         help="Ver la actividad que creó esta tarea"/>
+                        
+                <button name="action_test_notification" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-envelope"
+                        invisible="not enable_notifications"
+                        string="Probar Notificación"
+                        help="Enviar notificación de prueba"/>
+            </xpath>
+            
+            <!-- Agregar campos de notificación después de la fecha límite -->
+            <xpath expr="//field[@name='date_deadline']" position="after">
+                <field name="task_time" 
+                       widget="float_time"
+                       help="Hora específica de la tarea"/>
+            </xpath>
+            
+            <!-- Agregar grupo de notificaciones -->
+            <xpath expr="//group[@name='project_task_details']" position="after">
+                <group string="Notificaciones" name="notifications_group">
+                    <field name="enable_notifications"/>
+                    <field name="reminder_time" 
+                           invisible="not enable_notifications"/>
+                    <field name="notification_sent" readonly="1" 
+                           invisible="not enable_notifications"/>
+                    <field name="full_deadline_display" readonly="1"/>
+                </group>
             </xpath>
             
             <!-- Agregar información de actividad origen en una pestaña -->

@@ -25,6 +25,17 @@ class MailActivitySchedule(models.TransientModel):
         default=9.0  # 9:00 AM por defecto
     )
     
+    # Campo de recordatorio
+    reminder_time = fields.Selection([
+        ('15', '15 minutos antes'),
+        ('30', '30 minutos antes'),
+        ('60', '1 hora antes'),
+        ('120', '2 horas antes'),
+        ('240', '4 horas antes'),
+        ('480', '8 horas antes'),
+        ('1440', '1 día antes'),
+    ], string='Recordatorio', default='60', help='Cuándo enviar la notificación')
+    
     def action_schedule_activities(self):
         """Override para pasar el proyecto_id a las actividades creadas"""
         _logger.info(f"🟪 BIAGIOLI SCHEDULE: Iniciando action_schedule_activities()")
@@ -68,13 +79,15 @@ class MailActivitySchedule(models.TransientModel):
                 
                 # Agregar proyecto a las actividades
                 if recent_activities:
-                    # Preparar valores incluyendo deadline_time
+                    # Preparar valores incluyendo deadline_time y reminder_time
                     vals_to_update = {'project_id': self.project_id.id}
                     if hasattr(self, 'deadline_time') and self.deadline_time:
                         vals_to_update['deadline_time'] = self.deadline_time
+                    if hasattr(self, 'reminder_time') and self.reminder_time:
+                        vals_to_update['reminder_time'] = self.reminder_time
                     
                     recent_activities.write(vals_to_update)
-                    _logger.info(f"✅ BIAGIOLI SCHEDULE: Proyecto y hora asignados a {len(recent_activities)} actividades")
+                    _logger.info(f"✅ BIAGIOLI SCHEDULE: Proyecto, hora y recordatorio asignados a {len(recent_activities)} actividades")
                     
                     # Forzar la creación de tareas para estas actividades
                     for activity in recent_activities:

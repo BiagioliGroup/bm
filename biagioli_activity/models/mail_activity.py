@@ -10,7 +10,7 @@ class MailActivity(models.Model):
     """Extiende mail.activity para agregar integración con proyectos"""
     _inherit = 'mail.activity'
     
-    # Campos adicionales
+    # Campos adicionales (solo para vincular con proyectos)
     project_id = fields.Many2one(
         'project.project',
         string='Proyecto',
@@ -24,7 +24,7 @@ class MailActivity(models.Model):
         help='Tarea creada desde esta actividad'
     )
     
-    # Campo de hora específica (simplificado)
+    # Campo de hora específica (simplificado - solo para crear tareas)
     deadline_time = fields.Float(
         string='Hora de Vencimiento',
         help='Hora específica del vencimiento (formato 24h, ej: 14.5 = 14:30)',
@@ -86,38 +86,22 @@ class MailActivity(models.Model):
         # Preparar valores de la tarea - usar summary si existe, sino activity_type
         task_name = self.summary if self.summary else self.activity_type_id.name
         
-        # Combinar fecha y hora para la fecha límite de la tarea
+        # Usar solo la fecha por ahora (sin hora específica hasta resolver zona horaria)
         task_deadline = self.date_deadline
-        if self.deadline_time:
-            from datetime import datetime, time
-            import pytz
-            
-            hours = int(self.deadline_time)
-            minutes = int((self.deadline_time - hours) * 60)
-            
-            # Crear datetime en zona horaria del usuario
-            user_tz = pytz.timezone(self.env.user.tz or 'America/Argentina/Buenos_Aires')
-            
-            # Crear datetime naive
-            naive_datetime = datetime.combine(
-                self.date_deadline,
-                time(hours, minutes)
-            )
-            
-            # Convertir a zona horaria del usuario y luego a UTC para Odoo
-            localized_dt = user_tz.localize(naive_datetime)
-            task_deadline = localized_dt.astimezone(pytz.UTC).replace(tzinfo=None)
         
         task_vals = {
             'name': f"{task_name}: {resource_name}",
             'project_id': self.project_id.id,
             'user_ids': [(4, self.user_id.id)],
-            'date_deadline': task_deadline,  # Ahora incluye la hora corregida
+            'date_deadline': task_deadline,
+            'task_time': self.deadline_time,  # Pasar la hora a la tarea
+            'enable_notifications': True,     # Habilitar notificaciones por defecto
+            'reminder_time': '60',           # 1 hora antes por defecto
             'description': f"""
                 <p><b>Actividad origen:</b> {self.activity_type_id.name}</p>
                 <p><b>Resumen:</b> {self.summary or 'Sin resumen'}</p>
                 <p><b>Recurso:</b> {resource_name}</p>
-                <p><b>Fecha límite:</b> {self.date_deadline} a las {self.deadline_time:02.0f}:00</p>
+                <p><b>Hora programada:</b> {self.deadline_time:02.0f}:00 hs</p>
                 <p><b>Notas:</b></p>
                 {self.note or '<p>Sin notas</p>'}
             """,
@@ -186,7 +170,6 @@ class MailActivity(models.Model):
                         ('project_ids', '=', False),
                         ('project_ids', 'in', activity.project_id.id)
                     ], limit=1)
-                    
                     
                     if done_stage:
                         activity.linked_task_id.sudo().write({'stage_id': done_stage.id})

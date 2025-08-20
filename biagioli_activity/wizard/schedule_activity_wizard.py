@@ -40,6 +40,16 @@ class ScheduleActivityWizard(models.TransientModel):
         default=9.0  # 9:00 AM por defecto
     )
     
+    reminder_time = fields.Selection([
+        ('15', '15 minutos antes'),
+        ('30', '30 minutos antes'),
+        ('60', '1 hora antes'),
+        ('120', '2 horas antes'),
+        ('240', '4 horas antes'),
+        ('480', '8 horas antes'),
+        ('1440', '1 día antes'),
+    ], string='Recordatorio', default='60', help='Cuándo enviar la notificación')
+    
     user_id = fields.Many2one(
         'res.users',
         string='Asignado a',
@@ -90,6 +100,7 @@ class ScheduleActivityWizard(models.TransientModel):
             'note': self.note,
             'date_deadline': self.date_deadline,
             'deadline_time': self.deadline_time,
+            'reminder_time': self.reminder_time,
             'user_id': self.user_id.id,
             'res_model': active_model,
             'res_id': active_id,

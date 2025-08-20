@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Cron job para enviar notificaciones de actividades -->
-    <record id="cron_activity_notifications" model="ir.cron">
-        <field name="name">Notificaciones de Actividades - Biagioli</field>
-        <field name="model_id" ref="mail.model_mail_activity"/>
+    <!-- Cron job para enviar notificaciones de TAREAS -->
+    <record id="cron_task_notifications" model="ir.cron">
+        <field name="name">Notificaciones de Tareas - Biagioli</field>
+        <field name="model_id" ref="project.model_project_task"/>
         <field name="state">code</field>
-        <field name="code">model._send_activity_notifications()</field>
+        <field name="code">model._send_task_notifications()</field>
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
         <field name="active">True</field>
