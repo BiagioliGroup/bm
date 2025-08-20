@@ -13,23 +13,15 @@
                        options="{'no_create': True}"/>
             </xpath>
             
-            <!-- Agregar información sobre qué se va a crear -->
+            <!-- Mostrar tarea vinculada si existe -->
             <xpath expr="//group" position="after">
-                <group string="Integración" invisible="not project_id and not create_todo">
-                    <field name="create_task" invisible="1"/>
-                    <field name="create_todo" invisible="1"/>
-                    <div class="alert alert-info" role="alert" invisible="not create_task">
-                        <i class="fa fa-info-circle"/> Se creará una tarea en el proyecto seleccionado
-                    </div>
-                    <div class="alert alert-info" role="alert" invisible="not create_todo">
-                        <i class="fa fa-info-circle"/> Se creará un to-do para esta actividad
-                    </div>
-                </group>
-                
-                <!-- Mostrar enlaces a elementos creados -->
-                <group string="Elementos Creados" invisible="not linked_task_id and not linked_todo_id">
-                    <field name="linked_task_id" readonly="1" invisible="not linked_task_id"/>
-                    <field name="linked_todo_id" readonly="1" invisible="not linked_todo_id"/>
+                <group string="Tarea Vinculada" invisible="not linked_task_id">
+                    <field name="linked_task_id" readonly="1"/>
+                    <button name="action_view_task"
+                            type="object"
+                            string="Ver Tarea"
+                            class="btn-link"
+                            icon="fa-external-link"/>
                 </group>
             </xpath>
         </field>
@@ -44,8 +36,7 @@
             <!-- Agregar columna de proyecto -->
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="project_id" optional="show"/>
-                <field name="linked_task_id" optional="hide"/>
-                <field name="linked_todo_id" optional="hide"/>
+                <field name="linked_task_id" optional="show"/>
             </xpath>
         </field>
     </record>
@@ -54,7 +45,7 @@
     <record id="action_mail_activity_with_project" model="ir.actions.act_window">
         <field name="name">Actividades con Proyectos</field>
         <field name="res_model">mail.activity</field>
-        <field name="view_mode">kanban,list,form,calendar</field>
+        <field name="view_mode">list,form,calendar</field>
         <field name="domain">[('project_id', '!=', False)]</field>
         <field name="context">{'search_default_my_activities': 1}</field>
         <field name="help" type="html">

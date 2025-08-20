@@ -11,7 +11,7 @@ class MailActivity(models.Model):
     """Extiende mail.activity para agregar integración con proyectos"""
     _inherit = 'mail.activity'
     
-    # Campo para vincular con proyecto
+    # Campos adicionales para la integración
     project_id = fields.Many2one(
         'project.project',
         string='Proyecto',
@@ -64,6 +64,14 @@ class MailActivity(models.Model):
         
         _logger.info(f"Tarea creada desde actividad: {task.name}")
         
+        # Mensaje en el chatter del registro origen
+        if self.res_model and self.res_id:
+            record = self.env[self.res_model].browse(self.res_id)
+            if hasattr(record, 'message_post'):
+                record.message_post(
+                    body=f"Se creó la tarea <a href='#' data-oe-model='project.task' data-oe-id='{task.id}'>#{task.id} {task.name}</a> en el proyecto {self.project_id.name}"
+                )
+        
         return task
     
     def _get_resource_name(self):
@@ -85,14 +93,18 @@ class MailActivity(models.Model):
         """Marcar actividad como hecha y actualizar tarea"""
         for activity in self:
             if activity.linked_task_id:
-                # Marcar tarea como completada
+                # Buscar etapa de completado
                 done_stage = self.env['project.task.type'].search([
-                    ('fold', '=', True),
-                    ('project_ids', 'in', activity.project_id.id)
+                    ('fold', '=', True)
                 ], limit=1)
                 
                 if done_stage:
                     activity.linked_task_id.stage_id = done_stage
+                    
+                # Mensaje en el chatter
+                activity.linked_task_id.message_post(
+                    body=_("✅ Actividad completada")
+                )
                 
         return super(MailActivity, self).action_done()
     

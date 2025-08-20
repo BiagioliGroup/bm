@@ -44,12 +44,26 @@ class ProjectTask(models.Model):
     @api.model
     def _get_resource_ref_selection(self):
         """Obtener modelos disponibles para referencia"""
-        # Obtener todos los modelos que tienen actividades
-        models = self.env['ir.model'].search([
-            ('is_mail_activity', '=', True)
-        ])
+        # Obtener los modelos más comunes que tienen actividades
+        common_models = [
+            'sale.order',
+            'purchase.order',
+            'account.move',
+            'crm.lead',
+            'project.project',
+            'res.partner',
+            'product.product',
+            'stock.picking',
+        ]
         
-        return [(model.model, model.name) for model in models]
+        selections = []
+        for model_name in common_models:
+            if model_name in self.env:
+                model = self.env['ir.model'].search([('model', '=', model_name)], limit=1)
+                if model:
+                    selections.append((model_name, model.name))
+        
+        return selections
     
     @api.depends('activity_id')
     def _compute_is_from_activity(self):
@@ -89,17 +103,3 @@ class ProjectTask(models.Model):
                 vals['resource_id'] = int(res_id)
         
         return super(ProjectTask, self).create(vals)
-    
-    def write(self, vals):
-        """Override write para mantener sincronizados los campos de recurso"""
-        # Sincronizar resource_ref con campos individuales
-        if vals.get('resource_model') and vals.get('resource_id'):
-            vals['resource_ref'] = f"{vals['resource_model']},{vals['resource_id']}"
-        elif vals.get('resource_ref'):
-            ref = vals['resource_ref']
-            if isinstance(ref, str) and ',' in ref:
-                model, res_id = ref.split(',')
-                vals['resource_model'] = model
-                vals['resource_id'] = int(res_id)
-        
-        return super(ProjectTask, self).write(vals)

@@ -1,5 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_project_todo_user,project.todo.user,model_project_todo,biagioli_activity.group_todo_user,1,1,1,1
-access_project_todo_manager,project.todo.manager,model_project_todo,biagioli_activity.group_todo_manager,1,1,1,1
 access_schedule_activity_wizard_user,schedule.activity.wizard.user,model_schedule_activity_wizard,base.group_user,1,1,1,0
 access_schedule_activity_wizard_project_user,schedule.activity.wizard.project.user,model_schedule_activity_wizard,project.group_project_user,1,1,1,0
