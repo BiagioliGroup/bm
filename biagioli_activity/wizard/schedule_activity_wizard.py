@@ -34,6 +34,12 @@ class ScheduleActivityWizard(models.TransientModel):
         default=fields.Date.context_today
     )
     
+    deadline_time = fields.Float(
+        string='Hora',
+        help='Hora específica (formato 24h, ej: 14.5 = 14:30)',
+        default=9.0  # 9:00 AM por defecto
+    )
+    
     user_id = fields.Many2one(
         'res.users',
         string='Asignado a',
@@ -83,6 +89,7 @@ class ScheduleActivityWizard(models.TransientModel):
             'summary': self.summary or self.activity_type_id.name,
             'note': self.note,
             'date_deadline': self.date_deadline,
+            'deadline_time': self.deadline_time,
             'user_id': self.user_id.id,
             'res_model': active_model,
             'res_id': active_id,

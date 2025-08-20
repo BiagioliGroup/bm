@@ -18,6 +18,13 @@ class MailActivitySchedule(models.TransientModel):
         help='Proyecto vinculado a esta actividad (opcional)'
     )
     
+    # Campo de hora específica
+    deadline_time = fields.Float(
+        string='Hora de Vencimiento',
+        help='Hora específica del vencimiento (formato 24h, ej: 14.5 = 14:30)',
+        default=9.0  # 9:00 AM por defecto
+    )
+    
     def action_schedule_activities(self):
         """Override para pasar el proyecto_id a las actividades creadas"""
         _logger.info(f"🟪 BIAGIOLI SCHEDULE: Iniciando action_schedule_activities()")

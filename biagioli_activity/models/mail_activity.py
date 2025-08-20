@@ -24,6 +24,40 @@ class MailActivity(models.Model):
         help='Tarea creada desde esta actividad'
     )
     
+    # Campo de hora específica
+    deadline_time = fields.Float(
+        string='Hora de Vencimiento',
+        help='Hora específica del vencimiento (formato 24h, ej: 14.5 = 14:30)',
+        default=9.0  # 9:00 AM por defecto
+    )
+    
+    # Campo computado para mostrar fecha y hora juntos
+    full_deadline = fields.Datetime(
+        string='Vencimiento Completo',
+        compute='_compute_full_deadline',
+        store=True,
+        help='Fecha y hora completa de vencimiento'
+    )
+    
+    @api.depends('date_deadline', 'deadline_time')
+    def _compute_full_deadline(self):
+        """Combinar fecha y hora en un datetime completo"""
+        for activity in self:
+            if activity.date_deadline and activity.deadline_time is not False:
+                # Convertir float a horas y minutos
+                hours = int(activity.deadline_time)
+                minutes = int((activity.deadline_time - hours) * 60)
+                
+                # Crear datetime combinando fecha + hora
+                from datetime import datetime, time
+                deadline_datetime = datetime.combine(
+                    activity.date_deadline,
+                    time(hours, minutes)
+                )
+                activity.full_deadline = deadline_datetime
+            else:
+                activity.full_deadline = False
+    
     @api.model_create_multi
     def create(self, vals_list):
         """Override para crear tareas cuando hay proyecto"""
