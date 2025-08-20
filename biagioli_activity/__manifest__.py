@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Schedule Activity Project Integrati    on',
+    'name': 'Biagioli - Integración Actividades',
     'version': '18.0.1.0.0',
     'category': 'Project',
     'summary': 'Generar Tareas de Proyecto o To-Dos desde Actividades Programadas',
     'description': """
-        Integración de Actividades con Proyectos
-        ========================================
+        Integración de Actividades con Proyectos - Biagioli
+        ===================================================
         
         Este módulo mejora la gestión de proyectos en Odoo automatizando la creación 
         de tareas y to-dos directamente desde las actividades programadas.
@@ -25,30 +25,32 @@
         2. Usuarios de Proyecto con proyecto: Actividades → Tareas
         3. Usuarios de Proyecto sin proyecto: Actividades → Tareas + To-Dos
     """,
-    'author': 'Tu Empresa',
-    'website': 'https://tuempresa.com',
+    'author': 'Biagioli Group',
+    'website': 'https://biagioli.com',
     'depends': [
         'base',
         'mail',
         'project',
     ],
     'data': [
-        # Seguridad
-        'security/ir.model.access.csv',
+        # Primero seguridad - solo grupos
         'security/security.xml',
         
-        # Vistas
+        # Luego vistas que registran los modelos
+        'views/project_todo_views.xml',
         'views/mail_activity_views.xml',
         'views/project_task_views.xml',
-        'views/project_todo_views.xml',
         
-        # Wizards
+        # Después permisos CSV (ahora que los modelos existen)
+        'security/ir.model.access.csv',
+        
+        # Finalmente wizards
         'wizard/schedule_activity_wizard_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
-            'schedule_activity_project_integration/static/src/js/activity_widget.js',
-            'schedule_activity_project_integration/static/src/scss/activity_style.scss',
+            'biagioli_activity/static/src/js/activity_widget.js',
+            'biagioli_activity/static/src/scss/activity_style.scss',
         ],
     },
     'installable': True,
