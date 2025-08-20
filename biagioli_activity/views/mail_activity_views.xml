@@ -18,6 +18,8 @@
                 <field name="deadline_time" 
                        widget="float_time"
                        help="Formato 24h: 9.0 = 09:00, 14.5 = 14:30"/>
+                <field name="reminder_time" 
+                       help="Cuándo enviar el recordatorio"/>
             </xpath>
             
             <!-- Mostrar tarea vinculada si existe -->
