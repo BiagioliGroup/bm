@@ -41,20 +41,31 @@ class MailActivity(models.Model):
     
     @api.depends('date_deadline', 'deadline_time')
     def _compute_full_deadline(self):
-        """Combinar fecha y hora en un datetime completo"""
+        """Combinar fecha y hora en un datetime completo (zona horaria del usuario)"""
         for activity in self:
             if activity.date_deadline and activity.deadline_time is not False:
                 # Convertir float a horas y minutos
                 hours = int(activity.deadline_time)
                 minutes = int((activity.deadline_time - hours) * 60)
                 
-                # Crear datetime combinando fecha + hora
+                # Crear datetime combinando fecha + hora en zona horaria local
                 from datetime import datetime, time
-                deadline_datetime = datetime.combine(
+                import pytz
+                
+                # Obtener zona horaria del usuario o usar la del sistema
+                user_tz = pytz.timezone(self.env.user.tz or 'UTC')
+                
+                # Crear datetime naive (sin zona horaria)
+                naive_datetime = datetime.combine(
                     activity.date_deadline,
                     time(hours, minutes)
                 )
-                activity.full_deadline = deadline_datetime
+                
+                # Localizar en zona horaria del usuario
+                localized_datetime = user_tz.localize(naive_datetime)
+                
+                # Convertir a UTC para almacenar en la base de datos
+                activity.full_deadline = localized_datetime.astimezone(pytz.UTC)
             else:
                 activity.full_deadline = False
     

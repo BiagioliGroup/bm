@@ -66,10 +66,15 @@ class MailActivitySchedule(models.TransientModel):
                 
                 _logger.info(f"🟪 BIAGIOLI SCHEDULE: Encontradas {len(recent_activities)} actividades recientes")
                 
-                # Simplemente asignar el proyecto - el create() de mail.activity se encarga del resto
+                # Agregar proyecto a las actividades
                 if recent_activities:
-                    recent_activities.write({'project_id': self.project_id.id})
-                    _logger.info(f"✅ BIAGIOLI SCHEDULE: Proyecto asignado a {len(recent_activities)} actividades")
+                    # Preparar valores incluyendo deadline_time
+                    vals_to_update = {'project_id': self.project_id.id}
+                    if hasattr(self, 'deadline_time') and self.deadline_time:
+                        vals_to_update['deadline_time'] = self.deadline_time
+                    
+                    recent_activities.write(vals_to_update)
+                    _logger.info(f"✅ BIAGIOLI SCHEDULE: Proyecto y hora asignados a {len(recent_activities)} actividades")
                     
                     # Forzar la creación de tareas para estas actividades
                     for activity in recent_activities:
