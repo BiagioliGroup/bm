@@ -140,38 +140,66 @@ class ProjectTask(models.Model):
             if user.email:
                 self._send_email_task_notification(task, user)
     
+    def _send_push_notification(self, task):
+        """Enviar notificación push para móviles"""
+        try:
+            # Notificación push a través del bus de Odoo
+            for user in task.user_ids:
+                # Notificación para la app móvil
+                self.env['bus.bus']._sendone(
+                    (self._cr.dbname, 'res.partner', user.partner_id.id),
+                    'mail.message/inbox',
+                    {
+                        'type': 'activity',
+                        'title': f'🔔 Tarea: {task.name}',
+                        'message': f'Vence a las {task.task_time:02.0f}:00 hs',
+                        'action': {
+                            'type': 'ir.actions.act_window',
+                            'res_model': 'project.task',
+                            'res_id': task.id,
+                            'view_mode': 'form'
+                        }
+                    }
+                )
+                
+                # También enviar como notificación web push
+                self.env['bus.bus']._sendone(
+                    (self._cr.dbname, 'res.partner', user.partner_id.id),
+                    'web.push_notification',
+                    {
+                        'title': f'🔔 Tarea: {task.name}',
+                        'body': f'Vence a las {task.task_time:02.0f}:00 hs\nProyecto: {task.project_id.name}',
+                        'icon': '/web/static/img/odoo_logo.png',
+                        'badge': '/web/static/img/odoo_badge.png',
+                        'tag': f'task_{task.id}',
+                        'url': f'/web#id={task.id}&model=project.task&view_type=form'
+                    }
+                )
+        except Exception as e:
+            _logger.error(f"Error enviando notificación push: {e}")
+
+    # Modificar el método _send_internal_task_notification para incluir push:
     def _send_internal_task_notification(self, task):
         """Enviar notificación interna de Odoo para tarea"""
         try:
-            # Notificar a todos los usuarios asignados
+            # Notificaciones internas existentes...
             for user in task.user_ids:
                 self.env['bus.bus']._sendone(
                     (self._cr.dbname, 'res.partner', user.partner_id.id),
                     'simple_notification',
                     {
                         'title': _('🔔 Tarea próxima a vencer'),
-                        'message': f"📋 {task.name}\n"
-                                  f"🕐 Vence a las {task.task_time:02.0f}:00 hs\n"
-                                  f"📂 Proyecto: {task.project_id.name if task.project_id else 'Sin proyecto'}",
+                        'message': f"📋 {task.name}\n🕐 Vence a las {task.task_time:02.0f}:00 hs\n📂 Proyecto: {task.project_id.name if task.project_id else 'Sin proyecto'}",
                         'type': 'warning',
                         'sticky': True,
                     }
                 )
             
-            # También crear mensaje en la tarea
-            task.message_post(
-                body=f"""
-                <div class="alert alert-warning">
-                    <h4>🔔 Recordatorio de Tarea</h4>
-                    <p><strong>{task.name}</strong></p>
-                    <p>📅 Vence hoy a las <strong>{task.task_time:02.0f}:00 hs</strong></p>
-                    <p>👥 Asignado a: {', '.join(task.user_ids.mapped('name'))}</p>
-                    <p>📂 Proyecto: {task.project_id.name if task.project_id else 'Sin proyecto'}</p>
-                </div>
-                """,
-                message_type='notification',
-                subtype_xmlid='mail.mt_note',
-            )
+            # AGREGAR: Notificación push para móviles
+            self._send_push_notification(task)
+            
+            # Mensaje en la tarea...
+            task.message_post(...)
         except Exception as e:
             _logger.error(f"Error enviando notificación interna: {e}")
     
