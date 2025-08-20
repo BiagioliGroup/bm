@@ -73,12 +73,12 @@
                 <field name="resource_model"/>
             </xpath>
             
-            <!-- Agregar indicador visual -->
-            <xpath expr="//div[hasclass('o_kanban_record_bottom')]" position="inside">
-                <span invisible="not is_from_activity" 
-                      class="badge text-bg-info"
-                      title="Creada desde Actividad">
-                    <i class="fa fa-calendar"/> <t t-esc="record.resource_name.value"/>
+            <!-- Agregar indicador visual en el footer de la tarjeta -->
+            <xpath expr="//t[@t-name='card']//footer//div[@class='d-flex align-items-center gap-1']" position="inside">
+                <span t-if="record.is_from_activity.raw_value" 
+                      class="badge text-bg-info ms-1"
+                      t-att-title="'Origen: ' + (record.resource_name.value || 'Actividad')">
+                    <i class="fa fa-calendar-o"/>
                 </span>
             </xpath>
         </field>
