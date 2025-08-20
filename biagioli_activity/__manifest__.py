@@ -17,6 +17,13 @@
         * Si seleccionás proyecto, se crea automáticamente una tarea
         * La tarea queda vinculada con el registro origen
         * Sincronización entre actividad y tarea
+        
+        Uso:
+        ----
+        1. En cualquier formulario, click en Actividades
+        2. Programar nueva actividad
+        3. Seleccionar un proyecto (opcional)
+        4. Si hay proyecto, se crea tarea automáticamente
     """,
     'author': 'Biagioli Group',
     'website': 'https://biagioli.com',
@@ -29,11 +36,6 @@
         'security/ir.model.access.csv',
         'wizard/schedule_activity_wizard_views.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'biagioli_activity/static/src/js/activity_override.js',
-        ],
-    },
     'installable': True,
     'application': False,
     'auto_install': False,

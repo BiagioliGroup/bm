@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista Form del Wizard Simplificado -->
+    <!-- Vista Form del Wizard -->
     <record id="view_schedule_activity_wizard_form" model="ir.ui.view">
         <field name="name">schedule.activity.wizard.form</field>
         <field name="model">schedule.activity.wizard</field>
         <field name="arch" type="xml">
-            <form string="Programar Actividad con Proyecto">
+            <form string="Programar Actividad">
                 <group>
                     <group>
                         <field name="activity_type_id" 
@@ -21,20 +21,18 @@
                     <group>
                         <field name="project_id" 
                                options="{'no_create': True}"
-                               placeholder="Seleccionar un proyecto (opcional)"/>
-                        <!-- Indicador visual -->
-                        <div class="alert alert-info" 
-                             role="alert" 
+                               placeholder="Seleccionar proyecto (opcional)"/>
+                        <div class="alert alert-info mt-2" 
                              invisible="not project_id">
                             <i class="fa fa-info-circle"/> 
-                            Se creará una <strong>tarea</strong> en el proyecto seleccionado
+                            Se creará una <strong>tarea</strong> en: <field name="project_id" readonly="1" nolabel="1" class="d-inline"/>
                         </div>
                     </group>
                 </group>
                 
-                <group string="Detalles de la Actividad">
+                <group string="Notas">
                     <field name="note" 
-                           placeholder="Agregar notas sobre esta actividad..."
+                           placeholder="Agregar notas..."
                            nolabel="1"/>
                 </group>
                 
@@ -44,37 +42,26 @@
                             type="object" 
                             class="btn-primary"/>
                     <button string="Cancelar" 
-                            class="btn-secondary" 
                             special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
-
     
-    <!-- Acción del Wizard -->
+    <!-- Acción para el wizard -->
     <record id="action_schedule_activity_wizard" model="ir.actions.act_window">
-        <field name="name">Programar Actividad</field><field name="name">Schedule Activity</field>
+        <field name="name">Programar Actividad</field>
         <field name="res_model">schedule.activity.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
         <field name="binding_model_id" ref="mail.model_mail_activity"/>
         <field name="binding_type">action</field>
     </record>
-
-    <!-- Acción para abrir el wizard desde menú -->
-    <record id="action_open_schedule_wizard" model="ir.actions.act_window">
-        <field name="name">Programar Actividad con Proyecto</field>
-        <field name="res_model">schedule.activity.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'active_model': 'project.task', 'active_ids': []}</field>
-    </record>
-
-    <!-- Menú para probar el wizard -->
-    <menuitem id="menu_test_schedule_wizard"
-            name="Test Wizard Actividades"
-            parent="project.menu_main_pm"
-            action="action_open_schedule_wizard"
-            sequence="50"/>
+    
+    <!-- Menú de prueba -->
+    <menuitem id="menu_test_wizard"
+              name="🧪 Test Wizard Actividades"
+              parent="project.menu_main_pm"
+              action="action_schedule_activity_wizard"
+              sequence="99"/>
 </odoo>

@@ -26,6 +26,27 @@ class MailActivity(models.Model):
     )
     
     @api.model
+    def default_get(self, fields_list):
+        """Override para agregar proyecto por defecto si está en contexto"""
+        defaults = super(MailActivity, self).default_get(fields_list)
+        
+        # Si estamos en un proyecto, sugerirlo por defecto
+        if self._context.get('default_project_id'):
+            defaults['project_id'] = self._context.get('default_project_id')
+        elif self._context.get('active_model') == 'project.task':
+            # Si estamos en una tarea, obtener su proyecto
+            task_id = self._context.get('active_id')
+            if task_id:
+                task = self.env['project.task'].browse(task_id)
+                if task.project_id:
+                    defaults['project_id'] = task.project_id.id
+        elif self._context.get('active_model') == 'project.project':
+            # Si estamos en un proyecto
+            defaults['project_id'] = self._context.get('active_id')
+            
+        return defaults
+    
+    @api.model
     def create(self, vals):
         """Override create para crear tarea si hay proyecto"""
         activity = super(MailActivity, self).create(vals)
@@ -66,11 +87,22 @@ class MailActivity(models.Model):
         
         # Mensaje en el chatter del registro origen
         if self.res_model and self.res_id:
-            record = self.env[self.res_model].browse(self.res_id)
-            if hasattr(record, 'message_post'):
-                record.message_post(
-                    body=f"Se creó la tarea <a href='#' data-oe-model='project.task' data-oe-id='{task.id}'>#{task.id} {task.name}</a> en el proyecto {self.project_id.name}"
-                )
+            try:
+                record = self.env[self.res_model].browse(self.res_id)
+                if hasattr(record, 'message_post'):
+                    record.message_post(
+                        body=f"""
+                        <div class="alert alert-success">
+                            <i class="fa fa-check"/> Se creó la tarea 
+                            <a href="#" data-oe-model="project.task" data-oe-id="{task.id}">
+                                <i class="fa fa-tasks"/> {task.name}
+                            </a> 
+                            en el proyecto <b>{self.project_id.name}</b>
+                        </div>
+                        """
+                    )
+            except Exception as e:
+                _logger.warning(f"No se pudo postear mensaje: {e}")
         
         return task
     
@@ -121,4 +153,16 @@ class MailActivity(models.Model):
             'res_id': self.linked_task_id.id,
             'view_mode': 'form',
             'target': 'current',
+        }
+    
+    @api.model
+    def action_schedule_activity(self):
+        """Acción para abrir nuestro wizard personalizado"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Programar Actividad',
+            'res_model': 'schedule.activity.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': self._context,
         }
