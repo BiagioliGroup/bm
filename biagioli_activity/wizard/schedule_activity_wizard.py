@@ -7,10 +7,37 @@ from odoo.exceptions import UserError
 class ScheduleActivityWizard(models.TransientModel):
     """Wizard para programar actividades con integración de proyectos"""
     _name = 'schedule.activity.wizard'
-    _inherit = 'mail.activity.schedule'
     _description = 'Programar Actividad con Integración de Proyectos'
     
-    # Hereda campos del wizard estándar y agrega los propios
+    # Campos del wizard
+    activity_type_id = fields.Many2one(
+        'mail.activity.type',
+        string='Tipo de Actividad',
+        required=True
+    )
+    
+    summary = fields.Char(
+        string='Resumen'
+    )
+    
+    note = fields.Html(
+        string='Nota',
+        sanitize=True
+    )
+    
+    date_deadline = fields.Date(
+        string='Fecha Límite',
+        required=True,
+        default=fields.Date.context_today
+    )
+    
+    user_id = fields.Many2one(
+        'res.users',
+        string='Asignado a',
+        required=True,
+        default=lambda self: self.env.user
+    )
+    
     project_id = fields.Many2one(
         'project.project',
         string='Proyecto',
