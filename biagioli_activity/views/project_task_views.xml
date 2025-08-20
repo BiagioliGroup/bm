@@ -1,111 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Extender vista form de mail.activity -->
-    <record id="view_mail_activity_form_inherit" model="ir.ui.view">
-        <field name="name">mail.activity.form.inherit.project</field>
-        <field name="model">mail.activity</field>
-        <field name="inherit_id" ref="mail.mail_activity_view_form_popup"/>
+    <!-- Extender vista form de project.task -->
+    <record id="view_project_task_form_inherit" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.activity</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
         <field name="arch" type="xml">
-            <!-- Agregar campo de proyecto después del tipo de actividad -->
-            <xpath expr="//field[@name='activity_type_id']" position="after">
-                <field name="project_id" 
-                       placeholder="Seleccionar un proyecto (opcional)"
-                       options="{'no_create': True}"/>
+            <!-- Agregar pestaña de información de origen -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Información de Origen" 
+                      invisible="not is_from_activity">
+                    <group>
+                        <group string="Origen de Actividad">
+                            <field name="is_from_activity" invisible="1"/>
+                            <field name="activity_id" readonly="1"/>
+                            <field name="resource_model" readonly="1"/>
+                            <field name="resource_id" readonly="1"/>
+                            <field name="resource_name" readonly="1"/>
+                        </group>
+                        <group string="Acciones">
+                            <button name="action_view_source_record"
+                                    type="object"
+                                    string="Ver Registro Origen"
+                                    class="btn-primary"
+                                    invisible="not resource_model or not resource_id"/>
+                        </group>
+                    </group>
+                </page>
             </xpath>
             
-            <!-- Agregar información sobre qué se va a crear -->
-            <xpath expr="//group" position="after">
-                <group string="Integración" invisible="not project_id and not create_todo">
-                    <field name="create_task" invisible="1"/>
-                    <field name="create_todo" invisible="1"/>
-                    <div class="alert alert-info" role="alert" invisible="not create_task">
-                        <i class="fa fa-info-circle"/> Se creará una tarea en el proyecto seleccionado
+            <!-- Agregar indicador en el header -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" 
+                        type="object"
+                        name="action_view_source_record"
+                        invisible="not is_from_activity"
+                        icon="fa-link">
+                    <div class="o_stat_info">
+                        <field name="resource_name" class="o_stat_text"/>
+                        <span class="o_stat_text">Origen</span>
                     </div>
-                    <div class="alert alert-info" role="alert" invisible="not create_todo">
-                        <i class="fa fa-info-circle"/> Se creará un to-do para esta actividad
-                    </div>
-                </group>
-                
-                <!-- Mostrar enlaces a elementos creados -->
-                <group string="Elementos Creados" invisible="not linked_task_id and not linked_todo_id">
-                    <field name="linked_task_id" readonly="1" invisible="not linked_task_id"/>
-                    <field name="linked_todo_id" readonly="1" invisible="not linked_todo_id"/>
-                </group>
+                </button>
             </xpath>
         </field>
     </record>
     
-    <!-- Vista tree/list para actividades con información de proyecto -->
-    <record id="view_mail_activity_list_inherit" model="ir.ui.view">
-        <field name="name">mail.activity.list.inherit.project</field>
-        <field name="model">mail.activity</field>
-        <field name="inherit_id" ref="mail.mail_activity_view_tree"/>
+    <!-- Vista list para tareas con información de origen -->
+    <record id="view_project_task_list_inherit" model="ir.ui.view">
+        <field name="name">project.task.list.inherit.activity</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2"/>
         <field name="arch" type="xml">
-            <!-- Agregar columna de proyecto -->
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="project_id" optional="show"/>
-                <field name="linked_task_id" optional="hide"/>
-                <field name="linked_todo_id" optional="hide"/>
+            <!-- Agregar columnas de origen -->
+            <xpath expr="//field[@name='project_id']" position="after">
+                <field name="is_from_activity" optional="hide"/>
+                <field name="resource_name" optional="show" invisible="not is_from_activity"/>
+                <field name="activity_id" optional="hide"/>
             </xpath>
         </field>
     </record>
     
-    <!-- Vista kanban para actividades con indicador de proyecto -->
-    <record id="view_mail_activity_kanban_inherit" model="ir.ui.view">
-        <field name="name">mail.activity.kanban.inherit.project</field>
-        <field name="model">mail.activity</field>
-        <field name="inherit_id" ref="mail.mail_activity_view_kanban"/>
+    <!-- Vista kanban con indicador de origen -->
+    <record id="view_project_task_kanban_inherit" model="ir.ui.view">
+        <field name="name">project.task.kanban.inherit.activity</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_kanban"/>
         <field name="arch" type="xml">
             <!-- Agregar campos necesarios -->
             <xpath expr="//kanban" position="inside">
-                <field name="project_id"/>
-                <field name="linked_task_id"/>
-                <field name="linked_todo_id"/>
+                <field name="is_from_activity"/>
+                <field name="resource_name"/>
+                <field name="resource_model"/>
             </xpath>
             
-            <!-- Agregar indicador visual en las tarjetas -->
-            <xpath expr="//div[hasclass('oe_kanban_content')]" position="inside">
-                <div class="o_kanban_record_bottom">
-                    <div class="oe_kanban_bottom_left">
-                        <span invisible="not project_id" 
-                              class="badge text-bg-primary">
-                            <i class="fa fa-folder"/> <field name="project_id"/>
-                        </span>
-                        <span invisible="not linked_task_id" 
-                              class="badge text-bg-success">
-                            <i class="fa fa-tasks"/> Task
-                        </span>
-                        <span invisible="not linked_todo_id" 
-                              class="badge text-bg-info">
-                            <i class="fa fa-check-square-o"/> To-Do
-                        </span>
-                    </div>
-                </div>
+            <!-- Agregar indicador visual -->
+            <xpath expr="//div[hasclass('o_kanban_record_bottom')]" position="inside">
+                <span invisible="not is_from_activity" 
+                      class="badge text-bg-info"
+                      title="Creada desde Actividad">
+                    <i class="fa fa-calendar"/> <t t-esc="record.resource_name.value"/>
+                </span>
             </xpath>
         </field>
     </record>
     
-    <!-- Acción para ver actividades con proyectos -->
-    <record id="action_mail_activity_with_project" model="ir.actions.act_window">
-        <field name="name">Actividades con Proyectos</field>
-        <field name="res_model">mail.activity</field>
-        <field name="view_mode">kanban,list,form,calendar</field>
-        <field name="domain">[('project_id', '!=', False)]</field>
-        <field name="context">{'search_default_my_activities': 1}</field>
+    <!-- Filtro para tareas creadas desde actividades -->
+    <record id="view_project_task_search_inherit" model="ir.ui.view">
+        <field name="name">project.task.search.inherit.activity</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_search_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar filtro -->
+            <xpath expr="//filter[@name='my_tasks']" position="after">
+                <separator/>
+                <filter string="Desde Actividades" 
+                        name="from_activities"
+                        domain="[('is_from_activity', '=', True)]"/>
+            </xpath>
+            
+            <!-- Agregar agrupación -->
+            <xpath expr="//group" position="inside">
+                <filter string="Modelo Origen" 
+                        name="group_by_resource_model"
+                        context="{'group_by': 'resource_model'}"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Acción para ver tareas creadas desde actividades -->
+    <record id="action_project_task_from_activities" model="ir.actions.act_window">
+        <field name="name">Tareas desde Actividades</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="domain">[('is_from_activity', '=', True)]</field>
+        <field name="context">{'search_default_my_tasks': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                No hay actividades vinculadas a proyectos todavía
+                No hay tareas creadas desde actividades todavía
             </p>
             <p>
-                Programá actividades y vincularlas a proyectos para crear tareas automáticamente.
+                Las tareas aparecerán acá cuando se programen actividades con un proyecto seleccionado.
             </p>
         </field>
     </record>
     
-    <!-- Menú para actividades con proyectos -->
-    <menuitem id="menu_mail_activity_with_project"
-              name="Actividades con Proyectos"
-              parent="project.menu_main_pm"
-              action="action_mail_activity_with_project"
-              sequence="15"/>
+    <!-- Menú para tareas desde actividades -->
+    <menuitem id="menu_project_task_from_activities"
+              name="Tareas desde Actividades"
+              parent="project.menu_projects"
+              action="action_project_task_from_activities"
+              sequence="5"/>
 </odoo>
