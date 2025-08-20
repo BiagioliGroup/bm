@@ -86,29 +86,19 @@ class MailActivity(models.Model):
         # Preparar valores de la tarea - usar summary si existe, sino activity_type
         task_name = self.summary if self.summary else self.activity_type_id.name
         
-        # Combinar fecha y hora para la fecha límite de la tarea
+        # Usar solo la fecha por ahora (sin hora específica hasta resolver zona horaria)
         task_deadline = self.date_deadline
-        if self.deadline_time:
-            from datetime import datetime, time
-            hours = int(self.deadline_time)
-            minutes = int((self.deadline_time - hours) * 60)
-            
-            # Crear datetime combinando fecha + hora
-            task_deadline = datetime.combine(
-                self.date_deadline,
-                time(hours, minutes)
-            )
         
         task_vals = {
             'name': f"{task_name}: {resource_name}",
             'project_id': self.project_id.id,
             'user_ids': [(4, self.user_id.id)],
-            'date_deadline': task_deadline,  # Ahora incluye la hora
+            'date_deadline': task_deadline,
             'description': f"""
                 <p><b>Actividad origen:</b> {self.activity_type_id.name}</p>
                 <p><b>Resumen:</b> {self.summary or 'Sin resumen'}</p>
                 <p><b>Recurso:</b> {resource_name}</p>
-                <p><b>Fecha límite:</b> {self.date_deadline} a las {self.deadline_time:02.0f}:00</p>
+                <p><b>Hora programada:</b> {self.deadline_time:02.0f}:00 hs</p>
                 <p><b>Notas:</b></p>
                 {self.note or '<p>Sin notas</p>'}
             """,
