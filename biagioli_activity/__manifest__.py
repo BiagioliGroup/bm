@@ -32,7 +32,7 @@
         'views/mail_activity_schedule_views.xml',
         'views/mail_activity_views.xml', 
         'views/project_task_views.xml',
-        'wizard/schedule_activity_wizard_views.xml',
+        'views/schedule_activity_wizard_views.xml',
     ],
     'installable': True,
     'application': False,
