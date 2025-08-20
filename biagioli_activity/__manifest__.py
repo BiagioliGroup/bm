@@ -29,10 +29,19 @@
     'website': 'https://biagioli.com',
     'depends': ['base', 'mail', 'project'],
     'data': [
-        'views/mail_activity_schedule_views.xml',
-        'views/mail_activity_views.xml', 
+        # 1° Seguridad
+        'security/ir.model.access.csv',
+        
+        # 2° Vistas de modelos
         'views/project_task_views.xml',
-        'views/schedule_activity_wizard_views.xml',
+        'views/mail_activity_views.xml', 
+        'views/mail_activity_schedule_views.xml',
+        
+        # 3° Wizard 
+        'wizard/schedule_activity_wizard_views.xml',
+        
+        # 4° Datos y cron jobs
+        'data/cron_jobs_data.xml',
     ],
     'installable': True,
     'application': False,
