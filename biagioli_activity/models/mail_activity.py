@@ -24,42 +24,12 @@ class MailActivity(models.Model):
         help='Tarea creada desde esta actividad'
     )
     
-    # Campo de hora específica
+    # Campo de hora específica (simplificado)
     deadline_time = fields.Float(
         string='Hora de Vencimiento',
         help='Hora específica del vencimiento (formato 24h, ej: 14.5 = 14:30)',
         default=9.0  # 9:00 AM por defecto
     )
-    
-    # Campo computado para mostrar fecha y hora juntos
-    full_deadline = fields.Datetime(
-        string='Vencimiento Completo',
-        compute='_compute_full_deadline',
-        store=True,
-        help='Fecha y hora completa de vencimiento'
-    )
-    
-    @api.depends('date_deadline', 'deadline_time')
-    def _compute_full_deadline(self):
-        """Combinar fecha y hora en un datetime completo"""
-        for activity in self:
-            if activity.date_deadline and activity.deadline_time is not False:
-                # Convertir float a horas y minutos
-                hours = int(activity.deadline_time)
-                minutes = int((activity.deadline_time - hours) * 60)
-                
-                # Crear datetime combinando fecha + hora (naive datetime)
-                from datetime import datetime, time
-                
-                deadline_datetime = datetime.combine(
-                    activity.date_deadline,
-                    time(hours, minutes)
-                )
-                
-                # Odoo maneja internamente las zonas horarias, solo guardamos naive datetime
-                activity.full_deadline = deadline_datetime
-            else:
-                activity.full_deadline = False
     
     @api.model_create_multi
     def create(self, vals_list):
@@ -115,15 +85,30 @@ class MailActivity(models.Model):
         
         # Preparar valores de la tarea - usar summary si existe, sino activity_type
         task_name = self.summary if self.summary else self.activity_type_id.name
+        
+        # Combinar fecha y hora para la fecha límite de la tarea
+        task_deadline = self.date_deadline
+        if self.deadline_time:
+            from datetime import datetime, time
+            hours = int(self.deadline_time)
+            minutes = int((self.deadline_time - hours) * 60)
+            
+            # Crear datetime combinando fecha + hora
+            task_deadline = datetime.combine(
+                self.date_deadline,
+                time(hours, minutes)
+            )
+        
         task_vals = {
             'name': f"{task_name}: {resource_name}",
             'project_id': self.project_id.id,
             'user_ids': [(4, self.user_id.id)],
-            'date_deadline': self.date_deadline,
+            'date_deadline': task_deadline,  # Ahora incluye la hora
             'description': f"""
                 <p><b>Actividad origen:</b> {self.activity_type_id.name}</p>
                 <p><b>Resumen:</b> {self.summary or 'Sin resumen'}</p>
                 <p><b>Recurso:</b> {resource_name}</p>
+                <p><b>Fecha límite:</b> {self.date_deadline} a las {self.deadline_time:02.0f}:00</p>
                 <p><b>Notas:</b></p>
                 {self.note or '<p>Sin notas</p>'}
             """,
