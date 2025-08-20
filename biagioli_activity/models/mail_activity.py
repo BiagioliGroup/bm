@@ -110,8 +110,8 @@ class MailActivity(models.Model):
             
             _logger.info(f"✅ BIAGIOLI: Tarea #{task.id} '{task.name}' creada en proyecto '{self.project_id.name}'")
             
-            # Mensaje en el chatter del recurso origen
-            self._post_task_creation_message(task)
+            # No postear mensaje automático en el chatter
+            # La creación de la tarea es suficiente notificación
             
             return task
             
@@ -142,33 +142,6 @@ class MailActivity(models.Model):
         except Exception as e:
             _logger.warning(f"🟠 BIAGIOLI: Error obteniendo nombre del recurso: {e}")
             return f"{self.res_model}#{self.res_id}"
-    
-    def _post_task_creation_message(self, task):
-        """Postear mensaje sobre la tarea creada"""
-        _logger.info(f"📝 BIAGIOLI: Posteando mensaje para tarea #{task.id}")
-        try:
-            if self.res_model and self.res_id:
-                record = self.env[self.res_model].browse(self.res_id)
-                if record.exists() and hasattr(record, 'message_post'):
-                    record.message_post(
-                        body=f"""
-                        <div style="margin: 10px 0; padding: 10px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;">
-                            <i class="fa fa-check-circle text-success"/> 
-                            <b>Tarea creada automáticamente:</b><br/>
-                            <a href="#" data-oe-model="project.task" data-oe-id="{task.id}" style="font-weight: bold;">
-                                <i class="fa fa-tasks"/> #{task.id} - {task.name}
-                            </a><br/>
-                            <b>Proyecto:</b> {self.project_id.name}<br/>
-                            <b>Asignado a:</b> {self.user_id.name}<br/>
-                            <b>Fecha límite:</b> {self.date_deadline}
-                        </div>
-                        """,
-                        message_type='notification',
-                        subtype_xmlid='mail.mt_note',
-                    )
-                    _logger.info(f"✅ BIAGIOLI: Mensaje posteado en {self.res_model}#{self.res_id}")
-        except Exception as e:
-            _logger.warning(f"⚠️ BIAGIOLI: No se pudo postear mensaje: {e}")
     
     def action_done(self):
         """Marcar actividad como completada y actualizar tarea"""
