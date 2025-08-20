@@ -174,6 +174,7 @@ class ScheduleActivityWizard(models.TransientModel):
             self.env.cr.commit()
             
         except Exception as e:
+            
             _logger.warning(f"⚠️ Error enviando notificación móvil: {e}")
     
     def _send_push_notification(self, activity):
