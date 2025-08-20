@@ -24,22 +24,22 @@ class ProjectTask(models.Model):
         store=True
     )
     
-    # Campos relacionados para mostrar información del documento origen
+    # Campos computados para mostrar información del documento origen
     source_document_model = fields.Char(
         string='Modelo del Documento',
-        related='activity_id.res_model',
-        readonly=True
+        compute='_compute_source_document_info',
+        store=False
     )
     
     source_document_id = fields.Integer(
         string='ID del Documento',
-        related='activity_id.res_id',
-        readonly=True
+        compute='_compute_source_document_info',
+        store=False
     )
     
     source_document_name = fields.Char(
         string='Nombre del Documento',
-        compute='_compute_source_document_name',
+        compute='_compute_source_document_info',
         store=False
     )
     
@@ -49,20 +49,29 @@ class ProjectTask(models.Model):
         for task in self:
             task.is_from_activity = bool(task.activity_id)
     
-    @api.depends('activity_id', 'source_document_model', 'source_document_id')
-    def _compute_source_document_name(self):
-        """Obtener el nombre del documento origen"""
+    @api.depends('activity_id', 'activity_id.res_model', 'activity_id.res_id')
+    def _compute_source_document_info(self):
+        """Obtener información del documento origen"""
         for task in self:
-            if task.activity_id and task.source_document_model and task.source_document_id:
-                try:
-                    record = self.env[task.source_document_model].browse(task.source_document_id)
-                    if record.exists():
-                        task.source_document_name = record.display_name
-                    else:
-                        task.source_document_name = f"{task.source_document_model}#{task.source_document_id}"
-                except:
-                    task.source_document_name = f"{task.source_document_model}#{task.source_document_id}"
+            if task.activity_id:
+                task.source_document_model = task.activity_id.res_model
+                task.source_document_id = task.activity_id.res_id
+                
+                # Obtener el nombre del documento
+                if task.activity_id.res_model and task.activity_id.res_id:
+                    try:
+                        record = self.env[task.activity_id.res_model].browse(task.activity_id.res_id)
+                        if record.exists():
+                            task.source_document_name = record.display_name
+                        else:
+                            task.source_document_name = f"{task.activity_id.res_model}#{task.activity_id.res_id}"
+                    except:
+                        task.source_document_name = f"{task.activity_id.res_model}#{task.activity_id.res_id}"
+                else:
+                    task.source_document_name = False
             else:
+                task.source_document_model = False
+                task.source_document_id = False
                 task.source_document_name = False
     
     def action_view_source_activity(self):
