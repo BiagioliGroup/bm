@@ -187,6 +187,7 @@ class MailActivity(models.Model):
                         ('project_ids', 'in', activity.project_id.id)
                     ], limit=1)
                     
+                    
                     if done_stage:
                         activity.linked_task_id.sudo().write({'stage_id': done_stage.id})
                         _logger.info(f"✅ BIAGIOLI: Tarea #{activity.linked_task_id.id} marcada como completada")
