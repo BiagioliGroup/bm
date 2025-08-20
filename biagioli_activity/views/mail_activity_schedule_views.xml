@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Heredar la vista del wizard estándar mail.activity.schedule -->
+    <record id="mail_activity_schedule_view_form_inherit" model="ir.ui.view">
+        <field name="name">mail.activity.schedule.form.inherit.project</field>
+        <field name="model">mail.activity.schedule</field>
+        <field name="inherit_id" ref="mail.mail_activity_schedule_view_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Agregar campo de proyecto después del tipo de actividad -->
+            <xpath expr="//field[@name='activity_type_id']" position="after">
+                <field name="project_id" 
+                       options="{'no_create': True, 'no_open': True}"
+                       placeholder="Seleccionar proyecto (opcional)"/>
+            </xpath>
+            
+            <!-- Agregar campo de hora después de la fecha -->
+            <xpath expr="//field[@name='date_deadline']" position="after">
+                <field name="deadline_time" 
+                       widget="float_time"
+                       help="Formato 24h: 9.0 = 09:00, 14.5 = 14:30"/>
+            </xpath>
+            
+            <!-- Agregar indicador visual cuando se selecciona proyecto -->
+            <xpath expr="//group[field[@name='activity_type_id']]/parent::group" position="after">
+                <div class="alert alert-info" 
+                     role="alert" 
+                     invisible="not project_id"
+                     colspan="2">
+                    <i class="fa fa-info-circle"/> 
+                    <strong>Se creará una tarea</strong> en el proyecto 
+                    <field name="project_id" readonly="1" nolabel="1" class="d-inline fw-bold"/>
+                    para cada actividad programada.
+                </div>
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>

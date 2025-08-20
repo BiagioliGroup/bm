@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extender vista form de project.task -->
+    <record id="view_project_task_form_inherit" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.activity</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            
+            <!-- Agregar botones en el button_box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_source_document" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-file-text-o"
+                        invisible="not activity_id"
+                        string="Documento Origen"
+                        help="Ver el documento desde el cual se creó esta tarea"/>
+                        
+                <button name="action_view_source_activity" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-bell-o"
+                        invisible="not activity_id"
+                        string="Actividad Origen"
+                        help="Ver la actividad que creó esta tarea"/>
+                        
+                <button name="action_test_notification" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-envelope"
+                        invisible="not enable_notifications"
+                        string="Probar Notificación"
+                        help="Enviar notificación de prueba"/>
+            </xpath>
+            
+            <!-- Agregar campos de notificación después de la fecha límite -->
+            <xpath expr="//field[@name='date_deadline']" position="after">
+                <field name="task_time" 
+                       widget="float_time"
+                       help="Hora específica de la tarea"/>
+            </xpath>
+            
+            <!-- Agregar grupo de notificaciones después de cualquier group existente -->
+            <xpath expr="//sheet//group[1]" position="after">
+                <group string="Notificaciones" name="notifications_group" colspan="2">
+                    <group>
+                        <field name="enable_notifications"/>
+                        <field name="reminder_time" 
+                               invisible="not enable_notifications"/>
+                    </group>
+                    <group>
+                        <field name="notification_sent" readonly="1" 
+                               invisible="not enable_notifications"/>
+                        <field name="full_deadline_display" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+            
+            <!-- Agregar información de actividad origen en una pestaña -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Actividad Origen" 
+                      invisible="not is_from_activity"
+                      name="activity_info">
+                    <group>
+                        <field name="is_from_activity" invisible="1"/>
+                        <field name="activity_id" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista list para tareas con información de origen -->
+    <record id="view_project_task_list_inherit" model="ir.ui.view">
+        <field name="name">project.task.list.inherit.activity</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2"/>
+        <field name="arch" type="xml">
+            <!-- Agregar columna de actividad origen -->
+            <xpath expr="//field[@name='project_id']" position="after">
+                <field name="is_from_activity" optional="hide" string="Desde Actividad"/>
+                <field name="activity_id" optional="hide" string="Actividad Origen"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
