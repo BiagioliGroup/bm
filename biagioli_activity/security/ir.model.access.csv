@@ -1,12 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dux_connector_user,dux.connector.user,model_dux_connector,base.group_user,1,1,1,1
-access_dux_connector_manager,dux.connector.manager,model_dux_connector,base.group_system,1,1,1,1
-access_dux_data_mapper_user,dux.data.mapper.user,model_dux_data_mapper,base.group_user,1,0,0,0
-access_dux_data_mapper_manager,dux.data.mapper.manager,model_dux_data_mapper,base.group_system,1,1,1,1
-access_dux_import_wizard_user,dux.import.wizard.user,model_dux_import_wizard,base.group_user,1,1,1,1
-access_dux_import_log_user,dux.import.log.user,model_dux_import_log,base.group_user,1,1,1,1
-access_dux_import_line_user,dux.import.line.user,model_dux_import_line,base.group_user,1,1,1,1
-access_dux_journal_mapper_user,dux.journal.mapper.user,model_dux_journal_mapper,base.group_user,1,1,1,1
-access_dux_import_record_user,dux.import.record.user,model_dux_import_record,base.group_user,1,1,1,1
-access_dux_import_batch_user,dux.import.batch.user,model_dux_import_batch,base.group_user,1,1,1,1
-access_dux_import_batch_manager,dux.import.batch.manager,model_dux_import_batch,base.group_system,1,1,1,1
+access_project_todo_user,project.todo.user,model_project_todo,group_todo_user,1,1,1,1
+access_project_todo_manager,project.todo.manager,model_project_todo,group_todo_manager,1,1,1,1
+access_schedule_activity_wizard_user,schedule.activity.wizard.user,model_schedule_activity_wizard,base.group_user,1,1,1,0
+access_schedule_activity_wizard_project_user,schedule.activity.wizard.project.user,model_schedule_activity_wizard,project.group_project_user,1,1,1,0
