@@ -14,11 +14,6 @@
                         <field name="summary" 
                                placeholder="ej. Seguimiento con cliente"/>
                         <field name="date_deadline" required="1"/>
-                        <field name="deadline_time" 
-                               widget="float_time"
-                               help="Formato 24h: 9.0 = 09:00, 14.5 = 14:30"/>
-                        <field name="reminder_time" 
-                               help="Cuándo enviar el recordatorio"/>
                         <field name="user_id" 
                                required="1"
                                options="{'no_create': True}"/>
@@ -30,7 +25,7 @@
                         <div class="alert alert-info mt-2" 
                              invisible="not project_id">
                             <i class="fa fa-info-circle"/> 
-                            Se creará una <strong>tarea</strong> en: <field name="project_id" readonly="1" nolabel="1" class="d-inline"/>
+                            Se creará una <strong>tarea</strong> en el proyecto seleccionado
                         </div>
                     </group>
                 </group>
@@ -39,6 +34,12 @@
                     <field name="note" 
                            placeholder="Agregar notas..."
                            nolabel="1"/>
+                </group>
+                
+                <!-- Campos ocultos -->
+                <group invisible="1">
+                    <field name="res_model"/>
+                    <field name="res_id"/>
                 </group>
                 
                 <footer>
@@ -53,13 +54,22 @@
         </field>
     </record>
     
-    <!-- Acción para el wizard -->
-    <record id="action_schedule_activity_wizard" model="ir.actions.act_window">
-        <field name="name">Programar Actividad</field>
+    <!-- Acción para el wizard desde menú (solo para testing) -->
+    <record id="action_schedule_activity_wizard_test" model="ir.actions.act_window">
+        <field name="name">🧪 Test Programar Actividad</field>
         <field name="res_model">schedule.activity.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="mail.model_mail_activity"/>
-        <field name="binding_type">action</field>
+        <field name="context">{
+            'active_model': 'res.partner',
+            'active_id': 1
+        }</field>
     </record>
+    
+    <!-- Menú de prueba (temporal) -->
+    <menuitem id="menu_test_schedule_wizard"
+              name="🧪 Test Wizard Actividades"
+              parent="project.menu_main_pm"
+              action="action_schedule_activity_wizard_test"
+              sequence="99"/>
 </odoo>
