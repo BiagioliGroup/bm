@@ -5,36 +5,33 @@
     'category': 'Project',
     'summary': 'Crear tareas automáticamente desde actividades',
     'description': """
-        Integración de Actividades con Proyectos
-        ========================================
+        Integración de Actividades con Proyectos - Biagioli Group
+        ==========================================================
         
-        Simplifica la gestión creando tareas automáticamente cuando 
-        programás una actividad con un proyecto asociado.
+        Este módulo extiende el wizard estándar de actividades para agregar
+        la opción de vincular con proyectos y crear tareas automáticamente.
         
         Características:
         ---------------
-        * Al programar una actividad, podés seleccionar un proyecto
-        * Si seleccionás proyecto, se crea automáticamente una tarea
-        * La tarea queda vinculada con el registro origen
-        * Sincronización entre actividad y tarea
+        * Campo "Proyecto" en el wizard estándar de actividades
+        * Creación automática de tareas cuando se selecciona proyecto
+        * Vinculación completa entre actividad, tarea y registro origen
+        * Funciona en TODOS los módulos (Ventas, Compras, CRM, etc.)
         
         Uso:
         ----
-        1. En cualquier formulario, click en Actividades
-        2. Programar nueva actividad
-        3. Seleccionar un proyecto (opcional)
-        4. Si hay proyecto, se crea tarea automáticamente
+        1. En cualquier formulario, click en "Actividades" → "Programar"
+        2. Aparece el wizard estándar CON el campo Proyecto
+        3. Si seleccionás proyecto → Se crea tarea automáticamente
+        4. Si NO seleccionás proyecto → Comportamiento estándar
     """,
     'author': 'Biagioli Group',
     'website': 'https://biagioli.com',
     'depends': ['base', 'mail', 'project'],
     'data': [
-        # Orden crítico
-        'security/security.xml',
-        'views/mail_activity_views.xml',
+        'views/mail_activity_schedule_views.xml',
+        'views/mail_activity_views.xml', 
         'views/project_task_views.xml',
-        'security/ir.model.access.csv',
-        'wizard/schedule_activity_wizard_views.xml',
     ],
     'installable': True,
     'application': False,
