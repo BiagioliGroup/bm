@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista Form del Wizard -->
+    <!-- Vista Form del Wizard Simplificado -->
     <record id="view_schedule_activity_wizard_form" model="ir.ui.view">
         <field name="name">schedule.activity.wizard.form</field>
         <field name="model">schedule.activity.wizard</field>
         <field name="arch" type="xml">
-            <form string="Programar Actividad">
+            <form string="Programar Actividad con Proyecto">
                 <group>
                     <group>
                         <field name="activity_type_id" 
@@ -22,7 +22,13 @@
                         <field name="project_id" 
                                options="{'no_create': True}"
                                placeholder="Seleccionar un proyecto (opcional)"/>
-                        <field name="action_type" widget="radio"/>
+                        <!-- Indicador visual -->
+                        <div class="alert alert-info" 
+                             role="alert" 
+                             invisible="not project_id">
+                            <i class="fa fa-info-circle"/> 
+                            Se creará una <strong>tarea</strong> en el proyecto seleccionado
+                        </div>
                     </group>
                 </group>
                 
@@ -32,50 +38,11 @@
                            nolabel="1"/>
                 </group>
                 
-                <!-- Información sobre qué se creará -->
-                <group string="Qué se creará" 
-                       invisible="not create_task and not create_todo">
-                    <field name="create_task" invisible="1"/>
-                    <field name="create_todo" invisible="1"/>
-                    
-                    <div class="alert alert-info" role="alert" invisible="not create_task">
-                        <i class="fa fa-tasks"/> Se creará una <strong>tarea</strong> en el proyecto seleccionado con:
-                        <ul class="mb-0">
-                            <li>Nombre del recurso, modelo e ID configurados automáticamente</li>
-                            <li>Fecha límite igual a la fecha límite de la actividad</li>
-                            <li>Asignada al usuario de la actividad</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="alert alert-info" role="alert" invisible="not create_todo">
-                        <i class="fa fa-check-square-o"/> Se creará un <strong>to-do</strong> con:
-                        <ul class="mb-0">
-                            <li>Nombre del recurso, modelo e ID configurados automáticamente</li>
-                            <li>Fecha límite igual a la fecha límite de la actividad</li>
-                            <li>Asignado al usuario de la actividad</li>
-                        </ul>
-                    </div>
-                </group>
-                
                 <footer>
-                    <button name="action_schedule_and_close" 
+                    <button name="action_schedule" 
                             string="Programar" 
                             type="object" 
-                            class="btn-primary"
-                            invisible="action_type != 'schedule'"/>
-                    
-                    <button name="action_schedule_done_and_close" 
-                            string="Programar y Marcar como Hecho" 
-                            type="object" 
-                            class="btn-primary"
-                            invisible="action_type != 'schedule_done'"/>
-                    
-                    <button name="action_done_schedule_next_and_close" 
-                            string="Completar y Programar Siguiente" 
-                            type="object" 
-                            class="btn-primary"
-                            invisible="action_type != 'done_schedule_next'"/>
-                    
+                            class="btn-primary"/>
                     <button string="Cancelar" 
                             class="btn-secondary" 
                             special="cancel"/>
@@ -83,6 +50,7 @@
             </form>
         </field>
     </record>
+
     
     <!-- Acción del Wizard -->
     <record id="action_schedule_activity_wizard" model="ir.actions.act_window">

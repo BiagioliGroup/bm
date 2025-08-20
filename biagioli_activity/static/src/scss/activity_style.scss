@@ -1,0 +1,237 @@
+// Estilos para la integración de actividades con proyectos
+
+.o_activity_project_integration {
+  // Indicadores en las actividades
+  .o_activity_project_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+
+    &.badge-project {
+      background-color: #007bff;
+      color: white;
+    }
+
+    &.badge-todo {
+      background-color: #17a2b8;
+      color: white;
+    }
+
+    &.badge-task {
+      background-color: #28a745;
+      color: white;
+    }
+  }
+
+  // Vista kanban de To-Dos
+  .o_todo_kanban {
+    .o_kanban_record {
+      &.o_todo_overdue {
+        border-left: 3px solid #dc3545;
+      }
+
+      &.o_todo_urgent {
+        border-left: 3px solid #ffc107;
+      }
+
+      .o_todo_priority {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+
+        .fa-star {
+          color: #ffc107;
+        }
+      }
+
+      .o_todo_deadline {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #6c757d;
+        font-size: 12px;
+
+        &.text-danger {
+          color: #dc3545 !important;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  // Wizard de programación
+  .o_schedule_activity_wizard {
+    .o_project_selection {
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 12px;
+      margin: 8px 0;
+
+      &.has-project {
+        background-color: #e7f5ff;
+        border-color: #007bff;
+      }
+    }
+
+    .o_creation_info {
+      margin-top: 16px;
+
+      .alert {
+        margin-bottom: 0;
+
+        ul {
+          margin-top: 8px;
+          padding-left: 20px;
+        }
+      }
+    }
+  }
+
+  // Estados de To-Do
+  .o_todo_state {
+    &.state_open {
+      .badge {
+        background-color: #17a2b8;
+      }
+    }
+
+    &.state_in_progress {
+      .badge {
+        background-color: #ffc107;
+      }
+    }
+
+    &.state_done {
+      .badge {
+        background-color: #28a745;
+      }
+
+      .o_todo_content {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+    }
+
+    &.state_cancelled {
+      .badge {
+        background-color: #6c757d;
+      }
+
+      .o_todo_content {
+        opacity: 0.4;
+      }
+    }
+  }
+
+  // Animaciones
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .o_new_todo_animation {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  // Vista de lista con colores por prioridad
+  .o_list_view {
+    tbody tr {
+      &.o_priority_urgent {
+        background-color: rgba(220, 53, 69, 0.05);
+      }
+
+      &.o_priority_high {
+        background-color: rgba(255, 193, 7, 0.05);
+      }
+
+      &.o_todo_overdue {
+        td:first-child {
+          border-left: 3px solid #dc3545;
+        }
+      }
+    }
+  }
+
+  // Botones de acción rápida
+  .o_todo_quick_actions {
+    display: flex;
+    gap: 4px;
+
+    button {
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 3px;
+
+      &.o_mark_done {
+        background-color: #28a745;
+        color: white;
+        border: none;
+
+        &:hover {
+          background-color: #218838;
+        }
+      }
+    }
+  }
+}
+
+// Mejoras para dispositivos móviles
+@media (max-width: 768px) {
+  .o_activity_project_integration {
+    .o_todo_kanban {
+      .o_kanban_record {
+        min-height: 80px;
+
+        .o_todo_content {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .o_schedule_activity_wizard {
+      .o_creation_info {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+// Modo oscuro
+@media (prefers-color-scheme: dark) {
+  .o_activity_project_integration {
+    .o_activity_project_badge {
+      &.badge-project {
+        background-color: #0056b3;
+      }
+
+      &.badge-todo {
+        background-color: #138496;
+      }
+
+      &.badge-task {
+        background-color: #1e7e34;
+      }
+    }
+
+    .o_todo_kanban {
+      .o_kanban_record {
+        background-color: #2c2c2c;
+        color: #ffffff;
+
+        .o_todo_deadline {
+          color: #a0a0a0;
+        }
+      }
+    }
+  }
+}

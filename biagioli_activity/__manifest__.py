@@ -51,6 +51,9 @@
         'web.assets_backend': [
             'biagioli_activity/static/src/js/activity_widget.js',
             'biagioli_activity/static/src/scss/activity_style.scss',
+            'biagioli_activity/static/src/js/activity_override.js',
+            
+
         ],
     },
     'installable': True,

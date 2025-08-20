@@ -5,15 +5,15 @@ from odoo.exceptions import UserError
 
 
 class ScheduleActivityWizard(models.TransientModel):
-    """Wizard para programar actividades con integración de proyectos"""
+    """Wizard simplificado para programar actividades con proyectos"""
     _name = 'schedule.activity.wizard'
-    _description = 'Programar Actividad con Integración de Proyectos'
+    _description = 'Programar Actividad con Proyecto'
     
-    # Campos del wizard
     activity_type_id = fields.Many2one(
         'mail.activity.type',
         string='Tipo de Actividad',
-        required=True
+        required=True,
+        default=lambda self: self.env.ref('mail.mail_activity_data_todo', False)
     )
     
     summary = fields.Char(
@@ -21,7 +21,7 @@ class ScheduleActivityWizard(models.TransientModel):
     )
     
     note = fields.Html(
-        string='Nota',
+        string='Notas',
         sanitize=True
     )
     
@@ -41,97 +41,56 @@ class ScheduleActivityWizard(models.TransientModel):
     project_id = fields.Many2one(
         'project.project',
         string='Proyecto',
-        help='Opcional: Vincular esta actividad a un proyecto para crear una tarea'
+        help='Si seleccionás un proyecto, se creará una tarea automáticamente'
     )
     
     create_task = fields.Boolean(
-        string='Crear Tarea',
-        compute='_compute_create_flags',
-        store=True,
-        help='Se creará una tarea si se selecciona un proyecto'
+        string='Se creará una tarea',
+        compute='_compute_create_task',
+        store=False
     )
-    
-    create_todo = fields.Boolean(
-        string='Crear To-Do',
-        compute='_compute_create_flags',
-        store=True,
-        help='Se creará un to-do si no se selecciona un proyecto'
-    )
-    
-    action_type = fields.Selection([
-        ('schedule', 'Programar'),
-        ('schedule_done', 'Programar y Marcar como Hecho'),
-        ('done_schedule_next', 'Completar y Programar Siguiente'),
-    ], string='Acción', default='schedule', required=True)
     
     @api.depends('project_id')
-    def _compute_create_flags(self):
-        """Calcular qué se va a crear según el proyecto"""
+    def _compute_create_task(self):
+        """Indicar si se creará tarea"""
         for wizard in self:
-            user = self.env.user
-            is_project_user = user.has_group('project.group_project_user')
-            is_project_manager = user.has_group('project.group_project_manager')
-            
-            if wizard.project_id and (is_project_user or is_project_manager):
-                wizard.create_task = True
-                wizard.create_todo = False
-            else:
-                wizard.create_task = False
-                wizard.create_todo = True
+            wizard.create_task = bool(wizard.project_id)
     
-    def action_schedule_activity(self):
-        """Acción principal para programar actividad"""
+    def action_schedule(self):
+        """Programar la actividad"""
         self.ensure_one()
         
-        # Validar datos
-        if not self.activity_type_id:
-            raise UserError(_('Por favor seleccione un tipo de actividad.'))
+        # Obtener contexto
+        active_model = self._context.get('active_model') or self._context.get('default_res_model')
+        active_id = self._context.get('active_id') or self._context.get('default_res_id')
         
-        # Obtener el modelo y registro desde el contexto
-        active_model = self._context.get('active_model')
-        active_ids = self._context.get('active_ids', [])
+        if not active_model or not active_id:
+            raise UserError(_('No se puede determinar el registro activo'))
         
-        if not active_model or not active_ids:
-            raise UserError(_('No hay registros seleccionados.'))
+        # Crear la actividad
+        activity_vals = {
+            'activity_type_id': self.activity_type_id.id,
+            'summary': self.summary or self.activity_type_id.name,
+            'note': self.note,
+            'date_deadline': self.date_deadline,
+            'user_id': self.user_id.id,
+            'res_model': active_model,
+            'res_id': active_id,
+            'project_id': self.project_id.id if self.project_id else False,
+        }
         
-        # Crear actividades para cada registro seleccionado
-        activities = self.env['mail.activity']
-        
-        for record_id in active_ids:
-            # Preparar valores de la actividad
-            activity_vals = {
-                'activity_type_id': self.activity_type_id.id,
-                'summary': self.summary or self.activity_type_id.name,
-                'note': self.note,
-                'date_deadline': self.date_deadline,
-                'user_id': self.user_id.id,
-                'res_model': active_model,
-                'res_id': record_id,
-                'project_id': self.project_id.id if self.project_id else False,
-                'create_task': self.create_task,
-                'create_todo': self.create_todo,
-            }
-            
-            # Crear la actividad
-            activity = activities.create(activity_vals)
-            activities |= activity
-        
-        # Ejecutar acción según el tipo
-        if self.action_type == 'schedule_done':
-            # Marcar como completada inmediatamente
-            activities.action_done()
-            
-        elif self.action_type == 'done_schedule_next':
-            # Completar y programar siguiente
-            activities.action_done_schedule_next()
+        activity = self.env['mail.activity'].create(activity_vals)
         
         # Mensaje de confirmación
-        message = _('Actividad programada exitosamente.')
-        if self.create_task:
-            message = _('Actividad programada y tarea creada.')
-        elif self.create_todo:
-            message = _('Actividad programada y to-do creado.')
+        if activity.linked_task_id:
+            message = _('✅ Actividad programada y tarea #%s creada en proyecto %s') % (
+                activity.linked_task_id.id, 
+                self.project_id.name
+            )
+        else:
+            message = _('✅ Actividad programada correctamente')
         
+        # Notificación
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -140,6 +99,7 @@ class ScheduleActivityWizard(models.TransientModel):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
             }
         }
     
