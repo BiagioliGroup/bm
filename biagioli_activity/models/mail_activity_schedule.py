@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
+from datetime import timedelta
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -19,13 +20,16 @@ class MailActivitySchedule(models.TransientModel):
     
     def action_schedule_activities(self):
         """Override para pasar el proyecto_id a las actividades creadas"""
-        # Llamar al método padre primero
+        # Guardar el proyecto_id antes de llamar al padre
+        project_id = self.project_id.id if self.project_id else False
+        
+        # Llamar al método padre que crea las actividades
         result = super().action_schedule_activities()
         
-        # Si hay proyecto seleccionado, agregarlo a las actividades creadas
-        if self.project_id:
+        # Si hay proyecto seleccionado, agregarlo a las actividades recién creadas
+        if project_id:
             try:
-                # Buscar las actividades recién creadas
+                # Buscar las actividades recién creadas (últimos 5 minutos)
                 domain = [
                     ('res_model', '=', self.res_model),
                     ('res_id', 'in', self.res_ids),
@@ -33,6 +37,7 @@ class MailActivitySchedule(models.TransientModel):
                     ('user_id', '=', self.user_id.id),
                     ('date_deadline', '=', self.date_deadline),
                     ('project_id', '=', False),  # Solo las que no tienen proyecto aún
+                    ('create_date', '>=', fields.Datetime.now() - timedelta(minutes=5))
                 ]
                 
                 recent_activities = self.env['mail.activity'].search(
@@ -40,16 +45,11 @@ class MailActivitySchedule(models.TransientModel):
                     order='create_date desc'
                 )
                 
-                # Agregar proyecto a las actividades
+                # Simplemente asignar el proyecto - el create() de mail.activity se encarga del resto
                 if recent_activities:
-                    recent_activities.write({'project_id': self.project_id.id})
-                    _logger.info(f"✅ Proyecto {self.project_id.name} asignado a {len(recent_activities)} actividades")
+                    recent_activities.write({'project_id': project_id})
+                    _logger.info(f"✅ Proyecto asignado a {len(recent_activities)} actividades")
                     
-                    # Crear tareas para actividades con proyecto
-                    for activity in recent_activities:
-                        if not activity.linked_task_id:
-                            activity._create_project_task()
-                            
             except Exception as e:
                 _logger.error(f"❌ Error asignando proyecto a actividades: {e}")
         
