@@ -72,18 +72,28 @@ class ScheduleActivityWizard(models.TransientModel):
         """Programar la actividad"""
         self.ensure_one()
         
+        # Obtener contexto
+        active_model = self._context.get('active_model') or self._context.get('default_res_model')
+        active_id = self._context.get('active_id') or self._context.get('default_res_id')
+        
         # Validaciones
-        if not self.res_model or not self.res_id:
+        if not active_model or not active_id:
             raise UserError(_('No se puede determinar el registro origen'))
+        
+        # Buscar el modelo en ir.model
+        model_record = self.env['ir.model'].search([('model', '=', active_model)], limit=1)
+        if not model_record:
+            raise UserError(_('No se encontró el modelo %s') % active_model)
             
-        # Crear la actividad
+        # Crear la actividad con todos los campos obligatorios
         activity_vals = {
             'activity_type_id': self.activity_type_id.id,
-            'summary': self.summary,
+            'summary': self.summary or self.activity_type_id.name,
             'date_deadline': self.date_deadline,
             'user_id': self.user_id.id,
-            'res_model': self.res_model,
-            'res_id': self.res_id,
+            'res_model': active_model,
+            'res_model_id': model_record.id,  # Campo obligatorio
+            'res_id': active_id,
             'note': self.note,
         }
         
@@ -91,7 +101,7 @@ class ScheduleActivityWizard(models.TransientModel):
         if self.project_id:
             activity_vals['project_id'] = self.project_id.id
             
-        activity = self.env['mail.activity'].create(activity_vals)
+        activity = self.env['mail.activity'].sudo().create(activity_vals)
         
         # Mensaje de éxito
         message = _('✅ Actividad programada correctamente')
