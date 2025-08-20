@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
+import json
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -66,31 +67,46 @@ class MailActivitySchedule(models.TransientModel):
         
         # Mostrar notificación si se crearon tareas
         if self.project_id:
-            # Contar actividades creadas
-            activities = self.env['mail.activity'].search([
-                ('res_model', '=', self.res_model),
-                ('res_id', 'in', self.res_ids),
-                ('project_id', '=', self.project_id.id),
-                ('create_uid', '=', self.env.uid),
-            ], order='create_date desc', limit=10)
-            
-            tasks_created = activities.mapped('linked_task_id')
-            if tasks_created:
-                message = _('✅ Se crearon %d tareas en el proyecto %s') % (
-                    len(tasks_created), 
-                    self.project_id.name
-                )
+            try:
+                # Convertir res_ids de string a lista si es necesario
+                res_ids = self.res_ids
+                if isinstance(res_ids, str):
+                    res_ids = json.loads(res_ids) if res_ids else []
                 
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Tareas Creadas'),
-                        'message': message,
-                        'type': 'success',
-                        'sticky': False,
+                # Buscar actividades creadas
+                activities = self.env['mail.activity'].search([
+                    ('res_model', '=', self.res_model),
+                    ('res_id', 'in', res_ids),
+                    ('project_id', '=', self.project_id.id),
+                ], order='create_date desc', limit=10)
+                
+                tasks_created = activities.mapped('linked_task_id')
+                if tasks_created:
+                    message = _('✅ Se crearon %d tareas en el proyecto %s') % (
+                        len(tasks_created), 
+                        self.project_id.name
+                    )
+                    
+                    # Notificación
+                    notification = {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': _('Tareas Creadas'),
+                            'message': message,
+                            'type': 'success',
+                            'sticky': False,
+                        }
                     }
-                }
+                    
+                    # Si result es un dict con 'actions', agregar la notificación
+                    if isinstance(result, dict) and 'actions' in result:
+                        result['actions'].append(notification)
+                    else:
+                        return notification
+                        
+            except Exception as e:
+                _logger.warning(f"Error al mostrar notificación: {e}")
         
         return result
     
@@ -100,16 +116,56 @@ class MailActivitySchedule(models.TransientModel):
         
         # Notificación si se crearon tareas
         if self.project_id:
-            message = _('✅ Actividades marcadas como hechas y tareas creadas en %s') % self.project_id.name
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Completado'),
-                    'message': message,
-                    'type': 'success',
-                    'sticky': False,
+            try:
+                message = _('✅ Actividades marcadas como hechas y tareas creadas en %s') % self.project_id.name
+                
+                notification = {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Completado'),
+                        'message': message,
+                        'type': 'success',
+                        'sticky': False,
+                    }
                 }
-            }
+                
+                if isinstance(result, dict) and 'actions' in result:
+                    result['actions'].append(notification)
+                else:
+                    return notification
+                    
+            except Exception as e:
+                _logger.warning(f"Error al mostrar notificación: {e}")
+            
+        return result
+    
+    def action_schedule_activities_done_and_schedule(self):
+        """Override del botón Hecho y programar siguiente"""
+        result = super().action_schedule_activities_done_and_schedule()
+        
+        # Notificación si se crearon tareas
+        if self.project_id:
+            try:
+                message = _('✅ Actividad completada y nueva tarea creada en %s') % self.project_id.name
+                
+                notification = {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Completado'),
+                        'message': message,
+                        'type': 'success',
+                        'sticky': False,
+                    }
+                }
+                
+                if isinstance(result, dict) and 'actions' in result:
+                    result['actions'].append(notification)
+                else:
+                    return notification
+                    
+            except Exception as e:
+                _logger.warning(f"Error al mostrar notificación: {e}")
             
         return result
