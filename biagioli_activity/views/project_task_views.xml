@@ -41,15 +41,19 @@
                        help="Hora específica de la tarea"/>
             </xpath>
             
-            <!-- Agregar grupo de notificaciones -->
-            <xpath expr="//group[@name='project_task_details']" position="after">
-                <group string="Notificaciones" name="notifications_group">
-                    <field name="enable_notifications"/>
-                    <field name="reminder_time" 
-                           invisible="not enable_notifications"/>
-                    <field name="notification_sent" readonly="1" 
-                           invisible="not enable_notifications"/>
-                    <field name="full_deadline_display" readonly="1"/>
+            <!-- Agregar grupo de notificaciones después de cualquier group existente -->
+            <xpath expr="//sheet//group[1]" position="after">
+                <group string="Notificaciones" name="notifications_group" colspan="2">
+                    <group>
+                        <field name="enable_notifications"/>
+                        <field name="reminder_time" 
+                               invisible="not enable_notifications"/>
+                    </group>
+                    <group>
+                        <field name="notification_sent" readonly="1" 
+                               invisible="not enable_notifications"/>
+                        <field name="full_deadline_display" readonly="1"/>
+                    </group>
                 </group>
             </xpath>
             
