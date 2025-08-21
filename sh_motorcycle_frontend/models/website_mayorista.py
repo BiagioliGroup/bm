@@ -10,12 +10,12 @@ class Website(models.Model):
     # NUEVOS CAMPOS MAYORISTA
     sh_show_user_pricelist_badge = fields.Boolean(
         string="Mostrar lista de precios en header",
-        default=False,
+        default=True,  # ← CAMBIADO: True por defecto
         help="Muestra el nombre de la lista de precios del usuario en el header"
     )
     sh_show_comparative_prices = fields.Boolean(
         string="Mostrar precios comparativos",
-        default=False,
+        default=True,  # ← CAMBIADO: True por defecto
         help="Muestra precios de diferentes listas en la tienda"
     )
     sh_mayorista_pricelist_ids = fields.Many2many(
