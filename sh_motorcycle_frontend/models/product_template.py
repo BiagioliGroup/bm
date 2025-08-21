@@ -109,7 +109,7 @@ class ProductTemplate(models.Model):
             return []
 
         # Obtener el producto variant principal para cálculos de precio
-        product_variant = self.product_variant_ids[0] if self.product_variant_ids else None
+        product_variant = self.sudo().product_variant_ids[0] if self.sudo().product_variant_ids else None
         if not product_variant:
             return []
         
@@ -122,7 +122,7 @@ class ProductTemplate(models.Model):
             # Buscar la lista mayorista específicamente
             mayorista_pricelist = None
             if hasattr(website, 'sh_mayorista_pricelist_ids'):
-                for pricelist in website.sh_mayorista_pricelist_ids:
+                for pricelist in website.sudo().sh_mayorista_pricelist_ids:
                     if 'mayorista' in pricelist.name.lower():
                         mayorista_pricelist = pricelist
                         break
@@ -158,7 +158,7 @@ class ProductTemplate(models.Model):
         
         # Agregar las listas configuradas en settings
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
-            for pricelist in website.sh_mayorista_pricelist_ids:
+            for pricelist in website.sudo().sh_mayorista_pricelist_ids:
                 if pricelist.id != user_pricelist.id:  # Evitar duplicados
                     pricelists_to_check.append(pricelist)
         
