@@ -304,7 +304,7 @@
     </xpath>
 </template>
 
-  <!-- en Stage3 -->
+  <!-- en main -->
   <!-- 🏷️ Badge mayorista en header -->
   <template id="sh_mayorista_badge_header" inherit_id="website.layout" active="True" name="Mayorista Badge Header">
     <xpath expr="//header[@id='top']" position="inside">
