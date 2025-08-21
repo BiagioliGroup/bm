@@ -42,7 +42,7 @@ Find Auto Parts Based On Model ,Type App , Search Auto Parts Based On Model Year
         "views/res_config_settings_view.xml",
         "views/sh_morotcycle_garage_templates.xml",
         "views/sh_motorcycle_frontend_snippet_templates.xml",
-        "views/guest_checkout_templates.xml"  # ← AGREGADO: Template para guest checkout
+        # "views/guest_checkout_templates.xml"  # ← AGREGADO: Template para guest checkout
     ],
     'assets': {
         'web.assets_frontend': [
