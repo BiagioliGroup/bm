@@ -138,9 +138,11 @@ class ProductTemplate(models.Model):
                 # VERIFICAR si existe una regla ESPECÍFICA para este producto en esta lista
                 pricelist_items = self.env['product.pricelist.item'].sudo().search([
                     ('pricelist_id', '=', pricelist.id),
-                    '|', ('product_tmpl_id', '=', self.id),
-                    '|', ('product_id', '=', product_variant.id),
-                    ('categ_id', 'in', self._get_product_category_ids())
+                    '|', 
+                    '&', ('applied_on', '=', '1_product'), ('product_tmpl_id', '=', self.id),
+                    '|',
+                    '&', ('applied_on', '=', '0_product_variant'), ('product_id', '=', product_variant.id),
+                    '&', ('applied_on', '=', '2_product_category'), ('categ_id', 'in', self._get_product_category_ids())
                 ])
                 
                 if pricelist_items:
@@ -174,9 +176,11 @@ class ProductTemplate(models.Model):
                 try:
                     pricelist_items = self.env['product.pricelist.item'].sudo().search([
                         ('pricelist_id', '=', pricelist.id),
-                        '|', ('product_tmpl_id', '=', self.id),
-                        '|', ('product_id', '=', product_variant.id),
-                        ('categ_id', 'in', self._get_product_category_ids())
+                        '|', 
+                        '&', ('applied_on', '=', '1_product'), ('product_tmpl_id', '=', self.id),
+                        '|',
+                        '&', ('applied_on', '=', '0_product_variant'), ('product_id', '=', product_variant.id),
+                        '&', ('applied_on', '=', '2_product_category'), ('categ_id', 'in', self._get_product_category_ids())
                     ])
                     
                     if pricelist_items:
@@ -211,7 +215,7 @@ class ProductTemplate(models.Model):
             return results
         else:
             return []
-        
+
     def _get_product_category_ids(self):
         """Helper method para obtener categorías del producto"""
         categories = []
