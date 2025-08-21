@@ -92,7 +92,7 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        Funciona para todos los casos: Revendedor, Mayorista y Dropshipping
+        VERSIÓN FINAL - Con todos los permisos de sudo() necesarios
         """
         self.ensure_one()
         user = self.env.user
@@ -108,32 +108,23 @@ class ProductTemplate(models.Model):
         if not user_pricelist:
             return []
 
-        # Obtener el producto variant principal para cálculos de precio
-        product_variant = self.sudo().product_variant_ids[0] if self.sudo().product_variant_ids else None
+        # CRÍTICO: Usar sudo() para obtener datos del producto
+        product_sudo = self.sudo()
+        product_variant = product_sudo.product_variant_ids[0] if product_sudo.product_variant_ids else None
         if not product_variant:
             return []
         
         results = []
         prices_found = {}  # {pricelist_id: price}
-        list_price = self.list_price  # Precio público base
+        list_price = product_sudo.list_price  # CRÍTICO: Usar sudo() para list_price
         
         # VALIDACIÓN ESPECIAL PARA DROPSHIPPING - ANTES de calcular cualquier cosa
         if user_pricelist.name and 'dropshipping' in user_pricelist.name.lower():
             # Buscar la lista mayorista específicamente
-            mayorista_pricelist = None
-            if hasattr(website, 'sh_mayorista_pricelist_ids'):
-                for pricelist in website.sudo().sh_mayorista_pricelist_ids:
-                    if 'mayorista' in pricelist.name.lower():
-                        mayorista_pricelist = pricelist
-                        break
+            mayorista_pricelist = self.env['product.pricelist'].sudo().search([
+                ('name', 'ilike', 'mayorista')
+            ], limit=1)
             
-            # Si no encontramos lista mayorista en configuración, buscar por nombre
-            if not mayorista_pricelist:
-                mayorista_pricelist = self.env['product.pricelist'].search([
-                    ('name', 'ilike', 'mayorista')
-                ], limit=1)
-            
-            # Verificar que el producto REALMENTE tiene precio mayorista configurado
             if mayorista_pricelist:
                 try:
                     mayorista_price = mayorista_pricelist._get_product_price(
@@ -141,7 +132,6 @@ class ProductTemplate(models.Model):
                     )
                     
                     # CRÍTICO: Verificar que el precio mayorista ES DIFERENTE al precio público
-                    # Si son iguales, significa que no hay precio mayorista real configurado
                     if abs(mayorista_price - list_price) <= (list_price * 0.001):  # Tolerancia muy pequeña
                         # No hay precio mayorista real - no mostrar comparativos
                         return []
@@ -156,7 +146,7 @@ class ProductTemplate(models.Model):
         # Lista de pricelists a evaluar (SIN duplicar la del usuario)
         pricelists_to_check = []
         
-        # Agregar las listas configuradas en settings
+        # Agregar las listas configuradas en settings (usando sudo())
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
             for pricelist in website.sudo().sh_mayorista_pricelist_ids:
                 if pricelist.id != user_pricelist.id:  # Evitar duplicados
@@ -169,43 +159,48 @@ class ProductTemplate(models.Model):
         for pricelist in pricelists_to_check:
             try:
                 # Usar el método correcto de Odoo para obtener el precio
+                # CRÍTICO: Usar date específica para evitar problemas de conversión
                 price = pricelist._get_product_price(
                     product_variant, 
                     1.0, 
-                    partner,
-                    date=False,
+                    partner, 
+                    date='2025-08-21',  # Fecha específica para evitar problemas
                     uom_id=product_variant.uom_id.id
                 )
                 
-                # Agregar el precio si es válido
+                # Solo agregar si el precio es válido y diferente
                 if price > 0:
-                    prices_found[pricelist.id] = price
-                    results.append({
-                        'name': pricelist.name,
-                        'price': price,
-                        'is_user_pricelist': pricelist.id == user_pricelist.id,
-                        'pricelist_id': pricelist.id,
-                    })
+                    # Verificar si ya tenemos este precio (evitar duplicados por precio)
+                    price_rounded = round(price, 2)
+                    duplicate_found = False
                     
+                    for existing_price in prices_found.values():
+                        if abs(existing_price - price_rounded) < 0.01:  # Tolerancia de centavos
+                            duplicate_found = True
+                            break
+                    
+                    if not duplicate_found:
+                        prices_found[pricelist.id] = price_rounded
+                        
+                        results.append({
+                            'name': pricelist.name,
+                            'price': price_rounded,
+                            'pricelist_id': pricelist.id,
+                            'is_user_pricelist': pricelist.id == user_pricelist.id
+                        })
+                        
             except Exception as e:
+                # Log del error pero continuar con otras listas
                 import logging
                 _logger = logging.getLogger(__name__)
-                _logger.warning(f"Error calculando precio para pricelist {pricelist.name}: {e}")
+                _logger.warning(f"Error calculando precio para lista {pricelist.name}: {e}")
                 continue
         
-        # Solo mostrar si hay al menos 2 precios DIFERENTES
-        unique_prices = set(prices_found.values())
-        if len(unique_prices) <= 1:
-            return []
-        
-        # Verificar que las diferencias son mínimamente significativas
-        min_price = min(unique_prices)
-        max_price = max(unique_prices)
-        
-        if min_price > 0 and ((max_price - min_price) / min_price) < 0.005:  # 0.5%
-            return []
-        
-        # Ordenar: precio del usuario primero, luego por precio ascendente  
+        # Ordenar: precio del usuario primero, luego otros por precio ascendente
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
-        return results
+        # Solo devolver si hay al menos 2 precios diferentes
+        if len(results) >= 2:
+            return results
+        else:
+            return []
