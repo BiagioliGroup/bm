@@ -304,6 +304,7 @@
     </xpath>
 </template>
 
+  <!-- en Stage3 -->
   <!-- 🏷️ Badge mayorista en header -->
   <template id="sh_mayorista_badge_header" inherit_id="website.layout" active="True" name="Mayorista Badge Header">
     <xpath expr="//header[@id='top']" position="inside">
@@ -356,7 +357,7 @@
 <!-- 💰 Precios comparativos en página individual de producto - VERSIÓN CORREGIDA -->
 <template id="sh_mayorista_product_page_prices_minimal" inherit_id="website_sale.product" name="Product Page Comparative Prices Minimal">
   <xpath expr="//h1" position="after">
-    <t t-if="request.env.user.has_group('base.group_user')">
+    <t t-if="not request.env.user._is_public()">
       <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
       <t t-if="comparatives and len(comparatives) > 1">
         <div class="small text-muted mb-2">
