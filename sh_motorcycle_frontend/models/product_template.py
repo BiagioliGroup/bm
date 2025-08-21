@@ -91,8 +91,8 @@ class ProductTemplate(models.Model):
 
     def get_comparative_prices(self):
         """
-        Obtiene precios comparativos para mostrar en tienda
-        VERSIÓN BULLETPROOF - Evita problemas de conversión de monedas
+        Obtiene precios comparativos REALES para mostrar en tienda
+        SOLO muestra productos que tienen precios mayoristas configurados
         """
         self.ensure_one()
         user = self.env.user
@@ -115,85 +115,95 @@ class ProductTemplate(models.Model):
             return []
         
         results = []
-        prices_found = {}  # {pricelist_id: price}
+        prices_found = {}
         
-        # Lista de pricelists a evaluar (SIN duplicar la del usuario)
+        # Lista de pricelists a evaluar
         pricelists_to_check = []
         
-        # Agregar las listas configuradas en settings (usando sudo())
+        # Agregar las listas configuradas en settings
         if hasattr(website, 'sh_mayorista_pricelist_ids'):
             for pricelist in website.sudo().sh_mayorista_pricelist_ids:
-                if pricelist.id != user_pricelist.id:  # Evitar duplicados
+                if pricelist.id != user_pricelist.id:
                     pricelists_to_check.append(pricelist)
         
         # SIEMPRE agregar la lista del usuario
         pricelists_to_check.append(user_pricelist)
         
-        # Calcular precios para cada lista
+        # PASO 1: Verificar que el producto REALMENTE tiene reglas de precio diferentes
+        base_price = product_sudo.list_price  # Precio público base
+        has_real_pricing = False
+        
         for pricelist in pricelists_to_check:
             try:
-                # NUEVA ESTRATEGIA: Usar el contexto de pricelist directamente para evitar conversión
-                price = product_variant.sudo().with_context(
-                    pricelist=pricelist.id,
-                    date='2025-08-21',
-                    uom=product_variant.uom_id.id,
-                    # CRÍTICO: Forzar misma moneda para evitar conversión
-                    currency_id=self.env.company.currency_id.id
-                ).price
+                # VERIFICAR si existe una regla ESPECÍFICA para este producto en esta lista
+                pricelist_items = self.env['product.pricelist.item'].sudo().search([
+                    ('pricelist_id', '=', pricelist.id),
+                    '|', ('product_tmpl_id', '=', self.id),
+                    '|', ('product_id', '=', product_variant.id),
+                    ('categ_id', 'in', self._get_product_category_ids())
+                ])
                 
-                # Solo agregar si el precio es válido y diferente
-                if price and price > 0:
-                    # Verificar si ya tenemos este precio (evitar duplicados por precio)
-                    price_rounded = round(price, 2)
-                    duplicate_found = False
+                if pricelist_items:
+                    # Hay reglas específicas - calcular precio
+                    calculated_price = pricelist._compute_price_rule(
+                        product_variant, 1.0, partner, date='2025-08-21'
+                    )[product_variant.id][0]
                     
-                    for existing_price in prices_found.values():
-                        if abs(existing_price - price_rounded) < 0.01:  # Tolerancia de centavos
-                            duplicate_found = True
-                            break
-                    
-                    if not duplicate_found:
-                        prices_found[pricelist.id] = price_rounded
+                    # Verificar que el precio es REALMENTE diferente (no solo aplicación de regla general)
+                    if abs(calculated_price - base_price) > (base_price * 0.01):  # Diferencia > 1%
+                        has_real_pricing = True
+                        price_rounded = round(calculated_price, 2)
                         
-                        results.append({
-                            'name': pricelist.name,
-                            'price': price_rounded,
-                            'pricelist_id': pricelist.id,
-                            'is_user_pricelist': pricelist.id == user_pricelist.id
-                        })
-                        
-            except Exception as e:
-                # ALTERNATIVA: Si falla, usar list_price como base
-                import logging
-                _logger = logging.getLogger(__name__)
-                _logger.warning(f"Error calculando precio para lista {pricelist.name}: {e}")
-                
-                # Como fallback, usar el precio base del producto
-                try:
-                    base_price = product_sudo.list_price
-                    if pricelist.name.lower() == 'mayorista':
-                        # Aplicar descuento mayorista típico del 30%
-                        fallback_price = base_price * 0.7
-                    elif pricelist.name.lower() == 'publico':
-                        fallback_price = base_price
-                    else:
-                        fallback_price = base_price * 0.8  # Descuento genérico
-                    
-                    if fallback_price > 0:
-                        price_rounded = round(fallback_price, 2)
+                        # Evitar duplicados
                         if price_rounded not in prices_found.values():
+                            prices_found[pricelist.id] = price_rounded
                             results.append({
-                                'name': f"{pricelist.name} (aprox)",
+                                'name': pricelist.name,
                                 'price': price_rounded,
                                 'pricelist_id': pricelist.id,
                                 'is_user_pricelist': pricelist.id == user_pricelist.id
                             })
-                            prices_found[pricelist.id] = price_rounded
+                            
+            except Exception as e:
+                # Si hay error de conversión de monedas, intentar método alternativo
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.warning(f"Error calculando precio para lista {pricelist.name}: {e}")
+                
+                # MÉTODO ALTERNATIVO: Verificar reglas sin calcular precio
+                try:
+                    pricelist_items = self.env['product.pricelist.item'].sudo().search([
+                        ('pricelist_id', '=', pricelist.id),
+                        '|', ('product_tmpl_id', '=', self.id),
+                        '|', ('product_id', '=', product_variant.id),
+                        ('categ_id', 'in', self._get_product_category_ids())
+                    ])
+                    
+                    if pricelist_items:
+                        # Usar precio fijo de la regla si existe
+                        fixed_price_item = pricelist_items.filtered(lambda x: x.compute_price == 'fixed')
+                        if fixed_price_item:
+                            fixed_price = fixed_price_item[0].fixed_price
+                            if fixed_price > 0 and abs(fixed_price - base_price) > (base_price * 0.01):
+                                has_real_pricing = True
+                                price_rounded = round(fixed_price, 2)
+                                
+                                if price_rounded not in prices_found.values():
+                                    prices_found[pricelist.id] = price_rounded
+                                    results.append({
+                                        'name': pricelist.name,
+                                        'price': price_rounded,
+                                        'pricelist_id': pricelist.id,
+                                        'is_user_pricelist': pricelist.id == user_pricelist.id
+                                    })
                 except:
-                    # Si todo falla, continuar con la siguiente lista
                     continue
         
-        # Ordenar: precio del usuario primero, luego otros por precio ascendente
+        # PASO 2: Solo mostrar si hay precios REALES diferentes
+        if not has_real_pricing:
+            return []  # No hay precios mayoristas reales - mostrar precio público normal
+        
+        # Ordenar: precio del usuario primero, luego otros por precio
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
         # Solo devolver si hay al menos 2 precios diferentes
@@ -201,3 +211,15 @@ class ProductTemplate(models.Model):
             return results
         else:
             return []
+        
+    def _get_product_category_ids(self):
+        """Helper method para obtener categorías del producto"""
+        categories = []
+        if self.categ_id:
+            categories.append(self.categ_id.id)
+            # Agregar categorías padre
+            parent = self.categ_id.parent_id
+            while parent:
+                categories.append(parent.id)
+                parent = parent.parent_id
+        return categories
