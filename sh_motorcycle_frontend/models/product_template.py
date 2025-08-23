@@ -88,14 +88,13 @@ class ProductTemplate(models.Model):
         return year_list or []
 
 
-
     # ARCHIVO: sh_motorcycle_frontend/models/product_template.py
-    # REEMPLAZAR COMPLETAMENTE el método get_comparative_prices() con esta versión
+    # MÉTODO get_comparative_prices() VERSIÓN FINAL CORREGIDA
 
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        VERSIÓN FINAL: Corrige problema de partner para usuarios Portal
+        VERSIÓN FINAL CORREGIDA: Soluciona todos los problemas identificados
         """
         self.ensure_one()
         
@@ -131,12 +130,12 @@ class ProductTemplate(models.Model):
             
             if is_portal_user:
                 # Usuario Portal: usar sudo() para acceder a su propia pricelist
-                partner = current_user.partner_id.sudo()
-                user_pricelist = partner.property_product_pricelist
+                user_partner = current_user.partner_id.sudo()
+                user_pricelist = user_partner.property_product_pricelist
             else:
                 # Usuario interno: acceso normal
-                partner = current_user.partner_id
-                user_pricelist = partner.property_product_pricelist
+                user_partner = current_user.partner_id
+                user_pricelist = user_partner.property_product_pricelist
                 
         except Exception:
             # Si hay cualquier error de permisos, no mostrar comparativos
@@ -145,55 +144,7 @@ class ProductTemplate(models.Model):
         if not user_pricelist:
             return []
         
-        results = []
-        prices_found = {}  # {pricelist_id: price}
-        list_price = self.list_price  # Precio público base
-        
-        # VALIDACIÓN ESPECIAL PARA DROPSHIPPING
-        if user_pricelist.name and 'dropshipping' in user_pricelist.name.lower():
-            # Para Dropshipping, buscar mayorista usando sudo()
-            try:
-                mayorista_pricelist = None
-                
-                # Buscar mayorista en configuración del website (con sudo para usuarios portal)
-                if hasattr(website, 'sh_mayorista_pricelist_ids') and website.sh_mayorista_pricelist_ids:
-                    website_lists = website.sh_mayorista_pricelist_ids.sudo() if is_portal_user else website.sh_mayorista_pricelist_ids
-                    for pricelist in website_lists:
-                        if 'mayorista' in pricelist.name.lower():
-                            mayorista_pricelist = pricelist
-                            break
-                
-                # Si no encontramos lista mayorista en configuración, buscar por nombre
-                if not mayorista_pricelist:
-                    search_env = self.env['product.pricelist'].sudo() if is_portal_user else self.env['product.pricelist']
-                    mayorista_pricelist = search_env.search([('name', 'ilike', 'mayorista')], limit=1)
-                    
-            except Exception:
-                # Error accediendo a pricelists - no mostrar comparativos
-                return []
-            
-            # Verificar que el producto REALMENTE tiene precio mayorista configurado
-            if mayorista_pricelist:
-                try:
-                    # Para dropshipping, usar partner admin para calcular precio mayorista
-                    admin_partner = self.env['res.partner'].browse(1)
-                    mayorista_price = mayorista_pricelist.sudo()._get_product_price(
-                        product_variant, 1.0, admin_partner, date=False, uom_id=product_variant.uom_id.id
-                    )
-                    
-                    # Verificar que el precio mayorista ES DIFERENTE al precio público
-                    if abs(mayorista_price - list_price) <= (list_price * 0.001):
-                        # No hay precio mayorista real - no mostrar comparativos
-                        return []
-                        
-                except Exception:
-                    # Error calculando precio mayorista - no mostrar comparativos
-                    return []
-            else:
-                # No hay lista mayorista - no mostrar comparativos para dropshipping
-                return []
-        
-        # OBTENER LISTAS DE PRECIOS PARA COMPARAR (CON SUDO PARA PORTALS)
+        # OBTENER LISTAS DE PRECIOS PARA COMPARAR
         pricelists_to_check = []
         
         try:
@@ -210,30 +161,51 @@ class ProductTemplate(models.Model):
                     ('name', 'ilike', 'mayorista'),
                     ('name', 'ilike', 'revendedor'),
                     ('name', 'ilike', 'publico')
-                ], limit=4)
+                ], limit=3)
                 pricelists_to_check.extend(important_pricelists)
                 
         except Exception:
             # Error accediendo a configuraciones - continuar solo con la pricelist del usuario
             pricelists_to_check = []
         
-        # Agregar la pricelist del usuario (siempre debe estar)
+        # SIEMPRE agregar la pricelist del usuario (es la MÁS IMPORTANTE)
         if user_pricelist not in pricelists_to_check:
             pricelists_to_check.append(user_pricelist)
         
-        # CALCULAR PRECIOS PARA CADA PRICELIST (CORREGIDO PARA PORTAL)
-        # Partner genérico para cálculos de otras listas (evita errores con partners portal)
-        admin_partner = self.env['res.partner'].browse(1)
+        # CALCULAR PRECIOS USANDO PARTNER NEUTRO
+        # SOLUCIÓN: Crear un partner neutro genérico para cálculos
+        try:
+            # Buscar un partner público/genérico para cálculos neutrales
+            public_partner = self.env['res.partner'].search([
+                ('is_company', '=', False),
+                ('supplier_rank', '=', 0),
+                ('customer_rank', '>', 0)
+            ], limit=1)
+            
+            # Si no hay partner público, crear uno temporal
+            if not public_partner:
+                public_partner = self.env['res.partner'].create({
+                    'name': 'Precio Público Genérico',
+                    'is_company': False,
+                    'customer_rank': 1
+                })
+                
+        except Exception:
+            # Fallback: usar partner base del sistema
+            public_partner = self.env['res.partner'].browse(1)
+        
+        results = []
+        prices_found = {}  # {pricelist_id: price}
         
         for pricelist in pricelists_to_check:
             try:
-                # CLAVE: Para usuarios portal, usar partner específico según la lista
-                if is_portal_user and pricelist.id != user_pricelist.id:
-                    # Otras listas: usar partner admin para evitar errores de configuración
-                    calc_partner = admin_partner
+                # CLAVE: Usar partner específico según el tipo de lista
+                if pricelist.id == user_pricelist.id:
+                    # Para la lista del usuario: usar su partner (para precios personalizados)
+                    calc_partner = user_partner
                 else:
-                    # Su propia lista o usuario interno: usar su partner
-                    calc_partner = partner
+                    # Para otras listas: usar partner neutro (para precios estándar)
+                    calc_partner = public_partner
                 
                 # USAR SUDO() para calcular precios
                 pricelist_sudo = pricelist.sudo()
@@ -242,7 +214,7 @@ class ProductTemplate(models.Model):
                     product_variant, 1.0, calc_partner, date=False, uom_id=product_variant.uom_id.id
                 )
                 
-                # Solo agregar si el precio es diferente y válido
+                # Solo agregar si el precio es válido y diferente
                 if price > 0 and pricelist.id not in prices_found:
                     prices_found[pricelist.id] = price
                     
@@ -265,5 +237,13 @@ class ProductTemplate(models.Model):
         unique_prices = set(prices_found.values())
         if len(unique_prices) <= 1:
             return []
+        
+        # LÍMITE: Máximo 3 precios para evitar saturar la interfaz
+        MAX_PRICES = 3
+        if len(results) > MAX_PRICES:
+            # Mantener: precio del usuario + los 2 más relevantes
+            user_results = [r for r in results if r['is_user_pricelist']]
+            other_results = [r for r in results if not r['is_user_pricelist']][:MAX_PRICES-1]
+            results = user_results + other_results
         
         return results
