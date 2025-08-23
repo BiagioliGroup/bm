@@ -94,7 +94,7 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        VERSIÓN FINAL CORREGIDA: Soluciona todos los problemas identificados
+        VERSIÓN CORREGIDA: Arregla is_user_pricelist
         """
         self.ensure_one()
         
@@ -104,7 +104,6 @@ class ProductTemplate(models.Model):
         try:
             website = self.env['website'].get_current_website()
         except:
-            # Fallback si no hay contexto de website
             website = self.env['website'].search([('company_id', '=', current_user.company_id.id)], limit=1)
         
         # Si no está configurado, no mostrar precios comparativos
@@ -138,22 +137,23 @@ class ProductTemplate(models.Model):
                 user_pricelist = user_partner.property_product_pricelist
                 
         except Exception:
-            # Si hay cualquier error de permisos, no mostrar comparativos
             return []
         
         if not user_pricelist:
             return []
         
+        # IMPORTANTE: Guardar el ID de la pricelist del usuario ANTES de cualquier cálculo
+        user_pricelist_id = user_pricelist.id
+        user_pricelist_name = user_pricelist.name
+        
         # OBTENER LISTAS DE PRECIOS PARA COMPARAR
         pricelists_to_check = []
         
         try:
-            # Usar sudo() para que usuarios portal puedan acceder a configuraciones del website
             if hasattr(website, 'sh_mayorista_pricelist_ids') and website.sh_mayorista_pricelist_ids:
                 website_lists = website.sh_mayorista_pricelist_ids.sudo() if is_portal_user else website.sh_mayorista_pricelist_ids
                 pricelists_to_check.extend(website_lists)
             
-            # Si no hay listas configuradas, buscar algunas listas importantes
             if not pricelists_to_check:
                 search_env = self.env['product.pricelist'].sudo() if is_portal_user else self.env['product.pricelist']
                 important_pricelists = search_env.search([
@@ -165,24 +165,20 @@ class ProductTemplate(models.Model):
                 pricelists_to_check.extend(important_pricelists)
                 
         except Exception:
-            # Error accediendo a configuraciones - continuar solo con la pricelist del usuario
             pricelists_to_check = []
         
-        # SIEMPRE agregar la pricelist del usuario (es la MÁS IMPORTANTE)
+        # SIEMPRE agregar la pricelist del usuario
         if user_pricelist not in pricelists_to_check:
             pricelists_to_check.append(user_pricelist)
         
-        # CALCULAR PRECIOS USANDO PARTNER NEUTRO
-        # SOLUCIÓN: Crear un partner neutro genérico para cálculos
+        # PARTNER NEUTRO PARA CÁLCULOS
         try:
-            # Buscar un partner público/genérico para cálculos neutrales
             public_partner = self.env['res.partner'].search([
                 ('is_company', '=', False),
                 ('supplier_rank', '=', 0),
                 ('customer_rank', '>', 0)
             ], limit=1)
             
-            # Si no hay partner público, crear uno temporal
             if not public_partner:
                 public_partner = self.env['res.partner'].create({
                     'name': 'Precio Público Genérico',
@@ -191,30 +187,25 @@ class ProductTemplate(models.Model):
                 })
                 
         except Exception:
-            # Fallback: usar partner base del sistema
             public_partner = self.env['res.partner'].browse(1)
         
         results = []
-        prices_found = {}  # {pricelist_id: price}
+        prices_found = {}
         
         for pricelist in pricelists_to_check:
             try:
                 # CLAVE: Usar partner específico según el tipo de lista
-                if pricelist.id == user_pricelist.id:
-                    # Para la lista del usuario: usar su partner (para precios personalizados)
+                if pricelist.id == user_pricelist_id:  # CORREGIDO: usar user_pricelist_id guardado
                     calc_partner = user_partner
                 else:
-                    # Para otras listas: usar partner neutro (para precios estándar)
                     calc_partner = public_partner
                 
-                # USAR SUDO() para calcular precios
                 pricelist_sudo = pricelist.sudo()
                 
                 price = pricelist_sudo._get_product_price(
                     product_variant, 1.0, calc_partner, date=False, uom_id=product_variant.uom_id.id
                 )
                 
-                # Solo agregar si el precio es válido y diferente
                 if price > 0 and pricelist.id not in prices_found:
                     prices_found[pricelist.id] = price
                     
@@ -222,12 +213,11 @@ class ProductTemplate(models.Model):
                         'pricelist_id': pricelist.id,
                         'name': pricelist.name,
                         'price': price,
-                        'is_user_pricelist': pricelist.id == user_pricelist.id,
+                        'is_user_pricelist': pricelist.id == user_pricelist_id,  # CORREGIDO: usar user_pricelist_id
                         'formatted_price': '{:,.2f}'.format(price),
                     })
                     
             except Exception:
-                # Error calculando precio específico - continuar con las demás
                 continue
         
         # Ordenar: Pricelist del usuario primero, luego por precio
@@ -238,10 +228,9 @@ class ProductTemplate(models.Model):
         if len(unique_prices) <= 1:
             return []
         
-        # LÍMITE: Máximo 3 precios para evitar saturar la interfaz
+        # LÍMITE: Máximo 3 precios
         MAX_PRICES = 3
         if len(results) > MAX_PRICES:
-            # Mantener: precio del usuario + los 2 más relevantes
             user_results = [r for r in results if r['is_user_pricelist']]
             other_results = [r for r in results if not r['is_user_pricelist']][:MAX_PRICES-1]
             results = user_results + other_results
