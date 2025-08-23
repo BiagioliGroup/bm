@@ -89,14 +89,13 @@ class ProductTemplate(models.Model):
 
 
 
-    # PARCHE PARA EL MÉTODO get_comparative_prices()
     # ARCHIVO: sh_motorcycle_frontend/models/product_template.py
-    # REEMPLAZAR el método existente con esta versión corregida
+    # REEMPLAZAR COMPLETAMENTE el método get_comparative_prices() con esta versión
 
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        VERSIÓN CORREGIDA: Maneja correctamente permisos para usuarios Portal
+        VERSIÓN FINAL: Corrige problema de partner para usuarios Portal
         """
         self.ensure_one()
         
@@ -132,7 +131,6 @@ class ProductTemplate(models.Model):
             
             if is_portal_user:
                 # Usuario Portal: usar sudo() para acceder a su propia pricelist
-                # Esto es seguro porque solo accede a sus propios datos
                 partner = current_user.partner_id.sudo()
                 user_pricelist = partner.property_product_pricelist
             else:
@@ -177,8 +175,10 @@ class ProductTemplate(models.Model):
             # Verificar que el producto REALMENTE tiene precio mayorista configurado
             if mayorista_pricelist:
                 try:
+                    # Para dropshipping, usar partner admin para calcular precio mayorista
+                    admin_partner = self.env['res.partner'].browse(1)
                     mayorista_price = mayorista_pricelist.sudo()._get_product_price(
-                        product_variant, 1.0, partner, date=False, uom_id=product_variant.uom_id.id
+                        product_variant, 1.0, admin_partner, date=False, uom_id=product_variant.uom_id.id
                     )
                     
                     # Verificar que el precio mayorista ES DIFERENTE al precio público
@@ -221,17 +221,25 @@ class ProductTemplate(models.Model):
         if user_pricelist not in pricelists_to_check:
             pricelists_to_check.append(user_pricelist)
         
-        # CALCULAR PRECIOS PARA CADA PRICELIST (CON SUDO PARA PORTALS)
+        # CALCULAR PRECIOS PARA CADA PRICELIST (CORREGIDO PARA PORTAL)
+        # Partner genérico para cálculos de otras listas (evita errores con partners portal)
+        admin_partner = self.env['res.partner'].browse(1)
+        
         for pricelist in pricelists_to_check:
             try:
-                # USAR SUDO() para calcular precios - esto es seguro porque:
-                # 1. Solo calculamos precios de productos públicos
-                # 2. No exponemos datos sensibles de otros usuarios
-                # 3. Los precios son información que el usuario debe ver
+                # CLAVE: Para usuarios portal, usar partner específico según la lista
+                if is_portal_user and pricelist.id != user_pricelist.id:
+                    # Otras listas: usar partner admin para evitar errores de configuración
+                    calc_partner = admin_partner
+                else:
+                    # Su propia lista o usuario interno: usar su partner
+                    calc_partner = partner
+                
+                # USAR SUDO() para calcular precios
                 pricelist_sudo = pricelist.sudo()
                 
                 price = pricelist_sudo._get_product_price(
-                    product_variant, 1.0, partner, date=False, uom_id=product_variant.uom_id.id
+                    product_variant, 1.0, calc_partner, date=False, uom_id=product_variant.uom_id.id
                 )
                 
                 # Solo agregar si el precio es diferente y válido
