@@ -150,10 +150,13 @@ class ProductTemplate(models.Model):
                         base_price = calculate_price_manually(
                             rule.base_pricelist_id, product_template, product_variant
                         )
-                        if base_price is None:
-                            base_price = product_template.list_price
+                        # CRÍTICO: Verificar que el precio mayorista es realmente diferente
+                        if base_price is None or abs(base_price - product_template.list_price) <= (product_template.list_price * 0.01):
+                            # No hay precio mayorista real - retornar None para dropshipping
+                            return None
                     else:
-                        base_price = product_template.list_price
+                        # Sin base_pricelist_id definida - no puede calcular dropshipping
+                        return None
                 
                 if base_price is None or base_price <= 0:
                     return None
@@ -247,12 +250,15 @@ class ProductTemplate(models.Model):
                 # Verificar si hay precio mayorista real para este producto
                 mayorista_price = calculate_price_manually(mayorista_pl, self, product_variant)
                 
-                if mayorista_price and abs(mayorista_price - public_price) > (public_price * 0.01):
-                    # SÍ hay precio mayorista diferente - mostrar dropshipping
+                # VALIDACIÓN MÁS ESTRICTA: Diferencia significativa
+                if (mayorista_price and 
+                    mayorista_price > 0 and 
+                    abs(mayorista_price - public_price) > (public_price * 0.05)):  # 5% diferencia mínima
+                    # SÍ hay precio mayorista REALMENTE diferente - mostrar dropshipping
                     pricelists_to_show.append(user_pricelist)
                     # NO agregar mayorista - dropshipping no debe verlo
                 else:
-                    # NO hay precio mayorista real - no mostrar etiquetas dropshipping
+                    # NO hay precio mayorista suficientemente diferente - no mostrar etiquetas
                     return []
             else:
                 # No existe lista mayorista - no mostrar etiquetas
