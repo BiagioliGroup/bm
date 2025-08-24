@@ -94,11 +94,10 @@ class ProductTemplate(models.Model):
     def get_comparative_prices(self):
         """
         Obtiene precios comparativos para mostrar en tienda
-        VERSIÓN CORREGIDA: Arregla is_user_pricelist
+        VERSIÓN CORREGIDA: Usa list_price como precio público
         """
         self.ensure_one()
         
-        # Obtener contexto actual de forma segura
         current_user = self.env.user
         
         try:
@@ -114,25 +113,22 @@ class ProductTemplate(models.Model):
         if current_user._is_public():
             return []
         
-        # Obtener el producto variant principal para cálculos de precio
+        # Obtener el producto variant principal
         product_variant = self.product_variant_ids[0] if self.product_variant_ids else None
         if not product_variant:
             return []
         
-        # MANEJO SEGURO DE PERMISOS PARA USUARIOS PORTAL
+        # OBTENER PRICELIST DEL USUARIO
         try:
-            # Verificar si el usuario es Portal
             is_portal_user = any(
                 'portal' in group.name.lower() or group.name == 'Portal' 
                 for group in current_user.groups_id
             )
             
             if is_portal_user:
-                # Usuario Portal: usar sudo() para acceder a su propia pricelist
                 user_partner = current_user.partner_id.sudo()
                 user_pricelist = user_partner.property_product_pricelist
             else:
-                # Usuario interno: acceso normal
                 user_partner = current_user.partner_id
                 user_pricelist = user_partner.property_product_pricelist
                 
@@ -142,97 +138,40 @@ class ProductTemplate(models.Model):
         if not user_pricelist:
             return []
         
-        # IMPORTANTE: Guardar el ID de la pricelist del usuario ANTES de cualquier cálculo
-        user_pricelist_id = user_pricelist.id
-        user_pricelist_name = user_pricelist.name
+        # PRECIO PÚBLICO = list_price del producto (NO de una lista)
+        public_price = self.list_price
         
-        # OBTENER LISTAS DE PRECIOS PARA COMPARAR
-        pricelists_to_check = []
-        
+        # PRECIO DEL USUARIO = calculado con su pricelist
         try:
-            if hasattr(website, 'sh_mayorista_pricelist_ids') and website.sh_mayorista_pricelist_ids:
-                website_lists = website.sh_mayorista_pricelist_ids.sudo() if is_portal_user else website.sh_mayorista_pricelist_ids
-                pricelists_to_check.extend(website_lists)
-            
-            if not pricelists_to_check:
-                search_env = self.env['product.pricelist'].sudo() if is_portal_user else self.env['product.pricelist']
-                important_pricelists = search_env.search([
-                    '|', '|',
-                    ('name', 'ilike', 'mayorista'),
-                    ('name', 'ilike', 'revendedor'),
-                    ('name', 'ilike', 'publico')
-                ], limit=3)
-                pricelists_to_check.extend(important_pricelists)
-                
+            user_price = user_pricelist.sudo()._get_product_price(
+                product_variant, 1.0, user_partner, date=False, uom_id=product_variant.uom_id.id
+            )
         except Exception:
-            pricelists_to_check = []
-        
-        # SIEMPRE agregar la pricelist del usuario
-        if user_pricelist not in pricelists_to_check:
-            pricelists_to_check.append(user_pricelist)
-        
-        # PARTNER NEUTRO PARA CÁLCULOS
-        try:
-            public_partner = self.env['res.partner'].search([
-                ('is_company', '=', False),
-                ('supplier_rank', '=', 0),
-                ('customer_rank', '>', 0)
-            ], limit=1)
-            
-            if not public_partner:
-                public_partner = self.env['res.partner'].create({
-                    'name': 'Precio Público Genérico',
-                    'is_company': False,
-                    'customer_rank': 1
-                })
-                
-        except Exception:
-            public_partner = self.env['res.partner'].browse(1)
-        
-        results = []
-        prices_found = {}
-        
-        for pricelist in pricelists_to_check:
-            try:
-                # CLAVE: Usar partner específico según el tipo de lista
-                if pricelist.id == user_pricelist_id:  # CORREGIDO: usar user_pricelist_id guardado
-                    calc_partner = user_partner
-                else:
-                    calc_partner = public_partner
-                
-                pricelist_sudo = pricelist.sudo()
-                
-                price = pricelist_sudo._get_product_price(
-                    product_variant, 1.0, calc_partner, date=False, uom_id=product_variant.uom_id.id
-                )
-                
-                if price > 0 and pricelist.id not in prices_found:
-                    prices_found[pricelist.id] = price
-                    
-                    results.append({
-                        'pricelist_id': pricelist.id,
-                        'name': pricelist.name,
-                        'price': price,
-                        'is_user_pricelist': pricelist.id == user_pricelist_id,  # CORREGIDO: usar user_pricelist_id
-                        'formatted_price': '{:,.2f}'.format(price),
-                    })
-                    
-            except Exception:
-                continue
-        
-        # Ordenar: Pricelist del usuario primero, luego por precio
-        results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
-        
-        # Solo mostrar si hay más de una pricelist con precios diferentes
-        unique_prices = set(prices_found.values())
-        if len(unique_prices) <= 1:
             return []
         
-        # LÍMITE: Máximo 3 precios
-        MAX_PRICES = 3
-        if len(results) > MAX_PRICES:
-            user_results = [r for r in results if r['is_user_pricelist']]
-            other_results = [r for r in results if not r['is_user_pricelist']][:MAX_PRICES-1]
-            results = user_results + other_results
+        # Verificar que los precios sean diferentes
+        if abs(user_price - public_price) <= (public_price * 0.001):  # Tolerancia del 0.1%
+            return []  # Precios iguales, no mostrar comparativos
+        
+        # CREAR RESULTADOS
+        results = [
+            {
+                'pricelist_id': 0,  # ID especial para precio público
+                'name': 'Público',
+                'price': public_price,
+                'is_user_pricelist': False,
+                'formatted_price': '{:,.2f}'.format(public_price),
+            },
+            {
+                'pricelist_id': user_pricelist.id,
+                'name': user_pricelist.name,
+                'price': user_price,
+                'is_user_pricelist': True,
+                'formatted_price': '{:,.2f}'.format(user_price),
+            }
+        ]
+        
+        # Ordenar: Usuario primero si es menor, público primero si es menor
+        results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
         return results
