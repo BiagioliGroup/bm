@@ -171,8 +171,14 @@ class ProductTemplate(models.Model):
                         # Revendedor: 10% en regla significa 10% DESCUENTO = 90% del precio
                         final_price = base_price * 0.90
                     elif 'dropshipping' in pricelist.name.lower() and percent == -10.0:
-                        # Dropshipping: -10% significa incremento del 10% = 110% del precio
-                        final_price = base_price * 1.10
+                        # Dropshipping: DEBE usar precio mayorista como base
+                        # Si no hay precio mayorista válido, no calcular dropshipping
+                        if rule.base == 'pricelist' and rule.base_pricelist_id:
+                            # Ya tenemos base_price del mayorista calculado arriba
+                            final_price = base_price * 1.10
+                        else:
+                            # Sin base mayorista válida, no calcular precio dropshipping
+                            return None
                     else:
                         # Lógica normal para otros casos
                         final_price = base_price * (percent / 100.0)
