@@ -93,85 +93,190 @@ class ProductTemplate(models.Model):
 
     def get_comparative_prices(self):
         """
-        Obtiene precios comparativos para mostrar en tienda
-        VERSIÓN CORREGIDA: Usa list_price como precio público
+        MÉTODO ROBUSTO - Bypass del bug en _get_product_price()
+        Implementa cálculo manual para evitar errores de división por None
         """
         self.ensure_one()
         
-        current_user = self.env.user
-        
-        try:
-            website = self.env['website'].get_current_website()
-        except:
-            website = self.env['website'].search([('company_id', '=', current_user.company_id.id)], limit=1)
-        
-        # Si no está configurado, no mostrar precios comparativos
+        # Validaciones básicas
+        if not self.product_variant_ids:
+            return []
+            
+        user = self.env.user
+        if user._is_public():
+            return []
+            
+        website = self.env['website'].get_current_website()
         if not hasattr(website, 'sh_show_comparative_prices') or not website.sh_show_comparative_prices:
             return []
         
-        # Para usuarios públicos, no mostrar nada
-        if current_user._is_public():
-            return []
-        
-        # Obtener el producto variant principal
-        product_variant = self.product_variant_ids[0] if self.product_variant_ids else None
-        if not product_variant:
-            return []
-        
-        # OBTENER PRICELIST DEL USUARIO
-        try:
-            is_portal_user = any(
-                'portal' in group.name.lower() or group.name == 'Portal' 
-                for group in current_user.groups_id
-            )
-            
-            if is_portal_user:
-                user_partner = current_user.partner_id.sudo()
-                user_pricelist = user_partner.property_product_pricelist
-            else:
-                user_partner = current_user.partner_id
-                user_pricelist = user_partner.property_product_pricelist
-                
-        except Exception:
-            return []
-        
+        partner = user.partner_id.sudo()
+        user_pricelist = partner.property_product_pricelist
         if not user_pricelist:
             return []
         
-        # PRECIO PÚBLICO = list_price del producto (NO de una lista)
+        product_variant = self.product_variant_ids[0]
+        results = []
+        prices_found = {}
+        
+        # Precio público = list_price del producto
         public_price = self.list_price
         
-        # PRECIO DEL USUARIO = calculado con su pricelist
-        try:
-            user_price = user_pricelist.sudo()._get_product_price(
-                product_variant, 1.0, user_partner, date=False, uom_id=product_variant.uom_id.id
-            )
-        except Exception:
+        def calculate_price_manually(pricelist, product_template, product_variant):
+            """
+            Cálculo manual robusto que evita el bug de _get_product_price()
+            """
+            try:
+                # Buscar regla aplicable
+                applicable_rules = pricelist.item_ids.filtered(
+                    lambda r: (
+                        r.applied_on == '3_global' or  # Todos los productos
+                        (r.applied_on == '2_product_category' and r.categ_id in product_template.categ_id.child_of) or
+                        (r.applied_on == '1_product' and r.product_tmpl_id == product_template) or
+                        (r.applied_on == '0_product_variant' and r.product_id == product_variant)
+                    )
+                ).sorted(key=lambda r: (r.applied_on, r.min_quantity))
+                
+                if not applicable_rules:
+                    return None
+                    
+                rule = applicable_rules[0]
+                
+                # Obtener precio base
+                base_price = None
+                
+                if rule.base == 'list_price':
+                    base_price = product_template.list_price
+                elif rule.base == 'standard_price':
+                    base_price = product_template.standard_price
+                elif rule.base == 'pricelist':
+                    if rule.base_pricelist_id:
+                        # Recursión controlada
+                        base_price = calculate_price_manually(
+                            rule.base_pricelist_id, product_template, product_variant
+                        )
+                        if base_price is None:
+                            base_price = product_template.list_price
+                    else:
+                        base_price = product_template.list_price
+                
+                if base_price is None or base_price <= 0:
+                    return None
+                
+                # Aplicar cálculo
+                final_price = base_price
+                
+                if rule.compute_price == 'fixed':
+                    final_price = rule.fixed_price or 0
+                elif rule.compute_price == 'percentage':
+                    percent = rule.percent_price or 100.0
+                    final_price = base_price * (percent / 100.0)
+                elif rule.compute_price == 'formula':
+                    discount = rule.price_discount or 0.0
+                    surcharge = rule.price_surcharge or 0.0
+                    min_margin = rule.price_min_margin or 0.0
+                    max_margin = rule.price_max_margin or 0.0
+                    
+                    # Aplicar descuento
+                    final_price = base_price * (1.0 - discount / 100.0)
+                    
+                    # Agregar surcharge
+                    final_price += surcharge
+                    
+                    # Aplicar márgenes si están definidos
+                    if min_margin > 0:
+                        min_price = base_price * (1.0 + min_margin / 100.0)
+                        final_price = max(final_price, min_price)
+                        
+                    if max_margin > 0:
+                        max_price = base_price * (1.0 + max_margin / 100.0)
+                        final_price = min(final_price, max_price)
+                
+                # Aplicar redondeo si está configurado
+                price_round = rule.price_round or 0.01
+                if price_round > 0:
+                    final_price = round(final_price / price_round) * price_round
+                
+                return max(final_price, 0.0)
+                
+            except Exception as e:
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.warning(f"Error en cálculo manual para {pricelist.name}: {e}")
+                return None
+        
+        # VALIDACIÓN ESPECIAL DROPSHIPPING
+        if user_pricelist.name and 'dropshipping' in user_pricelist.name.lower():
+            mayorista_pl = None
+            if hasattr(website, 'sh_mayorista_pricelist_ids'):
+                for pl in website.sh_mayorista_pricelist_ids:
+                    if 'mayorista' in pl.name.lower():
+                        mayorista_pl = pl
+                        break
+            
+            if not mayorista_pl:
+                mayorista_pl = self.env['product.pricelist'].search([
+                    ('name', 'ilike', 'mayorista')
+                ], limit=1)
+            
+            if mayorista_pl:
+                mayorista_price = calculate_price_manually(mayorista_pl, self, product_variant)
+                if not mayorista_price or abs(mayorista_price - public_price) <= (public_price * 0.001):
+                    return []
+            else:
+                return []
+        
+        # Lista de pricelists a evaluar
+        pricelists_to_check = []
+        
+        if hasattr(website, 'sh_mayorista_pricelist_ids'):
+            for pricelist in website.sh_mayorista_pricelist_ids:
+                if pricelist.id != user_pricelist.id and pricelist.active:
+                    pricelists_to_check.append(pricelist)
+        
+        pricelists_to_check.append(user_pricelist)
+        
+        # Calcular precios usando método manual
+        for pricelist in pricelists_to_check:
+            price = calculate_price_manually(pricelist, self, product_variant)
+            
+            if price and price > 0:
+                prices_found[pricelist.id] = price
+                results.append({
+                    'name': pricelist.name,
+                    'price': price,
+                    'is_user_pricelist': pricelist.id == user_pricelist.id,
+                    'pricelist_id': pricelist.id,
+                })
+        
+        # Agregar precio público si es diferente
+        if public_price > 0:
+            user_price = prices_found.get(user_pricelist.id, 0)
+            
+            if user_price and abs(public_price - user_price) > (public_price * 0.001):
+                results.append({
+                    'name': 'Público',
+                    'price': public_price,
+                    'is_user_pricelist': False,
+                    'pricelist_id': -1,
+                })
+        
+        # Solo mostrar si hay al menos 2 precios diferentes
+        unique_prices = set(prices_found.values())
+        if public_price > 0:
+            unique_prices.add(public_price)
+            
+        if len(unique_prices) <= 1:
             return []
         
-        # Verificar que los precios sean diferentes
-        if abs(user_price - public_price) <= (public_price * 0.001):  # Tolerancia del 0.1%
-            return []  # Precios iguales, no mostrar comparativos
+        # Verificar diferencias significativas
+        min_price = min(unique_prices)
+        max_price = max(unique_prices)
         
-        # CREAR RESULTADOS
-        results = [
-            {
-                'pricelist_id': 0,  # ID especial para precio público
-                'name': 'Público',
-                'price': public_price,
-                'is_user_pricelist': False,
-                'formatted_price': '{:,.2f}'.format(public_price),
-            },
-            {
-                'pricelist_id': user_pricelist.id,
-                'name': user_pricelist.name,
-                'price': user_price,
-                'is_user_pricelist': True,
-                'formatted_price': '{:,.2f}'.format(user_price),
-            }
-        ]
+        if min_price > 0 and ((max_price - min_price) / min_price) < 0.005:
+            return []
         
-        # Ordenar: Usuario primero si es menor, público primero si es menor
+        # Ordenar resultados
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
         return results
