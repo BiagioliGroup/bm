@@ -222,10 +222,9 @@ class ProductTemplate(models.Model):
             pricelists_to_show.append(user_pricelist)
             
         elif 'dropshipping' in user_pricelist_name:
-            # DROPSHIPPING: Ve su precio + mayorista + público
-            pricelists_to_show.append(user_pricelist)
+            # DROPSHIPPING: Lógica especial
             
-            # Agregar mayorista para dropshipping
+            # Primero verificar si el producto REALMENTE tiene precio mayorista diferente
             mayorista_pl = None
             if hasattr(website, 'sh_mayorista_pricelist_ids'):
                 for pl in website.sh_mayorista_pricelist_ids:
@@ -239,8 +238,19 @@ class ProductTemplate(models.Model):
                 ], limit=1)
             
             if mayorista_pl:
-                pricelists_to_show.append(mayorista_pl)
-            # CORRECCIÓN: NO retornar [] si no hay mayorista, intentar mostrar algo
+                # Verificar si hay precio mayorista real para este producto
+                mayorista_price = calculate_price_manually(mayorista_pl, self, product_variant)
+                
+                if mayorista_price and abs(mayorista_price - public_price) > (public_price * 0.01):
+                    # SÍ hay precio mayorista diferente - mostrar dropshipping
+                    pricelists_to_show.append(user_pricelist)
+                    # NO agregar mayorista - dropshipping no debe verlo
+                else:
+                    # NO hay precio mayorista real - no mostrar etiquetas dropshipping
+                    return []
+            else:
+                # No existe lista mayorista - no mostrar etiquetas
+                return []
                 
         else:
             # OTROS USUARIOS: Lógica genérica
