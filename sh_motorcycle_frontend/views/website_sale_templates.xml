@@ -326,7 +326,7 @@
   <template id="sh_mayorista_add_prices_grid" inherit_id="website_sale.products_item" active="True" name="Add Comparative Prices Grid">
     <!-- Ocultar el precio original cuando hay precios comparativos -->
     <xpath expr="//div[hasclass('product_price')]" position="attributes">
-      <attribute name="t-attf-style">{{website.sh_show_comparative_prices and not request.env.user._is_public() and len(product.get_comparative_prices()) >= 2 and 'display:none;' or ''}}</attribute>
+      <attribute name="t-attf-style">{{website.sh_show_comparative_prices and not request.env.user._is_public() and len(product.get_comparative_prices()) > 0 and 'display:none;' or ''}}</attribute>
     </xpath>
     
     <!-- Agregar DESPUÉS del precio original -->

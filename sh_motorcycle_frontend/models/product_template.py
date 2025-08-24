@@ -93,74 +93,42 @@ class ProductTemplate(models.Model):
 
     def get_comparative_prices(self):
         """
-        Versión con DEBUG DETALLADO para identificar dónde se aplica el 10% incorrecto
+        Método corregido para manejar precios comparativos.
+        IMPORTANTE: "Público" no es una lista de precios, es el list_price del producto.
         """
         self.ensure_one()
         
-        import logging
-        _logger = logging.getLogger(__name__)
-        
-        # FORZAR DEBUG PARA DROPSHIPPING
-        _logger.warning(f"========== INICIO DEBUG get_comparative_prices ==========")
-        _logger.warning(f"Producto: {self.name} (ID: {self.id})")
-        _logger.warning(f"List Price (Público): ${self.list_price}")
-        
-        # Validaciones básicas
+        # Validaciones básicas siguiendo el patrón de Odoo
         if not self.product_variant_ids:
-            _logger.warning("No hay variantes de producto")
             return []
             
         user = self.env.user
         if user._is_public():
-            _logger.warning("Usuario público - no mostrar precios comparativos")
             return []
             
         website = self.env['website'].get_current_website()
         if not hasattr(website, 'sh_show_comparative_prices') or not website.sh_show_comparative_prices:
-            _logger.warning("Website no tiene habilitado mostrar precios comparativos")
             return []
         
         partner = user.partner_id.sudo()
         user_pricelist = partner.property_product_pricelist
         if not user_pricelist:
-            _logger.warning("Usuario sin lista de precios")
             return []
-        
-        _logger.warning(f"Usuario: {user.name} - Lista de precios: {user_pricelist.name}")
         
         product_variant = self.product_variant_ids[0]
         results = []
         prices_found = {}
         
-        # Precio público = list_price del producto
+        # Precio público = list_price del producto (NO es una pricelist)
         public_price = self.list_price
         
         def calculate_price_manually(pricelist, product_template, product_variant):
             """
-            Cálculo manual con DEBUG DETALLADO
+            Cálculo manual del precio según las reglas de la lista de precios.
+            Retorna None si no puede calcular o si el precio no es válido.
             """
-            _logger.warning(f"  >>> CALCULANDO precio para lista: '{pricelist.name}'")
-            
             try:
                 # Buscar reglas aplicables
-                all_rules = pricelist.item_ids
-                _logger.warning(f"      Total de reglas en la lista: {len(all_rules)}")
-                
-                for idx, rule in enumerate(all_rules):
-                    _logger.warning(f"      Regla {idx+1}:")
-                    _logger.warning(f"        - applied_on: {rule.applied_on}")
-                    _logger.warning(f"        - compute_price: {rule.compute_price}")
-                    _logger.warning(f"        - base: {rule.base}")
-                    if rule.base == 'pricelist' and rule.base_pricelist_id:
-                        _logger.warning(f"        - base_pricelist: {rule.base_pricelist_id.name}")
-                    if rule.compute_price == 'percentage':
-                        _logger.warning(f"        - percent_price: {rule.percent_price}%")
-                    elif rule.compute_price == 'fixed':
-                        _logger.warning(f"        - fixed_price: {rule.fixed_price}")
-                    elif rule.compute_price == 'formula':
-                        _logger.warning(f"        - discount: {rule.price_discount}%")
-                        _logger.warning(f"        - surcharge: {rule.price_surcharge}")
-                
                 applicable_rules = pricelist.item_ids.filtered(
                     lambda r: (
                         r.applied_on == '3_global' or
@@ -170,174 +138,164 @@ class ProductTemplate(models.Model):
                     )
                 ).sorted(key=lambda r: (r.applied_on, r.min_quantity))
                 
-                _logger.warning(f"      Reglas aplicables al producto: {len(applicable_rules)}")
-                
                 if not applicable_rules:
-                    _logger.warning(f"      NO HAY REGLAS APLICABLES - Retornando list_price: ${product_template.list_price}")
+                    # Sin reglas aplicables, retornar el precio público
                     return product_template.list_price
                     
                 rule = applicable_rules[0]
-                _logger.warning(f"      Usando primera regla aplicable:")
-                _logger.warning(f"        - applied_on: {rule.applied_on}")
-                _logger.warning(f"        - base: {rule.base}")
-                _logger.warning(f"        - compute_price: {rule.compute_price}")
                 
-                # Obtener precio base
+                # Obtener precio base según configuración
                 base_price = None
                 
                 if rule.base == 'list_price':
+                    # Usar el precio público del producto
                     base_price = product_template.list_price
-                    _logger.warning(f"      Base = list_price: ${base_price}")
                     
                 elif rule.base == 'standard_price':
+                    # Usar el precio de costo
                     base_price = product_template.standard_price
-                    _logger.warning(f"      Base = standard_price: ${base_price}")
                     
                 elif rule.base == 'pricelist':
-                    _logger.warning(f"      Base = pricelist")
+                    # Usar otra lista de precios como base
                     if rule.base_pricelist_id:
-                        _logger.warning(f"      Calculando precio desde lista base: {rule.base_pricelist_id.name}")
+                        # Calcular recursivamente con la lista base
                         base_price = calculate_price_manually(
                             rule.base_pricelist_id, product_template, product_variant
                         )
-                        _logger.warning(f"      Precio obtenido de lista base: ${base_price}")
                         
-                        # PUNTO CRÍTICO: Verificar si es dropshipping sin mayorista real
+                        # VALIDACIÓN CRÍTICA PARA DROPSHIPPING:
+                        # Si la lista base (mayorista) no tiene precio diferente al público,
+                        # entonces no hay precio mayorista real
                         if 'dropshipping' in pricelist.name.lower():
-                            _logger.warning(f"      *** ES DROPSHIPPING - Verificando si hay precio mayorista real ***")
                             if base_price is None:
-                                _logger.warning(f"      *** NO HAY precio en lista mayorista - RETORNANDO None ***")
+                                # No hay precio en la lista mayorista
                                 return None
                             elif abs(base_price - product_template.list_price) < 0.01:
-                                _logger.warning(f"      *** Precio mayorista ({base_price}) = Precio público ({product_template.list_price}) ***")
-                                _logger.warning(f"      *** NO HAY descuento mayorista - RETORNANDO None ***")
+                                # El precio mayorista es igual al público - no hay descuento mayorista
                                 return None
-                            else:
-                                _logger.warning(f"      *** SÍ hay precio mayorista diferente - Continuando cálculo ***")
                     else:
-                        _logger.warning(f"      NO hay base_pricelist_id configurada")
+                        # No hay lista base configurada
                         if 'dropshipping' in pricelist.name.lower():
-                            _logger.warning(f"      *** Dropshipping sin lista base - RETORNANDO None ***")
+                            # Dropshipping sin lista base no puede calcular
                             return None
                         base_price = product_template.list_price
                 
+                # Si no se pudo obtener precio base válido
                 if base_price is None or base_price <= 0:
-                    _logger.warning(f"      Base price inválido: {base_price} - RETORNANDO None")
                     return None
                 
-                # Aplicar cálculo
+                # Aplicar el método de cálculo según la regla
                 final_price = base_price
                 
                 if rule.compute_price == 'fixed':
+                    # Precio fijo
                     final_price = rule.fixed_price or 0
-                    _logger.warning(f"      Precio fijo: ${final_price}")
                     
                 elif rule.compute_price == 'percentage':
+                    # Porcentaje sobre el precio base
                     percent = rule.percent_price or 100.0
-                    _logger.warning(f"      Aplicando porcentaje: {percent}%")
                     
-                    # DEBUGGING: Ver qué pasa con cada tipo de lista
-                    if 'dropshipping' in pricelist.name.lower():
-                        _logger.warning(f"      *** DROPSHIPPING detectado ***")
-                        _logger.warning(f"      *** Percent value: {percent} ***")
-                        _logger.warning(f"      *** Base price: ${base_price} ***")
-                        
-                        if percent == -10.0:
-                            _logger.warning(f"      *** Aplicando margen 10% (percent = -10) ***")
-                            final_price = base_price * 1.10
-                        else:
-                            _logger.warning(f"      *** Aplicando porcentaje estándar ***")
-                            final_price = base_price * (percent / 100.0)
-                        
-                        _logger.warning(f"      *** Final price para dropshipping: ${final_price} ***")
-                        
-                    elif 'revendedor' in pricelist.name.lower() and percent == 10.0:
-                        _logger.warning(f"      REVENDEDOR con 10% descuento")
+                    # Interpretación específica según el tipo de lista
+                    if 'revendedor' in pricelist.name.lower() and percent == 10.0:
+                        # Revendedor con 10% significa 10% de descuento
                         final_price = base_price * 0.90
+                    elif 'dropshipping' in pricelist.name.lower() and percent == -10.0:
+                        # Dropshipping con -10% significa 10% de margen adicional
+                        final_price = base_price * 1.10
                     else:
+                        # Interpretación estándar de Odoo
                         final_price = base_price * (percent / 100.0)
                         
-                    _logger.warning(f"      Precio después de porcentaje: ${final_price}")
-                        
                 elif rule.compute_price == 'formula':
+                    # Fórmula compleja
                     discount = rule.price_discount or 0.0
                     surcharge = rule.price_surcharge or 0.0
-                    _logger.warning(f"      Aplicando fórmula - Descuento: {discount}%, Recargo: {surcharge}")
+                    min_margin = rule.price_min_margin or 0.0
+                    max_margin = rule.price_max_margin or 0.0
                     
                     final_price = base_price * (1.0 - discount / 100.0)
                     final_price += surcharge
-                    _logger.warning(f"      Precio después de fórmula: ${final_price}")
+                    
+                    if min_margin > 0:
+                        min_price = base_price * (1.0 + min_margin / 100.0)
+                        final_price = max(final_price, min_price)
+                        
+                    if max_margin > 0:
+                        max_price = base_price * (1.0 + max_margin / 100.0)
+                        final_price = min(final_price, max_price)
                 
-                # Redondeo
+                # Aplicar redondeo si está configurado
                 price_round = rule.price_round or 0.01
                 if price_round > 0:
                     final_price = round(final_price / price_round) * price_round
-                    _logger.warning(f"      Precio después de redondeo: ${final_price}")
                 
-                _logger.warning(f"  <<< RESULTADO para '{pricelist.name}': ${final_price}")
                 return max(final_price, 0.0) if final_price else None
                 
             except Exception as e:
-                _logger.error(f"ERROR en cálculo para {pricelist.name}: {str(e)}")
-                import traceback
-                _logger.error(traceback.format_exc())
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.warning(f"Error calculando precio para lista '{pricelist.name}': {str(e)}")
                 return None
         
-        # LÓGICA PRINCIPAL
+        # LÓGICA PRINCIPAL: Determinar qué mostrar según el tipo de usuario
         user_pricelist_name = user_pricelist.name.lower()
-        _logger.warning(f"Tipo de usuario detectado: {user_pricelist_name}")
         
+        # Determinar qué listas de precios mostrar
         pricelists_to_show = []
         show_public_price = False
         
-        if 'dropshipping' in user_pricelist_name:
-            _logger.warning("=== PROCESANDO USUARIO DROPSHIPPING ===")
+        if 'mayorista' in user_pricelist_name:
+            # MAYORISTA: Ve su precio especial
+            pricelists_to_show.append(user_pricelist)
+            show_public_price = True  # Mostrar precio público como referencia
             
-            # Buscar lista mayorista
+        elif 'revendedor' in user_pricelist_name:
+            # REVENDEDOR: Ve su precio especial
+            pricelists_to_show.append(user_pricelist)
+            show_public_price = True  # Mostrar precio público como referencia
+            
+        elif 'dropshipping' in user_pricelist_name:
+            # DROPSHIPPING: Caso especial
+            
+            # Primero verificar si este producto tiene precio mayorista
             mayorista_pl = None
+            
+            # Buscar lista mayorista en la configuración del website
             if hasattr(website, 'sh_mayorista_pricelist_ids'):
                 for pl in website.sh_mayorista_pricelist_ids:
                     if 'mayorista' in pl.name.lower():
                         mayorista_pl = pl
-                        _logger.warning(f"Lista mayorista encontrada en website: {pl.name}")
                         break
             
+            # Si no está en el website, buscar en todas las listas
             if not mayorista_pl:
                 mayorista_pl = self.env['product.pricelist'].search([
                     ('name', 'ilike', 'mayorista'),
                     ('company_id', '=', self.env.company.id)
                 ], limit=1)
-                if mayorista_pl:
-                    _logger.warning(f"Lista mayorista encontrada por búsqueda: {mayorista_pl.name}")
-                else:
-                    _logger.warning("NO se encontró lista mayorista")
             
             if mayorista_pl:
-                _logger.warning("Calculando precio mayorista...")
+                # Calcular precio mayorista para este producto
                 mayorista_price = calculate_price_manually(mayorista_pl, self, product_variant)
-                _logger.warning(f"Precio mayorista calculado: ${mayorista_price}")
-                _logger.warning(f"Precio público (list_price): ${public_price}")
                 
-                # Verificar si hay precio mayorista real
+                # Verificar si hay precio mayorista real (diferente al público)
                 has_wholesale_price = (
                     mayorista_price is not None and 
                     mayorista_price > 0 and 
-                    abs(mayorista_price - public_price) > 0.01
+                    abs(mayorista_price - public_price) > (public_price * 0.01)  # Más de 1% diferencia
                 )
                 
-                _logger.warning(f"¿Tiene precio mayorista real?: {has_wholesale_price}")
-                
                 if has_wholesale_price:
-                    _logger.warning("SÍ tiene precio mayorista - Calculando precio dropshipping...")
+                    # Sí hay precio mayorista - calcular y mostrar precio dropshipping
                     dropship_price = calculate_price_manually(user_pricelist, self, product_variant)
-                    _logger.warning(f"Precio dropshipping calculado: ${dropship_price}")
                     
                     if dropship_price and dropship_price > 0:
+                        # Mostrar precio dropshipping calculado
                         pricelists_to_show.append(user_pricelist)
-                        show_public_price = True
-                        _logger.warning("Mostrando precio dropshipping con etiqueta")
+                        show_public_price = True  # Mostrar precio público como referencia
                     else:
-                        _logger.warning("No se pudo calcular precio dropshipping - Mostrando solo público")
+                        # No se pudo calcular precio dropshipping
+                        # Mostrar solo precio público sin etiquetas
                         return [{
                             'name': 'Precio',
                             'price': public_price,
@@ -345,8 +303,8 @@ class ProductTemplate(models.Model):
                             'pricelist_id': user_pricelist.id,
                         }]
                 else:
-                    _logger.warning("NO tiene precio mayorista - Debería mostrar solo precio público SIN CAMBIOS")
-                    _logger.warning(f"RETORNANDO precio público: ${public_price}")
+                    # NO hay precio mayorista diferente al público
+                    # Para dropshipping, mostrar el precio público sin etiquetas especiales
                     return [{
                         'name': 'Precio',
                         'price': public_price,
@@ -354,35 +312,26 @@ class ProductTemplate(models.Model):
                         'pricelist_id': user_pricelist.id,
                     }]
             else:
-                _logger.warning("No existe lista mayorista - Mostrando precio público")
+                # No existe lista mayorista configurada
+                # Mostrar precio público sin etiquetas
                 return [{
                     'name': 'Precio',
                     'price': public_price,
                     'is_user_pricelist': True,
                     'pricelist_id': user_pricelist.id,
                 }]
-        
-        elif 'mayorista' in user_pricelist_name:
-            _logger.warning("Usuario MAYORISTA")
-            pricelists_to_show.append(user_pricelist)
-            show_public_price = True
-            
-        elif 'revendedor' in user_pricelist_name:
-            _logger.warning("Usuario REVENDEDOR")
-            pricelists_to_show.append(user_pricelist)
-            show_public_price = True
-            
+                
         else:
-            _logger.warning(f"Usuario OTRO: {user_pricelist_name}")
+            # OTROS USUARIOS: Comportamiento genérico
             pricelists_to_show.append(user_pricelist)
+            # Agregar otras listas configuradas en el website si las hay
             if hasattr(website, 'sh_mayorista_pricelist_ids'):
                 for pricelist in website.sh_mayorista_pricelist_ids:
                     if pricelist.id != user_pricelist.id and pricelist.active:
                         pricelists_to_show.append(pricelist)
             show_public_price = True
         
-        # Calcular precios
-        _logger.warning(f"Calculando precios para {len(pricelists_to_show)} listas...")
+        # Calcular precios para cada lista seleccionada
         for pricelist in pricelists_to_show:
             price = calculate_price_manually(pricelist, self, product_variant)
             
@@ -394,26 +343,60 @@ class ProductTemplate(models.Model):
                     'is_user_pricelist': pricelist.id == user_pricelist.id,
                     'pricelist_id': pricelist.id,
                 })
-                _logger.warning(f"Agregado: {pricelist.name} = ${price}")
         
-        # Agregar precio público
+        # Agregar precio público si corresponde y es diferente
         if show_public_price and public_price > 0:
+            # Verificar que el precio público es diferente a los ya calculados
             user_price = prices_found.get(user_pricelist.id, 0)
+            
+            # Solo agregar si hay diferencia significativa
             if not user_price or abs(public_price - user_price) > 0.01:
                 results.append({
-                    'name': 'Público',
+                    'name': 'Público',  # Etiqueta para el list_price
                     'price': public_price,
                     'is_user_pricelist': False,
-                    'pricelist_id': -1,
+                    'pricelist_id': -1,  # ID especial para precio público
                 })
-                _logger.warning(f"Agregado precio público: ${public_price}")
         
-        # Ordenar resultados
+        # Validación final: debe haber al menos 2 precios diferentes para mostrar etiquetas
+        if len(results) <= 1:
+            # Solo un precio o ninguno - no mostrar etiquetas comparativas
+            if results:
+                # Cambiar el nombre para no confundir
+                results[0]['name'] = 'Precio'
+            return results
+        
+        # Verificar que los precios son realmente diferentes
+        unique_prices = set(r['price'] for r in results)
+        if len(unique_prices) <= 1:
+            # Todos los precios son iguales - simplificar
+            return [{
+                'name': 'Precio',
+                'price': results[0]['price'],
+                'is_user_pricelist': True,
+                'pricelist_id': results[0]['pricelist_id'],
+            }]
+        
+        # Ordenar resultados: precio del usuario primero, luego por valor
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
-        _logger.warning("=== RESULTADOS FINALES ===")
-        for r in results:
-            _logger.warning(f"  {r['name']}: ${r['price']:.2f} {'[USUARIO]' if r['is_user_pricelist'] else ''}")
-        _logger.warning(f"========== FIN DEBUG ==========")
+        # Logging para debug (solo si está habilitado)
+        import logging
+        _logger = logging.getLogger(__name__)
+        if _logger.isEnabledFor(logging.DEBUG):
+            _logger.debug("="*50)
+            _logger.debug(f"get_comparative_prices para: {self.name}")
+            _logger.debug(f"Usuario: {user.name} | Lista: {user_pricelist.name}")
+            _logger.debug(f"Precio público (list_price): ${public_price:.2f}")
+            _logger.debug(f"Listas evaluadas: {[pl.name for pl in pricelists_to_show]}")
+            _logger.debug("Precios calculados:")
+            for pl_id, price in prices_found.items():
+                pl = self.env['product.pricelist'].browse(pl_id)
+                _logger.debug(f"  - {pl.name}: ${price:.2f}")
+            _logger.debug("Resultados finales:")
+            for r in results:
+                usuario_tag = " [USUARIO]" if r['is_user_pricelist'] else ""
+                _logger.debug(f"  - {r['name']}: ${r['price']:.2f}{usuario_tag}")
+            _logger.debug("="*50)
         
         return results
