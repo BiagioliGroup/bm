@@ -93,7 +93,7 @@ class ProductTemplate(models.Model):
 
     def get_comparative_prices(self):
         """
-        VERSIÓN CORREGIDA - Filtros específicos por tipo de usuario
+        BASADO EN EL CÓDIGO QUE FUNCIONA - Solo correcciones mínimas
         """
         self.ensure_one()
         
@@ -122,7 +122,7 @@ class ProductTemplate(models.Model):
         public_price = self.list_price
         
         def calculate_price_manually(pricelist, product_template, product_variant):
-            """Cálculo manual robusto"""
+            """Cálculo manual robusto - CON CORRECCIÓN PARA REVENDEDOR"""
             try:
                 applicable_rules = pricelist.item_ids.filtered(
                     lambda r: (
@@ -165,7 +165,18 @@ class ProductTemplate(models.Model):
                     final_price = rule.fixed_price or 0
                 elif rule.compute_price == 'percentage':
                     percent = rule.percent_price or 100.0
-                    final_price = base_price * (percent / 100.0)
+                    
+                    # CORRECCIÓN ESPECÍFICA PARA REVENDEDOR
+                    if 'revendedor' in pricelist.name.lower() and percent == 10.0:
+                        # Revendedor: 10% en regla significa 10% DESCUENTO = 90% del precio
+                        final_price = base_price * 0.90
+                    elif 'dropshipping' in pricelist.name.lower() and percent == -10.0:
+                        # Dropshipping: -10% significa incremento del 10% = 110% del precio
+                        final_price = base_price * 1.10
+                    else:
+                        # Lógica normal para otros casos
+                        final_price = base_price * (percent / 100.0)
+                        
                 elif rule.compute_price == 'formula':
                     discount = rule.price_discount or 0.0
                     surcharge = rule.price_surcharge or 0.0
@@ -229,9 +240,8 @@ class ProductTemplate(models.Model):
             
             if mayorista_pl:
                 pricelists_to_show.append(mayorista_pl)
-            else:
-                # Sin mayorista, no mostrar comparativos para dropshipping
-                return []
+            # CORRECCIÓN: NO retornar [] si no hay mayorista, intentar mostrar algo
+                
         else:
             # OTROS USUARIOS: Lógica genérica
             pricelists_to_show.append(user_pricelist)
@@ -257,7 +267,10 @@ class ProductTemplate(models.Model):
         if public_price > 0:
             user_price = prices_found.get(user_pricelist.id, 0)
             
-            if user_price and abs(public_price - user_price) > (public_price * 0.001):
+            # CORRECCIÓN: Tolerancia más amplia para dropshipping
+            tolerance = 0.02 if 'dropshipping' in user_pricelist_name else 0.001
+            
+            if user_price and abs(public_price - user_price) > (public_price * tolerance):
                 results.append({
                     'name': 'Público',
                     'price': public_price,
@@ -274,22 +287,29 @@ class ProductTemplate(models.Model):
         if len(all_prices) <= 1:
             return []
         
-        # Verificar que las diferencias son significativas (>0.5%)
+        # CORRECCIÓN: Tolerancia más permisiva
         if len(all_prices) >= 2:
             min_price = min(all_prices)
             max_price = max(all_prices)
             
-            if min_price > 0 and ((max_price - min_price) / min_price) < 0.005:
+            # Reducir de 0.005 a 0.002 (0.2% en lugar de 0.5%)
+            if min_price > 0 and ((max_price - min_price) / min_price) < 0.002:
                 return []
         
         # Ordenar: usuario primero, luego por precio
         results.sort(key=lambda x: (not x['is_user_pricelist'], x['price']))
         
-        # DEBUG: Log para troubleshooting
+        # DEBUG: Log para troubleshooting con más detalle
         import logging
         _logger = logging.getLogger(__name__)
-        _logger.info(f"Usuario: {user_pricelist.name}, Precios encontrados: {len(results)}")
+        _logger.info(f"=== DEBUG get_comparative_prices ===")
+        _logger.info(f"Usuario: {user_pricelist.name}")
+        _logger.info(f"Precios calculados: {len(prices_found)}")
+        for pl_id, price in prices_found.items():
+            pl_name = self.env['product.pricelist'].browse(pl_id).name
+            _logger.info(f"  - {pl_name}: ${price:.2f}")
+        _logger.info(f"Resultados finales: {len(results)}")
         for r in results:
-            _logger.info(f"  - {r['name']}: ${r['price']:.2f}")
+            _logger.info(f"  - {r['name']}: ${r['price']:.2f} {'(USUARIO)' if r['is_user_pricelist'] else ''}")
         
         return results
