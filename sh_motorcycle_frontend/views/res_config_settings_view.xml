@@ -26,23 +26,7 @@
                     </setting>
                 </block>
                 
-                <!-- NUEVA SECCIÓN MAYORISTA -->
-                <block title="Configuración Mayorista" id="mayorista_settings">
-                    <setting string="Mostrar badge de lista de precios" help="Muestra el nombre de la lista de precios del usuario en el header del sitio web.">
-                        <field name="sh_show_user_pricelist_badge" />
-                    </setting>
-                    
-                    <setting string="Mostrar precios comparativos" help="Muestra diferentes precios según las listas configuradas.">
-                        <field name="sh_show_comparative_prices" />
-                    </setting>
-                    
-                    <setting string="Listas de precios visibles" help="Selecciona qué listas de precios mostrar como referencia en la tienda.">
-                        <field name="sh_mayorista_pricelist_ids" widget="many2many_tags" />
-                        <div class="text-muted mt-1">
-                            <small>Las listas seleccionadas se mostrarán en la tienda junto al precio del usuario.</small>
-                        </div>
-                    </setting>
-                </block>
+                
             </xpath>
         </field>
     </record>
