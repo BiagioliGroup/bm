@@ -304,4 +304,114 @@
     </xpath>
 </template>
 
+  <!-- en main -->
+  <!-- 🏷️ Badge mayorista en header -->
+  <template id="sh_mayorista_badge_header" inherit_id="website.layout" active="True" name="Mayorista Badge Header">
+    <xpath expr="//header[@id='top']" position="inside">
+      <t t-if="website.sh_show_user_pricelist_badge and not request.env.user._is_public()">
+        <t t-set="user_pricelist" t-value="request.env.user.partner_id.property_product_pricelist"/>
+        <t t-if="user_pricelist">
+          <div class="position-absolute" style="top: 10px; right: 10px; z-index: 1050;">
+            <span class="badge bg-primary me-2">
+              <i class="fa fa-star me-1"></i>
+              <t t-esc="user_pricelist.name"/>
+            </span>
+          </div>
+        </t>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- 💰 AGREGAR precios comparativos Y OCULTAR original cuando hay comparativos -->
+  <template id="sh_mayorista_add_prices_grid" inherit_id="website_sale.products_item" active="True" name="Add Comparative Prices Grid">
+    <!-- Ocultar el precio original cuando hay precios comparativos -->
+    <xpath expr="//div[hasclass('product_price')]" position="attributes">
+      <attribute name="t-attf-style">{{website.sh_show_comparative_prices and not request.env.user._is_public() and len(product.get_comparative_prices()) > 1 and 'display:none;' or ''}}</attribute>
+    </xpath>
+    
+    <!-- Agregar DESPUÉS del precio original -->
+    <xpath expr="//div[hasclass('product_price')]" position="after">
+      <t t-if="website.sh_show_comparative_prices and not request.env.user._is_public()">
+        <t t-set="comparative_prices" t-value="product.get_comparative_prices()"/>
+        <t t-if="len(comparative_prices) > 1">
+          <!-- Mostrar precios comparativos cuando hay múltiples listas diferentes -->
+          <div class="sh-price-comparison-wrapper">
+            <div class="sh-price-comparison">
+              <t t-foreach="comparative_prices" t-as="price_info">
+                <div t-att-class="'sh-price-user fw-bold' if price_info['is_user_pricelist'] else 'sh-price-other text-decoration-line-through'">
+                  <t t-if="price_info['is_user_pricelist']">
+                    <i class="fa fa-check-circle me-1"></i>
+                  </t>
+                  <span class="sh-price-label small"><t t-esc="price_info['name']"/>:</span>
+                  <span class="sh-price-amount">$<t t-esc="'{:,.2f}'.format(price_info['price'])"/></span>
+                </div>
+              </t>
+            </div>
+          </div>
+        </t>
+      </t>
+    </xpath>
+  </template>  
+  
+
+<!-- 💰 Precios comparativos en página individual de producto - VERSIÓN CORREGIDA -->
+<template id="sh_mayorista_product_page_prices_minimal" inherit_id="website_sale.product" name="Product Page Comparative Prices Minimal">
+  <xpath expr="//h1" position="after">
+    <t t-if="not request.env.user._is_public()">
+      <t t-set="comparatives" t-value="product.get_comparative_prices()"/>
+      <t t-if="comparatives and len(comparatives) > 1">
+        <div class="small text-muted mb-2">
+          <t t-foreach="comparatives" t-as="entry">
+            <t t-if="entry.get('is_user_pricelist')">
+              <span class="text-success fw-bold">
+                <i class="fa fa-check-circle me-1"></i>
+                <t t-esc="entry.get('name', 'Tu precio')"/>: $<t t-esc="'{:,.0f}'.format(float(entry.get('price', 0)))"/>
+              </span>
+            </t>
+            <t t-else="">
+              <span class="text-decoration-line-through ms-2">
+                <t t-esc="entry.get('name', 'Lista')"/>: $<t t-esc="'{:,.0f}'.format(float(entry.get('price', 0)))"/>
+              </span>
+            </t>
+          </t>
+        </div>
+      </t>
+    </t>
+  </xpath>
+</template>
+
+<!-- 🏷️ Mostrar código de variante en vista de producto -->
+  <template id="sh_motorcycle_product_view_inherit" inherit_id="website_sale.product" name="Show default_code before product title">
+    <xpath expr="//div[@id='product_details']/h1" position="before">
+      <t t-if="product_variant and product_variant.default_code">
+        <div id="variant_default_code" class="text-muted small mb-2">
+          <strong>Código:</strong> <span t-esc="product_variant.default_code"/>
+        </div>
+      </t>
+    </xpath>
+  </template>
+
+
+
+<!-- 🏷️ Mostrar código de producto en grid -->
+  <template id="sh_motorcycle_products_item_inherit" inherit_id="website_sale.products_item" name="Add default_code to product card (grid and list)">
+    <xpath expr="//div[contains(@class,'o_wsale_product_information_text')]" position="before">
+      <t t-if="product.default_code">
+        <small class="text-muted d-block">Código: <t t-esc="product.default_code"/></small>
+      </t>
+    </xpath>
+
+
+    <!-- Inserta el badge «En stock» sobre la imagen -->
+    <xpath expr="//div[contains(@class,'oe_product_image')]" position="inside">
+        <t t-if="product_qty_display">
+            <span class="badge bg-success">
+                <t t-esc="product_qty_display"/>
+            </span>
+            
+        </t>
+
+    </xpath>
+  </template>   
+
 </odoo>

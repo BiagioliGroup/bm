@@ -613,17 +613,37 @@ class sh_motorcycle(http.Controller):
             }
             
         user = request.env.user
-        partner = user.partner_id
-        pricelist = partner.property_product_pricelist
         website = request.website
         
         is_mayorista = False
         pricelist_name = ''
         
-        if pricelist:
-            pricelist_name = pricelist.name
-            # Verificar si es mayorista (tiene "mayorista" en el nombre de la lista)
-            is_mayorista = 'mayorista' in pricelist.name.lower()
+        try:
+            # Para usuarios portal, necesitamos usar sudo() para acceder a su propia pricelist
+            # Esto es seguro porque solo accedemos a los datos del usuario actual
+            if user.has_group('base.group_portal'):
+                # Usuario portal: usar sudo() para acceder a su propia pricelist
+                partner = user.partner_id.sudo()
+                pricelist = partner.property_product_pricelist
+            else:
+                # Usuario interno: acceso normal
+                partner = user.partner_id
+                pricelist = partner.property_product_pricelist
+            
+            if pricelist:
+                pricelist_name = pricelist.name
+                # Verificar si es mayorista (tiene "mayorista" en el nombre de la lista)
+                is_mayorista = 'mayorista' in pricelist.name.lower()
+                
+        except Exception as e:
+            # Log del error para debugging
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.warning("Error accessing pricelist for user %s: %s", user.id, str(e))
+            
+            # Valores por defecto en caso de error
+            is_mayorista = False
+            pricelist_name = ''
         
         return {
             'is_mayorista': is_mayorista,

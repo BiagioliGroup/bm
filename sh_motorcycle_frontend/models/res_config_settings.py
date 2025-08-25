@@ -37,4 +37,20 @@ class ResConfigSettings(models.TransientModel):
         string="Do not consider vehicle when change on min/max price",
         readonly=False,
     )
-   
+    
+    # NUEVOS CAMPOS MAYORISTA
+    sh_show_user_pricelist_badge = fields.Boolean(
+        related="website_id.sh_show_user_pricelist_badge",
+        string="Mostrar lista de precios en header",
+        readonly=False,
+    )
+    sh_show_comparative_prices = fields.Boolean(
+        related="website_id.sh_show_comparative_prices",
+        string="Mostrar precios comparativos",
+        readonly=False,
+    )
+    sh_mayorista_pricelist_ids = fields.Many2many(
+        related="website_id.sh_mayorista_pricelist_ids",
+        string="Listas de precios visibles",
+        readonly=False,
+    )
